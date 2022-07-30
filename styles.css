@@ -1,0 +1,63 @@
+*, *::after, *::before {
+  box-sizing: border-box;
+}
+
+:root {
+  background-color: #202225;
+  color: black;
+  --fieldSize: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  height: 100vh;
+  position: relative;
+}
+
+.board-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  background-color: white;
+  box-sizing: 0 0 20px 10px black;
+}
+
+.field {
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.field > img {
+  width: var(--fieldSize);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.piece {
+  width: var(--fieldSize);
+  height: var(--fieldSize);
+  cursor: grab;
+  pointer-events: stroke;
+  background-size: var(--fieldSize);
+  background-position: center;
+}
+
+.field1 {
+  background-color: rgb(1, 104, 122);
+}
+
+#fieldHighlighted {
+  box-shadow: 
+    inset 0 0 20px 5px green,
+    0 0 10px 0 green;
+}
