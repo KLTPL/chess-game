@@ -1,3 +1,7 @@
+let moves = [];
+let currTeam = 1;
+let board: Board;
+
 class Pos {
   x: number;
   y: number;
@@ -18,21 +22,14 @@ class Field {
 
 class Piece {
   num: number;
-  team: number;
-  html: HTMLElement;
+  team: (number|null);
+  html: (HTMLElement|null);
   value: number;
+  pos: (Pos|null);
   constructor(team: number, html: HTMLElement) {
     this.team = team;
     this.html = html;
-  }
-}
-
-class GrabbedPiece extends Piece {
-  begPos: Pos;
-  constructor(team: number, html: HTMLElement, num: number, begPos: Pos) {
-    super(team, html);
-    this.num = num;
-    this.begPos = begPos;
+    this.pos = null;
   }
 }
 
@@ -122,7 +119,7 @@ class Board {
   html: HTMLElement;
   htmlPageContainer: HTMLElement;
   fieldsInOneRow: number;
-  grabbedPiece: GrabbedPiece;
+  grabbedPiece: Piece;
   constructor(htmlElQuerySelector: string, htmlPageContainerQuerySelector: string) {
     this.el = [];
     this.html = document.querySelector(htmlElQuerySelector);
@@ -168,7 +165,6 @@ class Board {
     );
     return piece;
   }
-
   getEmptyFieldsAtBeginning() {
     let fields = [];
     for( let r=2 ; r<6 ; r++ ) {
@@ -246,11 +242,21 @@ class Board {
   }
 
   startFollowingCursor = (e: MouseEvent) => {
+    const filedCoor = this.getFieldCoorByPx(e.clientX, e.clientY);
+    if( currTeam !== board.el[filedCoor.y][filedCoor.x].piece.team ) {
+      board.el[filedCoor.y][filedCoor.x].piece.html.
+      addEventListener(
+        "mousedown",
+        this.startFollowingCursor,
+        {once: true}
+      );
+      return;
+    }
     let mauseHold = new Promise<void>((resolve, reject) => {
       let pieceHtml =
         board.el
-        [this.getFieldCoorByPx(e.clientX, e.clientY).y]
-        [this.getFieldCoorByPx(e.clientX, e.clientY).x]
+        [filedCoor.y]
+        [filedCoor.x]
         .piece.html;
       pieceHtml.addEventListener("mouseup", function() {
         reject();
@@ -260,18 +266,12 @@ class Board {
       }, 150);
     });
 
-    const grabbedPiece = board.el
-    [this.getFieldCoorByPx(e.clientX, e.clientY).y]
-    [this.getFieldCoorByPx(e.clientX, e.clientY).x]
+    this.grabbedPiece = board.el
+    [filedCoor.y]
+    [filedCoor.x]
     .piece;
-    this.grabbedPiece = 
-      new GrabbedPiece(
-        grabbedPiece.team,
-        grabbedPiece.html,
-        grabbedPiece.num,
-        this.getFieldCoorByPx(e.clientX, e.clientY)
-      );
-      const evTarget = e.target as HTMLElement;
+    this.grabbedPiece.pos = this.getFieldCoorByPx(e.clientX, e.clientY);
+    const evTarget = e.target as HTMLElement;
     this.removePieceInPos(this.getFieldCoorByPx(e.clientX, e.clientY));
     evTarget.id = "move";
     evTarget.style.cursor = "grabbing";
@@ -337,9 +337,10 @@ class Board {
     );
     this.placePieceInPos(
       this.getFieldCoorByPx(e.clientX, e.clientY), 
-      this.grabbedPiece.num,
-      this.grabbedPiece.team,
-      this.grabbedPiece.begPos
+      this.grabbedPiece,
+      this.grabbedPiece.pos,
+      true,
+      this.getNewHtmlPiece(this.grabbedPiece.num, this.grabbedPiece.team)
     );
     move.remove();
     this.grabbedPiece = null;
@@ -368,14 +369,21 @@ class Board {
     return name + teamChar;
   }
 
-  placePieceInPos( pos: Pos, pieceNum: number, pieceTeam: number, altPos: Pos ) {
+  placePieceInPos( pos: Pos, piece: Piece, altPos: Pos, newMove: Boolean, html?: HTMLElement ) {
     const newPos = (pos.x===-1 || pos.y===-1) ? altPos : pos;
+    piece.pos = null;
     if( this.el[newPos.y][newPos.x].piece.html!==null ) {
       this.removePieceInPos(newPos);
     }
-    const newPiece = this.getNewPieceObj(pieceNum, pieceTeam);
-    this.el[newPos.y][newPos.x].piece = newPiece;
-    this.el[newPos.y][newPos.x].html.append(newPiece.html); 
+    if( Boolean(html) ) {
+      piece.html = html;
+    }
+    this.el[newPos.y][newPos.x].piece = piece;
+    this.el[newPos.y][newPos.x].html.append(piece.html); 
+    if( newMove && newPos===pos ) {
+      moves.push(new Move(piece, altPos, pos));
+      currTeam = (currTeam===1) ? 2 : 1;
+    } 
   }
 
   removePieceInPos(pos: Pos) {
@@ -384,4 +392,22 @@ class Board {
   }
 }
 
-let board = new Board("[data-board-container]", "[data-container]");
+class Move {
+  piece: Piece;
+  from: Pos;
+  to: Pos;
+  constructor(piece: Piece, from: Pos, to: Pos) {
+    this.piece = piece;
+    this.from = from;
+    this.to = to;
+  }
+}
+
+
+
+
+function startGame() {
+  board = new Board("[data-board-container]", "[data-container]");
+}
+
+startGame();

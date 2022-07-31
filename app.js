@@ -13,6 +13,9 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var moves = [];
+var currTeam = 1;
+var board;
 var Pos = /** @class */ (function () {
     function Pos(posR, posC) {
         this.x = posC;
@@ -31,19 +34,10 @@ var Piece = /** @class */ (function () {
     function Piece(team, html) {
         this.team = team;
         this.html = html;
+        this.pos = null;
     }
     return Piece;
 }());
-var GrabbedPiece = /** @class */ (function (_super) {
-    __extends(GrabbedPiece, _super);
-    function GrabbedPiece(team, html, num, begPos) {
-        var _this = _super.call(this, team, html) || this;
-        _this.num = num;
-        _this.begPos = begPos;
-        return _this;
-    }
-    return GrabbedPiece;
-}(Piece));
 var Pawn = /** @class */ (function (_super) {
     __extends(Pawn, _super);
     function Pawn(team, html) {
@@ -128,8 +122,14 @@ var Board = /** @class */ (function () {
     function Board(htmlElQuerySelector, htmlPageContainerQuerySelector) {
         var _this = this;
         this.startFollowingCursor = function (e) {
+            var filedCoor = _this.getFieldCoorByPx(e.clientX, e.clientY);
+            if (currTeam !== board.el[filedCoor.y][filedCoor.x].piece.team) {
+                board.el[filedCoor.y][filedCoor.x].piece.html.
+                    addEventListener("mousedown", _this.startFollowingCursor, { once: true });
+                return;
+            }
             var mauseHold = new Promise(function (resolve, reject) {
-                var pieceHtml = board.el[_this.getFieldCoorByPx(e.clientX, e.clientY).y][_this.getFieldCoorByPx(e.clientX, e.clientY).x]
+                var pieceHtml = board.el[filedCoor.y][filedCoor.x]
                     .piece.html;
                 pieceHtml.addEventListener("mouseup", function () {
                     reject();
@@ -138,10 +138,9 @@ var Board = /** @class */ (function () {
                     resolve();
                 }, 150);
             });
-            var grabbedPiece = board.el[_this.getFieldCoorByPx(e.clientX, e.clientY).y][_this.getFieldCoorByPx(e.clientX, e.clientY).x]
+            _this.grabbedPiece = board.el[filedCoor.y][filedCoor.x]
                 .piece;
-            _this.grabbedPiece =
-                new GrabbedPiece(grabbedPiece.team, grabbedPiece.html, grabbedPiece.num, _this.getFieldCoorByPx(e.clientX, e.clientY));
+            _this.grabbedPiece.pos = _this.getFieldCoorByPx(e.clientX, e.clientY);
             var evTarget = e.target;
             _this.removePieceInPos(_this.getFieldCoorByPx(e.clientX, e.clientY));
             evTarget.id = "move";
@@ -170,7 +169,7 @@ var Board = /** @class */ (function () {
                 document.getElementById("fieldHighlighted").id = "";
             }
             move.removeEventListener("mousemove", _this.moveToCursor);
-            _this.placePieceInPos(_this.getFieldCoorByPx(e.clientX, e.clientY), _this.grabbedPiece.num, _this.grabbedPiece.team, _this.grabbedPiece.begPos);
+            _this.placePieceInPos(_this.getFieldCoorByPx(e.clientX, e.clientY), _this.grabbedPiece, _this.grabbedPiece.pos, true, _this.getNewHtmlPiece(_this.grabbedPiece.num, _this.grabbedPiece.team));
             move.remove();
             _this.grabbedPiece = null;
         };
@@ -322,14 +321,21 @@ var Board = /** @class */ (function () {
         var teamChar = (pieceTeam === 2) ? "B" : "W";
         return name + teamChar;
     };
-    Board.prototype.placePieceInPos = function (pos, pieceNum, pieceTeam, altPos) {
+    Board.prototype.placePieceInPos = function (pos, piece, altPos, newMove, html) {
         var newPos = (pos.x === -1 || pos.y === -1) ? altPos : pos;
+        piece.pos = null;
         if (this.el[newPos.y][newPos.x].piece.html !== null) {
             this.removePieceInPos(newPos);
         }
-        var newPiece = this.getNewPieceObj(pieceNum, pieceTeam);
-        this.el[newPos.y][newPos.x].piece = newPiece;
-        this.el[newPos.y][newPos.x].html.append(newPiece.html);
+        if (Boolean(html)) {
+            piece.html = html;
+        }
+        this.el[newPos.y][newPos.x].piece = piece;
+        this.el[newPos.y][newPos.x].html.append(piece.html);
+        if (newMove && newPos === pos) {
+            moves.push(new Move(piece, altPos, pos));
+            currTeam = (currTeam === 1) ? 2 : 1;
+        }
     };
     Board.prototype.removePieceInPos = function (pos) {
         this.el[pos.y][pos.x].piece.html.remove();
@@ -337,4 +343,15 @@ var Board = /** @class */ (function () {
     };
     return Board;
 }());
-var board = new Board("[data-board-container]", "[data-container]");
+var Move = /** @class */ (function () {
+    function Move(piece, from, to) {
+        this.piece = piece;
+        this.from = from;
+        this.to = to;
+    }
+    return Move;
+}());
+function startGame() {
+    board = new Board("[data-board-container]", "[data-container]");
+}
+startGame();
