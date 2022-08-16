@@ -6,6 +6,7 @@
   background-color: #202225;
   color: black;
   --fieldSize: 100%;
+  --possMoveSize: 100%;
 }
 
 body {
@@ -23,41 +24,68 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%);
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.596);
+  width: 750px; 
+  height: 750px;
+}
+
+.boardFieldsContainer {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  background-color: white;
-  box-sizing: 0 0 20px 10px black;
+}
+
+.boardFieldsContainer, .boardPiecesContainer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .field {
-  position: relative;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.field > img {
-  width: var(--fieldSize);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-}
-
-.piece {
-  width: var(--fieldSize);
-  height: var(--fieldSize);
-  cursor: grab;
-  pointer-events: stroke;
-  background-size: var(--fieldSize);
-  background-position: center;
+  position: relative;
 }
 
 .field1 {
   background-color: rgb(1, 104, 122);
 }
 
+.piece {
+  position: absolute;
+  width: var(--fieldSize);
+  height: var(--fieldSize);
+  cursor: grab;
+  background-size: var(--fieldSize);
+  background-position: center;
+}
+
 #fieldHighlighted {
   box-shadow: 
     inset 0 0 20px 5px green,
     0 0 10px 0 green;
+}
+
+.possMove {
+  border-radius: 50%;
+  width: var(--possMoveSize);
+  height: var(--possMoveSize);
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+}
+
+.possMoveTake {
+  background-color: rgba(0, 255, 13, 0.75) !important;
+  box-shadow: 0 0 10px black;
+  z-index: 5;
+}
+
+#move {
+  cursor: grabbing;
 }
