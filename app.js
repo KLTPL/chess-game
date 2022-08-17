@@ -42,21 +42,22 @@ var Pos = /** @class */ (function () {
 }());
 var Dir = /** @class */ (function (_super) {
     __extends(Dir, _super);
-    function Dir(y, x, simplifyXAndY) {
+    function Dir(y, x, simplifyDir) {
         var _this = _super.call(this, y, x) || this;
-        if (simplifyXAndY) {
-            _this.x = _this.simplifyXAndY(_this.x);
-            _this.y = _this.simplifyXAndY(_this.y);
+        if (simplifyDir) {
+            _this.y = _this.simplifyDir(y);
+            _this.x = _this.simplifyDir(x);
         }
         return _this;
     }
-    Dir.prototype.simplifyXAndY = function (num) {
-        if (num > 1) {
+    Dir.prototype.simplifyDir = function (dir) {
+        if (dir > 1) {
             return 1;
         }
-        if (num < -1) {
+        if (dir < -1) {
             return -1;
         }
+        return dir;
     };
     return Dir;
 }(Pos));
@@ -72,15 +73,17 @@ var Field = /** @class */ (function () {
         this.html = html;
         this.piece = piece;
     }
-    Field.prototype.rightClickActions = function (e) {
-    };
     return Field;
 }());
 var Piece = /** @class */ (function () {
     function Piece(team, html, board) {
         var _this = this;
-        this.startFollowingCursor = function (e) {
-            var fieldCoor = _this.board.getFieldCoorByPx(e.clientX, e.clientY);
+        this.startFollowingCursor = function (ev) {
+            var leftClickNum = 0;
+            if (ev.button !== leftClickNum) {
+                return;
+            }
+            var fieldCoor = _this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
             if (currTeam !== _this.team) {
                 _this.html.addEventListener("mousedown", _this.startFollowingCursor, { once: true });
                 return;
@@ -99,7 +102,7 @@ var Piece = /** @class */ (function () {
             _this.board.grabbedPiece.pos = fieldCoor;
             _this.board.removePieceInPos(fieldCoor);
             _this.html.id = "move";
-            _this.moveToCursor(e);
+            _this.moveToCursor(ev);
             document.addEventListener("mousemove", _this.moveToCursor);
             mouseHold.then(function () {
                 setTimeout(function () {
@@ -111,19 +114,19 @@ var Piece = /** @class */ (function () {
                 });
             });
         };
-        this.moveToCursor = function (e) {
-            _this.board.highlightHtmlField(_this.board.getFieldCoorByPx(e.clientX, e.clientY));
+        this.moveToCursor = function (ev) {
+            _this.board.highlightFieldUnderMovingPiece(_this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
             _this.html.style.transform =
-                "translate(\n        ".concat(e.clientX - ((_this.board.htmlPageContainer.offsetWidth - _this.board.piecesHtml.offsetWidth) / 2) - _this.html.offsetWidth / 2, "px, \n        ").concat(e.clientY - ((_this.board.htmlPageContainer.offsetHeight - _this.board.piecesHtml.offsetHeight) / 2) - _this.html.offsetWidth / 2, "px\n      )");
+                "translate(\n        ".concat(ev.clientX - ((_this.board.htmlPageContainer.offsetWidth - _this.board.piecesHtml.offsetWidth) / 2) - _this.html.offsetWidth / 2, "px, \n        ").concat(ev.clientY - ((_this.board.htmlPageContainer.offsetHeight - _this.board.piecesHtml.offsetHeight) / 2) - _this.html.offsetWidth / 2, "px\n      )");
         };
-        this.stopFollowingCursor = function (e) {
+        this.stopFollowingCursor = function (ev) {
             _this.html.id = "";
-            if (document.getElementById("fieldHighlighted")) {
-                document.getElementById("fieldHighlighted").id = "";
+            if (document.getElementById("fieldHighlightedUnderMovingPiece")) {
+                document.getElementById("fieldHighlightedUnderMovingPiece").id = "";
             }
             document.removeEventListener("mousemove", _this.moveToCursor);
             _this.board.hidePossibleMoves();
-            var newPos = _this.board.getFieldCoorByPx(e.clientX, e.clientY);
+            var newPos = _this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
             for (var i = 0; i < _this.possMoves.length; i++) {
                 if (_this.possMoves[i].x === newPos.x && _this.possMoves[i].y === newPos.y &&
                     (newPos.x !== _this.board.grabbedPiece.pos.x || newPos.y !== _this.board.grabbedPiece.pos.y)) {
@@ -454,6 +457,7 @@ var King = /** @class */ (function (_super) {
     function King(team, html, board) {
         var _this = _super.call(this, team, html, board) || this;
         _this.num = 6;
+        _this.value = 0;
         _this.haventMovedYet = true;
         return _this;
     }
@@ -544,24 +548,159 @@ var King = /** @class */ (function (_super) {
     };
     return King;
 }(Piece));
+var VisualizingArrow = /** @class */ (function () {
+    function VisualizingArrow(board, startPos, endPos) {
+        this.board = board;
+        var fieldWidth = this.board.html.offsetWidth / this.board.fieldsInOneRow;
+        this.startPos = startPos;
+        this.endPos = endPos;
+        var arrDir = new Dir(this.endPos.y - this.startPos.y, this.endPos.x - this.startPos.x);
+        var arrLengthFields = Math.sqrt(Math.abs(Math.pow(Math.abs(arrDir.x), 2) + Math.pow(Math.abs(arrDir.y), 2)));
+        var arrLengthPx = arrLengthFields * fieldWidth;
+        var arrHeadLengthPx = fieldWidth / 2;
+        var arrTailLengthPx = arrLengthPx - arrHeadLengthPx;
+        var rotationDegOfVector = this.getRotationDegOfVector(arrDir);
+        this.arrContainer = document.createElement("div");
+        this.arrContainer.style.setProperty("--rotationDeg", "".concat(-rotationDegOfVector, "deg"));
+        this.arrContainer.classList.add("arrowContainer");
+        this.arrContainer.style.width = "".concat(fieldWidth, "px");
+        this.arrContainer.style.height = "".concat(fieldWidth, "px");
+        var arrowHead = document.createElement("div");
+        arrowHead.style.setProperty("--headHeight", "".concat(fieldWidth / 2 + arrTailLengthPx, "px"));
+        arrowHead.classList.add("arrowHead");
+        arrowHead.style.width = "".concat(fieldWidth, "px");
+        arrowHead.style.height = "".concat(fieldWidth, "px");
+        var arrowTail = document.createElement("div");
+        arrowTail.style.setProperty("--haldOfFieldSize", "".concat(fieldWidth / 2, "px"));
+        arrowTail.classList.add("arrowTail");
+        arrowTail.style.width = "".concat(arrTailLengthPx, "px");
+        arrowTail.style.height = "".concat(fieldWidth * 0.65, "px");
+        this.arrContainer.append(arrowTail);
+        this.arrContainer.append(arrowHead);
+        this.board.el[this.startPos.y][this.startPos.x].html.append(this.arrContainer);
+    }
+    VisualizingArrow.prototype.getRotationDegOfVector = function (dir) {
+        var fromRadtoDegMultiplier = 180 / Math.PI;
+        var rotationAngleDeg = Math.atan(Math.abs(dir.y) / Math.abs(dir.x)) * fromRadtoDegMultiplier;
+        if (dir.y === 0) {
+            if (dir.simplifyDir(dir.x) === 1) {
+                return 0;
+            }
+            else { // dir.simplifyDir(dir.x)===-1
+                return 180;
+            }
+        }
+        if (dir.x === 0) {
+            if (dir.simplifyDir(dir.y * -1) === 1) {
+                return 90;
+            }
+            else { // dir.simplifyDir(dir.y*-1)===-1
+                return 270;
+            }
+        }
+        var quadrantNum = (function () {
+            var simDir = new Dir(dir.simplifyDir(dir.y), dir.simplifyDir(dir.x));
+            if (simDir.x === 1) {
+                if (simDir.y * -1 === 1) {
+                    return 1;
+                }
+                else { // simDir.y*-1===-1
+                    return 4;
+                }
+            }
+            if (simDir.y * -1 === 1) {
+                return 2;
+            }
+            return 3;
+        })();
+        switch (quadrantNum) {
+            case 1: return rotationAngleDeg;
+            case 2: return 180 - rotationAngleDeg;
+            case 3: return 180 + rotationAngleDeg;
+            case 4: return 360 - rotationAngleDeg;
+        }
+    };
+    return VisualizingArrow;
+}());
+var VisualizingArrowsArr = /** @class */ (function () {
+    function VisualizingArrowsArr() {
+        this.arr = [];
+    }
+    VisualizingArrowsArr.prototype.getMatchingArrowNum = function (startPos, endPos) {
+        for (var i = 0; i < this.arr.length; i++) {
+            var arrowStartPos = this.arr[i].startPos;
+            var arrowEndPos = this.arr[i].endPos;
+            if (startPos.x === arrowStartPos.x && startPos.y === arrowStartPos.y &&
+                endPos.x === arrowEndPos.x && endPos.y === arrowEndPos.y) {
+                return i;
+            }
+        }
+        return -1;
+    };
+    VisualizingArrowsArr.prototype.removeArrow = function (arrNum) {
+        this.arr[arrNum].arrContainer.remove();
+        this.arr.splice(arrNum, 1);
+    };
+    VisualizingArrowsArr.prototype.removeAllArrows = function () {
+        while (this.arr.length > 0) {
+            this.removeArrow(0);
+        }
+    };
+    return VisualizingArrowsArr;
+}());
 var Board = /** @class */ (function () {
     function Board(htmlElQuerySelector, htmlPageContainerQuerySelector) {
+        var _this = this;
         this.el = [];
         this.html = document.querySelector(htmlElQuerySelector);
         this.htmlPageContainer = document.querySelector(htmlPageContainerQuerySelector);
         this.fieldsInOneRow = 8;
+        this.visualizingArrows = new VisualizingArrowsArr();
         var root = document.querySelector(":root");
         root.style.setProperty("--fieldSize", "".concat(this.html.offsetWidth / this.fieldsInOneRow, "px"));
         this.createContainersForFieldsAndPieces();
         this.createFields();
         this.kings = this.getKings();
+        this.html.addEventListener("mousedown", function (ev) {
+            var rightClickNum = 2;
+            if (ev.button !== rightClickNum) {
+                return;
+            }
+            var mouseHold = new Promise(function (resolve, reject) {
+                _this.html.addEventListener("mouseup", function () {
+                    reject();
+                }, { once: true });
+                setTimeout(function () {
+                    resolve();
+                }, 150);
+            });
+            mouseHold.then(function () {
+                _this.html.addEventListener("mouseup", function (endEv) {
+                    var startPos = _this.getFieldCoorByPx(ev.clientX, ev.clientY);
+                    var endPos = _this.getFieldCoorByPx(endEv.clientX, endEv.clientY);
+                    if (startPos.x === endPos.x && startPos.y === endPos.y) {
+                        return;
+                    }
+                    var matchingArrowNum = _this.visualizingArrows.getMatchingArrowNum(startPos, endPos);
+                    if (matchingArrowNum !== -1) {
+                        _this.visualizingArrows.removeArrow(matchingArrowNum);
+                        return;
+                    }
+                    _this.visualizingArrows.arr.push(new VisualizingArrow(_this, startPos, endPos));
+                }, { once: true });
+            })["catch"](function () {
+                _this.toggleHighlightOnFieldOnPos(_this.getFieldCoorByPx(ev.clientX, ev.clientY));
+            });
+        });
     }
     Board.prototype.createContainersForFieldsAndPieces = function () {
         this.fieldsHtml = document.createElement("div");
         this.fieldsHtml.classList.add("boardFieldsContainer");
+        this.fieldsHtml.addEventListener("contextmenu", function (ev) { return ev.preventDefault(); });
         this.html.append(this.fieldsHtml);
         this.piecesHtml = document.createElement("div");
         this.piecesHtml.classList.add("boardPiecesContainer");
+        this.piecesHtml.addEventListener("contextmenu", function (ev) { return ev.preventDefault(); });
         this.html.append(this.piecesHtml);
     };
     Board.prototype.getProperPieceByDeafultPosition = function (row, col) {
@@ -666,12 +805,22 @@ var Board = /** @class */ (function () {
         }
         return new Pos(fieldR, fieldC);
     };
-    Board.prototype.highlightHtmlField = function (pos) {
-        if (Boolean(document.getElementById("fieldHighlighted"))) {
-            document.getElementById("fieldHighlighted").id = "";
+    Board.prototype.highlightFieldUnderMovingPiece = function (pos) {
+        if (document.getElementById("fieldHighlightedUnderMovingPiece")) {
+            document.getElementById("fieldHighlightedUnderMovingPiece").id = "";
         }
         if (pos.y !== -1 && pos.x !== -1) {
-            this.el[pos.y][pos.x].html.id = "fieldHighlighted";
+            this.el[pos.y][pos.x].html.id = "fieldHighlightedUnderMovingPiece";
+        }
+    };
+    Board.prototype.toggleHighlightOnFieldOnPos = function (pos) {
+        this.el[pos.y][pos.x].html.classList.toggle("highlighted");
+    };
+    Board.prototype.turnOfHighlightOnAllFields = function () {
+        var fields = document.getElementsByClassName("highlighted");
+        for (var i = 0; i < fields.length; i++) {
+            fields[i].classList.remove("highlighted");
+            i--;
         }
     };
     Board.prototype.getPieceNameByNum = function (pieceNum, pieceTeam) {
@@ -714,6 +863,8 @@ var Board = /** @class */ (function () {
         if (from) {
             moves.push(new Move(piece, from, pos));
             currTeam = (currTeam === whiteNum) ? blackNum : whiteNum;
+            this.turnOfHighlightOnAllFields();
+            this.visualizingArrows.removeAllArrows();
         }
     };
     Board.prototype.getEmptyFieldsPosAtBeginning = function () {
