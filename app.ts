@@ -22,21 +22,22 @@ class Pos {
 }
 
 class Dir extends Pos {
-  constructor( y: number, x: number, simplifyXAndY?: boolean ) {
+  constructor( y: number, x: number, simplifyDir?: boolean ) {
     super(y, x);
-    if( simplifyXAndY ) {
-      this.x = this.simplifyXAndY(this.x);
-      this.y = this.simplifyXAndY(this.y);
+    if( simplifyDir ) {
+      this.y = this.simplifyDir(y);
+      this.x = this.simplifyDir(x);
     }
   }
 
-  simplifyXAndY(num: number) {
-    if( num>1 ) {
+  simplifyDir(dir: number) {
+    if( dir>1 ) {
       return 1;
     }
-    if( num<-1 ) {
+    if( dir<-1 ) {
       return -1;
     }
+    return dir;
   }  
 }
 
@@ -55,10 +56,6 @@ class Field {
   constructor(html: HTMLElement, piece: Piece) {
     this.html = html;
     this.piece = piece;
-  }
-
-  rightClickActions(e: MouseEvent) {
-
   }
 }
 
@@ -101,8 +98,12 @@ class Piece {
     return possibleMoves;
   }
 
-  startFollowingCursor = (e: MouseEvent) => {
-    const fieldCoor = this.board.getFieldCoorByPx(e.clientX, e.clientY);
+  startFollowingCursor = (ev: MouseEvent) => {
+    const leftClickNum = 0;
+    if( ev.button!==leftClickNum ) {
+      return;
+    }
+    const fieldCoor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
     if( currTeam!==this.team ) {
       this.html.addEventListener(
         "mousedown",
@@ -130,7 +131,7 @@ class Piece {
     this.board.grabbedPiece.pos = fieldCoor;
     this.board.removePieceInPos(fieldCoor);
     this.html.id = "move";
-    this.moveToCursor(e);
+    this.moveToCursor(ev);
     document.addEventListener(
       "mousemove",
       this.moveToCursor
@@ -157,26 +158,26 @@ class Piece {
 
   }
 
-  moveToCursor = (e: MouseEvent) => {
-    this.board.highlightHtmlField(this.board.getFieldCoorByPx(e.clientX, e.clientY));
+  moveToCursor = (ev: MouseEvent) => {
+    this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
     this.html.style.transform = 
       `translate(
-        ${e.clientX-((this.board.htmlPageContainer.offsetWidth-this.board.piecesHtml.offsetWidth)/2)-this.html.offsetWidth/2}px, 
-        ${e.clientY-((this.board.htmlPageContainer.offsetHeight-this.board.piecesHtml.offsetHeight)/2)-this.html.offsetWidth/2}px
+        ${ev.clientX-((this.board.htmlPageContainer.offsetWidth-this.board.piecesHtml.offsetWidth)/2)-this.html.offsetWidth/2}px, 
+        ${ev.clientY-((this.board.htmlPageContainer.offsetHeight-this.board.piecesHtml.offsetHeight)/2)-this.html.offsetWidth/2}px
       )`;
   }
 
-  stopFollowingCursor = (e: MouseEvent) => {
+  stopFollowingCursor = (ev: MouseEvent) => {
     this.html.id = "";
-    if( document.getElementById("fieldHighlighted") ) {
-      document.getElementById("fieldHighlighted").id = "";
+    if( document.getElementById("fieldHighlightedUnderMovingPiece") ) {
+      document.getElementById("fieldHighlightedUnderMovingPiece").id = "";
     }
     document.removeEventListener(
       "mousemove", 
       this.moveToCursor
     );
     this.board.hidePossibleMoves();
-    const newPos = this.board.getFieldCoorByPx(e.clientX, e.clientY);
+    const newPos = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
     for( let i=0 ; i<this.possMoves.length ; i++ ) {
       if( 
         this.possMoves[i].x===newPos.x && this.possMoves[i].y===newPos.y &&
@@ -531,6 +532,7 @@ class King extends Piece {
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
     this.num = 6;
+    this.value = 0;
     this.haventMovedYet = true;
 
   }
@@ -642,6 +644,123 @@ class King extends Piece {
   }
 }
 
+class VisualizingArrow {
+  board: Board;
+  startPos: Pos;
+  endPos: Pos;
+  arrContainer: HTMLDivElement;
+  constructor(board: Board, startPos: Pos, endPos: Pos) {
+    this.board = board;
+    const fieldWidth = this.board.html.offsetWidth/this.board.fieldsInOneRow;
+    this.startPos = startPos;
+    this.endPos = endPos;
+    const arrDir = new Dir(this.endPos.y-this.startPos.y, this.endPos.x-this.startPos.x);
+    const arrLengthFields = Math.sqrt(Math.abs( Math.pow(Math.abs(arrDir.x), 2) + Math.pow(Math.abs(arrDir.y), 2) ));
+    const arrLengthPx = arrLengthFields*fieldWidth;
+    const arrHeadLengthPx = fieldWidth/2;
+    const arrTailLengthPx = arrLengthPx-arrHeadLengthPx;
+
+    const rotationDegOfVector = this.getRotationDegOfVector(arrDir);
+    this.arrContainer = document.createElement("div");
+    this.arrContainer.style.setProperty("--rotationDeg", `${-rotationDegOfVector}deg`);
+    this.arrContainer.classList.add("arrowContainer");
+    this.arrContainer.style.width = `${fieldWidth}px`;
+    this.arrContainer.style.height = `${fieldWidth}px`;
+
+    const arrowHead = document.createElement("div");
+    arrowHead.style.setProperty("--headHeight", `${fieldWidth/2+arrTailLengthPx}px`);
+    arrowHead.classList.add("arrowHead");
+    arrowHead.style.width = `${fieldWidth}px`;
+    arrowHead.style.height = `${fieldWidth}px`;
+
+    const arrowTail = document.createElement("div");
+    arrowTail.style.setProperty("--haldOfFieldSize", `${fieldWidth/2}px`);
+    arrowTail.classList.add("arrowTail");
+    arrowTail.style.width = `${arrTailLengthPx}px`;
+    arrowTail.style.height = `${fieldWidth*0.65}px`;
+  
+    this.arrContainer.append(arrowTail);
+    this.arrContainer.append(arrowHead);
+    this.board.el[this.startPos.y][this.startPos.x].html.append(this.arrContainer);
+
+  }
+
+  getRotationDegOfVector(dir: Dir,) {
+    const fromRadtoDegMultiplier = 180 / Math.PI;
+    const rotationAngleDeg = Math.atan(Math.abs(dir.y)/Math.abs(dir.x)) * fromRadtoDegMultiplier;
+
+    if( dir.y===0 ) {
+      if( dir.simplifyDir(dir.x)===1 ) {
+        return 0;
+      } else { // dir.simplifyDir(dir.x)===-1
+        return 180;
+      }
+    }
+
+    if( dir.x===0 ) {
+      if( dir.simplifyDir(dir.y*-1)===1 ) {
+        return 90;
+      } else { // dir.simplifyDir(dir.y*-1)===-1
+        return 270;
+      }
+    }
+
+    const quadrantNum = ( () => {
+      const simDir = new Dir( dir.simplifyDir(dir.y), dir.simplifyDir(dir.x) );
+      if( simDir.x===1 ) {
+        if( simDir.y*-1===1 ) {
+          return 1;
+        } else { // simDir.y*-1===-1
+          return 4;
+        }
+      }
+      if( simDir.y*-1===1 ) {
+        return 2;
+      }
+      return 3;
+      
+    }) ();
+    switch(quadrantNum) {
+      case 1: return rotationAngleDeg;
+      case 2: return 180 - rotationAngleDeg;
+      case 3: return 180 + rotationAngleDeg;
+      case 4: return 360 - rotationAngleDeg;
+    }
+  }
+}
+
+class VisualizingArrowsArr {
+  arr: VisualizingArrow[];
+  constructor() {
+    this.arr = [];
+  }
+
+  getMatchingArrowNum(startPos: Pos, endPos: Pos) {
+    for( let i=0 ; i<this.arr.length ; i++ ) {
+      const arrowStartPos = this.arr[i].startPos;
+      const arrowEndPos = this.arr[i].endPos;
+      if( 
+        startPos.x===arrowStartPos.x && startPos.y===arrowStartPos.y &&
+        endPos  .x===arrowEndPos  .x && endPos  .y===arrowEndPos  .y
+      ) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  removeArrow(arrNum: number) {
+    this.arr[arrNum].arrContainer.remove();
+    this.arr.splice(arrNum, 1);
+  }
+
+  removeAllArrows() {
+    while( this.arr.length>0 ) {
+      this.removeArrow(0);
+    }
+  }
+}
+
 class Board {
   el: Field[][];
   html: HTMLElement;
@@ -654,27 +773,67 @@ class Board {
     white: King,
     black: King
   };
+  visualizingArrows: VisualizingArrowsArr;
   constructor(htmlElQuerySelector: string, htmlPageContainerQuerySelector: string) {
     this.el = [];
     this.html = document.querySelector(htmlElQuerySelector);
     this.htmlPageContainer = document.querySelector(htmlPageContainerQuerySelector);
     this.fieldsInOneRow = 8;
+    this.visualizingArrows = new VisualizingArrowsArr();
     const root = document.querySelector(":root") as HTMLElement;
     root.style.setProperty("--fieldSize", `${this.html.offsetWidth/this.fieldsInOneRow}px`);
 
     this.createContainersForFieldsAndPieces();
     this.createFields();
-    
     this.kings = this.getKings();
 
+    this.html.addEventListener("mousedown", ev => {
+      const rightClickNum = 2;
+      if( ev.button!==rightClickNum ) {
+        return;
+      }
+
+      let mouseHold = new Promise<void>((resolve, reject) => {
+        this.html.addEventListener(
+          "mouseup", 
+          () => {
+            reject();
+          }, 
+          {once: true}
+        );
+        setTimeout(() => {
+          resolve();
+        }, 150);
+      });
+      mouseHold.then( () => {
+        this.html.addEventListener("mouseup", endEv => {
+          const startPos = this.getFieldCoorByPx(ev.clientX, ev.clientY);
+          const endPos = this.getFieldCoorByPx(endEv.clientX, endEv.clientY);
+          if( startPos.x===endPos.x && startPos.y===endPos.y ) {
+            return;
+          }
+          const matchingArrowNum = this.visualizingArrows.getMatchingArrowNum(startPos, endPos);
+          if( matchingArrowNum!==-1 ) {
+            this.visualizingArrows.removeArrow(matchingArrowNum);
+            return;
+          }
+          this.visualizingArrows.arr.push(new VisualizingArrow(this, startPos, endPos));
+        },
+        {once: true});
+      }).catch( () => {
+        this.toggleHighlightOnFieldOnPos(this.getFieldCoorByPx(ev.clientX, ev.clientY));
+      });
+    });
   }
 
   createContainersForFieldsAndPieces() {
     this.fieldsHtml = document.createElement("div");
     this.fieldsHtml.classList.add("boardFieldsContainer");
+    this.fieldsHtml.addEventListener("contextmenu", ev => ev.preventDefault());
     this.html.append(this.fieldsHtml);
     this.piecesHtml = document.createElement("div");
     this.piecesHtml.classList.add("boardPiecesContainer");
+    this.piecesHtml.addEventListener("contextmenu", ev => ev.preventDefault());
     this.html.append(this.piecesHtml);
 
   }
@@ -801,12 +960,25 @@ class Board {
     }
     return new Pos(fieldR, fieldC);
   }
-  highlightHtmlField(pos: Pos) {
-    if( Boolean(document.getElementById("fieldHighlighted")) ) {
-      document.getElementById("fieldHighlighted").id = "";
+
+  highlightFieldUnderMovingPiece(pos: Pos) {
+    if( document.getElementById("fieldHighlightedUnderMovingPiece") ) {
+      document.getElementById("fieldHighlightedUnderMovingPiece").id = "";
     }
     if(pos.y!==-1 && pos.x!==-1) {
-      this.el[pos.y][pos.x].html.id = "fieldHighlighted";
+      this.el[pos.y][pos.x].html.id = "fieldHighlightedUnderMovingPiece";
+    }
+  }
+
+  toggleHighlightOnFieldOnPos(pos: Pos) {
+    this.el[pos.y][pos.x].html.classList.toggle("highlighted");
+  }
+
+  turnOfHighlightOnAllFields() {
+    const fields = document.getElementsByClassName("highlighted");
+    for( let i=0 ; i<fields.length ; i++ ) {
+      fields[i].classList.remove("highlighted");
+      i--;
     }
   }
 
@@ -847,6 +1019,8 @@ class Board {
     if( from ) {
       moves.push(new Move(piece, from, pos));
       currTeam = (currTeam===whiteNum) ? blackNum : whiteNum;
+      this.turnOfHighlightOnAllFields();
+      this.visualizingArrows.removeAllArrows();
     }
   }
 
