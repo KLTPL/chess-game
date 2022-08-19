@@ -132,8 +132,8 @@ body {
 
 .arrowHead::after {
   content: "";
-  height: 100%;
-  width: 100%;
+  height: 95%;
+  width: 95%;
   position: absolute;
   background-color: var(--arrowBgColor);
   left: -65%;
