@@ -290,7 +290,7 @@ class Rook extends Piece {
     let possibleMoves: Pos[] = [];
     let tempPos: Pos;
     let directions = [new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)];
-    directions.forEach(dir => {
+    for( let dir of directions ) {
       tempPos = new Pos(pos.y, pos.x);
       while(true) {
         if( 
@@ -309,7 +309,7 @@ class Rook extends Piece {
           break;
         }
       }
-    });
+    };
     return possibleMoves;
   }
 
@@ -319,7 +319,7 @@ class Rook extends Piece {
     let possibleMoves = [pos];
     let tempPos: Pos;
     let directions = [new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)];
-    directions.forEach(dir => {
+    for( let dir of directions ) {
       tempPos = new Pos(pos.y,pos.x);
       while(true) {
         if( 
@@ -338,7 +338,7 @@ class Rook extends Piece {
         }
         possibleMoves.push( new Pos(tempPos.y, tempPos.x) );
       }
-    });
+    };
 
     possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
 
@@ -360,11 +360,11 @@ class Knight extends Piece {
       new Dir(1,2), new Dir(1,-2), new Dir(-1,2), new Dir(-1,-2), 
       new Dir(2,1), new Dir(2,-1), new Dir(-2,1), new Dir(-2,-1)
     ];
-    directions.forEach( dir => {
+    for( let dir of directions ) {
       if( pos.x+dir.x>=0 && pos.x+dir.x<=7 && pos.y+dir.y>=0 && pos.y+dir.y<=7 ) {
         possibleMoves.push(new Pos(pos.y+dir.y, pos.x+dir.x));
       }
-    });
+    };
     return possibleMoves;
   }
 
@@ -397,7 +397,7 @@ class Bishop extends Piece {
     let possibleMoves: Pos[] = [];
     let tempPos: Pos;
     let directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
-    directions.forEach( dir => {
+    for( let dir of directions ) {
       tempPos = new Pos(pos.y,pos.x);
       while(true) {
         if( 
@@ -416,7 +416,7 @@ class Bishop extends Piece {
           break;
         }
       }
-    });
+    };
     return possibleMoves;
   }
 
@@ -426,7 +426,7 @@ class Bishop extends Piece {
     let possibleMoves = [pos];
     let tempPos: Pos;
     let directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
-    directions.forEach(dir => {
+    for( let dir of directions ) {
       tempPos = new Pos(pos.y,pos.x);
       while(true) {
         if( 
@@ -445,7 +445,7 @@ class Bishop extends Piece {
         }
         possibleMoves.push( new Pos(tempPos.y, tempPos.x) );
       }
-    });
+    };
 
     possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
 
@@ -468,7 +468,7 @@ class Queen extends Piece {
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
     ];
-    directions.forEach(dir => {
+    for( let dir of directions ) {
       tempPos = new Pos(pos.y,pos.x);
       while(true) {
         if( 
@@ -487,7 +487,7 @@ class Queen extends Piece {
           break;
         }
       }
-    });
+    };
     return possibleMoves;
 
   }
@@ -498,7 +498,7 @@ class Queen extends Piece {
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
     ];
-    directions.forEach(dir => {
+    for( let dir of directions ) {
       tempPos = new Pos(pos.y,pos.x);
       while(true) {
         if( 
@@ -517,7 +517,7 @@ class Queen extends Piece {
         }
         possibleMoves.push( new Pos(tempPos.y, tempPos.x) );
       }
-    });
+    };
 
     const myKing = (this.team===whiteNum) ? this.board.kings.white : this.board.kings.black;
     const absPins = myKing.getPossitionsOfAbsolutePins();
@@ -537,20 +537,35 @@ class King extends Piece {
 
   }
 
+  getPossibleMovesFromPosForKing(pos: Pos) {
+    let possibleMoves: Pos[] = [];
+    let directions = [
+      new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
+      new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
+    ];
+    for( let dir of directions ) {
+      if( pos.x+dir.x>=0 && pos.x+dir.x<=7 && pos.y+dir.y>=0 && pos.y+dir.y<=7 ) {
+        possibleMoves.push( new Pos(pos.y+dir.y, pos.x+dir.x) );
+      }
+    };
+
+    return possibleMoves;
+  }
+
   getPossibleMovesFromPos(pos: Pos) {
     let possibleMoves = [pos];
     let directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
     ];
-    directions.forEach(dir => {
+    for( let dir of directions ) {
       if(
         pos.x+dir.x>=0 && pos.x+dir.x<=7 && pos.y+dir.y>=0 && pos.y+dir.y<=7 &&
         this.board.el[pos.y+dir.y][pos.x+dir.x].piece.team!==this.team 
       ) {
         possibleMoves.push( new Pos(pos.y+dir.y, pos.x+dir.x) );
       }
-    });
+    };
 
     const enemyTeamNum = this.enemyTeamNum(this.team);
     for( let r=0 ; r<this.board.el.length ; r++ ) {
@@ -645,17 +660,18 @@ class King extends Piece {
 }
 
 class VisualizingArrow {
+  // arr = arrow ||  arr = arrows
   board: Board;
   startPos: Pos;
   endPos: Pos;
   arrContainer: HTMLDivElement;
   constructor(board: Board, startPos: Pos, endPos: Pos) {
     this.board = board;
-    const fieldWidth = this.board.html.offsetWidth/this.board.fieldsInOneRow;
     this.startPos = startPos;
     this.endPos = endPos;
     const arrDir = new Dir(this.endPos.y-this.startPos.y, this.endPos.x-this.startPos.x);
     const arrLengthFields = Math.sqrt(Math.abs( Math.pow(Math.abs(arrDir.x), 2) + Math.pow(Math.abs(arrDir.y), 2) ));
+    const fieldWidth = this.board.html.offsetWidth/this.board.fieldsInOneRow;
     const arrLengthPx = arrLengthFields*fieldWidth;
     const arrHeadLengthPx = fieldWidth/2;
     const arrTailLengthPx = arrLengthPx-arrHeadLengthPx;
@@ -664,8 +680,8 @@ class VisualizingArrow {
     this.arrContainer = document.createElement("div");
     this.arrContainer.style.setProperty("--rotationDeg", `${-rotationDegOfVector}deg`);
     this.arrContainer.classList.add("arrowContainer");
-    this.arrContainer.style.width = `${fieldWidth}px`;
-    this.arrContainer.style.height = `${fieldWidth}px`;
+    this.arrContainer.style.width = `${fieldWidth*0.8}px`;
+    this.arrContainer.style.height = `${fieldWidth*0.8}px`;
 
     const arrowHead = document.createElement("div");
     arrowHead.style.setProperty("--headHeight", `${fieldWidth/2+arrTailLengthPx}px`);
@@ -677,7 +693,7 @@ class VisualizingArrow {
     arrowTail.style.setProperty("--haldOfFieldSize", `${fieldWidth/2}px`);
     arrowTail.classList.add("arrowTail");
     arrowTail.style.width = `${arrTailLengthPx}px`;
-    arrowTail.style.height = `${fieldWidth*0.65}px`;
+    arrowTail.style.height = `${fieldWidth*0.5}px`;
   
     this.arrContainer.append(arrowTail);
     this.arrContainer.append(arrowHead);
@@ -685,20 +701,20 @@ class VisualizingArrow {
 
   }
 
-  getRotationDegOfVector(dir: Dir,) {
+  getRotationDegOfVector(vecDir: Dir,) {
     const fromRadtoDegMultiplier = 180 / Math.PI;
-    const rotationAngleDeg = Math.atan(Math.abs(dir.y)/Math.abs(dir.x)) * fromRadtoDegMultiplier;
+    const rotationAngleDeg = Math.atan(Math.abs(vecDir.y)/Math.abs(vecDir.x)) * fromRadtoDegMultiplier;
 
-    if( dir.y===0 ) {
-      if( dir.simplifyDir(dir.x)===1 ) {
+    if( vecDir.y===0 ) {
+      if( vecDir.simplifyDir(vecDir.x)===1 ) {
         return 0;
       } else { // dir.simplifyDir(dir.x)===-1
         return 180;
       }
     }
 
-    if( dir.x===0 ) {
-      if( dir.simplifyDir(dir.y*-1)===1 ) {
+    if( vecDir.x===0 ) {
+      if( vecDir.simplifyDir(vecDir.y*-1)===1 ) {
         return 90;
       } else { // dir.simplifyDir(dir.y*-1)===-1
         return 270;
@@ -706,7 +722,7 @@ class VisualizingArrow {
     }
 
     const quadrantNum = ( () => {
-      const simDir = new Dir( dir.simplifyDir(dir.y), dir.simplifyDir(dir.x) );
+      const simDir = new Dir( vecDir.simplifyDir(vecDir.y), vecDir.simplifyDir(vecDir.x) ); //simeplified direction
       if( simDir.x===1 ) {
         if( simDir.y*-1===1 ) {
           return 1;
@@ -730,6 +746,7 @@ class VisualizingArrow {
 }
 
 class VisualizingArrowsArr {
+  // arr = arrow ||  arr = arrows
   arr: VisualizingArrow[];
   constructor() {
     this.arr = [];
@@ -737,11 +754,11 @@ class VisualizingArrowsArr {
 
   getMatchingArrowNum(startPos: Pos, endPos: Pos) {
     for( let i=0 ; i<this.arr.length ; i++ ) {
-      const arrowStartPos = this.arr[i].startPos;
-      const arrowEndPos = this.arr[i].endPos;
+      const arrSPos = this.arr[i].startPos;
+      const arrEPos = this.arr[i].endPos;
       if( 
-        startPos.x===arrowStartPos.x && startPos.y===arrowStartPos.y &&
-        endPos  .x===arrowEndPos  .x && endPos  .y===arrowEndPos  .y
+        startPos.x===arrSPos.x && startPos.y===arrSPos.y &&
+        endPos  .x===arrEPos.x && endPos  .y===arrEPos.y
       ) {
         return i;
       }

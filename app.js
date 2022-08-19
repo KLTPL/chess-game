@@ -235,15 +235,15 @@ var Rook = /** @class */ (function (_super) {
         return _this;
     }
     Rook.prototype.getPossibleMovesFromPosForKing = function (pos) {
-        var _this = this;
         var possibleMoves = [];
         var tempPos;
         var directions = [new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir(0, -1)];
-        directions.forEach(function (dir) {
+        for (var _i = 0, directions_1 = directions; _i < directions_1.length; _i++) {
+            var dir = directions_1[_i];
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (_this.board.el[tempPos.y][tempPos.x].piece.team === _this.enemyTeamNum(_this.team) &&
-                    _this.board.el[tempPos.y][tempPos.x].piece.num !== kingNum) {
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum(this.team) &&
+                    this.board.el[tempPos.y][tempPos.x].piece.num !== kingNum) {
                     break;
                 }
                 tempPos.x += dir.x;
@@ -252,36 +252,38 @@ var Rook = /** @class */ (function (_super) {
                     break;
                 }
                 possibleMoves.push(new Pos(tempPos.y, tempPos.x));
-                if (_this.board.el[tempPos.y][tempPos.x].piece.team === _this.team) {
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.team) {
                     break;
                 }
             }
-        });
+        }
+        ;
         return possibleMoves;
     };
     Rook.prototype.getPossibleMovesFromPos = function (pos) {
-        var _this = this;
         var myKing = (this.team === whiteNum) ? this.board.kings.white : this.board.kings.black;
         var absPins = myKing.getPossitionsOfAbsolutePins();
         var possibleMoves = [pos];
         var tempPos;
         var directions = [new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir(0, -1)];
-        directions.forEach(function (dir) {
+        for (var _i = 0, directions_2 = directions; _i < directions_2.length; _i++) {
+            var dir = directions_2[_i];
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (_this.board.el[tempPos.y][tempPos.x].piece.team !== null &&
-                    _this.board.el[tempPos.y][tempPos.x].piece.team !== _this.team) {
+                if (this.board.el[tempPos.y][tempPos.x].piece.team !== null &&
+                    this.board.el[tempPos.y][tempPos.x].piece.team !== this.team) {
                     break;
                 }
                 tempPos.x += dir.x;
                 tempPos.y += dir.y;
                 if ((tempPos.x < 0 || tempPos.x > 7 || tempPos.y < 0 || tempPos.y > 7) ||
-                    _this.board.el[tempPos.y][tempPos.x].piece.team === _this.team) {
+                    this.board.el[tempPos.y][tempPos.x].piece.team === this.team) {
                     break;
                 }
                 possibleMoves.push(new Pos(tempPos.y, tempPos.x));
             }
-        });
+        }
+        ;
         possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
         return possibleMoves;
     };
@@ -301,11 +303,13 @@ var Knight = /** @class */ (function (_super) {
             new Dir(1, 2), new Dir(1, -2), new Dir(-1, 2), new Dir(-1, -2),
             new Dir(2, 1), new Dir(2, -1), new Dir(-2, 1), new Dir(-2, -1)
         ];
-        directions.forEach(function (dir) {
+        for (var _i = 0, directions_3 = directions; _i < directions_3.length; _i++) {
+            var dir = directions_3[_i];
             if (pos.x + dir.x >= 0 && pos.x + dir.x <= 7 && pos.y + dir.y >= 0 && pos.y + dir.y <= 7) {
                 possibleMoves.push(new Pos(pos.y + dir.y, pos.x + dir.x));
             }
-        });
+        }
+        ;
         return possibleMoves;
     };
     Knight.prototype.getPossibleMovesFromPos = function (pos) {
@@ -333,15 +337,15 @@ var Bishop = /** @class */ (function (_super) {
         return _this;
     }
     Bishop.prototype.getPossibleMovesFromPosForKing = function (pos) {
-        var _this = this;
         var possibleMoves = [];
         var tempPos;
         var directions = [new Dir(1, 1), new Dir(-1, -1), new Dir(-1, 1), new Dir(1, -1)];
-        directions.forEach(function (dir) {
+        for (var _i = 0, directions_4 = directions; _i < directions_4.length; _i++) {
+            var dir = directions_4[_i];
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (_this.board.el[tempPos.y][tempPos.x].piece.team === _this.enemyTeamNum(_this.team) &&
-                    _this.board.el[tempPos.y][tempPos.x].piece.num !== kingNum) {
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum(this.team) &&
+                    this.board.el[tempPos.y][tempPos.x].piece.num !== kingNum) {
                     break;
                 }
                 tempPos.x += dir.x;
@@ -350,36 +354,38 @@ var Bishop = /** @class */ (function (_super) {
                     break;
                 }
                 possibleMoves.push(new Pos(tempPos.y, tempPos.x));
-                if (_this.board.el[tempPos.y][tempPos.x].piece.team === _this.team) {
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.team) {
                     break;
                 }
             }
-        });
+        }
+        ;
         return possibleMoves;
     };
     Bishop.prototype.getPossibleMovesFromPos = function (pos) {
-        var _this = this;
         var myKing = (this.team === whiteNum) ? this.board.kings.white : this.board.kings.black;
         var absPins = myKing.getPossitionsOfAbsolutePins();
         var possibleMoves = [pos];
         var tempPos;
         var directions = [new Dir(1, 1), new Dir(-1, -1), new Dir(-1, 1), new Dir(1, -1)];
-        directions.forEach(function (dir) {
+        for (var _i = 0, directions_5 = directions; _i < directions_5.length; _i++) {
+            var dir = directions_5[_i];
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (_this.board.el[tempPos.y][tempPos.x].piece.team !== null &&
-                    _this.board.el[tempPos.y][tempPos.x].piece.team !== _this.team) {
+                if (this.board.el[tempPos.y][tempPos.x].piece.team !== null &&
+                    this.board.el[tempPos.y][tempPos.x].piece.team !== this.team) {
                     break;
                 }
                 tempPos.x += dir.x;
                 tempPos.y += dir.y;
                 if ((tempPos.x < 0 || tempPos.x > 7 || tempPos.y < 0 || tempPos.y > 7) ||
-                    _this.board.el[tempPos.y][tempPos.x].piece.team === _this.team) {
+                    this.board.el[tempPos.y][tempPos.x].piece.team === this.team) {
                     break;
                 }
                 possibleMoves.push(new Pos(tempPos.y, tempPos.x));
             }
-        });
+        }
+        ;
         possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
         return possibleMoves;
     };
@@ -394,18 +400,18 @@ var Queen = /** @class */ (function (_super) {
         return _this;
     }
     Queen.prototype.getPossibleMovesFromPosForKing = function (pos) {
-        var _this = this;
         var possibleMoves = [];
         var tempPos;
         var directions = [
             new Dir(1, 1), new Dir(-1, -1), new Dir(-1, 1), new Dir(1, -1),
             new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir(0, -1)
         ];
-        directions.forEach(function (dir) {
+        for (var _i = 0, directions_6 = directions; _i < directions_6.length; _i++) {
+            var dir = directions_6[_i];
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (_this.board.el[tempPos.y][tempPos.x].piece.team === _this.enemyTeamNum(_this.team) &&
-                    _this.board.el[tempPos.y][tempPos.x].piece.num !== kingNum) {
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum(this.team) &&
+                    this.board.el[tempPos.y][tempPos.x].piece.num !== kingNum) {
                     break;
                 }
                 tempPos.x += dir.x;
@@ -414,37 +420,39 @@ var Queen = /** @class */ (function (_super) {
                     break;
                 }
                 possibleMoves.push(new Pos(tempPos.y, tempPos.x));
-                if (_this.board.el[tempPos.y][tempPos.x].piece.team === _this.team) {
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.team) {
                     break;
                 }
             }
-        });
+        }
+        ;
         return possibleMoves;
     };
     Queen.prototype.getPossibleMovesFromPos = function (pos) {
-        var _this = this;
         var possibleMoves = [pos];
         var tempPos;
         var directions = [
             new Dir(1, 1), new Dir(-1, -1), new Dir(-1, 1), new Dir(1, -1),
             new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir(0, -1)
         ];
-        directions.forEach(function (dir) {
+        for (var _i = 0, directions_7 = directions; _i < directions_7.length; _i++) {
+            var dir = directions_7[_i];
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (_this.board.el[tempPos.y][tempPos.x].piece.team !== null &&
-                    _this.board.el[tempPos.y][tempPos.x].piece.team !== _this.team) {
+                if (this.board.el[tempPos.y][tempPos.x].piece.team !== null &&
+                    this.board.el[tempPos.y][tempPos.x].piece.team !== this.team) {
                     break;
                 }
                 tempPos.x += dir.x;
                 tempPos.y += dir.y;
                 if ((tempPos.x < 0 || tempPos.x > 7 || tempPos.y < 0 || tempPos.y > 7) ||
-                    _this.board.el[tempPos.y][tempPos.x].piece.team === _this.team) {
+                    this.board.el[tempPos.y][tempPos.x].piece.team === this.team) {
                     break;
                 }
                 possibleMoves.push(new Pos(tempPos.y, tempPos.x));
             }
-        });
+        }
+        ;
         var myKing = (this.team === whiteNum) ? this.board.kings.white : this.board.kings.black;
         var absPins = myKing.getPossitionsOfAbsolutePins();
         possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
@@ -461,19 +469,35 @@ var King = /** @class */ (function (_super) {
         _this.haventMovedYet = true;
         return _this;
     }
+    King.prototype.getPossibleMovesFromPosForKing = function (pos) {
+        var possibleMoves = [];
+        var directions = [
+            new Dir(1, 1), new Dir(-1, -1), new Dir(-1, 1), new Dir(1, -1),
+            new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir(0, -1)
+        ];
+        for (var _i = 0, directions_8 = directions; _i < directions_8.length; _i++) {
+            var dir = directions_8[_i];
+            if (pos.x + dir.x >= 0 && pos.x + dir.x <= 7 && pos.y + dir.y >= 0 && pos.y + dir.y <= 7) {
+                possibleMoves.push(new Pos(pos.y + dir.y, pos.x + dir.x));
+            }
+        }
+        ;
+        return possibleMoves;
+    };
     King.prototype.getPossibleMovesFromPos = function (pos) {
-        var _this = this;
         var possibleMoves = [pos];
         var directions = [
             new Dir(1, 1), new Dir(-1, -1), new Dir(-1, 1), new Dir(1, -1),
             new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir(0, -1)
         ];
-        directions.forEach(function (dir) {
+        for (var _i = 0, directions_9 = directions; _i < directions_9.length; _i++) {
+            var dir = directions_9[_i];
             if (pos.x + dir.x >= 0 && pos.x + dir.x <= 7 && pos.y + dir.y >= 0 && pos.y + dir.y <= 7 &&
-                _this.board.el[pos.y + dir.y][pos.x + dir.x].piece.team !== _this.team) {
+                this.board.el[pos.y + dir.y][pos.x + dir.x].piece.team !== this.team) {
                 possibleMoves.push(new Pos(pos.y + dir.y, pos.x + dir.x));
             }
-        });
+        }
+        ;
         var enemyTeamNum = this.enemyTeamNum(this.team);
         for (var r = 0; r < this.board.el.length; r++) {
             for (var c = 0; c < this.board.el[r].length; c++) {
@@ -551,11 +575,11 @@ var King = /** @class */ (function (_super) {
 var VisualizingArrow = /** @class */ (function () {
     function VisualizingArrow(board, startPos, endPos) {
         this.board = board;
-        var fieldWidth = this.board.html.offsetWidth / this.board.fieldsInOneRow;
         this.startPos = startPos;
         this.endPos = endPos;
         var arrDir = new Dir(this.endPos.y - this.startPos.y, this.endPos.x - this.startPos.x);
         var arrLengthFields = Math.sqrt(Math.abs(Math.pow(Math.abs(arrDir.x), 2) + Math.pow(Math.abs(arrDir.y), 2)));
+        var fieldWidth = this.board.html.offsetWidth / this.board.fieldsInOneRow;
         var arrLengthPx = arrLengthFields * fieldWidth;
         var arrHeadLengthPx = fieldWidth / 2;
         var arrTailLengthPx = arrLengthPx - arrHeadLengthPx;
@@ -563,8 +587,8 @@ var VisualizingArrow = /** @class */ (function () {
         this.arrContainer = document.createElement("div");
         this.arrContainer.style.setProperty("--rotationDeg", "".concat(-rotationDegOfVector, "deg"));
         this.arrContainer.classList.add("arrowContainer");
-        this.arrContainer.style.width = "".concat(fieldWidth, "px");
-        this.arrContainer.style.height = "".concat(fieldWidth, "px");
+        this.arrContainer.style.width = "".concat(fieldWidth * 0.8, "px");
+        this.arrContainer.style.height = "".concat(fieldWidth * 0.8, "px");
         var arrowHead = document.createElement("div");
         arrowHead.style.setProperty("--headHeight", "".concat(fieldWidth / 2 + arrTailLengthPx, "px"));
         arrowHead.classList.add("arrowHead");
@@ -574,24 +598,24 @@ var VisualizingArrow = /** @class */ (function () {
         arrowTail.style.setProperty("--haldOfFieldSize", "".concat(fieldWidth / 2, "px"));
         arrowTail.classList.add("arrowTail");
         arrowTail.style.width = "".concat(arrTailLengthPx, "px");
-        arrowTail.style.height = "".concat(fieldWidth * 0.65, "px");
+        arrowTail.style.height = "".concat(fieldWidth * 0.5, "px");
         this.arrContainer.append(arrowTail);
         this.arrContainer.append(arrowHead);
         this.board.el[this.startPos.y][this.startPos.x].html.append(this.arrContainer);
     }
-    VisualizingArrow.prototype.getRotationDegOfVector = function (dir) {
+    VisualizingArrow.prototype.getRotationDegOfVector = function (vecDir) {
         var fromRadtoDegMultiplier = 180 / Math.PI;
-        var rotationAngleDeg = Math.atan(Math.abs(dir.y) / Math.abs(dir.x)) * fromRadtoDegMultiplier;
-        if (dir.y === 0) {
-            if (dir.simplifyDir(dir.x) === 1) {
+        var rotationAngleDeg = Math.atan(Math.abs(vecDir.y) / Math.abs(vecDir.x)) * fromRadtoDegMultiplier;
+        if (vecDir.y === 0) {
+            if (vecDir.simplifyDir(vecDir.x) === 1) {
                 return 0;
             }
             else { // dir.simplifyDir(dir.x)===-1
                 return 180;
             }
         }
-        if (dir.x === 0) {
-            if (dir.simplifyDir(dir.y * -1) === 1) {
+        if (vecDir.x === 0) {
+            if (vecDir.simplifyDir(vecDir.y * -1) === 1) {
                 return 90;
             }
             else { // dir.simplifyDir(dir.y*-1)===-1
@@ -599,7 +623,7 @@ var VisualizingArrow = /** @class */ (function () {
             }
         }
         var quadrantNum = (function () {
-            var simDir = new Dir(dir.simplifyDir(dir.y), dir.simplifyDir(dir.x));
+            var simDir = new Dir(vecDir.simplifyDir(vecDir.y), vecDir.simplifyDir(vecDir.x)); //simeplified direction
             if (simDir.x === 1) {
                 if (simDir.y * -1 === 1) {
                     return 1;
@@ -628,10 +652,10 @@ var VisualizingArrowsArr = /** @class */ (function () {
     }
     VisualizingArrowsArr.prototype.getMatchingArrowNum = function (startPos, endPos) {
         for (var i = 0; i < this.arr.length; i++) {
-            var arrowStartPos = this.arr[i].startPos;
-            var arrowEndPos = this.arr[i].endPos;
-            if (startPos.x === arrowStartPos.x && startPos.y === arrowStartPos.y &&
-                endPos.x === arrowEndPos.x && endPos.y === arrowEndPos.y) {
+            var arrSPos = this.arr[i].startPos;
+            var arrEPos = this.arr[i].endPos;
+            if (startPos.x === arrSPos.x && startPos.y === arrSPos.y &&
+                endPos.x === arrEPos.x && endPos.y === arrEPos.y) {
                 return i;
             }
         }
