@@ -22,8 +22,6 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
-var moves = [];
-var currTeam = 1;
 var board;
 var pawnNum = 1;
 var rookNum = 2;
@@ -42,9 +40,9 @@ var Pos = /** @class */ (function () {
 }());
 var Dir = /** @class */ (function (_super) {
     __extends(Dir, _super);
-    function Dir(y, x, simplifyDir) {
+    function Dir(y, x, simplifyDirections) {
         var _this = _super.call(this, y, x) || this;
-        if (simplifyDir) {
+        if (simplifyDirections) {
             _this.y = _this.simplifyDir(y);
             _this.x = _this.simplifyDir(x);
         }
@@ -57,7 +55,7 @@ var Dir = /** @class */ (function (_super) {
         if (dir < -1) {
             return -1;
         }
-        return dir;
+        return 0;
     };
     return Dir;
 }(Pos));
@@ -75,21 +73,26 @@ var Field = /** @class */ (function () {
     }
     return Field;
 }());
+var Move = /** @class */ (function () {
+    function Move(piece, from, to) {
+        this.piece = piece;
+        this.from = from;
+        this.to = to;
+    }
+    return Move;
+}());
 var Piece = /** @class */ (function () {
     function Piece(team, html, board) {
         var _this = this;
         this.startFollowingCursor = function (ev) {
             var leftClickNum = 0;
-            if (ev.button !== leftClickNum) {
-                return;
-            }
             var fieldCoor = _this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
-            if (currTeam !== _this.team) {
+            if (_this.board.currTeam !== _this.team || ev.button !== leftClickNum || _this.board.pawnPromotionMenu || _this.board.grabbedPiece !== null) {
                 _this.html.addEventListener("mousedown", _this.startFollowingCursor, { once: true });
                 return;
             }
             _this.possMoves = _this.getPossibleMovesFromPos(fieldCoor);
-            _this.board.showPossibleMoves(_this.possMoves, _this.enemyTeamNum(_this.team));
+            _this.board.showPossibleMoves(_this.possMoves, _this.enemyTeamNum());
             var mouseHold = new Promise(function (resolve, reject) {
                 _this.html.addEventListener("mouseup", function () {
                     reject();
@@ -115,11 +118,16 @@ var Piece = /** @class */ (function () {
             });
         };
         this.moveToCursor = function (ev) {
+            var cursorPosOnBoard = _this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
+            if (cursorPosOnBoard.x === -1 || cursorPosOnBoard.y === -1) {
+                return;
+            }
             _this.board.highlightFieldUnderMovingPiece(_this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
             _this.html.style.transform =
                 "translate(\n        ".concat(ev.clientX - ((_this.board.htmlPageContainer.offsetWidth - _this.board.piecesHtml.offsetWidth) / 2) - _this.html.offsetWidth / 2, "px, \n        ").concat(ev.clientY - ((_this.board.htmlPageContainer.offsetHeight - _this.board.piecesHtml.offsetHeight) / 2) - _this.html.offsetWidth / 2, "px\n      )");
         };
         this.stopFollowingCursor = function (ev) {
+            console.log("stop");
             _this.html.id = "";
             if (document.getElementById("fieldHighlightedUnderMovingPiece")) {
                 document.getElementById("fieldHighlightedUnderMovingPiece").id = "";
@@ -127,16 +135,22 @@ var Piece = /** @class */ (function () {
             document.removeEventListener("mousemove", _this.moveToCursor);
             _this.board.hidePossibleMoves();
             var newPos = _this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
+            var oldPos = _this.board.grabbedPiece.pos;
             for (var i = 0; i < _this.possMoves.length; i++) {
                 if (_this.possMoves[i].x === newPos.x && _this.possMoves[i].y === newPos.y &&
                     (newPos.x !== _this.board.grabbedPiece.pos.x || newPos.y !== _this.board.grabbedPiece.pos.y)) {
-                    _this.board.placePieceInPos(newPos, _this.board.grabbedPiece, _this.board.grabbedPiece.pos);
+                    _this.board.movePiece(oldPos, // from
+                    newPos, // to
+                    _this.board.grabbedPiece // moving piece
+                    );
+                    _this.board.grabbedPiece.sideEffectsOfMove(newPos, oldPos);
                     _this.possMoves = [];
                     _this.board.grabbedPiece = null;
                     return;
                 }
             }
-            _this.board.placePieceInPos(_this.board.grabbedPiece.pos, _this.board.grabbedPiece, null);
+            _this.board.placePieceInPos(_this.board.grabbedPiece.pos, _this.board.grabbedPiece);
+            _this.possMoves = [];
             _this.board.grabbedPiece = null;
         };
         this.num = 0;
@@ -149,8 +163,8 @@ var Piece = /** @class */ (function () {
             this.html.addEventListener("mousedown", this.startFollowingCursor, { once: true });
         }
     }
-    Piece.prototype.enemyTeamNum = function (myTeamNum) {
-        return (myTeamNum === whiteNum) ? blackNum : whiteNum;
+    Piece.prototype.enemyTeamNum = function () {
+        return (this.team === whiteNum) ? blackNum : whiteNum;
     };
     Piece.prototype.getPossibleMovesFromPosForKing = function (pos) {
         var possibleMoves = [];
@@ -160,7 +174,7 @@ var Piece = /** @class */ (function () {
         var possibleMoves = [];
         return possibleMoves;
     };
-    Piece.prototype.substracktAbsPinsFromPossMoves = function (possMoves, absPins, pos) {
+    Piece.prototype.substraktAbsPinsFromPossMoves = function (possMoves, absPins, pos) {
         for (var p = 0; p < absPins.length; p++) {
             if (absPins[p].pinnedPiecePos.x === pos.x && absPins[p].pinnedPiecePos.y === pos.y) {
                 for (var m = 0; m < possMoves.length; m++) {
@@ -178,6 +192,8 @@ var Piece = /** @class */ (function () {
         }
         return possMoves;
     };
+    Piece.prototype.sideEffectsOfMove = function (to, from) {
+    };
     return Piece;
 }());
 var Pawn = /** @class */ (function (_super) {
@@ -187,7 +203,6 @@ var Pawn = /** @class */ (function (_super) {
         _this.num = 1;
         _this.value = 1;
         _this.haventMovedYet = true;
-        _this.anotherPawnPassed = null;
         _this.direction = (_this.team === whiteNum) ? new Dir(-1, 0) : new Dir(1, 0);
         return _this;
     }
@@ -197,6 +212,7 @@ var Pawn = /** @class */ (function (_super) {
         for (var i = 0; i < takesPos.length; i++) {
             if (takesPos[i].x < 0 || takesPos[i].x > 7 || takesPos[i].y < 0 || takesPos[i].y > 7) {
                 takesPos.splice(i, 1);
+                i--;
                 continue;
             }
             possibleMoves.push(takesPos[i]);
@@ -221,8 +237,45 @@ var Pawn = /** @class */ (function (_super) {
                 possibleMoves.push(new Pos(pos.y + (this.direction.y * 2), pos.x));
             }
         }
-        possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+        //en passant capture
+        var pawnsToCapturePos = [new Pos(pos.y, pos.x + 1), new Pos(pos.y, pos.x - 1)];
+        var enemyTeamNum = this.enemyTeamNum();
+        for (var _i = 0, pawnsToCapturePos_1 = pawnsToCapturePos; _i < pawnsToCapturePos_1.length; _i++) {
+            var capturePos = pawnsToCapturePos_1[_i];
+            if (capturePos.x >= 0 && capturePos.x <= 7 &&
+                this.board.el[pos.y][capturePos.x].piece.team === enemyTeamNum &&
+                this.board.moves[this.board.moves.length - 1].piece === this.board.el[pos.y][capturePos.x].piece) {
+                possibleMoves.push(new Pos(pos.y + this.direction.y, capturePos.x));
+            }
+        }
+        possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
         return possibleMoves;
+    };
+    Pawn.prototype.sideEffectsOfMove = function (to) {
+        if (this.haventMovedYet) {
+            this.haventMovedYet = false;
+        }
+        //en passant capture
+        if (this.board.el[to.y - this.direction.y][to.x].piece.num === pawnNum &&
+            this.board.moves[this.board.moves.length - 2].piece === this.board.el[to.y - this.direction.y][to.x].piece) {
+            this.board.removePieceInPos(new Pos(to.y - this.direction.y, to.x), true);
+        }
+        var lastRowNum = (this.direction.y === 1) ? this.board.fieldsInOneRow - 1 : 0;
+        if (to.y === lastRowNum) {
+            this.promote(to);
+        }
+    };
+    Pawn.prototype.promote = function (pos) {
+        var _this = this;
+        this.board.pawnPromotionMenu = new PawnPromotionMenu(this.team, this.board);
+        this.board.pawnPromotionMenu.askWhatPiecePlayerWants()
+            .then(function (newPieceNum) {
+            var pawnGotPromotedTo = _this.board.getNewPieceObj(newPieceNum, _this.team);
+            _this.board.removePieceInPos(pos, true);
+            _this.board.placePieceInPos(pos, pawnGotPromotedTo, true);
+            _this.board.pawnPromotionMenu.removeMenu();
+            _this.board.pawnPromotionMenu = null;
+        });
     };
     return Pawn;
 }(Piece));
@@ -232,9 +285,11 @@ var Rook = /** @class */ (function (_super) {
         var _this = _super.call(this, team, html, board) || this;
         _this.num = 2;
         _this.value = 5;
+        _this.haventMovedYet = true;
         return _this;
     }
     Rook.prototype.getPossibleMovesFromPosForKing = function (pos) {
+        var enemyTeamNum = this.enemyTeamNum();
         var possibleMoves = [];
         var tempPos;
         var directions = [new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir(0, -1)];
@@ -242,7 +297,7 @@ var Rook = /** @class */ (function (_super) {
             var dir = directions_1[_i];
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum(this.team) &&
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === enemyTeamNum &&
                     this.board.el[tempPos.y][tempPos.x].piece.num !== kingNum) {
                     break;
                 }
@@ -284,8 +339,13 @@ var Rook = /** @class */ (function (_super) {
             }
         }
         ;
-        possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+        possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
         return possibleMoves;
+    };
+    Rook.prototype.sideEffectsOfMove = function () {
+        if (this.haventMovedYet) {
+            this.haventMovedYet = false;
+        }
     };
     return Rook;
 }(Piece));
@@ -323,7 +383,7 @@ var Knight = /** @class */ (function (_super) {
             }
         }
         var possibleMoves = __spreadArray([pos], possibleMovesFromPosForKnight, true);
-        possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+        possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
         return possibleMoves;
     };
     return Knight;
@@ -344,7 +404,7 @@ var Bishop = /** @class */ (function (_super) {
             var dir = directions_4[_i];
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum(this.team) &&
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum() &&
                     this.board.el[tempPos.y][tempPos.x].piece.num !== kingNum) {
                     break;
                 }
@@ -386,7 +446,7 @@ var Bishop = /** @class */ (function (_super) {
             }
         }
         ;
-        possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+        possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
         return possibleMoves;
     };
     return Bishop;
@@ -400,6 +460,7 @@ var Queen = /** @class */ (function (_super) {
         return _this;
     }
     Queen.prototype.getPossibleMovesFromPosForKing = function (pos) {
+        var enemyTeamNum = this.enemyTeamNum();
         var possibleMoves = [];
         var tempPos;
         var directions = [
@@ -410,7 +471,7 @@ var Queen = /** @class */ (function (_super) {
             var dir = directions_6[_i];
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum(this.team) &&
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === enemyTeamNum &&
                     this.board.el[tempPos.y][tempPos.x].piece.num !== kingNum) {
                     break;
                 }
@@ -455,7 +516,7 @@ var Queen = /** @class */ (function (_super) {
         ;
         var myKing = (this.team === whiteNum) ? this.board.kings.white : this.board.kings.black;
         var absPins = myKing.getPossitionsOfAbsolutePins();
-        possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+        possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
         return possibleMoves;
     };
     return Queen;
@@ -485,11 +546,22 @@ var King = /** @class */ (function (_super) {
         return possibleMoves;
     };
     King.prototype.getPossibleMovesFromPos = function (pos) {
+        var enemyTeamNum = this.enemyTeamNum();
         var possibleMoves = [pos];
         var directions = [
             new Dir(1, 1), new Dir(-1, -1), new Dir(-1, 1), new Dir(1, -1),
             new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir(0, -1)
         ];
+        var possibleCastlesDir = this.getPossibleCastlesDir();
+        var possibleCastlesPos = (function () {
+            var possitions = [];
+            for (var _i = 0, possibleCastlesDir_1 = possibleCastlesDir; _i < possibleCastlesDir_1.length; _i++) {
+                var castDir = possibleCastlesDir_1[_i];
+                possitions.push(new Pos(pos.y + castDir.y, pos.x + castDir.x));
+            }
+            return possitions;
+        })();
+        possibleMoves.push.apply(possibleMoves, possibleCastlesPos);
         for (var _i = 0, directions_9 = directions; _i < directions_9.length; _i++) {
             var dir = directions_9[_i];
             if (pos.x + dir.x >= 0 && pos.x + dir.x <= 7 && pos.y + dir.y >= 0 && pos.y + dir.y <= 7 &&
@@ -498,7 +570,6 @@ var King = /** @class */ (function (_super) {
             }
         }
         ;
-        var enemyTeamNum = this.enemyTeamNum(this.team);
         for (var r = 0; r < this.board.el.length; r++) {
             for (var c = 0; c < this.board.el[r].length; c++) {
                 if (this.board.el[r][c].piece.team !== enemyTeamNum) {
@@ -519,6 +590,47 @@ var King = /** @class */ (function (_super) {
             ;
         }
         return possibleMoves;
+    };
+    King.prototype.getPossibleCastlesDir = function () {
+        if (!this.haventMovedYet) {
+            return [];
+        }
+        var castlesDir = [new Dir(0, 2), new Dir(0, -2)];
+        for (var i = 0; i < castlesDir.length; i++) {
+            var currentRookXPos = (castlesDir[i].simplifyDir(castlesDir[i].x) === 1) ? this.board.fieldsInOneRow - 1 : 0;
+            var currentRook = this.board.el[this.pos.y][currentRookXPos].piece;
+            if (this.board.el[this.pos.y][this.pos.x + (castlesDir[i].x / 2)].piece.num ||
+                this.board.el[this.pos.y][this.pos.x + castlesDir[i].x].piece.num ||
+                this.somePieceHasCheckOnWayOfCastle(new Pos(this.pos.y, this.pos.x + (castlesDir[i].x / 2))) ||
+                this.somePieceHasCheckOnWayOfCastle(new Pos(this.pos.y, this.pos.x + castlesDir[i].x)) ||
+                !currentRook.haventMovedYet) {
+                castlesDir.splice(i, 1);
+                i--;
+            }
+        }
+        return castlesDir;
+    };
+    King.prototype.somePieceHasCheckOnWayOfCastle = function (pos) {
+        var enemyTeamNum = this.enemyTeamNum();
+        for (var r = 0; r < this.board.el.length; r++) {
+            for (var c = 0; c < this.board.el[r].length; c++) {
+                if (this.board.el[r][c].piece.team !== enemyTeamNum ||
+                    this.board.el[r][c].piece.num === kingNum) {
+                    continue;
+                }
+                if (this.board.el[r][c].piece.num !== pawnNum) {
+                    var possMoves = this.board.el[r][c].piece.getPossibleMovesFromPos(new Pos(r, c));
+                    for (var _i = 0, possMoves_1 = possMoves; _i < possMoves_1.length; _i++) {
+                        var move = possMoves_1[_i];
+                        if (move.x === pos.x && move.y === pos.y) {
+                            return true;
+                        }
+                    }
+                    continue;
+                }
+            }
+        }
+        return false;
     };
     King.prototype.getPossitionsOfAbsolutePins = function (kingPosition) {
         var _this = this;
@@ -570,82 +682,27 @@ var King = /** @class */ (function (_super) {
         }
         return absPins;
     };
-    return King;
-}(Piece));
-var VisualizingArrow = /** @class */ (function () {
-    function VisualizingArrow(board, startPos, endPos) {
-        this.board = board;
-        this.startPos = startPos;
-        this.endPos = endPos;
-        var arrDir = new Dir(this.endPos.y - this.startPos.y, this.endPos.x - this.startPos.x);
-        var arrLengthFields = Math.sqrt(Math.abs(Math.pow(Math.abs(arrDir.x), 2) + Math.pow(Math.abs(arrDir.y), 2)));
-        var fieldWidth = this.board.html.offsetWidth / this.board.fieldsInOneRow;
-        var arrLengthPx = arrLengthFields * fieldWidth;
-        var arrHeadLengthPx = fieldWidth / 2;
-        var arrTailLengthPx = arrLengthPx - arrHeadLengthPx;
-        var rotationDegOfVector = this.getRotationDegOfVector(arrDir);
-        this.arrContainer = document.createElement("div");
-        this.arrContainer.style.setProperty("--rotationDeg", "".concat(-rotationDegOfVector, "deg"));
-        this.arrContainer.classList.add("arrowContainer");
-        this.arrContainer.style.width = "".concat(fieldWidth * 0.8, "px");
-        this.arrContainer.style.height = "".concat(fieldWidth * 0.8, "px");
-        var arrowHead = document.createElement("div");
-        arrowHead.style.setProperty("--headHeight", "".concat(fieldWidth / 2 + arrTailLengthPx, "px"));
-        arrowHead.classList.add("arrowHead");
-        arrowHead.style.width = "".concat(fieldWidth, "px");
-        arrowHead.style.height = "".concat(fieldWidth, "px");
-        var arrowTail = document.createElement("div");
-        arrowTail.style.setProperty("--haldOfFieldSize", "".concat(fieldWidth / 2, "px"));
-        arrowTail.classList.add("arrowTail");
-        arrowTail.style.width = "".concat(arrTailLengthPx, "px");
-        arrowTail.style.height = "".concat(fieldWidth * 0.5, "px");
-        this.arrContainer.append(arrowTail);
-        this.arrContainer.append(arrowHead);
-        this.board.el[this.startPos.y][this.startPos.x].html.append(this.arrContainer);
-    }
-    VisualizingArrow.prototype.getRotationDegOfVector = function (vecDir) {
-        var fromRadtoDegMultiplier = 180 / Math.PI;
-        var rotationAngleDeg = Math.atan(Math.abs(vecDir.y) / Math.abs(vecDir.x)) * fromRadtoDegMultiplier;
-        if (vecDir.y === 0) {
-            if (vecDir.simplifyDir(vecDir.x) === 1) {
-                return 0;
-            }
-            else { // dir.simplifyDir(dir.x)===-1
-                return 180;
-            }
+    King.prototype.sideEffectsOfMove = function (to, from) {
+        if (this.haventMovedYet) {
+            this.haventMovedYet = false;
         }
-        if (vecDir.x === 0) {
-            if (vecDir.simplifyDir(vecDir.y * -1) === 1) {
-                return 90;
+        // castle
+        if (Math.abs(from.x - to.x) > 1) {
+            var castleDir = new Dir(0, to.x - from.x, true);
+            if (castleDir.x === 1) {
+                var grabbedPiece = this.board.el[from.y][this.board.fieldsInOneRow - 1].piece;
+                this.board.removePieceInPos(new Pos(from.y, this.board.fieldsInOneRow - 1));
+                this.board.placePieceInPos(new Pos(to.y, to.x + (castleDir.x * -1)), grabbedPiece);
             }
-            else { // dir.simplifyDir(dir.y*-1)===-1
-                return 270;
+            else {
+                var grabbedPiece = this.board.el[from.y][0].piece;
+                this.board.removePieceInPos(new Pos(from.y, this.board.fieldsInOneRow - 1));
+                this.board.placePieceInPos(new Pos(to.y, to.x + (castleDir.x * -1)), grabbedPiece);
             }
-        }
-        var quadrantNum = (function () {
-            var simDir = new Dir(vecDir.simplifyDir(vecDir.y), vecDir.simplifyDir(vecDir.x)); //simeplified direction
-            if (simDir.x === 1) {
-                if (simDir.y * -1 === 1) {
-                    return 1;
-                }
-                else { // simDir.y*-1===-1
-                    return 4;
-                }
-            }
-            if (simDir.y * -1 === 1) {
-                return 2;
-            }
-            return 3;
-        })();
-        switch (quadrantNum) {
-            case 1: return rotationAngleDeg;
-            case 2: return 180 - rotationAngleDeg;
-            case 3: return 180 + rotationAngleDeg;
-            case 4: return 360 - rotationAngleDeg;
         }
     };
-    return VisualizingArrow;
-}());
+    return King;
+}(Piece));
 var VisualizingArrowsArr = /** @class */ (function () {
     function VisualizingArrowsArr() {
         this.arr = [];
@@ -672,14 +729,70 @@ var VisualizingArrowsArr = /** @class */ (function () {
     };
     return VisualizingArrowsArr;
 }());
+var PawnPromotionMenu = /** @class */ (function () {
+    function PawnPromotionMenu(team, board) {
+        this.team = team;
+        this.board = board;
+        this.optionsHtmls = [];
+        var fieldWidth = this.board.piecesHtml.offsetWidth / this.board.fieldsInOneRow;
+        this.html = document.createElement("div");
+        this.html.classList.add("promotePopup");
+        this.html.style.setProperty("--widthOfFiveFields", "".concat(fieldWidth * 5, "px"));
+        this.html.style.setProperty("--widthOfThreeFields", "".concat(fieldWidth * 3, "px"));
+        this.html.style.setProperty("--quarterOfField", "".concat(fieldWidth * 0.25, "px"));
+        var promoteOptionsNum = [bishopNum, knightNum, rookNum, queenNum];
+        for (var _i = 0, promoteOptionsNum_1 = promoteOptionsNum; _i < promoteOptionsNum_1.length; _i++) {
+            var option = promoteOptionsNum_1[_i];
+            var optionContainer = document.createElement("div");
+            var optionPiece = this.board.getNewHtmlPiece(option, this.team, "promoteOption");
+            this.optionsHtmls.push(optionPiece);
+            optionContainer.append(optionPiece);
+            this.html.append(optionContainer);
+        }
+        this.board.html.append(this.html);
+    }
+    PawnPromotionMenu.prototype.askWhatPiecePlayerWants = function () {
+        var _this = this;
+        return new Promise(function (resolve) {
+            var optionsHtml = _this.optionsHtmls;
+            for (var _i = 0, optionsHtml_1 = optionsHtml; _i < optionsHtml_1.length; _i++) {
+                var html = optionsHtml_1[_i];
+                html.addEventListener("click", function (ev) {
+                    switch (ev.target) {
+                        case optionsHtml[0]:
+                            resolve(bishopNum);
+                            break;
+                        case optionsHtml[1]:
+                            resolve(knightNum);
+                            break;
+                        case optionsHtml[2]:
+                            resolve(rookNum);
+                            break;
+                        case optionsHtml[3]:
+                            resolve(queenNum);
+                            break;
+                    }
+                });
+            }
+        });
+    };
+    PawnPromotionMenu.prototype.removeMenu = function () {
+        this.html.remove();
+    };
+    return PawnPromotionMenu;
+}());
 var Board = /** @class */ (function () {
     function Board(htmlElQuerySelector, htmlPageContainerQuerySelector) {
         var _this = this;
+        this.currTeam = 1;
+        this.moves = [];
         this.el = [];
         this.html = document.querySelector(htmlElQuerySelector);
         this.htmlPageContainer = document.querySelector(htmlPageContainerQuerySelector);
         this.fieldsInOneRow = 8;
+        this.grabbedPiece = null;
         this.visualizingArrows = new VisualizingArrowsArr();
+        this.pawnPromotionMenu = null;
         var root = document.querySelector(":root");
         root.style.setProperty("--fieldSize", "".concat(this.html.offsetWidth / this.fieldsInOneRow, "px"));
         this.createContainersForFieldsAndPieces();
@@ -728,9 +841,9 @@ var Board = /** @class */ (function () {
         this.html.append(this.piecesHtml);
     };
     Board.prototype.getProperPieceByDeafultPosition = function (row, col) {
-        var emptyFiledsPosAtBeginning = this.getEmptyFieldsPosAtBeginning();
-        for (var i = 0; i < emptyFiledsPosAtBeginning.length; i++) {
-            if (emptyFiledsPosAtBeginning[i].y === row && emptyFiledsPosAtBeginning[i].x === col) {
+        var emptyFieldsPosAtBeginning = this.getEmptyFieldsPosAtBeginning();
+        for (var i = 0; i < emptyFieldsPosAtBeginning.length; i++) {
+            if (emptyFieldsPosAtBeginning[i].y === row && emptyFieldsPosAtBeginning[i].x === col) {
                 return this.getNewPieceObj(0, null);
             }
         }
@@ -740,18 +853,18 @@ var Board = /** @class */ (function () {
     };
     Board.prototype.getNewPieceObj = function (num, team) {
         switch (num) {
-            case pawnNum: return new Pawn(team, this.getNewHtmlPiece(num, team), this);
-            case rookNum: return new Rook(team, this.getNewHtmlPiece(num, team), this);
-            case knightNum: return new Knight(team, this.getNewHtmlPiece(num, team), this);
-            case bishopNum: return new Bishop(team, this.getNewHtmlPiece(num, team), this);
-            case queenNum: return new Queen(team, this.getNewHtmlPiece(num, team), this);
-            case kingNum: return new King(team, this.getNewHtmlPiece(num, team), this);
+            case pawnNum: return new Pawn(team, this.getNewHtmlPiece(num, team, "piece"), this);
+            case rookNum: return new Rook(team, this.getNewHtmlPiece(num, team, "piece"), this);
+            case knightNum: return new Knight(team, this.getNewHtmlPiece(num, team, "piece"), this);
+            case bishopNum: return new Bishop(team, this.getNewHtmlPiece(num, team, "piece"), this);
+            case queenNum: return new Queen(team, this.getNewHtmlPiece(num, team, "piece"), this);
+            case kingNum: return new King(team, this.getNewHtmlPiece(num, team, "piece"), this);
             default: return new Piece(null, null, this);
         }
     };
-    Board.prototype.getNewHtmlPiece = function (num, team) {
+    Board.prototype.getNewHtmlPiece = function (num, team, cssClass) {
         var piece = document.createElement("div");
-        piece.classList.add("piece");
+        piece.classList.add(cssClass);
         piece.style.backgroundImage = "url(./images/".concat(this.getPieceNameByNum(num, team), ".png)");
         return piece;
     };
@@ -872,9 +985,9 @@ var Board = /** @class */ (function () {
         var teamChar = (pieceTeam === blackNum) ? "B" : "W";
         return name + teamChar;
     };
-    Board.prototype.placePieceInPos = function (pos, piece, from) {
-        if (this.el[pos.y][pos.x].piece.html !== null) {
-            this.removePieceInPos(pos, true);
+    Board.prototype.placePieceInPos = function (pos, piece, appendHtml) {
+        if (appendHtml) {
+            this.piecesHtml.append(piece.html);
         }
         if (piece.html) {
             piece.html.
@@ -884,12 +997,19 @@ var Board = /** @class */ (function () {
         piece.html.style.transform =
             "translate(\n      ".concat(pos.x * this.piecesHtml.offsetWidth / this.fieldsInOneRow, "px, \n      ").concat(pos.y * this.piecesHtml.offsetWidth / this.fieldsInOneRow, "px\n    )");
         this.el[pos.y][pos.x].piece = piece;
-        if (from) {
-            moves.push(new Move(piece, from, pos));
-            currTeam = (currTeam === whiteNum) ? blackNum : whiteNum;
-            this.turnOfHighlightOnAllFields();
-            this.visualizingArrows.removeAllArrows();
+    };
+    Board.prototype.movePiece = function (from, to, piece) {
+        if (this.el[to.y][to.x].piece.html !== null) {
+            this.removePieceInPos(to, true);
         }
+        if (this.el[from.y][from.x].piece.num) {
+            this.el[from.y][from.x].piece = new Piece(0, null, null);
+        }
+        this.moves.push(new Move(piece, from, to));
+        this.currTeam = (this.currTeam === whiteNum) ? blackNum : whiteNum;
+        this.turnOfHighlightOnAllFields();
+        this.visualizingArrows.removeAllArrows();
+        this.placePieceInPos(to, piece);
     };
     Board.prototype.getEmptyFieldsPosAtBeginning = function () {
         var fieldsPos = [];
@@ -951,14 +1071,6 @@ var Board = /** @class */ (function () {
     };
     return Board;
 }());
-var Move = /** @class */ (function () {
-    function Move(piece, from, to) {
-        this.piece = piece;
-        this.from = from;
-        this.to = to;
-    }
-    return Move;
-}());
 function startGame() {
     board = new Board("[data-board-container]", "[data-container]");
 }
@@ -977,3 +1089,77 @@ function getRandomColor() {
         case 8: return "gray";
     }
 }
+var VisualizingArrow = /** @class */ (function () {
+    function VisualizingArrow(board, startPos, endPos) {
+        this.board = board;
+        this.startPos = startPos;
+        this.endPos = endPos;
+        var arrDir = new Dir(this.endPos.y - this.startPos.y, this.endPos.x - this.startPos.x);
+        var arrLengthFields = Math.sqrt(Math.abs(Math.pow(Math.abs(arrDir.x), 2) + Math.pow(Math.abs(arrDir.y), 2)));
+        var fieldWidth = this.board.html.offsetWidth / this.board.fieldsInOneRow;
+        var arrLengthPx = arrLengthFields * fieldWidth;
+        var arrHeadLengthPx = fieldWidth / 2;
+        var arrTailLengthPx = arrLengthPx - arrHeadLengthPx;
+        var rotationDegOfVector = this.getRotationDegOfVector(arrDir);
+        this.arrContainer = document.createElement("div");
+        this.arrContainer.style.setProperty("--rotationDeg", "".concat(-rotationDegOfVector, "deg"));
+        this.arrContainer.classList.add("arrowContainer");
+        this.arrContainer.style.width = "".concat(fieldWidth * 0.8, "px");
+        this.arrContainer.style.height = "".concat(fieldWidth * 0.8, "px");
+        var arrowHead = document.createElement("div");
+        arrowHead.style.setProperty("--headHeight", "".concat(fieldWidth / 2 + arrTailLengthPx, "px"));
+        arrowHead.classList.add("arrowHead");
+        arrowHead.style.width = "".concat(fieldWidth, "px");
+        arrowHead.style.height = "".concat(fieldWidth, "px");
+        var arrowTail = document.createElement("div");
+        arrowTail.style.setProperty("--haldOfFieldSize", "".concat(fieldWidth / 2, "px"));
+        arrowTail.classList.add("arrowTail");
+        arrowTail.style.width = "".concat(arrTailLengthPx, "px");
+        arrowTail.style.height = "".concat(fieldWidth * 0.5, "px");
+        this.arrContainer.append(arrowTail);
+        this.arrContainer.append(arrowHead);
+        this.board.el[this.startPos.y][this.startPos.x].html.append(this.arrContainer);
+    }
+    VisualizingArrow.prototype.getRotationDegOfVector = function (vecDir) {
+        var fromRadtoDegMultiplier = 180 / Math.PI;
+        var rotationAngleDeg = Math.atan(Math.abs(vecDir.y) / Math.abs(vecDir.x)) * fromRadtoDegMultiplier;
+        if (vecDir.y === 0) {
+            if (vecDir.simplifyDir(vecDir.x) === 1) {
+                return 0;
+            }
+            else { // dir.simplifyDir(dir.x)===-1
+                return 180;
+            }
+        }
+        if (vecDir.x === 0) {
+            if (vecDir.simplifyDir(vecDir.y * -1) === 1) {
+                return 90;
+            }
+            else { // dir.simplifyDir(dir.y*-1)===-1
+                return 270;
+            }
+        }
+        var quadrantNum = (function () {
+            var simDir = new Dir(vecDir.simplifyDir(vecDir.y), vecDir.simplifyDir(vecDir.x)); //simeplified direction
+            if (simDir.x === 1) {
+                if (simDir.y * -1 === 1) {
+                    return 1;
+                }
+                else { // simDir.y*-1===-1
+                    return 4;
+                }
+            }
+            if (simDir.y * -1 === 1) {
+                return 2;
+            }
+            return 3;
+        })();
+        switch (quadrantNum) {
+            case 1: return rotationAngleDeg;
+            case 2: return 180 - rotationAngleDeg;
+            case 3: return 180 + rotationAngleDeg;
+            case 4: return 360 - rotationAngleDeg;
+        }
+    };
+    return VisualizingArrow;
+}());
