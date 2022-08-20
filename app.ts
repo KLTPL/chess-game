@@ -1,5 +1,3 @@
-let moves = [];
-let currTeam = 1;
 let board: Board;
 
 const pawnNum = 1;
@@ -22,9 +20,9 @@ class Pos {
 }
 
 class Dir extends Pos {
-  constructor( y: number, x: number, simplifyDir?: boolean ) {
+  constructor( y: number, x: number, simplifyDirections?: boolean ) {
     super(y, x);
-    if( simplifyDir ) {
+    if( simplifyDirections ) {
       this.y = this.simplifyDir(y);
       this.x = this.simplifyDir(x);
     }
@@ -37,7 +35,7 @@ class Dir extends Pos {
     if( dir<-1 ) {
       return -1;
     }
-    return dir;
+    return 0;
   }  
 }
 
@@ -56,6 +54,18 @@ class Field {
   constructor(html: HTMLElement, piece: Piece) {
     this.html = html;
     this.piece = piece;
+  }
+}
+
+
+class Move {
+  piece: Piece;
+  from: Pos;
+  to: Pos;
+  constructor(piece: Piece, from: Pos, to: Pos) {
+    this.piece = piece;
+    this.from = from;
+    this.to = to;
   }
 }
 
@@ -84,8 +94,8 @@ class Piece {
     }
   }
 
-  enemyTeamNum(myTeamNum: number) {
-    return (myTeamNum===whiteNum) ? blackNum : whiteNum;
+  enemyTeamNum() {
+    return (this.team===whiteNum) ? blackNum : whiteNum;
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
@@ -100,11 +110,8 @@ class Piece {
 
   startFollowingCursor = (ev: MouseEvent) => {
     const leftClickNum = 0;
-    if( ev.button!==leftClickNum ) {
-      return;
-    }
     const fieldCoor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
-    if( currTeam!==this.team ) {
+    if( this.board.currTeam!==this.team || ev.button!==leftClickNum || this.board.pawnPromotionMenu || this.board.grabbedPiece!==null ) {
       this.html.addEventListener(
         "mousedown",
         this.startFollowingCursor,
@@ -113,7 +120,7 @@ class Piece {
       return;
     }
     this.possMoves = this.getPossibleMovesFromPos(fieldCoor);
-    this.board.showPossibleMoves(this.possMoves, this.enemyTeamNum(this.team));
+    this.board.showPossibleMoves(this.possMoves, this.enemyTeamNum());
     let mouseHold = new Promise<void>((resolve, reject) => {
       this.html.addEventListener(
         "mouseup", 
@@ -155,10 +162,13 @@ class Piece {
       });
     });
 
-
   }
 
   moveToCursor = (ev: MouseEvent) => {
+    const cursorPosOnBoard = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
+    if( cursorPosOnBoard.x===-1 || cursorPosOnBoard.y===-1 ) {
+      return
+    }
     this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
     this.html.style.transform = 
       `translate(
@@ -168,6 +178,7 @@ class Piece {
   }
 
   stopFollowingCursor = (ev: MouseEvent) => {
+    console.log("stop")
     this.html.id = "";
     if( document.getElementById("fieldHighlightedUnderMovingPiece") ) {
       document.getElementById("fieldHighlightedUnderMovingPiece").id = "";
@@ -178,16 +189,18 @@ class Piece {
     );
     this.board.hidePossibleMoves();
     const newPos = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
+    const oldPos = this.board.grabbedPiece.pos;
     for( let i=0 ; i<this.possMoves.length ; i++ ) {
       if( 
         this.possMoves[i].x===newPos.x && this.possMoves[i].y===newPos.y &&
         (newPos.x!==this.board.grabbedPiece.pos.x || newPos.y!==this.board.grabbedPiece.pos.y)
       ) {
-        this.board.placePieceInPos(
-          newPos, 
-          this.board.grabbedPiece,
-          this.board.grabbedPiece.pos
+        this.board.movePiece(
+          oldPos, // from
+          newPos, // to
+          this.board.grabbedPiece // moving piece
         );
+        this.board.grabbedPiece.sideEffectsOfMove(newPos, oldPos);
         this.possMoves = [];
         this.board.grabbedPiece = null;
         return;
@@ -196,12 +209,12 @@ class Piece {
     this.board.placePieceInPos(
       this.board.grabbedPiece.pos, 
       this.board.grabbedPiece,
-      null    
     );
+    this.possMoves = [];
     this.board.grabbedPiece = null;
   }
 
-  substracktAbsPinsFromPossMoves(possMoves: Pos[], absPins: Pin[], pos: Pos) {
+  substraktAbsPinsFromPossMoves(possMoves: Pos[], absPins: Pin[], pos: Pos) {
     for( let p=0 ; p<absPins.length ; p++ ) {
       if( absPins[p].pinnedPiecePos.x===pos.x && absPins[p].pinnedPiecePos.y===pos.y ) {
         for( let m=0 ; m<possMoves.length ; m++ ) {
@@ -221,17 +234,18 @@ class Piece {
     }
     return possMoves;
   }
+
+  sideEffectsOfMove( to: Pos, from: Pos ) {
+  }
 }
 
 class Pawn extends Piece {
   haventMovedYet: boolean;
-  anotherPawnPassed: (Pos|null);
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
     this.num = 1;
     this.value = 1;
     this.haventMovedYet = true;
-    this.anotherPawnPassed = null;
     this.direction = (this.team===whiteNum) ? new Dir(-1, 0) : new Dir(1, 0);
   }
 
@@ -242,6 +256,7 @@ class Pawn extends Piece {
     for( let i=0 ; i<takesPos.length ; i++ ) {
       if( takesPos[i].x<0 || takesPos[i].x>7 || takesPos[i].y<0 || takesPos[i].y>7 ) {
         takesPos.splice(i, 1);
+        i--;
         continue;
       }
       possibleMoves.push(takesPos[i]);
@@ -272,21 +287,67 @@ class Pawn extends Piece {
       }
     }
 
-    possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+    //en passant capture
+    const pawnsToCapturePos = [new Pos(pos.y, pos.x+1), new Pos(pos.y, pos.x-1)];
+    const enemyTeamNum = this.enemyTeamNum();
+    for( let capturePos of pawnsToCapturePos ) {
+      if( 
+        capturePos.x>=0 && capturePos.x<=7 &&
+        this.board.el[pos.y][capturePos.x].piece.team===enemyTeamNum && 
+        this.board.moves[this.board.moves.length-1].piece===this.board.el[pos.y][capturePos.x].piece
+      ) {
+        possibleMoves.push(new Pos(pos.y+this.direction.y, capturePos.x));
+      }
+    }
+
+    possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
 
     return possibleMoves;
+  }
+
+  sideEffectsOfMove( to: Pos ) {
+    if( this.haventMovedYet ) {
+      this.haventMovedYet = false;
+    }
+    //en passant capture
+    if(
+      this.board.el[to.y-this.direction.y][to.x].piece.num===pawnNum &&
+      this.board.moves[this.board.moves.length-2].piece===this.board.el[to.y-this.direction.y][to.x].piece
+    ) {
+      this.board.removePieceInPos(new Pos(to.y-this.direction.y, to.x), true);
+    }
+
+    const lastRowNum = (this.direction.y===1) ? this.board.fieldsInOneRow-1 : 0;
+    if( to.y===lastRowNum ) {
+      this.promote(to);
+    }
+  }
+
+  promote( pos: Pos ) {
+    this.board.pawnPromotionMenu = new PawnPromotionMenu(this.team, this.board);
+    this.board.pawnPromotionMenu.askWhatPiecePlayerWants()
+    .then( (newPieceNum: number) => {
+      const pawnGotPromotedTo = this.board.getNewPieceObj(newPieceNum, this.team);
+      this.board.removePieceInPos(pos, true);
+      this.board.placePieceInPos(pos, pawnGotPromotedTo, true);
+      this.board.pawnPromotionMenu.removeMenu();
+      this.board.pawnPromotionMenu = null;
+    });
   }
 }
 
 class Rook extends Piece {
+  haventMovedYet: boolean;
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
     this.num = 2;
     this.value = 5;
+    this.haventMovedYet = true;
 
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
+    const enemyTeamNum = this.enemyTeamNum();
     let possibleMoves: Pos[] = [];
     let tempPos: Pos;
     let directions = [new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)];
@@ -294,7 +355,7 @@ class Rook extends Piece {
       tempPos = new Pos(pos.y, pos.x);
       while(true) {
         if( 
-          this.board.el[tempPos.y][tempPos.x].piece.team===this.enemyTeamNum(this.team) && 
+          this.board.el[tempPos.y][tempPos.x].piece.team===enemyTeamNum && 
           this.board.el[tempPos.y][tempPos.x].piece.num!==kingNum
         ) {
           break;
@@ -340,9 +401,15 @@ class Rook extends Piece {
       }
     };
 
-    possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+    possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
 
     return possibleMoves;
+  }
+
+  sideEffectsOfMove() {
+    if( this.haventMovedYet ) {
+      this.haventMovedYet = false;
+    }
   }
 }
 
@@ -380,7 +447,7 @@ class Knight extends Piece {
     }
     let possibleMoves = [pos, ...possibleMovesFromPosForKnight];
 
-    possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+    possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
 
     return possibleMoves;
   }
@@ -401,7 +468,7 @@ class Bishop extends Piece {
       tempPos = new Pos(pos.y,pos.x);
       while(true) {
         if( 
-          this.board.el[tempPos.y][tempPos.x].piece.team===this.enemyTeamNum(this.team) && 
+          this.board.el[tempPos.y][tempPos.x].piece.team===this.enemyTeamNum() && 
           this.board.el[tempPos.y][tempPos.x].piece.num!==kingNum
         ) {
           break;
@@ -447,7 +514,7 @@ class Bishop extends Piece {
       }
     };
 
-    possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+    possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
 
     return possibleMoves;
   }
@@ -462,6 +529,7 @@ class Queen extends Piece {
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
+    const enemyTeamNum = this.enemyTeamNum();
     let possibleMoves: Pos[] = [];
     let tempPos: Pos;
     let directions = [
@@ -472,7 +540,7 @@ class Queen extends Piece {
       tempPos = new Pos(pos.y,pos.x);
       while(true) {
         if( 
-          this.board.el[tempPos.y][tempPos.x].piece.team===this.enemyTeamNum(this.team) && 
+          this.board.el[tempPos.y][tempPos.x].piece.team===enemyTeamNum && 
           this.board.el[tempPos.y][tempPos.x].piece.num!==kingNum
         ) {
           break;
@@ -521,7 +589,7 @@ class Queen extends Piece {
 
     const myKing = (this.team===whiteNum) ? this.board.kings.white : this.board.kings.black;
     const absPins = myKing.getPossitionsOfAbsolutePins();
-    possibleMoves = this.substracktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+    possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
 
     return possibleMoves;
   }
@@ -553,11 +621,23 @@ class King extends Piece {
   }
 
   getPossibleMovesFromPos(pos: Pos) {
+    const enemyTeamNum = this.enemyTeamNum();
     let possibleMoves = [pos];
     let directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
     ];
+
+    const possibleCastlesDir = this.getPossibleCastlesDir();
+    const possibleCastlesPos = ( () => {
+      let possitions: Pos[] = [];
+      for( let castDir of possibleCastlesDir ) {
+        possitions.push(new Pos(pos.y+castDir.y, pos.x+castDir.x));
+      }
+      return possitions;
+    }) ();
+    possibleMoves.push(...possibleCastlesPos);
+
     for( let dir of directions ) {
       if(
         pos.x+dir.x>=0 && pos.x+dir.x<=7 && pos.y+dir.y>=0 && pos.y+dir.y<=7 &&
@@ -567,7 +647,6 @@ class King extends Piece {
       }
     };
 
-    const enemyTeamNum = this.enemyTeamNum(this.team);
     for( let r=0 ; r<this.board.el.length ; r++ ) {
       for( let c=0 ; c<this.board.el[r].length ; c++ ) {
         if( this.board.el[r][c].piece.team!==enemyTeamNum ) {
@@ -588,6 +667,54 @@ class King extends Piece {
       };
     }
     return possibleMoves;
+  }
+
+  getPossibleCastlesDir() {
+    if( !this.haventMovedYet ) {
+      return [];
+    }
+
+    let castlesDir = [new Dir(0, 2), new Dir(0, -2)];
+
+    for( let i=0 ; i<castlesDir.length ; i++ ) {
+      const currentRookXPos = (castlesDir[i].simplifyDir(castlesDir[i].x)===1) ? this.board.fieldsInOneRow-1 : 0;
+      const currentRook = this.board.el[this.pos.y][currentRookXPos].piece as Rook;
+      if( 
+        this.board.el[this.pos.y][this.pos.x+(castlesDir[i].x/2)].piece.num ||
+        this.board.el[this.pos.y][this.pos.x+castlesDir[i].x].piece.num ||
+        this.somePieceHasCheckOnWayOfCastle( new Pos(this.pos.y, this.pos.x+(castlesDir[i].x/2)) ) ||
+        this.somePieceHasCheckOnWayOfCastle( new Pos(this.pos.y, this.pos.x+castlesDir[i].x) ) || 
+        !currentRook.haventMovedYet
+      ) {
+        castlesDir.splice(i, 1);
+        i--;
+      }
+    }
+    return castlesDir;
+  }
+
+  somePieceHasCheckOnWayOfCastle(pos: Pos) {
+    const enemyTeamNum = this.enemyTeamNum();
+    for( let r=0 ; r<this.board.el.length ; r++ ) {
+      for( let c=0 ; c<this.board.el[r].length ; c++ ) {
+        if( 
+          this.board.el[r][c].piece.team!==enemyTeamNum || 
+          this.board.el[r][c].piece.num===kingNum 
+        ) {
+          continue;
+        }
+        if( this.board.el[r][c].piece.num!==pawnNum ) { 
+          const possMoves = this.board.el[r][c].piece.getPossibleMovesFromPos(new Pos(r, c));
+          for( let move of possMoves ) {
+            if( move.x===pos.x && move.y===pos.y ) {
+              return true;
+            }
+          }
+          continue;
+        }
+      }
+    }
+    return false;
   }
 
   getPossitionsOfAbsolutePins(kingPosition?: Pos): Pin[] {
@@ -654,93 +781,25 @@ class King extends Piece {
       }
     }
 
-
     return absPins;
   }
-}
 
-class VisualizingArrow {
-  // arr = arrow ||  arr = arrows
-  board: Board;
-  startPos: Pos;
-  endPos: Pos;
-  arrContainer: HTMLDivElement;
-  constructor(board: Board, startPos: Pos, endPos: Pos) {
-    this.board = board;
-    this.startPos = startPos;
-    this.endPos = endPos;
-    const arrDir = new Dir(this.endPos.y-this.startPos.y, this.endPos.x-this.startPos.x);
-    const arrLengthFields = Math.sqrt(Math.abs( Math.pow(Math.abs(arrDir.x), 2) + Math.pow(Math.abs(arrDir.y), 2) ));
-    const fieldWidth = this.board.html.offsetWidth/this.board.fieldsInOneRow;
-    const arrLengthPx = arrLengthFields*fieldWidth;
-    const arrHeadLengthPx = fieldWidth/2;
-    const arrTailLengthPx = arrLengthPx-arrHeadLengthPx;
-
-    const rotationDegOfVector = this.getRotationDegOfVector(arrDir);
-    this.arrContainer = document.createElement("div");
-    this.arrContainer.style.setProperty("--rotationDeg", `${-rotationDegOfVector}deg`);
-    this.arrContainer.classList.add("arrowContainer");
-    this.arrContainer.style.width = `${fieldWidth*0.8}px`;
-    this.arrContainer.style.height = `${fieldWidth*0.8}px`;
-
-    const arrowHead = document.createElement("div");
-    arrowHead.style.setProperty("--headHeight", `${fieldWidth/2+arrTailLengthPx}px`);
-    arrowHead.classList.add("arrowHead");
-    arrowHead.style.width = `${fieldWidth}px`;
-    arrowHead.style.height = `${fieldWidth}px`;
-
-    const arrowTail = document.createElement("div");
-    arrowTail.style.setProperty("--haldOfFieldSize", `${fieldWidth/2}px`);
-    arrowTail.classList.add("arrowTail");
-    arrowTail.style.width = `${arrTailLengthPx}px`;
-    arrowTail.style.height = `${fieldWidth*0.5}px`;
-  
-    this.arrContainer.append(arrowTail);
-    this.arrContainer.append(arrowHead);
-    this.board.el[this.startPos.y][this.startPos.x].html.append(this.arrContainer);
-
-  }
-
-  getRotationDegOfVector(vecDir: Dir,) {
-    const fromRadtoDegMultiplier = 180 / Math.PI;
-    const rotationAngleDeg = Math.atan(Math.abs(vecDir.y)/Math.abs(vecDir.x)) * fromRadtoDegMultiplier;
-
-    if( vecDir.y===0 ) {
-      if( vecDir.simplifyDir(vecDir.x)===1 ) {
-        return 0;
-      } else { // dir.simplifyDir(dir.x)===-1
-        return 180;
-      }
+  sideEffectsOfMove( to: Pos, from: Pos) {
+    if( this.haventMovedYet ) {
+      this.haventMovedYet = false;
     }
-
-    if( vecDir.x===0 ) {
-      if( vecDir.simplifyDir(vecDir.y*-1)===1 ) {
-        return 90;
-      } else { // dir.simplifyDir(dir.y*-1)===-1
-        return 270;
+    // castle
+    if( Math.abs(from.x-to.x)>1 ) {
+      const castleDir = new Dir(0, to.x-from.x, true);
+      if( castleDir.x===1 ) {
+        const grabbedPiece = this.board.el[from.y][this.board.fieldsInOneRow-1].piece;
+        this.board.removePieceInPos(new Pos(from.y, this.board.fieldsInOneRow-1));
+        this.board.placePieceInPos(new Pos(to.y, to.x+(castleDir.x*-1)), grabbedPiece);
+      } else {
+        const grabbedPiece = this.board.el[from.y][0].piece;
+        this.board.removePieceInPos(new Pos(from.y, this.board.fieldsInOneRow-1));
+        this.board.placePieceInPos(new Pos(to.y, to.x+(castleDir.x*-1)), grabbedPiece);
       }
-    }
-
-    const quadrantNum = ( () => {
-      const simDir = new Dir( vecDir.simplifyDir(vecDir.y), vecDir.simplifyDir(vecDir.x) ); //simeplified direction
-      if( simDir.x===1 ) {
-        if( simDir.y*-1===1 ) {
-          return 1;
-        } else { // simDir.y*-1===-1
-          return 4;
-        }
-      }
-      if( simDir.y*-1===1 ) {
-        return 2;
-      }
-      return 3;
-      
-    }) ();
-    switch(quadrantNum) {
-      case 1: return rotationAngleDeg;
-      case 2: return 180 - rotationAngleDeg;
-      case 3: return 180 + rotationAngleDeg;
-      case 4: return 360 - rotationAngleDeg;
     }
   }
 }
@@ -778,7 +837,65 @@ class VisualizingArrowsArr {
   }
 }
 
+class PawnPromotionMenu {
+  team: number;
+  board: Board;
+  optionsHtmls: HTMLElement[];
+  html: HTMLElement;
+  constructor(team: number, board: Board) {
+    this.team = team;
+    this.board = board;
+    this.optionsHtmls = [];
+    const fieldWidth = this.board.piecesHtml.offsetWidth/this.board.fieldsInOneRow;
+    this.html = document.createElement("div");
+    this.html.classList.add("promotePopup");
+    this.html.style.setProperty(
+      "--widthOfFiveFields", 
+      `${fieldWidth*5}px`
+    );
+    this.html.style.setProperty(
+      "--widthOfThreeFields", 
+      `${fieldWidth*3}px`
+    );
+    this.html.style.setProperty(
+      "--quarterOfField", 
+      `${fieldWidth*0.25}px`
+    );
+    const promoteOptionsNum = [bishopNum, knightNum, rookNum, queenNum];
+    for( let option of promoteOptionsNum ) {
+      const optionContainer = document.createElement("div");
+      const optionPiece = this.board.getNewHtmlPiece(option, this.team, "promoteOption");
+      this.optionsHtmls.push(optionPiece);
+      optionContainer.append(optionPiece);
+      this.html.append(optionContainer);
+    }
+    this.board.html.append(this.html);
+  }
+
+  askWhatPiecePlayerWants(): Promise<number> {
+    return new Promise( (resolve) => {
+      const optionsHtml = this.optionsHtmls;
+      for( let html of optionsHtml ) {
+        html.addEventListener("click", ev => {
+          switch(ev.target) {
+            case optionsHtml[0]: resolve(bishopNum); break;
+            case optionsHtml[1]: resolve(knightNum); break;
+            case optionsHtml[2]: resolve(rookNum); break;
+            case optionsHtml[3]: resolve(queenNum); break;
+          }
+        });
+      }
+    });
+  }
+
+  removeMenu() {
+    this.html.remove();
+  }
+}
+
 class Board {
+  currTeam: number;
+  moves: Move[];
   el: Field[][];
   html: HTMLElement;
   fieldsHtml: HTMLElement;
@@ -791,12 +908,17 @@ class Board {
     black: King
   };
   visualizingArrows: VisualizingArrowsArr;
+  pawnPromotionMenu: (PawnPromotionMenu|null);
   constructor(htmlElQuerySelector: string, htmlPageContainerQuerySelector: string) {
+    this.currTeam = 1;
+    this.moves = [];
     this.el = [];
     this.html = document.querySelector(htmlElQuerySelector);
     this.htmlPageContainer = document.querySelector(htmlPageContainerQuerySelector);
     this.fieldsInOneRow = 8;
+    this.grabbedPiece = null;
     this.visualizingArrows = new VisualizingArrowsArr();
+    this.pawnPromotionMenu = null;
     const root = document.querySelector(":root") as HTMLElement;
     root.style.setProperty("--fieldSize", `${this.html.offsetWidth/this.fieldsInOneRow}px`);
 
@@ -856,9 +978,9 @@ class Board {
   }
 
   getProperPieceByDeafultPosition(row: number, col: number) {
-    const emptyFiledsPosAtBeginning = this.getEmptyFieldsPosAtBeginning();
-    for( let i=0 ; i<emptyFiledsPosAtBeginning.length ; i++ ) {
-      if( emptyFiledsPosAtBeginning[i].y===row && emptyFiledsPosAtBeginning[i].x===col ) {
+    const emptyFieldsPosAtBeginning = this.getEmptyFieldsPosAtBeginning();
+    for( let i=0 ; i<emptyFieldsPosAtBeginning.length ; i++ ) {
+      if( emptyFieldsPosAtBeginning[i].y===row && emptyFieldsPosAtBeginning[i].x===col ) {
         return this.getNewPieceObj(0, null);
       }
     }
@@ -869,19 +991,19 @@ class Board {
 
   getNewPieceObj(num: number, team: number) {
     switch(num) {
-      case pawnNum:   return new Pawn(team, this.getNewHtmlPiece(num, team), this);
-      case rookNum:   return new Rook(team, this.getNewHtmlPiece(num, team), this);
-      case knightNum: return new Knight(team, this.getNewHtmlPiece(num, team), this);
-      case bishopNum: return new Bishop(team, this.getNewHtmlPiece(num, team), this);
-      case queenNum:  return new Queen(team, this.getNewHtmlPiece(num, team), this);
-      case kingNum:   return new King(team, this.getNewHtmlPiece(num, team), this);
+      case pawnNum:   return new Pawn(team, this.getNewHtmlPiece(num, team, "piece"), this);
+      case rookNum:   return new Rook(team, this.getNewHtmlPiece(num, team, "piece"), this);
+      case knightNum: return new Knight(team, this.getNewHtmlPiece(num, team, "piece"), this);
+      case bishopNum: return new Bishop(team, this.getNewHtmlPiece(num, team, "piece"), this);
+      case queenNum:  return new Queen(team, this.getNewHtmlPiece(num, team, "piece"), this);
+      case kingNum:   return new King(team, this.getNewHtmlPiece(num, team, "piece"), this);
       default:        return new Piece(null, null, this);
     }
   }
 
-  getNewHtmlPiece(num: number, team: number) {
+  getNewHtmlPiece(num: number, team: number, cssClass: string) {
     let piece = document.createElement("div");
-    piece.classList.add("piece");
+    piece.classList.add(cssClass);
     piece.style.backgroundImage = `url(./images/${this.getPieceNameByNum(num, team)}.png)`;
     return piece;
   }
@@ -1013,9 +1135,9 @@ class Board {
     return name + teamChar;
   }
 
-  placePieceInPos( pos: Pos, piece: Piece, from: Pos ) {
-    if( this.el[pos.y][pos.x].piece.html!==null ) {
-      this.removePieceInPos(pos, true);
+  placePieceInPos( pos: Pos, piece: Piece, appendHtml?: boolean ) {
+    if( appendHtml ) {
+      this.piecesHtml.append(piece.html);
     }
     if( piece.html ) {
       piece.html.
@@ -1032,13 +1154,20 @@ class Board {
       ${pos.y*this.piecesHtml.offsetWidth/this.fieldsInOneRow}px
     )`;
     this.el[pos.y][pos.x].piece = piece;
+  }
 
-    if( from ) {
-      moves.push(new Move(piece, from, pos));
-      currTeam = (currTeam===whiteNum) ? blackNum : whiteNum;
-      this.turnOfHighlightOnAllFields();
-      this.visualizingArrows.removeAllArrows();
+  movePiece(from: Pos, to: Pos, piece: Piece ) {
+    if( this.el[to.y][to.x].piece.html!==null ) {
+      this.removePieceInPos(to, true);
     }
+    if( this.el[from.y][from.x].piece.num ) {
+      this.el[from.y][from.x].piece = new Piece(0, null, null);
+    }
+    this.moves.push(new Move(piece, from, to));
+    this.currTeam = (this.currTeam===whiteNum) ? blackNum : whiteNum;
+    this.turnOfHighlightOnAllFields();
+    this.visualizingArrows.removeAllArrows();
+    this.placePieceInPos(to, piece);
   }
 
   getEmptyFieldsPosAtBeginning() {
@@ -1104,17 +1233,6 @@ class Board {
   }
 }
 
-class Move {
-  piece: Piece;
-  from: Pos;
-  to: Pos;
-  constructor(piece: Piece, from: Pos, to: Pos) {
-    this.piece = piece;
-    this.from = from;
-    this.to = to;
-  }
-}
-
 function startGame() {
   board = new Board("[data-board-container]", "[data-container]");
 }
@@ -1133,6 +1251,91 @@ function getRandomColor() {
     case 6: return "brown";
     case 7: return "purple";
     case 8: return "gray";
+  }
+}
 
+class VisualizingArrow {
+  // arr = arrow ||  arr = arrows
+  board: Board;
+  startPos: Pos;
+  endPos: Pos;
+  arrContainer: HTMLDivElement;
+  constructor(board: Board, startPos: Pos, endPos: Pos) {
+    this.board = board;
+    this.startPos = startPos;
+    this.endPos = endPos;
+    const arrDir = new Dir(this.endPos.y-this.startPos.y, this.endPos.x-this.startPos.x);
+    const arrLengthFields = Math.sqrt(Math.abs( Math.pow(Math.abs(arrDir.x), 2) + Math.pow(Math.abs(arrDir.y), 2) ));
+    const fieldWidth = this.board.html.offsetWidth/this.board.fieldsInOneRow;
+    const arrLengthPx = arrLengthFields*fieldWidth;
+    const arrHeadLengthPx = fieldWidth/2;
+    const arrTailLengthPx = arrLengthPx-arrHeadLengthPx;
+
+    const rotationDegOfVector = this.getRotationDegOfVector(arrDir);
+    this.arrContainer = document.createElement("div");
+    this.arrContainer.style.setProperty("--rotationDeg", `${-rotationDegOfVector}deg`);
+    this.arrContainer.classList.add("arrowContainer");
+    this.arrContainer.style.width = `${fieldWidth*0.8}px`;
+    this.arrContainer.style.height = `${fieldWidth*0.8}px`;
+
+    const arrowHead = document.createElement("div");
+    arrowHead.style.setProperty("--headHeight", `${fieldWidth/2+arrTailLengthPx}px`);
+    arrowHead.classList.add("arrowHead");
+    arrowHead.style.width = `${fieldWidth}px`;
+    arrowHead.style.height = `${fieldWidth}px`;
+
+    const arrowTail = document.createElement("div");
+    arrowTail.style.setProperty("--haldOfFieldSize", `${fieldWidth/2}px`);
+    arrowTail.classList.add("arrowTail");
+    arrowTail.style.width = `${arrTailLengthPx}px`;
+    arrowTail.style.height = `${fieldWidth*0.5}px`;
+  
+    this.arrContainer.append(arrowTail);
+    this.arrContainer.append(arrowHead);
+    this.board.el[this.startPos.y][this.startPos.x].html.append(this.arrContainer);
+
+  }
+
+  getRotationDegOfVector(vecDir: Dir,) {
+    const fromRadtoDegMultiplier = 180 / Math.PI;
+    const rotationAngleDeg = Math.atan(Math.abs(vecDir.y)/Math.abs(vecDir.x)) * fromRadtoDegMultiplier;
+
+    if( vecDir.y===0 ) {
+      if( vecDir.simplifyDir(vecDir.x)===1 ) {
+        return 0;
+      } else { // dir.simplifyDir(dir.x)===-1
+        return 180;
+      }
+    }
+
+    if( vecDir.x===0 ) {
+      if( vecDir.simplifyDir(vecDir.y*-1)===1 ) {
+        return 90;
+      } else { // dir.simplifyDir(dir.y*-1)===-1
+        return 270;
+      }
+    }
+
+    const quadrantNum = ( () => {
+      const simDir = new Dir( vecDir.simplifyDir(vecDir.y), vecDir.simplifyDir(vecDir.x) ); //simeplified direction
+      if( simDir.x===1 ) {
+        if( simDir.y*-1===1 ) {
+          return 1;
+        } else { // simDir.y*-1===-1
+          return 4;
+        }
+      }
+      if( simDir.y*-1===1 ) {
+        return 2;
+      }
+      return 3;
+      
+    }) ();
+    switch(quadrantNum) {
+      case 1: return rotationAngleDeg;
+      case 2: return 180 - rotationAngleDeg;
+      case 3: return 180 + rotationAngleDeg;
+      case 4: return 360 - rotationAngleDeg;
+    }
   }
 }

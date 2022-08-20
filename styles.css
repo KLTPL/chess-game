@@ -9,6 +9,7 @@
   --secondFieldColor: rgb(1, 104, 122);
   --fieldBoxShadow: 0 0 10px rgba(0, 0, 0, 0.5);
   --arrowBgColor: rgba(255, 68, 0, 0.9);
+  --popupColor: rgb(245, 245, 220);
 
   --fieldSize: 100%; /* set in the app.js script*/
   --possMoveSize: 100%; /* set in the app.js script*/
@@ -104,6 +105,7 @@ body {
 }
 
 .arrowContainer {
+  pointer-events: none;
   --rotationDeg: ; /* set in the app.js script*/
   position: absolute;
   top: 50%;
@@ -139,4 +141,41 @@ body {
   left: -65%;
   bottom: 50%;
   transform: translateY(50%) rotate(45deg);
+}
+
+.promotePopup {
+  --widthOfFiveFields: ; /* set in the app.js script*/
+  --widthOfThreeFields: ; /* set in the app.js script*/
+  --quarterOfField: ; /* set in the app.js script*/
+  width: var(--widthOfFiveFields);
+  height: var(--widthOfThreeFields);
+  padding-inline: var(--quarterOfField);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--popupColor);
+  display: flex;
+  gap: var(--quarterOfField);
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--fieldBoxShadow);
+}
+
+.promotePopup > div {
+  box-shadow: var(--fieldBoxShadow);
+}
+
+.promotePopup > div:hover {
+  box-shadow: 
+  inset 0 0 20px 5px green,
+  0 0 10px 0 green;
+}
+
+.promoteOption {
+  width: var(--fieldSize);
+  height: var(--fieldSize);
+  cursor: pointer;
+  background-size: var(--fieldSize);
+  background-position: center;
 }
