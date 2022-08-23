@@ -835,7 +835,7 @@ class Board {
     getNewHtmlPiece(num, team, cssClass) {
         let piece = document.createElement("div");
         piece.classList.add(cssClass);
-        piece.style.backgroundImage = `url(./images/${this.getPieceNameByNum(num, team)}.png)`;
+        piece.style.backgroundImage = `url(../images/${this.getPieceNameByNum(num, team)}.png)`;
         return piece;
     }
     getPieceNumByPos(pos) {
