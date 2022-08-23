@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es3",
+    "rootDir": "./src",
+    "outDir": "./public",
+    "target": "ES2015",
     "watch": true,
     "lib": ["DOM","ES2022"]
   }
