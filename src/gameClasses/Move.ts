@@ -1,5 +1,5 @@
-import Piece from "./Pieces/Piece";
-import Pos from "./Pos";
+import Piece from "./Pieces/Piece.js";
+import Pos from "./Pos.js";
 
 export default class Move {
   piece: Piece;

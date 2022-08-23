@@ -1,6 +1,6 @@
-import Piece from "./Piece";
-import Pos from "../Pos";
-import Dir from "../Dir";
+import Piece from "./Piece.js";
+import Pos from "../Pos.js";
+import Dir from "../Dir.js";
 export default class Bishop extends Piece {
     constructor(team, html, board) {
         super(team, html, board);

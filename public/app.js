@@ -1,4 +1,4 @@
-import Board from "./gameClasses/Board";
+import Board from "./gameClasses/Board.js";
 let board;
 function startGame() {
     board = new Board("[data-board-container]", "[data-container]");

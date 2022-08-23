@@ -1,4 +1,4 @@
-import Dir from "./Dir";
+import Dir from "./Dir.js";
 export default class VisualizingArrow {
     constructor(board, startPos, endPos) {
         this.board = board;

@@ -1,5 +1,5 @@
-import Pos from "./Pos";
-import VisualizingArrow from "./VisualizingArrow";
+import Pos from "./Pos.js";
+import VisualizingArrow from "./VisualizingArrow.js";
 
 export default class VisualizingArrowsArr {
   // arr = arrow ||  arr = arrows

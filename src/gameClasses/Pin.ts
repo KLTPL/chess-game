@@ -1,5 +1,5 @@
-import Pos from "./Pos";
-import Dir from "./Dir";
+import Pos from "./Pos.js";
+import Dir from "./Dir.js";
 export default class Pin {
   pinnedPiecePos: Pos;
   pinDir: Dir;

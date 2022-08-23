@@ -1,4 +1,4 @@
-import Piece from "./Pieces/Piece";
+import Piece from "./Pieces/Piece.js";
 export default class Field {
   html: HTMLElement;
   piece: Piece;
