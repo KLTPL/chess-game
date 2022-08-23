@@ -1,7 +1,7 @@
-import Board from "../Board";
-import Pos from "../Pos";
-import Dir from "../Dir";
-import Pin from "../Pin";
+import Board from "../Board.js";
+import Pos from "../Pos.js";
+import Dir from "../Dir.js";
+import Pin from "../Pin.js";
 
 export default class Piece {
   num: number;

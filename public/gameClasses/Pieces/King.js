@@ -1,7 +1,7 @@
-import Piece from "./Piece";
-import Pos from "../Pos";
-import Dir from "../Dir";
-import Pin from "../Pin";
+import Piece from "./Piece.js";
+import Pos from "../Pos.js";
+import Dir from "../Dir.js";
+import Pin from "../Pin.js";
 export default class King extends Piece {
     constructor(team, html, board) {
         super(team, html, board);

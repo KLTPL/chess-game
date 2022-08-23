@@ -1,6 +1,6 @@
-import Board from "./Board";
-import Pos from "./Pos";
-import Dir from "./Dir";
+import Board from "./Board.js";
+import Pos from "./Pos.js";
+import Dir from "./Dir.js";
 
 
 export default class VisualizingArrow {

@@ -1,8 +1,8 @@
-import Board from "../Board";
-import Piece from "./Piece";
-import Pos from "../Pos";
-import Dir from "../Dir";
-import PawnPromotionMenu from "../PawnPromotionMenu";
+import Board from "../Board.js";
+import Piece from "./Piece.js";
+import Pos from "../Pos.js";
+import Dir from "../Dir.js";
+import PawnPromotionMenu from "../PawnPromotionMenu.js";
 
 export default class Pawn extends Piece {
   haventMovedYet: boolean;

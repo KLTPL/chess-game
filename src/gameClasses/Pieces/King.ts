@@ -1,9 +1,9 @@
-import Board from "../Board";
-import Piece from "./Piece";
-import Rook from "./Rook";
-import Pos from "../Pos";
-import Dir from "../Dir";
-import Pin from "../Pin";
+import Board from "../Board.js";
+import Piece from "./Piece.js";
+import Rook from "./Rook.js";
+import Pos from "../Pos.js";
+import Dir from "../Dir.js";
+import Pin from "../Pin.js";
 
 export default class King extends Piece {
   haventMovedYet: Boolean;

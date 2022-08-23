@@ -1,4 +1,4 @@
-import Pos from "./Pos";
+import Pos from "./Pos.js";
 export default class Dir extends Pos {
     constructor(y, x, simplifyDirections) {
         super(y, x);

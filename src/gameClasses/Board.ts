@@ -1,17 +1,17 @@
-import Pos from "./Pos";
-import Field from "./Field";
-import Piece from "./Pieces/Piece";
-import Pawn from "./Pieces/Pawn";
-import Rook from "./Pieces/Rook";
-import Knight from "./Pieces/Knight";
-import Bishop from "./Pieces/Bishop";
-import Queen from "./Pieces/Queen";
-import King from "./Pieces/King";
-import Move from "./move";
-import VisualizingArrowsArr from "./VisualizingArrowsArr";
-import VisualizingArrow from "./VisualizingArrow";
-import MapOfPiecesOnBoardAtStart from "./MapOfPiecesOnBoardAtStart";
-import PawnPromotionMenu from "./PawnPromotionMenu";
+import Pos from "./Pos.js";
+import Field from "./Field.js";
+import Piece from "./Pieces/Piece.js";
+import Pawn from "./Pieces/Pawn.js";
+import Rook from "./Pieces/Rook.js";
+import Knight from "./Pieces/Knight.js";
+import Bishop from "./Pieces/Bishop.js";
+import Queen from "./Pieces/Queen.js";
+import King from "./Pieces/King.js";
+import Move from "./Move.js";
+import VisualizingArrowsArr from "./VisualizingArrowsArr.js";
+import VisualizingArrow from "./VisualizingArrow.js";
+import MapOfPiecesOnBoardAtStart from "./MapOfPiecesOnBoardAtStart.js";
+import PawnPromotionMenu from "./PawnPromotionMenu.js";
 
 export default class Board {
   currTeam: number;

@@ -1,4 +1,4 @@
-import Board from "./Board";
+import Board from "./Board.js";
 
 export default class PawnPromotionMenu {
   team: number;

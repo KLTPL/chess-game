@@ -1,4 +1,4 @@
-import Dir from "../Dir";
+import Dir from "../Dir.js";
 export default class Piece {
     constructor(team, html, board) {
         this.startFollowingCursor = (ev) => {
