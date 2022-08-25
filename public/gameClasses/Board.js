@@ -10,8 +10,9 @@ import King from "./Pieces/King.js";
 import Move from "./Move.js";
 import VisualizingArrowsArr from "./VisualizingArrowsArr.js";
 import VisualizingArrow from "./VisualizingArrow.js";
+import EndType from "./EndType.js";
 export default class Board {
-    constructor(htmlElQuerySelector, htmlPageContainerQuerySelector, teamPerspectiveNum, startPositionsOfPieces) {
+    constructor(htmlQSelector, htmlPageContainerQSelector, teamPerspectiveNum, match, startPositionsOfPieces) {
         this.visualizationSystem = (ev) => {
             const rightClickNum = 2;
             if (ev.button !== rightClickNum) {
@@ -43,11 +44,12 @@ export default class Board {
                 this.toggleHighlightOnFieldOnPos(this.getFieldCoorByPx(ev.clientX, ev.clientY));
             });
         };
+        this.match = match;
         this.currTeam = 1;
         this.moves = [];
         this.el = [];
-        this.html = document.querySelector(htmlElQuerySelector);
-        this.pageContainerHtml = document.querySelector(htmlPageContainerQuerySelector);
+        this.html = document.querySelector(htmlQSelector);
+        this.pageContainerHtml = document.querySelector(htmlPageContainerQSelector);
         this.fieldsInOneRow = 8;
         this.grabbedPiece = null;
         this.visualizingArrows = new VisualizingArrowsArr();
@@ -263,6 +265,29 @@ export default class Board {
         this.placePieceInPos(to, piece);
         const movingPiecesKing = (piece.team === this.whiteNum) ? this.kings.black : this.kings.white;
         movingPiecesKing.updateChecksArr();
+        let hasMoves = false;
+        for (let r = 0; r < this.el.length; r++) {
+            for (let c = 0; c < this.el[r].length; c++) {
+                if (this.el[r][c].piece.team !== piece.enemyTeamNum()) {
+                    continue;
+                }
+                const pieceCanMove = (this.el[r][c].piece.getPossibleMovesFromPos(new Pos(r, c)).length === 1) ? false : true;
+                if (pieceCanMove) {
+                    hasMoves = true;
+                    break;
+                }
+            }
+        }
+        if (!hasMoves) {
+            const cousedBy = (piece.team === this.whiteNum) ? this.match.players.white : this.match.players.black;
+            if (movingPiecesKing.checks.length === 0) {
+                this.match.end(new EndType(cousedBy, "stale-mate")); // have to check if stale-mated king has other pieces to move
+            }
+            else {
+                this.match.end(new EndType(cousedBy, "check-mate"));
+            }
+            console.log(this.match);
+        }
     }
     getEmptyFieldsPosAtBeginning() {
         let fieldsPos = [];
