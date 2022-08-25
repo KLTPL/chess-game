@@ -9,10 +9,10 @@ export default class Dir extends Pos {
   }
 
   simplifyDir(dir: number) {
-    if( dir>1 ) {
+    if( dir>=1 ) {
       return 1;
     }
-    if( dir<-1 ) {
+    if( dir<=-1 ) {
       return -1;
     }
     return 0;

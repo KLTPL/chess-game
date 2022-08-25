@@ -2,6 +2,8 @@ import Board from "../Board.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 import Pin from "../Pin.js";
+import King from "./King.js";
+import Check from "../Check.js";
 
 export default class Piece {
   num: number;
@@ -53,6 +55,8 @@ export default class Piece {
       );
       return;
     }
+    this.board.visualizingArrows.removeAllArrows();
+    this.board.turnOfHighlightOnAllFields();
     this.possMoves = this.getPossibleMovesFromPos(fieldCoor);
     this.board.showPossibleMoves(this.possMoves, this.enemyTeamNum());
     let mouseHold = new Promise<void>((resolve, reject) => {
@@ -106,8 +110,8 @@ export default class Piece {
     this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
     this.html.style.transform = 
       `translate(
-        ${ev.clientX-((this.board.htmlPageContainer.offsetWidth-this.board.piecesHtml.offsetWidth)/2)-this.html.offsetWidth/2}px, 
-        ${ev.clientY-((this.board.htmlPageContainer.offsetHeight-this.board.piecesHtml.offsetHeight)/2)-this.html.offsetWidth/2}px
+        ${ev.clientX-((this.board.pageContainerHtml.offsetWidth-this.board.piecesHtml.offsetWidth)/2)-this.html.offsetWidth/2}px, 
+        ${ev.clientY-((this.board.pageContainerHtml.offsetHeight-this.board.piecesHtml.offsetHeight)/2)-this.html.offsetWidth/2}px
       )`;
   }
 
@@ -147,7 +151,7 @@ export default class Piece {
     this.board.grabbedPiece = null;
   }
 
-  substraktAbsPinsFromPossMoves(possMoves: Pos[], absPins: Pin[], pos: Pos) {
+  substractAbsPinsFromPossMoves(possMoves: Pos[], absPins: Pin[], pos: Pos) {
     for( let p=0 ; p<absPins.length ; p++ ) {
       if( absPins[p].pinnedPiecePos.x===pos.x && absPins[p].pinnedPiecePos.y===pos.y ) {
         for( let m=0 ; m<possMoves.length ; m++ ) {
@@ -166,6 +170,40 @@ export default class Piece {
       }
     }
     return possMoves;
+  }
+
+  removePossMovesIfKingIsChecked( possMoves: Pos[], myKing: King, pos: Pos ) {
+    if( myKing.checks.length<=0 ) {
+      return possMoves;
+    }
+    if( myKing.checks.length===2 ) {
+      return [];
+    }
+
+    for( let m=0 ; m<possMoves.length ; m++ ) {
+      if( possMoves[m].x===pos.x && possMoves[m].y===pos.y ) {
+        continue;
+      }
+      for( let c=0 ; c<myKing.checks.length ; c++ ) {
+        if( !this.moveIsACaptureOrIsOnTheWayOfACheck(myKing.checks[c], possMoves[m]) ) {
+          possMoves.splice(m, 1);
+          m--;
+        }
+      }
+    } 
+
+    return possMoves;
+  }
+
+  moveIsACaptureOrIsOnTheWayOfACheck(check: Check, move: Pos) {
+    const isACapture = check.checkingPiecePos.x===move.x && check.checkingPiecePos.y===move.y;
+    let isOnTheLine = false;
+    for( let field of check.fieldsInBetweenPieceAndKing ) {
+      if( move.x===field.x && move.y===field.y ) {
+        isOnTheLine = true;
+      }
+    }
+    return isACapture || isOnTheLine;
   }
 
   sideEffectsOfMove( to: Pos, from: Pos ) {

@@ -4,14 +4,32 @@ import Rook from "./Rook.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 import Pin from "../Pin.js";
+import Check from "../Check.js";
+
+function getRandomColor() {
+  switch(Math.floor(Math.random()*9)) {
+    case 0: return "red";
+    case 1: return "blue";
+    case 2: return "green";
+    case 3: return "yellow";
+    case 4: return "black";
+    case 5: return "pink";
+    case 6: return "orange";
+    case 6: return "brown";
+    case 7: return "purple";
+    case 8: return "gray";
+  }
+}
 
 export default class King extends Piece {
   haventMovedYet: Boolean;
+  checks: Check[]; // could be 0, 1 or 2
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
     this.num = 6;
     this.value = 0;
     this.haventMovedYet = true;
+    this.checks = [];
 
   }
 
@@ -211,5 +229,32 @@ export default class King extends Piece {
         this.board.placePieceInPos(new Pos(to.y, to.x+(castleDir.x*-1)), grabbedPiece);
       }
     }
+  }
+
+  updateChecksArr() {
+    this.checks = [];
+    const possitionsOfPiecesCheckingKing = this.getPossitionsOfPiecesCheckingKing();
+    for( let posOfPiece of possitionsOfPiecesCheckingKing ) {
+      this.checks.push(new Check(posOfPiece, this.pos, this.board));
+    }
+  }
+
+  getPossitionsOfPiecesCheckingKing() {
+    let checkingPieces: Pos[] = [];
+
+    for( let r=0 ; r<this.board.el.length ; r++ ) {
+      for( let c=0 ; c<this.board.el[r].length ; c++ ) {
+        if( this.board.el[r][c].piece.team!==this.enemyTeamNum() ) {
+          continue;
+        }
+        const pieceMovesForKing = this.board.el[r][c].piece.getPossibleMovesFromPosForKing(new Pos(r, c));
+        for( let move of pieceMovesForKing ) {
+          if( this.pos.x===move.x && this.pos.y===move.y ) {
+            checkingPieces.push(new Pos(r, c));
+          }
+        }
+      }
+    }
+    return checkingPieces;
   }
 }

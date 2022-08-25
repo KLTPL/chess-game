@@ -10,9 +10,8 @@ import King from "./Pieces/King.js";
 import Move from "./Move.js";
 import VisualizingArrowsArr from "./VisualizingArrowsArr.js";
 import VisualizingArrow from "./VisualizingArrow.js";
-import MapOfPiecesOnBoardAtStart from "./MapOfPiecesOnBoardAtStart.js";
 export default class Board {
-    constructor(htmlElQuerySelector, htmlPageContainerQuerySelector) {
+    constructor(htmlElQuerySelector, htmlPageContainerQuerySelector, teamPerspectiveNum, startPositionsOfPieces) {
         this.visualizationSystem = (ev) => {
             const rightClickNum = 2;
             if (ev.button !== rightClickNum) {
@@ -48,25 +47,27 @@ export default class Board {
         this.moves = [];
         this.el = [];
         this.html = document.querySelector(htmlElQuerySelector);
-        this.htmlPageContainer = document.querySelector(htmlPageContainerQuerySelector);
+        this.pageContainerHtml = document.querySelector(htmlPageContainerQuerySelector);
         this.fieldsInOneRow = 8;
         this.grabbedPiece = null;
         this.visualizingArrows = new VisualizingArrowsArr();
         this.pawnPromotionMenu = null;
-        this.mapOfPiecesOnBoardAtStart = new MapOfPiecesOnBoardAtStart(true);
+        this.noPieceNum = 0;
         this.pawnNum = 1;
         this.rookNum = 2;
         this.knightNum = 3;
         this.bishopNum = 4;
         this.queenNum = 5;
         this.kingNum = 6;
+        this.noTeamNum = 0;
         this.whiteNum = 1;
         this.blackNum = 2;
         const root = document.querySelector(":root");
         root.style.setProperty("--fieldSize", `${this.html.offsetWidth / this.fieldsInOneRow}px`);
         this.createContainersForFieldsAndPieces();
         this.createFields();
-        this.placePiecesAtStart();
+        const whitesPerspective = (teamPerspectiveNum === this.whiteNum);
+        this.placePieces(whitesPerspective, startPositionsOfPieces);
         this.kings = this.getKings();
         this.html.addEventListener("mousedown", this.visualizationSystem);
     }
@@ -80,24 +81,6 @@ export default class Board {
         this.piecesHtml.addEventListener("contextmenu", ev => ev.preventDefault());
         this.html.append(this.piecesHtml);
     }
-    getProperPieceByString(pieceString) {
-        // if( pieceString==="empty" ) {
-        //   return this.getNewPieceObj(-1, -1);
-        // }
-        // const pieceNum = ( () => {
-        //   switch(pieceString.slice(1, pieceString.length-1)) {
-        //     case "Pawn": return pawnNum;
-        //     case "Rook": return rookNum;
-        //     case "Knight": return knightNum;
-        //     case "Bishop": return bishopNum;
-        //     case "Queen": return queenNum;
-        //     case "King": return kingNum;
-        //   }
-        // }) ();
-        // const teamNum = pieceString[0]==="w" ? whiteNum : blackNum;
-        // return this.getNewPieceObj(pieceNum, teamNum);
-        return this.getNewPieceObj(0, null);
-    }
     getNewPieceObj(num, team) {
         switch (num) {
             case this.pawnNum: return new Pawn(team, this.getNewHtmlPiece(num, team, "piece"), this);
@@ -106,7 +89,7 @@ export default class Board {
             case this.bishopNum: return new Bishop(team, this.getNewHtmlPiece(num, team, "piece"), this);
             case this.queenNum: return new Queen(team, this.getNewHtmlPiece(num, team, "piece"), this);
             case this.kingNum: return new King(team, this.getNewHtmlPiece(num, team, "piece"), this);
-            default: return new Piece(null, null, this);
+            default: return new Piece(this.noTeamNum, null, this);
         }
     }
     getNewHtmlPiece(num, team, cssClass) {
@@ -114,40 +97,6 @@ export default class Board {
         piece.classList.add(cssClass);
         piece.style.backgroundImage = `url(../images/${this.getPieceNameByNum(num, team)}.png)`;
         return piece;
-    }
-    getPieceNumByPos(pos) {
-        const begRookPos = [new Pos(0, 0), new Pos(0, 7)];
-        for (let i = 0; i < begRookPos.length; i++) {
-            if ((begRookPos[i].y === pos.y && begRookPos[i].x === pos.x) ||
-                (this.fieldsInOneRow - 1 - begRookPos[i].y === pos.y && begRookPos[i].x === pos.x)) {
-                return this.rookNum;
-            }
-        }
-        const begKnightPos = [new Pos(0, 1), new Pos(0, 6)];
-        for (let i = 0; i < begKnightPos.length; i++) {
-            if ((begKnightPos[i].y === pos.y && begKnightPos[i].x === pos.x) ||
-                (this.fieldsInOneRow - 1 - begKnightPos[i].y === pos.y && begKnightPos[i].x === pos.x)) {
-                return this.knightNum;
-            }
-        }
-        const begBishopPos = [new Pos(0, 2), new Pos(0, 5)];
-        for (let i = 0; i < begBishopPos.length; i++) {
-            if ((begBishopPos[i].y === pos.y && begBishopPos[i].x === pos.x) ||
-                (this.fieldsInOneRow - 1 - begBishopPos[i].y === pos.y && begBishopPos[i].x === pos.x)) {
-                return this.bishopNum;
-            }
-        }
-        const begQueenPos = new Pos(0, 3);
-        if ((begQueenPos.y === pos.y && begQueenPos.x === pos.x) ||
-            (this.fieldsInOneRow - 1 - begQueenPos.y === pos.y && begQueenPos.x === pos.x)) {
-            return this.queenNum;
-        }
-        const begKingPos = new Pos(0, 4);
-        if ((begKingPos.y === pos.y && begKingPos.x === pos.x) ||
-            (this.fieldsInOneRow - 1 - begKingPos.y === pos.y && begKingPos.x === pos.x)) {
-            return this.kingNum;
-        }
-        return this.pawnNum;
     }
     createFields() {
         this.el = [];
@@ -162,7 +111,7 @@ export default class Board {
                 field.classList.add(`field`);
                 field.classList.add(`field${fieldNr}`);
                 this.fieldsHtml.append(field);
-                this.el[r][c] = new Field(field, null);
+                this.el[r][c] = new Field(field, this.getNewPieceObj(this.noPieceNum, this.noTeamNum));
                 if (this.el[r][c].piece.num === this.kingNum) {
                     this.el[r][c].piece.pos = new Pos(r, c);
                 }
@@ -177,16 +126,58 @@ export default class Board {
             }
         }
     }
-    placePiecesAtStart() {
+    placePieces(whitesPerspective, customPositions) {
+        let arrOfPiecesToPlaceByPieceNum = (customPositions) ?
+            this.convertMapOfPiecesForHumanToMapForScript(customPositions) :
+            this.getMapOfPiecesInDeafultPos();
+        if (!whitesPerspective) {
+            arrOfPiecesToPlaceByPieceNum = this.invertMap(arrOfPiecesToPlaceByPieceNum);
+        }
         for (let r = 0; r < this.el.length; r++) {
             for (let c = 0; c < this.el[r].length; c++) {
-                this.el[r][c].piece = this.getProperPieceByString(this.mapOfPiecesOnBoardAtStart.map[r][c]);
+                this.placePieceInPos(new Pos(r, c), arrOfPiecesToPlaceByPieceNum[r][c], Boolean(arrOfPiecesToPlaceByPieceNum[r][c].html));
             }
         }
     }
+    convertMapOfPiecesForHumanToMapForScript(customPositions) {
+        return [];
+    }
+    getMapOfPiecesInDeafultPos() {
+        const firstAndLastRowNums = [
+            this.rookNum, this.knightNum, this.bishopNum, this.queenNum, this.kingNum, this.bishopNum, this.knightNum, this.rookNum
+        ];
+        let mapOfPieces = [];
+        for (let r = 0; r < this.fieldsInOneRow; r++) {
+            mapOfPieces[r] = [];
+            const teamNum = (r < 4) ? this.blackNum : this.whiteNum;
+            if (r === 0 || r === this.fieldsInOneRow - 1) {
+                for (let pieceNum of firstAndLastRowNums) {
+                    mapOfPieces[r].push(this.getNewPieceObj(pieceNum, teamNum));
+                }
+                continue;
+            }
+            const pieceNum = (r === 1 || r === this.fieldsInOneRow - 2) ?
+                this.pawnNum :
+                this.noPieceNum;
+            for (let i = 0; i < this.fieldsInOneRow; i++) {
+                mapOfPieces[r].push(this.getNewPieceObj(pieceNum, (pieceNum === this.noPieceNum) ? this.noTeamNum : teamNum));
+            }
+        }
+        return mapOfPieces;
+    }
+    invertMap(map) {
+        let newMap = [];
+        for (let r = map.length - 1; r >= 0; r--) {
+            newMap[newMap.length] = [];
+            for (let c = map[r].length - 1; c >= 0; c--) {
+                newMap[newMap.length - 1].push(map[r][c]);
+            }
+        }
+        return newMap;
+    }
     getFieldCoorByPx(leftPx, topPx) {
-        const boardStartLeft = (this.htmlPageContainer.offsetWidth - this.html.offsetWidth) / 2;
-        const boardStartTop = (this.htmlPageContainer.offsetHeight - this.html.offsetHeight) / 2;
+        const boardStartLeft = (this.pageContainerHtml.offsetWidth - this.html.offsetWidth) / 2;
+        const boardStartTop = (this.pageContainerHtml.offsetHeight - this.html.offsetHeight) / 2;
         const posOnBoardLeft = leftPx - boardStartLeft;
         const posOnBoardTop = topPx - boardStartTop;
         let fieldC = Math.ceil(posOnBoardLeft / this.html.offsetWidth * this.fieldsInOneRow) - 1;
@@ -249,13 +240,13 @@ export default class Board {
         if (piece.html) {
             piece.html.
                 addEventListener("mousedown", piece.startFollowingCursor, { once: true });
+            piece.html.style.transform =
+                `translate(
+        ${pos.x * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px, 
+        ${pos.y * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
+      )`;
         }
         piece.pos = (piece.num === this.kingNum) ? new Pos(pos.y, pos.x) : null;
-        piece.html.style.transform =
-            `translate(
-      ${pos.x * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px, 
-      ${pos.y * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
-    )`;
         this.el[pos.y][pos.x].piece = piece;
     }
     movePiece(from, to, piece) {
@@ -270,6 +261,8 @@ export default class Board {
         this.turnOfHighlightOnAllFields();
         this.visualizingArrows.removeAllArrows();
         this.placePieceInPos(to, piece);
+        const movingPiecesKing = (piece.team === this.whiteNum) ? this.kings.black : this.kings.white;
+        movingPiecesKing.updateChecksArr();
     }
     getEmptyFieldsPosAtBeginning() {
         let fieldsPos = [];
