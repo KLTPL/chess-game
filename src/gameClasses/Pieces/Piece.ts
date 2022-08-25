@@ -47,7 +47,7 @@ export default class Piece {
   startFollowingCursor = (ev: MouseEvent) => {
     const leftClickNum = 0;
     const fieldCoor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
-    if( this.board.currTeam!==this.team || ev.button!==leftClickNum || this.board.pawnPromotionMenu || this.board.grabbedPiece!==null ) {
+    if( this.board.currTeam!==this.team || ev.button!==leftClickNum || this.board.pawnPromotionMenu || this.board.grabbedPiece!==null || !this.board.match.gameRunning ) {
       this.html.addEventListener(
         "mousedown",
         this.startFollowingCursor,

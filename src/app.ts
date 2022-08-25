@@ -1,13 +1,36 @@
-import Board from "./gameClasses/Board.js";
+import Match from "./gameClasses/Match.js";
+import { BoardInfo } from "./gameClasses/Board.js";
+import { PlayerInfo } from "./gameClasses/Player.js";
 
-let board: Board;
+let match: Match;
 
 function startGame() {
-  board = new Board("[data-board-container]", "[data-container]", 1);
+  const player1Info: PlayerInfo = {
+    name: "white noob", 
+    image: null, 
+    team: 1, 
+    timeS: 600
+  };
+
+  const player2Info: PlayerInfo = {
+    name: "black noob", 
+    image: null, 
+    team: 1, 
+    timeS: 600
+  };
+
+  const boardInfo: BoardInfo = {
+    htmlQSelector: "[data-board-container]", 
+    htmlPageContainerQSelector: "[data-container]", 
+    teamPerspectiveNum: 1, 
+    startPositionsOfPieces: undefined
+  };
+  match = new Match(player1Info, player2Info, boardInfo);
 }
 
 startGame();
 
+console.log(match)
 // function getRandomColor() {
 //   switch(Math.floor(Math.random()*9)) {
 //     case 0: return "red";
