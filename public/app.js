@@ -1,7 +1,7 @@
 import Board from "./gameClasses/Board.js";
 let board;
 function startGame() {
-    board = new Board("[data-board-container]", "[data-container]");
+    board = new Board("[data-board-container]", "[data-container]", 1);
 }
 startGame();
 // function getRandomColor() {

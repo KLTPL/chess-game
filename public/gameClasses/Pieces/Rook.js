@@ -9,14 +9,13 @@ export default class Rook extends Piece {
         this.haventMovedYet = true;
     }
     getPossibleMovesFromPosForKing(pos) {
-        const enemyTeamNum = this.enemyTeamNum();
         let possibleMoves = [];
         let tempPos;
         let directions = [new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir(0, -1)];
         for (let dir of directions) {
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (this.board.el[tempPos.y][tempPos.x].piece.team === enemyTeamNum &&
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum() &&
                     this.board.el[tempPos.y][tempPos.x].piece.num !== this.board.kingNum) {
                     break;
                 }
@@ -43,8 +42,7 @@ export default class Rook extends Piece {
         for (let dir of directions) {
             tempPos = new Pos(pos.y, pos.x);
             while (true) {
-                if (this.board.el[tempPos.y][tempPos.x].piece.team !== null &&
-                    this.board.el[tempPos.y][tempPos.x].piece.team !== this.team) {
+                if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum()) {
                     break;
                 }
                 tempPos.x += dir.x;
@@ -57,7 +55,8 @@ export default class Rook extends Piece {
             }
         }
         ;
-        possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+        possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+        possibleMoves = this.removePossMovesIfKingIsChecked(possibleMoves, myKing, pos);
         return possibleMoves;
     }
     sideEffectsOfMove() {

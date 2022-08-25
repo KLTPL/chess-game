@@ -37,7 +37,8 @@ export default class Knight extends Piece {
     }
     let possibleMoves = [pos, ...possibleMovesFromPosForKnight];
 
-    possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+    possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+    possibleMoves = this.removePossMovesIfKingIsChecked(possibleMoves, myKing, pos);
 
     return possibleMoves;
   }

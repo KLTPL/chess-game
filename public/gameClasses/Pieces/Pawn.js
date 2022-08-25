@@ -28,8 +28,7 @@ export default class Pawn extends Piece {
         const absPins = myKing.getPossitionsOfAbsolutePins();
         let possibleMovesFromPosForKing = this.getPossibleMovesFromPosForKing(pos);
         for (let i = 0; i < possibleMovesFromPosForKing.length; i++) {
-            if (this.board.el[possibleMovesFromPosForKing[i].y][possibleMovesFromPosForKing[i].x].piece.team === this.team ||
-                this.board.el[possibleMovesFromPosForKing[i].y][possibleMovesFromPosForKing[i].x].piece.team === null) {
+            if (this.board.el[possibleMovesFromPosForKing[i].y][possibleMovesFromPosForKing[i].x].piece.team !== this.enemyTeamNum()) {
                 possibleMovesFromPosForKing.splice(i, 1);
                 i--;
             }
@@ -51,7 +50,8 @@ export default class Pawn extends Piece {
                 possibleMoves.push(new Pos(pos.y + this.direction.y, capturePos.x));
             }
         }
-        possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+        possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+        possibleMoves = this.removePossMovesIfKingIsChecked(possibleMoves, myKing, pos);
         return possibleMoves;
     }
     sideEffectsOfMove(to) {

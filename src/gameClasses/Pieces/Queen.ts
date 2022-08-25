@@ -43,6 +43,8 @@ export default class Queen extends Piece {
 
   }
   getPossibleMovesFromPos(pos: Pos) {
+    const myKing = (this.team===this.board.whiteNum) ? this.board.kings.white : this.board.kings.black;
+    const absPins = myKing.getPossitionsOfAbsolutePins();
     let possibleMoves = [pos];
     let tempPos: Pos;
     let directions = [
@@ -52,10 +54,7 @@ export default class Queen extends Piece {
     for( let dir of directions ) {
       tempPos = new Pos(pos.y,pos.x);
       while(true) {
-        if( 
-          this.board.el[tempPos.y][tempPos.x].piece.team!==null && 
-          this.board.el[tempPos.y][tempPos.x].piece.team!==this.team 
-        ) {
+        if( this.board.el[tempPos.y][tempPos.x].piece.team===this.enemyTeamNum() ) {
           break;
         }
         tempPos.x += dir.x;
@@ -70,9 +69,8 @@ export default class Queen extends Piece {
       }
     };
 
-    const myKing = (this.team===this.board.whiteNum) ? this.board.kings.white : this.board.kings.black;
-    const absPins = myKing.getPossitionsOfAbsolutePins();
-    possibleMoves = this.substraktAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+    possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+    possibleMoves = this.removePossMovesIfKingIsChecked(possibleMoves, myKing, pos);
 
     return possibleMoves;
   }

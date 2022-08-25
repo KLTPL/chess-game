@@ -8,6 +8,8 @@ export default class Piece {
                 this.html.addEventListener("mousedown", this.startFollowingCursor, { once: true });
                 return;
             }
+            this.board.visualizingArrows.removeAllArrows();
+            this.board.turnOfHighlightOnAllFields();
             this.possMoves = this.getPossibleMovesFromPos(fieldCoor);
             this.board.showPossibleMoves(this.possMoves, this.enemyTeamNum());
             let mouseHold = new Promise((resolve, reject) => {
@@ -42,8 +44,8 @@ export default class Piece {
             this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
             this.html.style.transform =
                 `translate(
-        ${ev.clientX - ((this.board.htmlPageContainer.offsetWidth - this.board.piecesHtml.offsetWidth) / 2) - this.html.offsetWidth / 2}px, 
-        ${ev.clientY - ((this.board.htmlPageContainer.offsetHeight - this.board.piecesHtml.offsetHeight) / 2) - this.html.offsetWidth / 2}px
+        ${ev.clientX - ((this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) / 2) - this.html.offsetWidth / 2}px, 
+        ${ev.clientY - ((this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight) / 2) - this.html.offsetWidth / 2}px
       )`;
         };
         this.stopFollowingCursor = (ev) => {
@@ -93,7 +95,7 @@ export default class Piece {
         let possibleMoves = [];
         return possibleMoves;
     }
-    substraktAbsPinsFromPossMoves(possMoves, absPins, pos) {
+    substractAbsPinsFromPossMoves(possMoves, absPins, pos) {
         for (let p = 0; p < absPins.length; p++) {
             if (absPins[p].pinnedPiecePos.x === pos.x && absPins[p].pinnedPiecePos.y === pos.y) {
                 for (let m = 0; m < possMoves.length; m++) {
@@ -110,6 +112,36 @@ export default class Piece {
             }
         }
         return possMoves;
+    }
+    removePossMovesIfKingIsChecked(possMoves, myKing, pos) {
+        if (myKing.checks.length <= 0) {
+            return possMoves;
+        }
+        if (myKing.checks.length === 2) {
+            return [];
+        }
+        for (let m = 0; m < possMoves.length; m++) {
+            if (possMoves[m].x === pos.x && possMoves[m].y === pos.y) {
+                continue;
+            }
+            for (let c = 0; c < myKing.checks.length; c++) {
+                if (!this.moveIsACaptureOrIsOnTheWayOfACheck(myKing.checks[c], possMoves[m])) {
+                    possMoves.splice(m, 1);
+                    m--;
+                }
+            }
+        }
+        return possMoves;
+    }
+    moveIsACaptureOrIsOnTheWayOfACheck(check, move) {
+        const isACapture = check.checkingPiecePos.x === move.x && check.checkingPiecePos.y === move.y;
+        let isOnTheLine = false;
+        for (let field of check.fieldsInBetweenPieceAndKing) {
+            if (move.x === field.x && move.y === field.y) {
+                isOnTheLine = true;
+            }
+        }
+        return isACapture || isOnTheLine;
     }
     sideEffectsOfMove(to, from) {
     }
