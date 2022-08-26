@@ -1,4 +1,5 @@
-import Pos from "./Pos.js";
+import Pos from "./Pos.js"
+
 export default class Dir extends Pos {
   constructor( y: number, x: number, simplifyDirections?: boolean ) {
     super(y, x);

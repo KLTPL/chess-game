@@ -10,7 +10,6 @@ import King from "./Pieces/King.js";
 import Move from "./Move.js";
 import VisualizingArrowsArr from "./VisualizingArrowsArr.js";
 import VisualizingArrow from "./VisualizingArrow.js";
-import EndType from "./EndType.js";
 export default class Board {
     constructor(htmlQSelector, htmlPageContainerQSelector, teamPerspectiveNum, match, startPositionsOfPieces) {
         this.visualizationSystem = (ev) => {
@@ -64,6 +63,7 @@ export default class Board {
         this.noTeamNum = 0;
         this.whiteNum = 1;
         this.blackNum = 2;
+        this.inverted = (teamPerspectiveNum === this.whiteNum) ? false : true;
         const root = document.querySelector(":root");
         root.style.setProperty("--fieldSize", `${this.html.offsetWidth / this.fieldsInOneRow}px`);
         this.createContainersForFieldsAndPieces();
@@ -132,13 +132,13 @@ export default class Board {
         let arrOfPiecesToPlaceByPieceNum = (customPositions) ?
             this.convertMapOfPiecesForHumanToMapForScript(customPositions) :
             this.getMapOfPiecesInDeafultPos();
-        if (!whitesPerspective) {
-            arrOfPiecesToPlaceByPieceNum = this.invertMap(arrOfPiecesToPlaceByPieceNum);
-        }
         for (let r = 0; r < this.el.length; r++) {
             for (let c = 0; c < this.el[r].length; c++) {
                 this.placePieceInPos(new Pos(r, c), arrOfPiecesToPlaceByPieceNum[r][c], Boolean(arrOfPiecesToPlaceByPieceNum[r][c].html));
             }
+        }
+        if (!whitesPerspective) {
+            this.flipPerspective();
         }
     }
     convertMapOfPiecesForHumanToMapForScript(customPositions) {
@@ -258,35 +258,19 @@ export default class Board {
         if (this.el[from.y][from.x].piece.num) {
             this.el[from.y][from.x].piece = new Piece(0, null, null);
         }
-        this.moves.push(new Move(piece, from, to));
+        const newMove = (this.inverted) ?
+            new Move(piece, from.invert(this.fieldsInOneRow), to.invert(this.fieldsInOneRow)) :
+            new Move(piece, from, to);
+        this.moves.push(newMove);
         this.currTeam = (this.currTeam === this.whiteNum) ? this.blackNum : this.whiteNum;
         this.turnOfHighlightOnAllFields();
         this.visualizingArrows.removeAllArrows();
         this.placePieceInPos(to, piece);
         const movingPiecesKing = (piece.team === this.whiteNum) ? this.kings.black : this.kings.white;
         movingPiecesKing.updateChecksArr();
-        let hasMoves = false;
-        for (let r = 0; r < this.el.length; r++) {
-            for (let c = 0; c < this.el[r].length; c++) {
-                if (this.el[r][c].piece.team !== piece.enemyTeamNum()) {
-                    continue;
-                }
-                const pieceCanMove = (this.el[r][c].piece.getPossibleMovesFromPos(new Pos(r, c)).length === 1) ? false : true;
-                if (pieceCanMove) {
-                    hasMoves = true;
-                    break;
-                }
-            }
-        }
-        if (!hasMoves) {
-            const cousedBy = (piece.team === this.whiteNum) ? this.match.players.white : this.match.players.black;
-            if (movingPiecesKing.checks.length === 0) {
-                this.match.end(new EndType(cousedBy, "stale-mate")); // have to check if stale-mated king has other pieces to move
-            }
-            else {
-                this.match.end(new EndType(cousedBy, "check-mate"));
-            }
-            console.log(this.match);
+        this.match.checkIfGameShouldEndAfterMove(this.moves[this.moves.length - 1]);
+        if (this.match.gameRunning) {
+            this.flipPerspective();
         }
     }
     getEmptyFieldsPosAtBeginning() {
@@ -346,5 +330,25 @@ export default class Board {
         document.querySelectorAll("[data-poss-move]").forEach(move => {
             move.remove();
         });
+    }
+    flipPerspective() {
+        const boardBefore = [];
+        for (let r = 0; r < this.el.length; r++) {
+            boardBefore[r] = [];
+            for (let c = 0; c < this.el[r].length; c++) {
+                boardBefore[r].push(this.el[r][c].piece);
+            }
+        }
+        const boardAfter = this.invertMap(boardBefore);
+        for (let r = 0; r < this.el.length; r++) {
+            for (let c = 0; c < this.el[r].length; c++) {
+                if (boardAfter[r][c].num === this.pawnNum) {
+                    const pawn = boardAfter[r][c];
+                    pawn.directionY *= -1;
+                }
+                this.placePieceInPos(new Pos(r, c), boardAfter[r][c]);
+            }
+        }
+        this.inverted = (this.inverted) ? false : true;
     }
 }
