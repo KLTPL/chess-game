@@ -30,7 +30,6 @@ function startGame() {
 
 startGame();
 
-console.log(match)
 // function getRandomColor() {
 //   switch(Math.floor(Math.random()*9)) {
 //     case 0: return "red";

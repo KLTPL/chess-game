@@ -3,6 +3,8 @@ import { BoardInfo } from "./Board.js";
 import Player from "./Player.js";
 import { PlayerInfo } from "./Player.js";
 import EndType from "./EndType.js";
+import Move from "./Move.js";
+import Pos from "./Pos.js";
 
 type Players = {
   white: Player,
@@ -20,6 +22,30 @@ export default class Match {
     };
     this.board = new Board(boardInfo.htmlQSelector, boardInfo.htmlPageContainerQSelector, boardInfo.teamPerspectiveNum, this, boardInfo.startPositionsOfPieces);
 
+  }
+
+  checkIfGameShouldEndAfterMove(move: Move) {
+    const movingPiecesKing = (move.piece.team===this.board.whiteNum) ? this.board.kings.black : this.board.kings.white;
+    let hasMoves = false;
+    for( let r=0 ; r<this.board.el.length ; r++ ) {
+      for( let c=0 ; c<this.board.el[r].length ; c++ ) {
+        if( this.board.el[r][c].piece.team!==move.piece.enemyTeamNum() ) {
+          continue;
+        }
+        const pieceCanMove = 
+          (this.board.el[r][c].piece.getPossibleMovesFromPos(new Pos(r, c)).length===1) ? false : true;
+        if( pieceCanMove ) {
+          hasMoves = true;
+          break;
+        }
+      }
+    }
+    if( !hasMoves ) {
+      const cousedBy = (move.piece.team===this.board.whiteNum) ? this.players.white : this.players.black;
+      if( movingPiecesKing.checks.length>0 ) {
+        this.end(new EndType(cousedBy, "check-mate"));
+      }
+    }
   }
 
   end( endType: EndType ) {

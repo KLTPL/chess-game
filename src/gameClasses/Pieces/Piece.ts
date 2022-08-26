@@ -12,7 +12,6 @@ export default class Piece {
   board: Board;
   value: number;
   pos: (Pos|null);
-  direction: Dir;
   possMoves: Pos[];
   constructor(team: number, html: HTMLElement, board: Board) {
     this.num = 0;

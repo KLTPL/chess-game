@@ -1,6 +1,5 @@
 import Piece from "./Piece.js";
 import Pos from "../Pos.js";
-import Dir from "../Dir.js";
 import PawnPromotionMenu from "../PawnPromotionMenu.js";
 export default class Pawn extends Piece {
     constructor(team, html, board) {
@@ -8,11 +7,11 @@ export default class Pawn extends Piece {
         this.num = 1;
         this.value = 1;
         this.haventMovedYet = true;
-        this.direction = (this.team === this.board.whiteNum) ? new Dir(-1, 0) : new Dir(1, 0);
+        this.directionY = (this.team === this.board.whiteNum) ? -1 : 1;
     }
     getPossibleMovesFromPosForKing(pos) {
         let possibleMoves = [];
-        let takesPos = [new Pos(pos.y + this.direction.y, pos.x + 1), new Pos(pos.y + this.direction.y, pos.x - 1)];
+        let takesPos = [new Pos(pos.y + this.directionY, pos.x + 1), new Pos(pos.y + this.directionY, pos.x - 1)];
         for (let i = 0; i < takesPos.length; i++) {
             if (takesPos[i].x < 0 || takesPos[i].x > 7 || takesPos[i].y < 0 || takesPos[i].y > 7) {
                 takesPos.splice(i, 1);
@@ -34,10 +33,10 @@ export default class Pawn extends Piece {
             }
         }
         let possibleMoves = [pos, ...possibleMovesFromPosForKing];
-        if (!this.board.el[pos.y + this.direction.y][pos.x].piece.num) {
-            possibleMoves.push(new Pos(pos.y + this.direction.y, pos.x));
-            if (this.haventMovedYet && !this.board.el[pos.y + (this.direction.y * 2)][pos.x].piece.num) {
-                possibleMoves.push(new Pos(pos.y + (this.direction.y * 2), pos.x));
+        if (!this.board.el[pos.y + this.directionY][pos.x].piece.num) {
+            possibleMoves.push(new Pos(pos.y + this.directionY, pos.x));
+            if (this.haventMovedYet && !this.board.el[pos.y + (this.directionY * 2)][pos.x].piece.num) {
+                possibleMoves.push(new Pos(pos.y + (this.directionY * 2), pos.x));
             }
         }
         //en passant capture
@@ -47,7 +46,7 @@ export default class Pawn extends Piece {
             if (capturePos.x >= 0 && capturePos.x <= 7 &&
                 this.board.el[pos.y][capturePos.x].piece.team === enemyTeamNum &&
                 this.board.moves[this.board.moves.length - 1].piece === this.board.el[pos.y][capturePos.x].piece) {
-                possibleMoves.push(new Pos(pos.y + this.direction.y, capturePos.x));
+                possibleMoves.push(new Pos(pos.y + this.directionY, capturePos.x));
             }
         }
         possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
@@ -59,11 +58,11 @@ export default class Pawn extends Piece {
             this.haventMovedYet = false;
         }
         //en passant capture
-        if (this.board.el[to.y - this.direction.y][to.x].piece.num === this.board.pawnNum &&
-            this.board.moves[this.board.moves.length - 2].piece === this.board.el[to.y - this.direction.y][to.x].piece) {
-            this.board.removePieceInPos(new Pos(to.y - this.direction.y, to.x), true);
+        if (this.board.el[to.y - this.directionY][to.x].piece.num === this.board.pawnNum &&
+            this.board.moves[this.board.moves.length - 2].piece === this.board.el[to.y - this.directionY][to.x].piece) {
+            this.board.removePieceInPos(new Pos(to.y - this.directionY, to.x), true);
         }
-        const lastRowNum = (this.direction.y === 1) ? this.board.fieldsInOneRow - 1 : 0;
+        const lastRowNum = (this.directionY === 1) ? this.board.fieldsInOneRow - 1 : 0;
         if (to.y === lastRowNum) {
             this.promote(to);
         }
