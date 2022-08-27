@@ -268,6 +268,7 @@ export default class Board {
         this.placePieceInPos(to, piece);
         const movingPiecesKing = (piece.team === this.whiteNum) ? this.kings.black : this.kings.white;
         movingPiecesKing.updateChecksArr();
+        console.log(movingPiecesKing.checks);
         this.match.checkIfGameShouldEndAfterMove(this.moves[this.moves.length - 1]);
         if (this.match.gameRunning) {
             this.flipPerspective();
@@ -347,6 +348,14 @@ export default class Board {
                     pawn.directionY *= -1;
                 }
                 this.placePieceInPos(new Pos(r, c), boardAfter[r][c]);
+            }
+        }
+        const king = (this.currTeam === this.whiteNum) ? this.kings.white : this.kings.black;
+        for (let check of king.checks) {
+            check.checkedKingPos = check.checkedKingPos.invert(this.fieldsInOneRow);
+            check.checkingPiecePos = check.checkingPiecePos.invert(this.fieldsInOneRow);
+            for (let i = 0; i < check.fieldsInBetweenPieceAndKing.length; i++) {
+                check.fieldsInBetweenPieceAndKing[i] = check.fieldsInBetweenPieceAndKing[i].invert(this.fieldsInOneRow);
             }
         }
         this.inverted = (this.inverted) ? false : true;
