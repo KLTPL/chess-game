@@ -190,7 +190,6 @@ export default class Piece {
         }
       }
     } 
-
     return possMoves;
   }
 
