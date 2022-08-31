@@ -1,5 +1,6 @@
 export default class VisualizingArrowsArr {
-    constructor() {
+    constructor(board) {
+        this.board = board;
         this.arr = [];
     }
     getMatchingArrowNum(startPos, endPos) {

@@ -5,6 +5,7 @@ export default class PawnPromotionMenu {
   board: Board;
   optionsHtmls: HTMLElement[];
   html: HTMLElement;
+  waitingForDecision: Promise<number>;
   constructor(team: number, board: Board) {
     this.team = team;
     this.board = board;
@@ -34,6 +35,7 @@ export default class PawnPromotionMenu {
       this.html.append(optionContainer);
     }
     this.board.html.append(this.html);
+    this.waitingForDecision = this.askWhatPiecePlayerWants();
   }
 
   askWhatPiecePlayerWants(): Promise<number> {

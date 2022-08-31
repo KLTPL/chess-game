@@ -52,8 +52,7 @@ export default class Board {
   visualizingArrows: VisualizingArrowsArr;
   pawnPromotionMenu: (PawnPromotionMenu|null);
   inverted: boolean;
-  constructor(htmlQSelector: string, htmlPageContainerQSelector: string, teamPerspectiveNum: number, match: Match, startPositionsOfPieces?: mapOfPiecesForHuman) {
-
+  constructor(htmlQSelector: string, htmlPageContainerQSelector: string, teamPerspectiveNum: number, match: Match, startPositionsOfPieces: mapOfPiecesForHuman) {
     this.match = match;
     this.currTeam = 1;
     this.moves = [];
@@ -62,7 +61,7 @@ export default class Board {
     this.pageContainerHtml = document.querySelector(htmlPageContainerQSelector);
     this.fieldsInOneRow = 8;
     this.grabbedPiece = null;
-    this.visualizingArrows = new VisualizingArrowsArr();
+    this.visualizingArrows = new VisualizingArrowsArr(this);
     this.pawnPromotionMenu = null;
 
     this.noPieceNum = 0;
@@ -189,7 +188,7 @@ export default class Board {
   }
 
   placePieces(whitesPerspective: boolean, customPositions: mapOfPiecesForHuman) {
-    let arrOfPiecesToPlaceByPieceNum = 
+    const arrOfPiecesToPlaceByPieceNum = 
       (customPositions) ? 
       this.convertMapOfPiecesForHumanToMapForScript(customPositions) : 
       this.getMapOfPiecesInDeafultPos();
@@ -209,7 +208,52 @@ export default class Board {
   }
 
   convertMapOfPiecesForHumanToMapForScript(customPositions: mapOfPiecesForHuman): Piece[][] {
-    return [];
+    let mapForScript: Piece[][] = [];
+
+    for( let r=0 ; r<customPositions.length ; r++ ) {
+      mapForScript.push([]);
+      for( let c=0 ; c<customPositions[r].length ; c++ ) {
+        if( typeof customPositions[r][c]==="number" ) {
+          const multiplayer = customPositions[r][c] as number;
+          const multiplayedPiece = customPositions[r][c+1] as string;
+          for( let i=0 ; i<multiplayer ; i++ ) {
+            mapForScript[r].push(this.getNewPieceObjByString(multiplayedPiece));
+          }
+          c++;
+          continue;
+        }
+        const multiplayedPiece = customPositions[r][c] as string;
+        mapForScript[r].push(this.getNewPieceObjByString(multiplayedPiece));
+      }
+
+    }
+    return mapForScript;
+  }
+
+  getNewPieceObjByString(piece: string) {
+    const pieceTeam = this.getPieceTeamByString(piece[0]);
+    const pieceName = piece.slice(1, piece.length);
+    return this.getNewPieceObj(this.getPieceNumByName(pieceName), pieceTeam);
+  }
+
+  getPieceTeamByString( team: string ) {
+    switch(team) {
+      case "w": return this.whiteNum;
+      case "b": return this.blackNum;
+      default: return this.noTeamNum;
+    }
+  }
+
+  getPieceNumByName( name: string ) {
+    switch(name) {
+      case "pawn": return this.pawnNum;
+      case "rook": return this.rookNum;
+      case "knight": return this.knightNum;
+      case "bishop": return this.bishopNum;
+      case "queen": return this.queenNum;
+      case "king": return this.kingNum;
+      default: return this.noPieceNum;
+    }
   }
 
   getMapOfPiecesInDeafultPos() {
@@ -342,12 +386,18 @@ export default class Board {
     this.turnOfHighlightOnAllFields();
     this.visualizingArrows.removeAllArrows();
     this.placePieceInPos(to, piece);
+    piece.sideEffectsOfMove(to, from);
     const movingPiecesKing = (piece.team===this.whiteNum) ? this.kings.black : this.kings.white;
     movingPiecesKing.updateChecksArr();
-    console.log(movingPiecesKing.checks);
     this.match.checkIfGameShouldEndAfterMove(this.moves[this.moves.length-1]);
     if( this.match.gameRunning ) {
-      this.flipPerspective();
+      if( this.pawnPromotionMenu ) {
+        this.pawnPromotionMenu.waitingForDecision.then(() => {
+          this.flipPerspective();
+        });
+      } else {
+        this.flipPerspective();
+      }
     }
   }
 
@@ -440,5 +490,20 @@ export default class Board {
       }
     }
     this.inverted = (this.inverted) ? false : true;
+  }
+
+  onlyTwoKingsLeft() {
+    for( let r=0 ; r<this.el.length ; r++ ) {
+      for( let c=0 ; c<this.el[r].length ; c++ ) {
+        if( this.el[r][c].piece.num!==this.noPieceNum && this.el[r][c].piece.num!==this.kingNum ) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  posIsInBoard( pos: Pos ) {
+    return pos.x>=0 && pos.x<=this.fieldsInOneRow-1 && pos.y>=0 && pos.y<=this.fieldsInOneRow-1;
   }
 }

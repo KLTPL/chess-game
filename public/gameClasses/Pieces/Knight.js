@@ -14,8 +14,9 @@ export default class Knight extends Piece {
             new Dir(2, 1), new Dir(2, -1), new Dir(-2, 1), new Dir(-2, -1)
         ];
         for (let dir of directions) {
-            if (pos.x + dir.x >= 0 && pos.x + dir.x <= 7 && pos.y + dir.y >= 0 && pos.y + dir.y <= 7) {
-                possibleMoves.push(new Pos(pos.y + dir.y, pos.x + dir.x));
+            const newMove = new Pos(pos.y + dir.y, pos.x + dir.x);
+            if (this.board.posIsInBoard(newMove)) {
+                possibleMoves.push(newMove);
             }
         }
         ;

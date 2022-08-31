@@ -132,11 +132,10 @@ export default class Piece {
         (newPos.x!==this.board.grabbedPiece.pos.x || newPos.y!==this.board.grabbedPiece.pos.y)
       ) {
         this.board.movePiece(
-          oldPos, // from
-          newPos, // to
-          this.board.grabbedPiece // moving piece
+          oldPos,
+          newPos,
+          this.board.grabbedPiece
         );
-        this.board.grabbedPiece.sideEffectsOfMove(newPos, oldPos);
         this.possMoves = [];
         this.board.grabbedPiece = null;
         return;

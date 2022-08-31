@@ -1,5 +1,3 @@
-import Board from "./Board";
-
 export default class Pos {
   x: number;
   y: number;

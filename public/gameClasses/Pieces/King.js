@@ -32,8 +32,9 @@ export default class King extends Piece {
             new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir(0, -1)
         ];
         for (let dir of directions) {
-            if (pos.x + dir.x >= 0 && pos.x + dir.x <= 7 && pos.y + dir.y >= 0 && pos.y + dir.y <= 7) {
-                possibleMoves.push(new Pos(pos.y + dir.y, pos.x + dir.x));
+            const newPos = new Pos(pos.y + dir.y, pos.x + dir.x);
+            if (this.board.posIsInBoard(newPos)) {
+                possibleMoves.push(newPos);
             }
         }
         ;
@@ -56,9 +57,10 @@ export default class King extends Piece {
         })();
         possibleMoves.push(...possibleCastlesPos);
         for (let dir of directions) {
-            if (pos.x + dir.x >= 0 && pos.x + dir.x <= 7 && pos.y + dir.y >= 0 && pos.y + dir.y <= 7 &&
+            const newPos = new Pos(pos.y + dir.y, pos.x + dir.x);
+            if (this.board.posIsInBoard(newPos) &&
                 this.board.el[pos.y + dir.y][pos.x + dir.x].piece.team !== this.team) {
-                possibleMoves.push(new Pos(pos.y + dir.y, pos.x + dir.x));
+                possibleMoves.push(newPos);
             }
         }
         ;
@@ -91,7 +93,8 @@ export default class King extends Piece {
         for (let i = 0; i < castlesDir.length; i++) {
             const currentRookXPos = (castlesDir[i].simplifyDir(castlesDir[i].x) === 1) ? this.board.fieldsInOneRow - 1 : 0;
             const currentRook = this.board.el[this.pos.y][currentRookXPos].piece;
-            if (this.board.el[this.pos.y][this.pos.x + (castlesDir[i].x / 2)].piece.num ||
+            if (!this.board.posIsInBoard(new Pos(this.pos.y, this.pos.x + castlesDir[i].x)) ||
+                this.board.el[this.pos.y][this.pos.x + (castlesDir[i].x / 2)].piece.num ||
                 this.board.el[this.pos.y][this.pos.x + castlesDir[i].x].piece.num ||
                 this.somePieceHasCheckOnWayOfCastle(new Pos(this.pos.y, this.pos.x + (castlesDir[i].x / 2))) ||
                 this.somePieceHasCheckOnWayOfCastle(new Pos(this.pos.y, this.pos.x + castlesDir[i].x)) ||
@@ -141,7 +144,7 @@ export default class King extends Piece {
             let pinInThisDir;
             tempPos.x += directions[d].x;
             tempPos.y += directions[d].y;
-            while (tempPos.x >= 0 && tempPos.x <= 7 && tempPos.y >= 0 && tempPos.y <= 7) {
+            while (this.board.posIsInBoard(tempPos)) {
                 if (this.board.el[tempPos.y][tempPos.x].piece.num) {
                     if (!pinInThisDir) {
                         if (this.board.el[tempPos.y][tempPos.x].piece.team !== this.team) {
