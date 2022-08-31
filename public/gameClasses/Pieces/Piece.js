@@ -8,8 +8,6 @@ export default class Piece {
                 this.html.addEventListener("mousedown", this.startFollowingCursor, { once: true });
                 return;
             }
-            this.board.visualizingArrows.removeAllArrows();
-            this.board.turnOfHighlightOnAllFields();
             this.possMoves = this.getPossibleMovesFromPos(fieldCoor);
             this.board.showPossibleMoves(this.possMoves, this.enemyTeamNum());
             let mouseHold = new Promise((resolve, reject) => {
