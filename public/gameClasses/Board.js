@@ -8,41 +8,9 @@ import Bishop from "./Pieces/Bishop.js";
 import Queen from "./Pieces/Queen.js";
 import King from "./Pieces/King.js";
 import Move from "./Move.js";
-import VisualizingArrowsArr from "./VisualizingArrowsArr.js";
-import VisualizingArrow from "./VisualizingArrow.js";
+import VisualizingSystem from "./VisualizingSystem.js";
 export default class Board {
     constructor(htmlQSelector, htmlPageContainerQSelector, teamPerspectiveNum, match, startPositionsOfPieces) {
-        this.visualizationSystem = (ev) => {
-            const rightClickNum = 2;
-            if (ev.button !== rightClickNum) {
-                return;
-            }
-            let mouseHold = new Promise((resolve, reject) => {
-                this.html.addEventListener("mouseup", () => {
-                    reject();
-                }, { once: true });
-                setTimeout(() => {
-                    resolve();
-                }, 150);
-            });
-            mouseHold.then(() => {
-                this.html.addEventListener("mouseup", endEv => {
-                    const startPos = this.getFieldCoorByPx(ev.clientX, ev.clientY);
-                    const endPos = this.getFieldCoorByPx(endEv.clientX, endEv.clientY);
-                    if (startPos.x === endPos.x && startPos.y === endPos.y) {
-                        return;
-                    }
-                    const matchingArrowNum = this.visualizingArrows.getMatchingArrowNum(startPos, endPos);
-                    if (matchingArrowNum !== -1) {
-                        this.visualizingArrows.removeArrow(matchingArrowNum);
-                        return;
-                    }
-                    this.visualizingArrows.arr.push(new VisualizingArrow(this, startPos, endPos));
-                }, { once: true });
-            }).catch(() => {
-                this.toggleHighlightOnFieldOnPos(this.getFieldCoorByPx(ev.clientX, ev.clientY));
-            });
-        };
         this.match = match;
         this.currTeam = 1;
         this.moves = [];
@@ -51,7 +19,7 @@ export default class Board {
         this.pageContainerHtml = document.querySelector(htmlPageContainerQSelector);
         this.fieldsInOneRow = 8;
         this.grabbedPiece = null;
-        this.visualizingArrows = new VisualizingArrowsArr(this);
+        this.visualizingSystem = new VisualizingSystem(this);
         this.pawnPromotionMenu = null;
         this.noPieceNum = 0;
         this.pawnNum = 1;
@@ -71,7 +39,7 @@ export default class Board {
         const whitesPerspective = (teamPerspectiveNum === this.whiteNum);
         this.placePieces(whitesPerspective, startPositionsOfPieces);
         this.kings = this.getKings();
-        this.html.addEventListener("mousedown", this.visualizationSystem);
+        this.html.addEventListener("mousedown", this.visualizingSystem.actionsOnMouseDown);
     }
     createContainersForFieldsAndPieces() {
         this.fieldsHtml = document.createElement("div");
@@ -240,16 +208,6 @@ export default class Board {
             this.el[pos.y][pos.x].html.id = "fieldHighlightedUnderMovingPiece";
         }
     }
-    toggleHighlightOnFieldOnPos(pos) {
-        this.el[pos.y][pos.x].html.classList.toggle("highlighted");
-    }
-    turnOfHighlightOnAllFields() {
-        const fields = document.getElementsByClassName("highlighted");
-        for (let i = 0; i < fields.length; i++) {
-            fields[i].classList.remove("highlighted");
-            i--;
-        }
-    }
     getPieceNameByNum(pieceNum, pieceTeam) {
         let name;
         switch (pieceNum) {
@@ -303,8 +261,6 @@ export default class Board {
             new Move(piece, from, to);
         this.moves.push(newMove);
         this.currTeam = (this.currTeam === this.whiteNum) ? this.blackNum : this.whiteNum;
-        this.turnOfHighlightOnAllFields();
-        this.visualizingArrows.removeAllArrows();
         this.placePieceInPos(to, piece);
         piece.sideEffectsOfMove(to, from);
         const movingPiecesKing = (piece.team === this.whiteNum) ? this.kings.black : this.kings.white;
