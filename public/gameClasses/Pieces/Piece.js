@@ -60,11 +60,7 @@ export default class Piece {
             for (let i = 0; i < this.possMoves.length; i++) {
                 if (this.possMoves[i].x === newPos.x && this.possMoves[i].y === newPos.y &&
                     (newPos.x !== this.board.grabbedPiece.pos.x || newPos.y !== this.board.grabbedPiece.pos.y)) {
-                    this.board.movePiece(oldPos, // from
-                    newPos, // to
-                    this.board.grabbedPiece // moving piece
-                    );
-                    this.board.grabbedPiece.sideEffectsOfMove(newPos, oldPos);
+                    this.board.movePiece(oldPos, newPos, this.board.grabbedPiece);
                     this.possMoves = [];
                     this.board.grabbedPiece = null;
                     return;

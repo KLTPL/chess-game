@@ -3,6 +3,18 @@ import { BoardInfo } from "./gameClasses/Board.js";
 import { PlayerInfo } from "./gameClasses/Player.js";
 
 let match: Match;
+// let custoStartPieces = undefined;
+// let custoStartPieces = [
+//   [7,"empty",1,"bking"],
+//   ["wpawn",7,"empty"],
+//   [8,"empty"],
+//   [7,"empty",1,"wking"],
+//   [8,"empty"],
+//   [8,"empty"],
+//   [8,"empty"],
+//   [7,"empty",1,"bbishop"],
+// ];
+let custoStartPieces = undefined;
 
 function startGame() {
   const player1Info: PlayerInfo = {
@@ -23,7 +35,7 @@ function startGame() {
     htmlQSelector: "[data-board-container]", 
     htmlPageContainerQSelector: "[data-container]", 
     teamPerspectiveNum: 1, 
-    startPositionsOfPieces: undefined
+    startPositionsOfPieces: custoStartPieces
   };
   match = new Match(player1Info, player2Info, boardInfo);
 }

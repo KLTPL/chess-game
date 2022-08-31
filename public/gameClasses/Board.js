@@ -51,7 +51,7 @@ export default class Board {
         this.pageContainerHtml = document.querySelector(htmlPageContainerQSelector);
         this.fieldsInOneRow = 8;
         this.grabbedPiece = null;
-        this.visualizingArrows = new VisualizingArrowsArr();
+        this.visualizingArrows = new VisualizingArrowsArr(this);
         this.pawnPromotionMenu = null;
         this.noPieceNum = 0;
         this.pawnNum = 1;
@@ -129,7 +129,7 @@ export default class Board {
         }
     }
     placePieces(whitesPerspective, customPositions) {
-        let arrOfPiecesToPlaceByPieceNum = (customPositions) ?
+        const arrOfPiecesToPlaceByPieceNum = (customPositions) ?
             this.convertMapOfPiecesForHumanToMapForScript(customPositions) :
             this.getMapOfPiecesInDeafultPos();
         for (let r = 0; r < this.el.length; r++) {
@@ -142,7 +142,47 @@ export default class Board {
         }
     }
     convertMapOfPiecesForHumanToMapForScript(customPositions) {
-        return [];
+        let mapForScript = [];
+        for (let r = 0; r < customPositions.length; r++) {
+            mapForScript.push([]);
+            for (let c = 0; c < customPositions[r].length; c++) {
+                if (typeof customPositions[r][c] === "number") {
+                    const multiplayer = customPositions[r][c];
+                    const multiplayedPiece = customPositions[r][c + 1];
+                    for (let i = 0; i < multiplayer; i++) {
+                        mapForScript[r].push(this.getNewPieceObjByString(multiplayedPiece));
+                    }
+                    c++;
+                    continue;
+                }
+                const multiplayedPiece = customPositions[r][c];
+                mapForScript[r].push(this.getNewPieceObjByString(multiplayedPiece));
+            }
+        }
+        return mapForScript;
+    }
+    getNewPieceObjByString(piece) {
+        const pieceTeam = this.getPieceTeamByString(piece[0]);
+        const pieceName = piece.slice(1, piece.length);
+        return this.getNewPieceObj(this.getPieceNumByName(pieceName), pieceTeam);
+    }
+    getPieceTeamByString(team) {
+        switch (team) {
+            case "w": return this.whiteNum;
+            case "b": return this.blackNum;
+            default: return this.noTeamNum;
+        }
+    }
+    getPieceNumByName(name) {
+        switch (name) {
+            case "pawn": return this.pawnNum;
+            case "rook": return this.rookNum;
+            case "knight": return this.knightNum;
+            case "bishop": return this.bishopNum;
+            case "queen": return this.queenNum;
+            case "king": return this.kingNum;
+            default: return this.noPieceNum;
+        }
     }
     getMapOfPiecesInDeafultPos() {
         const firstAndLastRowNums = [
@@ -266,12 +306,19 @@ export default class Board {
         this.turnOfHighlightOnAllFields();
         this.visualizingArrows.removeAllArrows();
         this.placePieceInPos(to, piece);
+        piece.sideEffectsOfMove(to, from);
         const movingPiecesKing = (piece.team === this.whiteNum) ? this.kings.black : this.kings.white;
         movingPiecesKing.updateChecksArr();
-        console.log(movingPiecesKing.checks);
         this.match.checkIfGameShouldEndAfterMove(this.moves[this.moves.length - 1]);
         if (this.match.gameRunning) {
-            this.flipPerspective();
+            if (this.pawnPromotionMenu) {
+                this.pawnPromotionMenu.waitingForDecision.then(() => {
+                    this.flipPerspective();
+                });
+            }
+            else {
+                this.flipPerspective();
+            }
         }
     }
     getEmptyFieldsPosAtBeginning() {
@@ -359,5 +406,18 @@ export default class Board {
             }
         }
         this.inverted = (this.inverted) ? false : true;
+    }
+    onlyTwoKingsLeft() {
+        for (let r = 0; r < this.el.length; r++) {
+            for (let c = 0; c < this.el[r].length; c++) {
+                if (this.el[r][c].piece.num !== this.noPieceNum && this.el[r][c].piece.num !== this.kingNum) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    posIsInBoard(pos) {
+        return pos.x >= 0 && pos.x <= this.fieldsInOneRow - 1 && pos.y >= 0 && pos.y <= this.fieldsInOneRow - 1;
     }
 }

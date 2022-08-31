@@ -1,10 +1,13 @@
+import Board from "./Board.js";
 import Pos from "./Pos.js";
 import VisualizingArrow from "./VisualizingArrow.js";
 
 export default class VisualizingArrowsArr {
   // arr = arrow ||  arr = arrows
   arr: VisualizingArrow[];
-  constructor() {
+  board: Board
+  constructor(board: Board) {
+    this.board = board;
     this.arr = [];
   }
 

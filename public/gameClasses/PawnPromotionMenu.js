@@ -19,6 +19,7 @@ export default class PawnPromotionMenu {
             this.html.append(optionContainer);
         }
         this.board.html.append(this.html);
+        this.waitingForDecision = this.askWhatPiecePlayerWants();
     }
     askWhatPiecePlayerWants() {
         return new Promise((resolve) => {
