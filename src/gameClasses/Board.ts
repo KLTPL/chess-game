@@ -9,7 +9,6 @@ import Queen from "./Pieces/Queen.js";
 import King from "./Pieces/King.js";
 import Move from "./Move.js";
 import VisualizingSystem from "./VisualizingSystem.js";
-import VisualizingArrow from "./VisualizingArrow.js";
 import PawnPromotionMenu from "./PawnPromotionMenu.js";
 import Match from "./Match.js";
 
@@ -20,7 +19,6 @@ export type BoardInfo = {
   startPositionsOfPieces?: mapOfPiecesForHuman
 };
 
-type mapOfPiecesByNumber = number[][];
 type mapOfPiecesForHuman = (string | number)[][];
 
 export default class Board {
