@@ -4,17 +4,16 @@ import { PlayerInfo } from "./gameClasses/Player.js";
 
 let match: Match;
 // let custoStartPieces = undefined;
-// let custoStartPieces = [
-//   [7,"empty",1,"bking"],
-//   ["wpawn",7,"empty"],
-//   [8,"empty"],
-//   [7,"empty",1,"wking"],
-//   [8,"empty"],
-//   [8,"empty"],
-//   [8,"empty"],
-//   [7,"empty",1,"bbishop"],
-// ];
-let custoStartPieces = undefined;
+let custoStartPieces = [
+  ["brook",3,"empty","bking",2,"empty","brook"],
+  [8,"bpawn"],
+  [8,"empty"],
+  [8,"empty"],
+  [8,"empty"],
+  [8,"empty"],
+  [8,"wpawn"],
+  ["wrook",3,"empty","wking",2,"empty","wrook"],
+];
 
 function startGame() {
   const player1Info: PlayerInfo = {

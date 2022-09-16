@@ -220,17 +220,16 @@ export default class King extends Piece {
       this.haventMovedYet = false;
     }
     // castle
-    if( Math.abs(from.x-to.x)>1 ) {
+    const moveIsCastle = Math.abs(from.x-to.x)>1;
+    if( moveIsCastle ) {
       const castleDir = new Dir(0, to.x-from.x, true);
-      if( castleDir.x===1 ) {
-        const grabbedPiece = this.board.el[from.y][this.board.fieldsInOneRow-1].piece;
-        this.board.removePieceInPos(new Pos(from.y, this.board.fieldsInOneRow-1));
-        this.board.placePieceInPos(new Pos(to.y, to.x+(castleDir.x*-1)), grabbedPiece);
-      } else {
-        const grabbedPiece = this.board.el[from.y][0].piece;
-        this.board.removePieceInPos(new Pos(from.y, this.board.fieldsInOneRow-1));
-        this.board.placePieceInPos(new Pos(to.y, to.x+(castleDir.x*-1)), grabbedPiece);
-      }
+      const toRight = castleDir.x===1;
+      const rookXPos = (toRight) ? this.board.fieldsInOneRow-1 : 0;
+      const oldRookPos = new Pos(from.y, rookXPos);
+      const newRookPos = new Pos(to.y, to.x+(castleDir.x*-1));
+      const movingRook = this.board.el[oldRookPos.y][oldRookPos.x].piece;
+      this.board.removePieceInPos(oldRookPos);
+      this.board.placePieceInPos(newRookPos, movingRook);
     }
   }
 
