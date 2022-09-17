@@ -1,17 +1,14 @@
 import Board from "../Board.js";
 import Piece from "./Piece.js";
 import Pos from "../Pos.js";
-import Dir from "../Dir.js";
 import PawnPromotionMenu from "../PawnPromotionMenu.js";
 
 export default class Pawn extends Piece {
   directionY: number;
-  haventMovedYet: boolean;
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
     this.num = 1;
     this.value = 1;
-    this.haventMovedYet = true;
     this.directionY = (this.team===this.board.whiteNum) ? -1 : 1;
   }
 
@@ -47,8 +44,9 @@ export default class Pawn extends Piece {
     let possibleMoves: Pos[] = [pos, ...possibleMovesFromPosForKing];
     if( !this.board.el[pos.y+this.directionY][pos.x].piece.num ) {
       possibleMoves.push(new Pos(pos.y+this.directionY, pos.x));
+      const pawnStartPosY = (this.directionY===1) ? 1 : this.board.fieldsInOneRow-2;
       if( 
-        this.haventMovedYet && 
+        pos.y===pawnStartPosY && 
         this.board.posIsInBoard(new Pos(pos.y+(this.directionY*2), pos.x)) &&
         !this.board.el[pos.y+(this.directionY*2)][pos.x].piece.num 
       ) {
@@ -77,9 +75,6 @@ export default class Pawn extends Piece {
   }
 
   sideEffectsOfMove( to: Pos ) {
-    if( this.haventMovedYet ) {
-      this.haventMovedYet = false;
-    }
     //en passant capture
     if(
       this.board.posIsInBoard(new Pos(to.y-this.directionY, to.x)) &&

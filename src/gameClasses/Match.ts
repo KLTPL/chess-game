@@ -4,7 +4,6 @@ import Player from "./Player.js";
 import { PlayerInfo } from "./Player.js";
 import EndType from "./EndType.js";
 import Move from "./Move.js";
-import Pos from "./Pos.js";
 
 type Players = {
   white: Player,
@@ -16,7 +15,7 @@ export default class Match {
   board: Board;
   constructor(player1Info: PlayerInfo, player2Info: PlayerInfo, boardInfo: BoardInfo) {
     this.gameRunning = true;
-    this.board = new Board(boardInfo.htmlQSelector, boardInfo.htmlPageContainerQSelector, boardInfo.teamPerspectiveNum, this, boardInfo.startPositionsOfPieces);
+    this.board = new Board(boardInfo.htmlQSelector, boardInfo.htmlPageContainerQSelector, this, boardInfo.startPositionsOfPieces);
     this.players = {
       white: new Player(player1Info.name, player1Info.image, player1Info.team, player1Info.timeS, this.board),
       black: new Player(player2Info.name, player2Info.image, player2Info.team, player2Info.timeS, this.board)

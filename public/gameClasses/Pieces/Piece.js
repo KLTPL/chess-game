@@ -35,16 +35,17 @@ export default class Piece {
             });
         };
         this.moveToCursor = (ev) => {
-            const cursorPosOnBoard = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
-            if (cursorPosOnBoard.x === -1 || cursorPosOnBoard.y === -1) {
-                return;
-            }
             this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
+            const trans = this.html.style.transform;
+            const oldTranslateX = this.html.style.transform.slice(trans.indexOf("translateX"), trans.indexOf("translateY") - 1);
+            const oldTranslateY = this.html.style.transform.slice(trans.indexOf("translateY"), trans.length);
+            const newTranslateX = `translateX(${ev.clientX - (this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) / 2 - this.html.offsetWidth / 2}px)`;
+            const newTranslateY = `translateY(${ev.clientY - (this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight) / 2 - this.html.offsetWidth / 2}px)`;
+            const coor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
             this.html.style.transform =
-                `translate(
-        ${ev.clientX - ((this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) / 2) - this.html.offsetWidth / 2}px, 
-        ${ev.clientY - ((this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight) / 2) - this.html.offsetWidth / 2}px
-      )`;
+                `${(coor.x === -1) ? oldTranslateX : newTranslateX}
+       ${(coor.y === -1) ? oldTranslateY : newTranslateY}
+      `;
         };
         this.stopFollowingCursor = (ev) => {
             this.html.id = "";
