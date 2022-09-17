@@ -15,7 +15,6 @@ import Match from "./Match.js";
 export type BoardInfo = {
   htmlQSelector: string, 
   htmlPageContainerQSelector: string, 
-  teamPerspectiveNum: number, 
   startPositionsOfPieces?: mapOfPiecesForHuman
 };
 
@@ -50,7 +49,7 @@ export default class Board {
   visualizingSystem: VisualizingSystem;
   pawnPromotionMenu: (PawnPromotionMenu|null);
   inverted: boolean;
-  constructor(htmlQSelector: string, htmlPageContainerQSelector: string, teamPerspectiveNum: number, match: Match, startPositionsOfPieces: mapOfPiecesForHuman) {
+  constructor(htmlQSelector: string, htmlPageContainerQSelector: string, match: Match, startPositionsOfPieces: mapOfPiecesForHuman) {
     this.match = match;
     this.currTeam = 1;
     this.moves = [];
@@ -73,18 +72,21 @@ export default class Board {
     this.whiteNum = 1;
     this.blackNum = 2;
 
-    this.inverted = (teamPerspectiveNum===this.whiteNum) ? false : true;
+    this.inverted = false;
 
     const root = document.querySelector(":root") as HTMLElement;
     root.style.setProperty("--fieldSize", `${this.html.offsetWidth/this.fieldsInOneRow}px`);
 
     this.createContainersForFieldsAndPieces();
     this.createFields();
-    const whitesPerspective = (teamPerspectiveNum===this.whiteNum);
-    this.placePieces(whitesPerspective, startPositionsOfPieces);
+    this.placePieces(startPositionsOfPieces);
     this.kings = this.getKings();
+    if( this.inverted ) {
+      this.flipPerspective();
+    }
 
     this.html.addEventListener("mousedown", this.visualizingSystem.actionsOnMouseDown);
+    console.log(this.el)
   }
 
   createContainersForFieldsAndPieces() {
@@ -114,7 +116,7 @@ export default class Board {
   getNewHtmlPiece(num: number, team: number, cssClass: string) {
     let piece = document.createElement("div");
     piece.classList.add(cssClass);
-    piece.style.backgroundImage = `url(../images/${this.getPieceNameByNum(num, team)}.png)`;
+    piece.style.backgroundImage = `url(./images/${this.getPieceNameByNum(num, team)}.png)`;
     return piece;
   }
 
@@ -138,8 +140,10 @@ export default class Board {
         if( this.el[r][c].piece.html ) {
           this.piecesHtml.append(this.el[r][c].piece.html);
           this.el[r][c].piece.html.style.transform = 
-            `translate(
-              ${c*this.piecesHtml.offsetWidth/this.fieldsInOneRow}px, 
+            `translateX(
+              ${c*this.piecesHtml.offsetWidth/this.fieldsInOneRow}px
+            )
+            translateY(
               ${r*this.piecesHtml.offsetWidth/this.fieldsInOneRow}px
             )`;
         }
@@ -147,7 +151,7 @@ export default class Board {
     }
   }
 
-  placePieces(whitesPerspective: boolean, customPositions: mapOfPiecesForHuman) {
+  placePieces(customPositions: mapOfPiecesForHuman) {
     const arrOfPiecesToPlaceByPieceNum = 
       (customPositions) ? 
       this.convertMapOfPiecesForHumanToMapForScript(customPositions) : 
@@ -161,9 +165,6 @@ export default class Board {
           Boolean(arrOfPiecesToPlaceByPieceNum[r][c].html)
         );
       }
-    }
-    if( !whitesPerspective ) {
-      this.flipPerspective();
     }
   }
 
@@ -265,10 +266,10 @@ export default class Board {
 
     let fieldC = Math.ceil(posOnBoardLeft/this.html.offsetWidth *this.fieldsInOneRow)-1;
     let fieldR = Math.ceil(posOnBoardTop /this.html.offsetHeight*this.fieldsInOneRow)-1;
-    if( fieldC<0 || fieldC+1>this.fieldsInOneRow ) {
+    if( fieldC<0 || fieldC>this.fieldsInOneRow-1 ) {
       fieldC = -1;
     }
-    if( fieldR<0 || fieldR+1>this.fieldsInOneRow ) {
+    if( fieldR<0 || fieldR>this.fieldsInOneRow-1 ) {
       fieldR = -1;
     }
     return new Pos(fieldR, fieldC);
@@ -309,8 +310,10 @@ export default class Board {
         {once: true}
       );
       piece.html.style.transform = 
-      `translate(
-        ${pos.x*this.piecesHtml.offsetWidth/this.fieldsInOneRow}px, 
+      `translateX(
+        ${pos.x*this.piecesHtml.offsetWidth/this.fieldsInOneRow}px
+      )
+      translateY(
         ${pos.y*this.piecesHtml.offsetWidth/this.fieldsInOneRow}px
       )`;
     }

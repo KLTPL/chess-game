@@ -33,7 +33,6 @@ function startGame() {
   const boardInfo: BoardInfo = {
     htmlQSelector: "[data-board-container]", 
     htmlPageContainerQSelector: "[data-container]", 
-    teamPerspectiveNum: 1, 
     startPositionsOfPieces: custoStartPieces
   };
   match = new Match(player1Info, player2Info, boardInfo);

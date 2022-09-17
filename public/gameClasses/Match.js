@@ -4,7 +4,7 @@ import EndType from "./EndType.js";
 export default class Match {
     constructor(player1Info, player2Info, boardInfo) {
         this.gameRunning = true;
-        this.board = new Board(boardInfo.htmlQSelector, boardInfo.htmlPageContainerQSelector, boardInfo.teamPerspectiveNum, this, boardInfo.startPositionsOfPieces);
+        this.board = new Board(boardInfo.htmlQSelector, boardInfo.htmlPageContainerQSelector, this, boardInfo.startPositionsOfPieces);
         this.players = {
             white: new Player(player1Info.name, player1Info.image, player1Info.team, player1Info.timeS, this.board),
             black: new Player(player2Info.name, player2Info.image, player2Info.team, player2Info.timeS, this.board)

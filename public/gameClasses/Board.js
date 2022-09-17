@@ -10,7 +10,7 @@ import King from "./Pieces/King.js";
 import Move from "./Move.js";
 import VisualizingSystem from "./VisualizingSystem.js";
 export default class Board {
-    constructor(htmlQSelector, htmlPageContainerQSelector, teamPerspectiveNum, match, startPositionsOfPieces) {
+    constructor(htmlQSelector, htmlPageContainerQSelector, match, startPositionsOfPieces) {
         this.match = match;
         this.currTeam = 1;
         this.moves = [];
@@ -31,15 +31,18 @@ export default class Board {
         this.noTeamNum = 0;
         this.whiteNum = 1;
         this.blackNum = 2;
-        this.inverted = (teamPerspectiveNum === this.whiteNum) ? false : true;
+        this.inverted = false;
         const root = document.querySelector(":root");
         root.style.setProperty("--fieldSize", `${this.html.offsetWidth / this.fieldsInOneRow}px`);
         this.createContainersForFieldsAndPieces();
         this.createFields();
-        const whitesPerspective = (teamPerspectiveNum === this.whiteNum);
-        this.placePieces(whitesPerspective, startPositionsOfPieces);
+        this.placePieces(startPositionsOfPieces);
         this.kings = this.getKings();
+        if (this.inverted) {
+            this.flipPerspective();
+        }
         this.html.addEventListener("mousedown", this.visualizingSystem.actionsOnMouseDown);
+        console.log(this.el);
     }
     createContainersForFieldsAndPieces() {
         this.fieldsHtml = document.createElement("div");
@@ -65,7 +68,7 @@ export default class Board {
     getNewHtmlPiece(num, team, cssClass) {
         let piece = document.createElement("div");
         piece.classList.add(cssClass);
-        piece.style.backgroundImage = `url(../images/${this.getPieceNameByNum(num, team)}.png)`;
+        piece.style.backgroundImage = `url(./images/${this.getPieceNameByNum(num, team)}.png)`;
         return piece;
     }
     createFields() {
@@ -88,15 +91,17 @@ export default class Board {
                 if (this.el[r][c].piece.html) {
                     this.piecesHtml.append(this.el[r][c].piece.html);
                     this.el[r][c].piece.html.style.transform =
-                        `translate(
-              ${c * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px, 
+                        `translateX(
+              ${c * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
+            )
+            translateY(
               ${r * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
             )`;
                 }
             }
         }
     }
-    placePieces(whitesPerspective, customPositions) {
+    placePieces(customPositions) {
         const arrOfPiecesToPlaceByPieceNum = (customPositions) ?
             this.convertMapOfPiecesForHumanToMapForScript(customPositions) :
             this.getMapOfPiecesInDeafultPos();
@@ -104,9 +109,6 @@ export default class Board {
             for (let c = 0; c < this.el[r].length; c++) {
                 this.placePieceInPos(new Pos(r, c), arrOfPiecesToPlaceByPieceNum[r][c], Boolean(arrOfPiecesToPlaceByPieceNum[r][c].html));
             }
-        }
-        if (!whitesPerspective) {
-            this.flipPerspective();
         }
     }
     convertMapOfPiecesForHumanToMapForScript(customPositions) {
@@ -192,10 +194,10 @@ export default class Board {
         const posOnBoardTop = topPx - boardStartTop;
         let fieldC = Math.ceil(posOnBoardLeft / this.html.offsetWidth * this.fieldsInOneRow) - 1;
         let fieldR = Math.ceil(posOnBoardTop / this.html.offsetHeight * this.fieldsInOneRow) - 1;
-        if (fieldC < 0 || fieldC + 1 > this.fieldsInOneRow) {
+        if (fieldC < 0 || fieldC > this.fieldsInOneRow - 1) {
             fieldC = -1;
         }
-        if (fieldR < 0 || fieldR + 1 > this.fieldsInOneRow) {
+        if (fieldR < 0 || fieldR > this.fieldsInOneRow - 1) {
             fieldR = -1;
         }
         return new Pos(fieldR, fieldC);
@@ -241,8 +243,10 @@ export default class Board {
             piece.html.
                 addEventListener("mousedown", piece.startFollowingCursor, { once: true });
             piece.html.style.transform =
-                `translate(
-        ${pos.x * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px, 
+                `translateX(
+        ${pos.x * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
+      )
+      translateY(
         ${pos.y * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
       )`;
         }
