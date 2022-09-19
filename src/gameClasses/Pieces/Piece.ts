@@ -90,7 +90,7 @@ export default class Piece {
     }).catch(() => {
       setTimeout(() => {
         document.addEventListener(
-          "click", 
+          "mousedown", 
           this.stopFollowingCursor, 
           {once: true}
         )
@@ -100,6 +100,7 @@ export default class Piece {
   }
 
   moveToCursor = (ev: MouseEvent) => {
+    ev.preventDefault();
     this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
     const trans = this.html.style.transform;
     const oldTranslateX = this.html.style.transform.slice(trans.indexOf("translateX"), trans.indexOf("translateY")-1);
