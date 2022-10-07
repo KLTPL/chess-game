@@ -31,9 +31,20 @@ export default class Board {
         this.noTeamNum = 0;
         this.whiteNum = 1;
         this.blackNum = 2;
+        this.classNames = {
+            field: "field",
+            fieldColor1: "field1",
+            fieldColor2: "field2",
+            piece: "piece",
+            possMove: "possMove",
+            possMoveCapture: "possMoveCapture",
+            possMoveStart: "possMoveStart",
+            fieldsContainer: "boardFieldsContainer",
+            piecesContainer: "boardPiecesContainer",
+        };
         this.inverted = false;
-        const root = document.querySelector(":root");
-        root.style.setProperty("--fieldSize", `${this.html.offsetWidth / this.fieldsInOneRow}px`);
+        this.updateFieldSize();
+        document.addEventListener("resize", this.updateFieldSize);
         this.createContainersForFieldsAndPieces();
         this.createFields();
         this.placePieces(startPositionsOfPieces);
@@ -42,47 +53,46 @@ export default class Board {
             this.flipPerspective();
         }
         this.html.addEventListener("mousedown", this.visualizingSystem.actionsOnMouseDown);
-        console.log(this.el);
     }
     createContainersForFieldsAndPieces() {
         this.fieldsHtml = document.createElement("div");
-        this.fieldsHtml.classList.add("boardFieldsContainer");
+        this.fieldsHtml.classList.add(this.classNames.fieldsContainer);
         this.fieldsHtml.addEventListener("contextmenu", ev => ev.preventDefault());
         this.html.append(this.fieldsHtml);
         this.piecesHtml = document.createElement("div");
-        this.piecesHtml.classList.add("boardPiecesContainer");
+        this.piecesHtml.classList.add(this.classNames.piecesContainer);
         this.piecesHtml.addEventListener("contextmenu", ev => ev.preventDefault());
         this.html.append(this.piecesHtml);
     }
     getNewPieceObj(num, team) {
         switch (num) {
-            case this.pawnNum: return new Pawn(team, this.getNewHtmlPiece(num, team, "piece"), this);
-            case this.rookNum: return new Rook(team, this.getNewHtmlPiece(num, team, "piece"), this);
-            case this.knightNum: return new Knight(team, this.getNewHtmlPiece(num, team, "piece"), this);
-            case this.bishopNum: return new Bishop(team, this.getNewHtmlPiece(num, team, "piece"), this);
-            case this.queenNum: return new Queen(team, this.getNewHtmlPiece(num, team, "piece"), this);
-            case this.kingNum: return new King(team, this.getNewHtmlPiece(num, team, "piece"), this);
+            case this.pawnNum: return new Pawn(team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+            case this.rookNum: return new Rook(team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+            case this.knightNum: return new Knight(team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+            case this.bishopNum: return new Bishop(team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+            case this.queenNum: return new Queen(team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+            case this.kingNum: return new King(team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
             default: return new Piece(this.noTeamNum, null, this);
         }
     }
-    getNewHtmlPiece(num, team, cssClass) {
+    getNewHtmlPiece(num, team, className) {
         let piece = document.createElement("div");
-        piece.classList.add(cssClass);
+        piece.classList.add(className);
         piece.style.backgroundImage = `url(./images/${this.getPieceNameByNum(num, team)}.png)`;
         return piece;
     }
     createFields() {
         this.el = [];
-        let fieldNr = 0;
+        let fieldNr = 1;
         for (let r = 0; r < this.fieldsInOneRow; r++) {
             this.el[r] = [];
             for (let c = 0; c < this.fieldsInOneRow; c++) {
                 if (c !== 0) {
-                    fieldNr = (fieldNr === 0) ? 1 : 0;
+                    fieldNr = (fieldNr === 1) ? 2 : 1;
                 }
                 let field = document.createElement("div");
-                field.classList.add(`field`);
-                field.classList.add(`field${fieldNr}`);
+                field.classList.add(this.classNames.field);
+                field.classList.add(this.classNames[`fieldColor${fieldNr}`]);
                 this.fieldsHtml.append(field);
                 this.el[r][c] = new Field(field, this.getNewPieceObj(this.noPieceNum, this.noTeamNum));
                 if (this.el[r][c].piece.num === this.kingNum) {
@@ -254,15 +264,16 @@ export default class Board {
         this.el[pos.y][pos.x].piece = piece;
     }
     movePiece(from, to, piece) {
-        if (this.el[to.y][to.x].piece.html !== null) {
+        const moveIsCapture = this.el[to.y][to.x].piece.html !== null;
+        if (moveIsCapture) {
             this.removePieceInPos(to, true);
         }
         if (this.el[from.y][from.x].piece.num) {
             this.el[from.y][from.x].piece = new Piece(0, null, null);
         }
         const newMove = (this.inverted) ?
-            new Move(piece, from.invert(this.fieldsInOneRow), to.invert(this.fieldsInOneRow)) :
-            new Move(piece, from, to);
+            new Move(piece, from.invert(this.fieldsInOneRow), to.invert(this.fieldsInOneRow), moveIsCapture) :
+            new Move(piece, from, to, moveIsCapture);
         this.moves.push(newMove);
         this.currTeam = (this.currTeam === this.whiteNum) ? this.blackNum : this.whiteNum;
         this.placePieceInPos(to, piece);
@@ -318,6 +329,9 @@ export default class Board {
                 }
             }
         }
+        if (!kings.white || !kings.black) {
+            throw "Not enough kings on the board";
+        }
         return kings;
     }
     showPossibleMoves(possMoves, enemyTeamNum) {
@@ -326,9 +340,12 @@ export default class Board {
         for (let i = 0; i < possMoves.length; i++) {
             const move = possMoves[i];
             const div = document.createElement("div");
-            div.classList.add("possMove");
-            if (this.el[possMoves[i].y][possMoves[i].x].piece.team === enemyTeamNum) {
-                div.classList.add("possMoveTake");
+            div.classList.add(this.classNames.possMove);
+            if (this.el[move.y][move.x].piece.team === enemyTeamNum) {
+                div.classList.add(this.classNames.possMoveCapture);
+            }
+            if (i === 0) {
+                div.classList.add(this.classNames.possMoveStart);
             }
             div.dataset.possMove = "";
             this.el[move.y][move.x].html.append(div);
@@ -367,6 +384,13 @@ export default class Board {
         }
         this.inverted = (this.inverted) ? false : true;
     }
+    insufficientMaterialThatLeadsToDraw() {
+        const kingVsKing = this.onlyTwoKingsLeft();
+        const kingAndBishopVsKing = this.onlyTwoKingsAndBishopLeft();
+        const kingAndKnightVsKing = this.onlyTwoKingsAndKnightLeft();
+        const kingAndBishopVsKingAndBishop = this.onlyTwoKingsAndTwoBishopsLeft(); // both bishops on the same color square
+        return kingVsKing || kingAndBishopVsKing || kingAndKnightVsKing || kingAndBishopVsKingAndBishop;
+    }
     onlyTwoKingsLeft() {
         for (let r = 0; r < this.el.length; r++) {
             for (let c = 0; c < this.el[r].length; c++) {
@@ -377,7 +401,110 @@ export default class Board {
         }
         return true;
     }
+    onlyTwoKingsAndBishopLeft() {
+        let bishopCounter = 0;
+        for (let r = 0; r < this.el.length; r++) {
+            for (let c = 0; c < this.el[r].length; c++) {
+                if (this.el[r][c].piece.num === this.bishopNum) {
+                    if (bishopCounter) {
+                        return false;
+                    }
+                    bishopCounter++;
+                    continue;
+                }
+                if (this.el[r][c].piece.num !== this.noPieceNum && this.el[r][c].piece.num !== this.kingNum) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    onlyTwoKingsAndKnightLeft() {
+        let knightCounter = 0;
+        for (let r = 0; r < this.el.length; r++) {
+            for (let c = 0; c < this.el[r].length; c++) {
+                if (this.el[r][c].piece.num === this.knightNum) {
+                    if (knightCounter) {
+                        return false;
+                    }
+                    knightCounter++;
+                    continue;
+                }
+                if (this.el[r][c].piece.num !== this.noPieceNum && this.el[r][c].piece.num !== this.kingNum) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    onlyTwoKingsAndTwoBishopsLeft() {
+        let bishopsPos = [];
+        for (let r = 0; r < this.el.length; r++) {
+            for (let c = 0; c < this.el[r].length; c++) {
+                if (this.el[r][c].piece.num === this.bishopNum) {
+                    if (bishopsPos.length >= 2) {
+                        return false;
+                    }
+                    bishopsPos.push(new Pos(r, c));
+                    continue;
+                }
+                if (this.el[r][c].piece.num !== this.noPieceNum && this.el[r][c].piece.num !== this.kingNum) {
+                    return false;
+                }
+            }
+        }
+        return this.twoEnemyBishopsOnTheSameColor(bishopsPos);
+    }
+    twoEnemyBishopsOnTheSameColor(bishopsPos) {
+        const twoBishops = bishopsPos.length === 2;
+        if (!twoBishops) {
+            return false;
+        }
+        const bishop1 = this.el[bishopsPos[0].y][bishopsPos[0].x].piece;
+        const bishop2 = this.el[bishopsPos[1].y][bishopsPos[1].x].piece;
+        const twoEnemyBishops = bishop1.team !== bishop2.team;
+        const twoBishopsOntheSameColor = this.positionsOnTheSameColor(bishopsPos[0], bishopsPos[1]);
+        return twoEnemyBishops && twoBishopsOntheSameColor;
+    }
+    positionsOnTheSameColor(pos1, pos2) {
+        const pos1OnWhiteSquere = this.hasClass(this.el[pos1.y][pos1.x].html, this.classNames.fieldColor1);
+        const pos2OnWhiteSquere = this.hasClass(this.el[pos2.y][pos2.x].html, this.classNames.fieldColor1);
+        return pos1OnWhiteSquere === pos2OnWhiteSquere;
+    }
+    hasClass(element, className) {
+        return element.className.includes(className);
+    }
+    noCapturesOrPawnMovesIn50Moves() {
+        if (this.moves.length < 50) {
+            return false;
+        }
+        for (let i = this.moves.length - 1; i > this.moves.length - 1 - 50; i--) {
+            if (this.moves[i].capture || this.moves[i].piece.num === this.pawnNum) {
+                return false;
+            }
+        }
+        return true;
+    }
+    threeMovesRepetition() {
+        if (this.moves.length < 6) {
+            return false;
+        }
+        const lastMoveNum = this.moves.length - 1;
+        const players1Moves = [this.moves[lastMoveNum], this.moves[lastMoveNum - 2], this.moves[lastMoveNum - 4]];
+        const players2Moves = [this.moves[lastMoveNum - 1], this.moves[lastMoveNum - 3], this.moves[lastMoveNum - 5]];
+        return (this.positionsMatch(players1Moves[0].from, players1Moves[1].to) &&
+            this.positionsMatch(players1Moves[1].from, players1Moves[2].to) &&
+            this.positionsMatch(players2Moves[0].from, players2Moves[1].to) &&
+            this.positionsMatch(players2Moves[1].from, players2Moves[2].to));
+    }
     posIsInBoard(pos) {
         return pos.x >= 0 && pos.x <= this.fieldsInOneRow - 1 && pos.y >= 0 && pos.y <= this.fieldsInOneRow - 1;
+    }
+    positionsMatch(pos1, pos2) {
+        return pos1.x === pos2.x && pos1.y === pos2.y;
+    }
+    updateFieldSize() {
+        const root = document.querySelector(":root");
+        root.style.setProperty("--fieldSize", `${this.html.offsetWidth / this.fieldsInOneRow}px`);
     }
 }

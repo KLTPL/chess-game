@@ -58,7 +58,7 @@ export default class Piece {
             const newPos = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
             const oldPos = this.board.grabbedPiece.pos;
             for (let i = 0; i < this.possMoves.length; i++) {
-                if (this.possMoves[i].x === newPos.x && this.possMoves[i].y === newPos.y &&
+                if (this.board.positionsMatch(this.possMoves[i], newPos) &&
                     (newPos.x !== this.board.grabbedPiece.pos.x || newPos.y !== this.board.grabbedPiece.pos.y)) {
                     this.board.movePiece(oldPos, newPos, this.board.grabbedPiece);
                     this.possMoves = [];

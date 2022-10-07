@@ -134,7 +134,7 @@ export default class Piece {
     const oldPos = this.board.grabbedPiece.pos;
     for( let i=0 ; i<this.possMoves.length ; i++ ) {
       if( 
-        this.possMoves[i].x===newPos.x && this.possMoves[i].y===newPos.y &&
+        this.board.positionsMatch(this.possMoves[i], newPos) &&
         (newPos.x!==this.board.grabbedPiece.pos.x || newPos.y!==this.board.grabbedPiece.pos.y)
       ) {
         this.board.movePiece(

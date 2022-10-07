@@ -28,8 +28,11 @@ export default class Match {
     const playerWhoMadeMove = (move.piece.team===this.board.whiteNum) ? this.players.white : this.players.black;
     const otherKing = (move.piece.team!==this.board.whiteNum) ? this.board.kings.black : this.board.kings.white;
     const othePlayer = (move.piece.team!==this.board.whiteNum) ? this.players.white : this.players.black;
-
-    if( this.board.onlyTwoKingsLeft() ) {
+    if( 
+      this.board.insufficientMaterialThatLeadsToDraw() || 
+      this.board.threeMovesRepetition() ||
+      this.board.noCapturesOrPawnMovesIn50Moves() 
+    ) {
       this.end(new EndType(playerWhoMadeMove, "draw"));
       return;
     }
@@ -43,6 +46,7 @@ export default class Match {
       this.end(new EndType(playerWhoMadeMove, "stale-mate"));
       return;
     }
+
   }
 
   end( endType: EndType ) {
