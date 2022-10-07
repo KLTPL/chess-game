@@ -27,8 +27,8 @@ export default class VisualizingArrow {
         const arrowTail = document.createElement("div");
         arrowTail.style.setProperty("--halfOfFieldSize", `${fieldWidth / 2}px`);
         arrowTail.classList.add("arrowTail");
-        arrowTail.style.width = `${arrTailLengthPx}px`;
-        arrowTail.style.height = `${fieldWidth * 0.33}px`;
+        arrowTail.style.width = `${arrTailLengthPx + 1}px`;
+        arrowTail.style.height = `${fieldWidth * 0.3}px`;
         this.arrContainer.append(arrowTail);
         this.arrContainer.append(arrowHead);
         this.board.el[this.startPos.y][this.startPos.x].html.append(this.arrContainer);

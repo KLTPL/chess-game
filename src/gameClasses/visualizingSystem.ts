@@ -4,11 +4,11 @@ import VisualizingArrow from "./VisualizingArrow.js";
 
 export default class VisualizingSystem {
   arrows: VisualizingArrow[];
-  highlightClass: string;
+  highlightClassName: string;
   board: Board;
   constructor(board: Board) {
     this.arrows = [];
-    this.highlightClass = "highlighted";
+    this.highlightClassName = "highlighted";
     this.board = board;
   }
 
@@ -83,13 +83,13 @@ export default class VisualizingSystem {
   }
 
   toggleHighlightOnFieldOnPos(pos: Pos) {
-    this.board.el[pos.y][pos.x].html.classList.toggle(this.highlightClass);
+    this.board.el[pos.y][pos.x].html.classList.toggle(this.highlightClassName);
   }
 
   removeHighlightFromAllFields() {
-    const fields = document.getElementsByClassName(this.highlightClass);
+    const fields = document.getElementsByClassName(this.highlightClassName);
     for( let i=0 ; i<fields.length ; i++ ) {
-      fields[i].classList.remove(this.highlightClass);
+      fields[i].classList.remove(this.highlightClassName);
       i--;
     }
   }

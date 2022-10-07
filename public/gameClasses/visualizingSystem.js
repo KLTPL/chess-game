@@ -40,7 +40,7 @@ export default class VisualizingSystem {
             });
         };
         this.arrows = [];
-        this.highlightClass = "highlighted";
+        this.highlightClassName = "highlighted";
         this.board = board;
     }
     getMatchingArrowNum(startPos, endPos) {
@@ -64,12 +64,12 @@ export default class VisualizingSystem {
         this.arrows.splice(arrNum, 1);
     }
     toggleHighlightOnFieldOnPos(pos) {
-        this.board.el[pos.y][pos.x].html.classList.toggle(this.highlightClass);
+        this.board.el[pos.y][pos.x].html.classList.toggle(this.highlightClassName);
     }
     removeHighlightFromAllFields() {
-        const fields = document.getElementsByClassName(this.highlightClass);
+        const fields = document.getElementsByClassName(this.highlightClassName);
         for (let i = 0; i < fields.length; i++) {
-            fields[i].classList.remove(this.highlightClass);
+            fields[i].classList.remove(this.highlightClassName);
             i--;
         }
     }

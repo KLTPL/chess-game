@@ -8,7 +8,7 @@
   --firstFieldColor: white;
   --secondFieldColor: rgb(1, 104, 122);
   --fieldBoxShadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  --arrowBgColor: rgba(255, 68, 0);
+  --arrowBgColor: rgba(255, 68, 0, 0.9);
   --popupColor: rgb(245, 245, 220);
 
   --fieldSize: 100%; /* set in a script*/
@@ -54,11 +54,11 @@ body {
   position: relative;
 }
 
-.field0 {
+.field1 {
   background-color: var(--firstFieldColor);
 }
 
-.field1 {
+.field2 {
   background-color: var(--secondFieldColor);
 }
 
@@ -78,15 +78,14 @@ body {
 }
 
 .highlighted {
-  background-color: red !important;
-  box-shadow: none;
-}
+  background-color: hsla(0, 100%, 50%, 0.9) !important;
+  }
 
 .possMove {
   border-radius: 50%;
   width: var(--possMoveSize);
   height: var(--possMoveSize);
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   position: absolute;
   left: 50%;
   top: 50%;
@@ -94,10 +93,14 @@ body {
 
 }
 
-.possMoveTake {
+.possMoveCapture {
   background-color: rgba(0, 255, 13, 0.75) !important;
   box-shadow: 0 0 10px black;
   z-index: 10;
+}
+
+.possMoveStart {
+  background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
 #move {
@@ -138,7 +141,8 @@ body {
   width: 95%;
   position: absolute;
   background-color: var(--arrowBgColor);
-  left: -65%;
+  left: -75%;
+  /* left: -65%; */
   bottom: 50%;
   transform: translateY(50%) rotate(45deg);
 }
