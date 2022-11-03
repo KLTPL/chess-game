@@ -2,14 +2,14 @@ import Match from "./gameClasses/Match.js";
 let match;
 let custoStartPieces = undefined;
 // custoStartPieces = [
-//   ["bking",6,"empty","wking"],
+//   ["empty","bking",6,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
-//   ["empty","bbishop",5,"empty","wbishop"],
+//   [6,"empty","wking","empty"],
 // ];
 function startGame() {
     const player1Info = {
