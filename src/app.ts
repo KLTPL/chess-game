@@ -5,14 +5,15 @@ import { PlayerInfo } from "./gameClasses/Player.js";
 let match: Match;
 let custoStartPieces = undefined;
 // custoStartPieces = [
-//   ["bking",6,"empty","wking"],
+//   ["empty","bking",6,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
-//   ["empty","bbishop",5,"empty","wbishop"],
+//   [6,"empty","wking","empty"],
+
 // ];
 
 function startGame() {

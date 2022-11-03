@@ -476,7 +476,6 @@ export default class Board {
     const kingAndBishopVsKing = this.onlyTwoKingsAndBishopLeft();
     const kingAndKnightVsKing = this.onlyTwoKingsAndKnightLeft();
     const kingAndBishopVsKingAndBishop = this.onlyTwoKingsAndTwoBishopsLeft(); // both bishops on the same color square
-
     return kingVsKing || kingAndBishopVsKing || kingAndKnightVsKing || kingAndBishopVsKingAndBishop;
   }
 
@@ -591,8 +590,9 @@ export default class Board {
       return false;
     }
     const lastMoveNum = this.moves.length-1;
-    const players1Moves = [this.moves[lastMoveNum], this.moves[lastMoveNum-2], this.moves[lastMoveNum-4]];
-    const players2Moves = [this.moves[lastMoveNum-1], this.moves[lastMoveNum-3], this.moves[lastMoveNum-5]];
+    const players1Moves = [this.moves[lastMoveNum-4], this.moves[lastMoveNum-2], this.moves[lastMoveNum]];
+    const players2Moves = [this.moves[lastMoveNum-5], this.moves[lastMoveNum-3], this.moves[lastMoveNum-1]];
+
     return (
       this.positionsMatch(players1Moves[0].from, players1Moves[1].to) && 
       this.positionsMatch(players1Moves[1].from, players1Moves[2].to) && 

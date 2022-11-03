@@ -5,11 +5,11 @@
 :root {
   background-color: #202225;
   color: black;
-  --firstFieldColor: white;
-  --secondFieldColor: rgb(1, 104, 122);
+  --firstFieldColor: hsl(0, 0%, 100%);
+  --secondFieldColor: hsl(190, 98%, 24%);
   --fieldBoxShadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  --arrowBgColor: rgba(255, 68, 0, 0.9);
-  --popupColor: rgb(245, 245, 220);
+  --arrowBgColor: hsla(16, 100%, 50%, 0.9);
+  --popupColor: hsl(60, 56%, 91%);
 
   --fieldSize: 100%; /* set in a script*/
   --possMoveSize: 100%; /* set in a script*/

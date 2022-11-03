@@ -32,6 +32,7 @@ export default class Match {
     }
     end(endType) {
         this.gameRunning = false;
+        console.log(this.board.moves);
         console.log(`Game has ended by ${endType.cousedBy.name} with a ${endType.type}`);
     }
 }
