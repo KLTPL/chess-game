@@ -21,7 +21,6 @@ export default class Match {
   ) {
     this.gameRunning = true;
     this.board = new Board(
-      boardArg.htmlQSelector,
       boardArg.htmlPageContainerQSelector,
       this,
       boardArg.startPositionsOfPieces

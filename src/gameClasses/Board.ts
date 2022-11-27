@@ -14,7 +14,6 @@ import PawnPromotionMenu from "./PawnPromotionMenu.js";
 import Match from "./Match.js";
 
 export type BoardArg = {
-  htmlQSelector: string, 
   htmlPageContainerQSelector: string, 
   startPositionsOfPieces?: MapOfPiecesForHuman
 };
@@ -27,6 +26,7 @@ type ClassNames = {
   possMove: string,
   possMoveCapture: string,
   possMoveStart: string;
+  thisHtml: string,
   fieldsContainer: string,
   piecesContainer: string,
 };
@@ -63,7 +63,6 @@ export default class Board {
   classNames: ClassNames;
   inverted: boolean;
   constructor(
-    htmlQSelector: string, 
     htmlPageContainerQSelector: string, 
     match: Match, 
     startPositionsOfPieces: MapOfPiecesForHuman | undefined) {
@@ -71,7 +70,6 @@ export default class Board {
     this.currTeam = 1;
     this.moves = [];
     this.el = [];
-    this.html = document.querySelector(htmlQSelector) as HTMLDivElement;
     this.pageContainerHtml = document.querySelector(htmlPageContainerQSelector) as HTMLDivElement;
     this.fieldsInOneRow = 8;
     this.grabbedPieceInfo = null;
@@ -97,14 +95,17 @@ export default class Board {
       possMove: "possMove",
       possMoveCapture: "possMoveCapture",
       possMoveStart: "possMoveStart",
+      thisHtml: "board-container",
       fieldsContainer: "boardFieldsContainer",
       piecesContainer: "boardPiecesContainer",
     };
 
     this.inverted = false;
 
+    this.html = this.createBoardContainer();
     this.fieldsHtml = this.createContainerForFields();
     this.piecesHtml = this.createContainerForPieces();
+    this.pageContainerHtml.append(this.html);
     this.html.append(this.fieldsHtml);
     this.html.append(this.piecesHtml);
     this.createFields();
@@ -116,6 +117,12 @@ export default class Board {
     }
 
     this.html.addEventListener("mousedown", this.visualizingSystem.actionsOnMouseDown);
+  }
+
+  createBoardContainer() { // <div class="board-container" data-board-container></div>
+    const containerHtml = document.createElement("div");
+    containerHtml.classList.add(this.classNames.thisHtml);
+    return containerHtml;
   }
 
   createContainerForFields() {

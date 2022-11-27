@@ -15,26 +15,25 @@ let customStartPos: undefined | MapOfPiecesForHuman = undefined;
 // ];
 
 function startGame() {
-  const player1Info: PlayerArg = {
+  const player1Arg: PlayerArg = {
     name: "white",
     image: null,
     team: 1,
     timeS: 600,
   };
 
-  const player2Info: PlayerArg = {
+  const player2Arg: PlayerArg = {
     name: "black",
     image: null,
     team: 2,
     timeS: 600,
   };
 
-  const boardInfo: BoardArg = {
-    htmlQSelector: "[data-board-container]",
+  const boardArg: BoardArg = {
     htmlPageContainerQSelector: "[data-container]",
     startPositionsOfPieces: customStartPos,
   };
-  new Match(player1Info, player2Info, boardInfo);
+  new Match(player1Arg, player2Arg, boardArg);
 }
 
 startGame();
