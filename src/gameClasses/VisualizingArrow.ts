@@ -2,6 +2,11 @@ import Board from "./Board.js";
 import Pos from "./Pos.js";
 import Dir from "./Dir.js";
 
+type ClassNames = {
+  arrowContainer: string;
+  arrowHead: string;
+  arrowTail: string;
+}
 
 export default class VisualizingArrow {
   // arr = arrow ||  arr = arrows
@@ -9,14 +14,19 @@ export default class VisualizingArrow {
   startPos: Pos;
   endPos: Pos;
   arrContainer: HTMLDivElement;
+  classNames: ClassNames;
   constructor(board: Board, startPos: Pos, endPos: Pos) {
     this.board = board;
     this.startPos = startPos;
     this.endPos = endPos;
     const arrDir = new Dir(this.endPos.y-this.startPos.y, this.endPos.x-this.startPos.x);
     this.arrContainer = document.createElement("div");
-    this.drawArrowOnBoard(arrDir)
-
+    this.classNames = {
+      arrowContainer: "arrow-container",
+      arrowHead: "arrow-head",
+      arrowTail: "arrow-tail"
+    }
+    this.drawArrowOnBoard(arrDir);
   }
 
   drawArrowOnBoard(arrDir: Dir) {
@@ -33,19 +43,19 @@ export default class VisualizingArrow {
 
     const rotationDegOfVector = this.getRotationDegOfVector(arrDir);
     this.arrContainer.style.setProperty("--rotationDeg", `${-rotationDegOfVector}deg`);
-    this.arrContainer.classList.add("arrowContainer");
+    this.arrContainer.classList.add(this.classNames.arrowContainer);
     this.arrContainer.style.width = `${fieldWidth * 0.8}px`;
     this.arrContainer.style.height = `${fieldWidth * 0.8}px`;
 
     const arrowHead = document.createElement("div");
     arrowHead.style.setProperty("--headHeight", `${fieldWidth/2 + arrTailLengthPx}px`);
-    arrowHead.classList.add("arrowHead");
+    arrowHead.classList.add(this.classNames.arrowHead);
     arrowHead.style.width = `${fieldWidth}px`;
     arrowHead.style.height = `${fieldWidth}px`;
 
     const arrowTail = document.createElement("div");
     arrowTail.style.setProperty("--halfOfFieldSize", `${fieldWidth/2}px`);
-    arrowTail.classList.add("arrowTail");
+    arrowTail.classList.add(this.classNames.arrowTail);
     arrowTail.style.width = `${arrTailLengthPx + 1}px`;
     arrowTail.style.height = `${fieldWidth * 0.3}px`;
   

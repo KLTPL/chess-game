@@ -218,7 +218,7 @@ export default class King extends Piece {
       const newRookPos = new Pos(to.y, to.x+(castleDir.x*-1));
       const movingRook = this.board.el[oldRookPos.y][oldRookPos.x].piece;
       this.board.removePieceInPos(oldRookPos);
-      this.board.placePieceInPos(newRookPos, movingRook);
+      this.board.placePieceInPos(newRookPos, movingRook, this.defaultTransitionDelay*3.5);
     }
   }
 
@@ -228,6 +228,15 @@ export default class King extends Piece {
     const possitionsOfPiecesCheckingKing = this.getPossitionsOfPiecesCheckingKing();
     for (let posOfPiece of possitionsOfPiecesCheckingKing) {
       this.checks.push(new Check(posOfPiece, kingPos, this.board));
+    }
+
+    // field becomes red if in check
+    const fieldClassName = "king-check";
+    document.querySelectorAll(`.${fieldClassName}`).forEach(field => {
+      field.classList.remove(fieldClassName);
+    });
+    if (this.checks.length > 0) {
+      this.board.el[kingPos.y][kingPos.x].html.classList.add(fieldClassName);
     }
   }
 

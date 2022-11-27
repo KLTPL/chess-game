@@ -4,14 +4,14 @@ import { PlayerArg } from "./gameClasses/Player.js";
 
 let customStartPos: undefined | MapOfPiecesForHuman = undefined;
 // customStartPos = [
-//   ["empty","bking",6,"empty"],
-//   [8,"empty",],
-//   [8,"empty"],
-//   [7,"empty","bbishop"],
+//   [4,"empty","bking",3,"empty"],
+//   ["wpawn",7,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
-//   [7,"empty","wking"],
+//   [8,"empty"],
+//   [8,"empty"],
+//   [4,"empty","wking",3,"empty"],
 // ];
 
 function startGame() {

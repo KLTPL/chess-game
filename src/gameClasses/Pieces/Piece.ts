@@ -13,6 +13,7 @@ export default class Piece {
   html: (HTMLElement | null);
   board: Board;
   possMoves: Pos[];
+  defaultTransitionDelay: number;
   constructor(team: number, html: HTMLElement | null, board: Board) {
     this.value = 0;
     this.num = 0;
@@ -20,6 +21,7 @@ export default class Piece {
     this.html = html;
     this.board = board;
     this.possMoves = [];
+    this.defaultTransitionDelay = 30;
     if (this.html !== null) {
       this.html.addEventListener(
         "mousedown",
@@ -116,40 +118,38 @@ export default class Piece {
     this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
     const trans = thisHtml.style.transform;
     const oldTranslateX = thisHtml.style.transform.slice(
-      trans.indexOf("translateX"), 
-      trans.indexOf("translateY")-1
+      trans.indexOf("(")+1, 
+      trans.indexOf(",")
     );
     const oldTranslateY = thisHtml.style.transform.slice(
-      trans.indexOf("translateY"), 
-      trans.length
+      trans.indexOf(",")+1, 
+      trans.length-1
       );
     const newTranslateX = 
-      `translateX(${
-          ev.clientX -
-          (this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) /
-          2 -
-          thisHtml.offsetWidth/2
-      }px)`;
+      `${
+        ev.clientX -
+        (this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) /
+        2 -
+        thisHtml.offsetWidth/2
+      }px`;
     const newTranslateY = 
-      `translateY(${
-        ev.clientY -
+      `${ev.clientY -
         (this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight) /
         2 -
         thisHtml.offsetWidth/2
-      }px)`;
+      }px`;
     const coor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
-    thisHtml.style.transform = 
-      `${(coor.x === -1) ? oldTranslateX : newTranslateX}
-       ${(coor.y === -1) ? oldTranslateY : newTranslateY}
-      `;
+    const translateX = (coor.x === -1) ? oldTranslateX : newTranslateX;
+    const translateY = (coor.y === -1) ? oldTranslateY : newTranslateY;
+    thisHtml.style.transform = `translate(${translateX}, ${translateY})`;
   }
 
   stopFollowingCursor = (ev: MouseEvent) => {
     const thisHtml = this.html as HTMLElement;
     const boardGrabbedPieceInfo = this.board.grabbedPieceInfo as GrabbedPieceInfo;
     thisHtml.id = "";
-    if( document.getElementById("fieldHighlightedUnderMovingPiece") ) {
-      (document.getElementById("fieldHighlightedUnderMovingPiece") as HTMLElement).id = "";
+    if (document.getElementById(this.board.highlightedFieldIdUnderGrabbedPieceId)) {
+      (document.getElementById(this.board.highlightedFieldIdUnderGrabbedPieceId) as HTMLElement).id = "";
     }
     document.removeEventListener(
       "mousemove", 
@@ -161,13 +161,14 @@ export default class Piece {
     for (let i=0 ; i<this.possMoves.length ; i++) {
       if ( 
         this.possMoves[i].isEqualTo(newPos) &&
-        (newPos.x !== boardGrabbedPieceInfo.grabbedFrom.x || 
-         newPos.y !== boardGrabbedPieceInfo.grabbedFrom.y)
+        (newPos.x !== oldPos.x || 
+         newPos.y !== oldPos.y)
       ) {
         this.board.movePiece(
           oldPos,
           newPos,
-          boardGrabbedPieceInfo.piece
+          boardGrabbedPieceInfo.piece,
+          this.defaultTransitionDelay
         );
         this.possMoves = [];
         this.board.grabbedPieceInfo = null;
@@ -175,11 +176,19 @@ export default class Piece {
       }
     }
     this.board.placePieceInPos(
-      boardGrabbedPieceInfo.grabbedFrom, 
+      oldPos, 
       boardGrabbedPieceInfo.piece,
+      this.calcTransitionDelay(oldPos, newPos)
     );
     this.possMoves = [];
     this.board.grabbedPieceInfo = null;
+  }
+
+  calcTransitionDelay(oldPos: Pos, newPos: Pos) {
+    const distanceX = Math.abs(newPos.x - oldPos.x);
+    const distanceY = Math.abs(newPos.y - oldPos.y);
+    const distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+    return distance * 25;
   }
 
   substractAbsPinsFromPossMoves(possMoves: Pos[], absPins: Pin[], pos: Pos) {

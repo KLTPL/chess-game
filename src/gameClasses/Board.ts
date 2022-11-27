@@ -61,6 +61,7 @@ export default class Board {
   visualizingSystem: VisualizingSystem;
   pawnPromotionMenu: (PawnPromotionMenu|null);
   classNames: ClassNames;
+  highlightedFieldIdUnderGrabbedPieceId: string;
   inverted: boolean;
   constructor(
     htmlPageContainerQSelector: string, 
@@ -75,6 +76,7 @@ export default class Board {
     this.grabbedPieceInfo = null;
     this.visualizingSystem = new VisualizingSystem(this);
     this.pawnPromotionMenu = null;
+    this.inverted = false;
 
     this.noPieceNum = 0;
     this.pawnNum = 1;
@@ -92,15 +94,14 @@ export default class Board {
       fieldColor1: "field1",
       fieldColor2: "field2",
       piece: "piece",
-      possMove: "possMove",
-      possMoveCapture: "possMoveCapture",
-      possMoveStart: "possMoveStart",
+      possMove: "poss-move",
+      possMoveCapture: "poss-move-capture",
+      possMoveStart: "poss-move-start",
       thisHtml: "board-container",
-      fieldsContainer: "boardFieldsContainer",
-      piecesContainer: "boardPiecesContainer",
+      fieldsContainer: "board-fields-container",
+      piecesContainer: "board-pieces-container",
     };
-
-    this.inverted = false;
+    this.highlightedFieldIdUnderGrabbedPieceId = "field-heighlighted-under-moving-piece";
 
     this.html = this.createBoardContainer();
     this.fieldsHtml = this.createContainerForFields();
@@ -117,6 +118,7 @@ export default class Board {
     }
 
     this.html.addEventListener("mousedown", this.visualizingSystem.actionsOnMouseDown);
+    
   }
 
   createBoardContainer() { // <div class="board-container" data-board-container></div>
@@ -137,6 +139,12 @@ export default class Board {
     piecesHtml.classList.add(this.classNames.piecesContainer);
     piecesHtml.addEventListener("contextmenu", ev => ev.preventDefault());
     return piecesHtml;
+  }
+
+  setPieceTransitionDeley(htmlEl: HTMLElement, ms: number) {
+    setTimeout(() => {
+      htmlEl.style.setProperty("--transitionDuration", `${ms}ms`);
+    });
   }
 
   getNewPieceObj(num: number, team: number) {
@@ -202,6 +210,7 @@ export default class Board {
         this.placePieceInPos(
           new Pos(r, c),
           arrOfPiecesToPlaceByPieceNum[r][c],
+          0,
           Boolean(arrOfPiecesToPlaceByPieceNum[r][c].html)
         );
       }
@@ -326,11 +335,11 @@ export default class Board {
   }
 
   highlightFieldUnderMovingPiece(pos: Pos) {
-    if (document.getElementById("fieldHighlightedUnderMovingPiece")) {
-      (document.getElementById("fieldHighlightedUnderMovingPiece") as HTMLElement).id = "";
+    if (document.getElementById(this.highlightedFieldIdUnderGrabbedPieceId)) {
+      (document.getElementById(this.highlightedFieldIdUnderGrabbedPieceId) as HTMLElement).id = "";
     }
     if (pos.y !== -1 && pos.x !== -1) {
-      this.el[pos.y][pos.x].html.id = "fieldHighlightedUnderMovingPiece";
+      this.el[pos.y][pos.x].html.id = this.highlightedFieldIdUnderGrabbedPieceId;
     }
   }
 
@@ -349,29 +358,34 @@ export default class Board {
     return `${teamChar}-${name}`;
   }
 
-  placePieceInPos(pos: Pos, piece: Piece, appendHtml?: boolean) {
-    if (appendHtml && piece.html) {
-      this.piecesHtml.append(piece.html);
-    }
+  placePieceInPos(pos: Pos, piece: Piece, transitionDelayMs: number, appendHtml?: boolean) {
     if (piece.html) {
+      if (appendHtml) {
+        this.piecesHtml.append(piece.html);
+      }
       piece.html.
       addEventListener(
         "mousedown",
         piece.startFollowingCursor,
         {once: true}
       );
-      piece.html.style.transform = 
-      `translateX(
-        ${pos.x * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
-      )
-      translateY(
-        ${pos.y * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
-      )`;
+      this.setPieceTransitionDeley(piece.html as HTMLElement, transitionDelayMs);
+      setTimeout(() => {
+        (piece.html as HTMLElement).style.transform = 
+          `translate(
+            ${pos.x * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px,
+            ${pos.y * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
+          )`;
+        setTimeout(() => {
+          this.setPieceTransitionDeley(piece.html as HTMLElement, 0);
+
+        }, transitionDelayMs)
+      });
     }
     this.el[pos.y][pos.x].piece = piece;
   }
 
-  movePiece(from: Pos, to: Pos, piece: Piece ) {
+  movePiece(from: Pos, to: Pos, piece: Piece, transitionDelayMs: number) {
     const moveIsCapture = this.el[to.y][to.x].piece.html !== null;
     if (moveIsCapture) {
       this.removePieceInPos(to, true);
@@ -388,7 +402,7 @@ export default class Board {
       (this.currTeam === this.whiteNum) ? 
       this.blackNum : 
       this.whiteNum;
-    this.placePieceInPos(to, piece);
+    this.placePieceInPos(to, piece, transitionDelayMs);
     piece.sideEffectsOfMove(to, from);
     const movingPiecesKing = 
       (piece.team === this.whiteNum) ? 
@@ -521,7 +535,7 @@ export default class Board {
           const pawn = boardAfter[r][c] as Pawn;
           pawn.directionY *= -1;
         }
-        this.placePieceInPos(new Pos(r, c), boardAfter[r][c]);
+        this.placePieceInPos(new Pos(r, c), boardAfter[r][c], 0);
       }
     }
     const king = 

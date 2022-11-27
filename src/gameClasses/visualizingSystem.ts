@@ -8,7 +8,7 @@ export default class VisualizingSystem {
   board: Board;
   constructor(board: Board) {
     this.arrows = [];
-    this.highlightClassName = "highlighted";
+    this.highlightClassName = "highlighted-field";
     this.board = board;
   }
 
