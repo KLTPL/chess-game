@@ -17,9 +17,9 @@ export default class Knight extends Piece {
       new Dir(1,2), new Dir(1,-2), new Dir(-1,2), new Dir(-1,-2), 
       new Dir(2,1), new Dir(2,-1), new Dir(-2,1), new Dir(-2,-1)
     ];
-    for( let dir of directions ) {
+    for (let dir of directions) {
       const newMove = new Pos(pos.y+dir.y, pos.x+dir.x);
-      if( this.board.posIsInBoard(newMove) ) {
+      if (this.board.posIsInBoard(newMove)) {
         possibleMoves.push(newMove);
       }
     };
@@ -27,15 +27,13 @@ export default class Knight extends Piece {
   }
 
   getPossibleMovesFromPos(pos: Pos) {
-    const myKing = (this.team===this.board.whiteNum) ? this.board.kings.white : this.board.kings.black;
+    const myKing = 
+      (this.team === this.board.whiteNum) ? 
+      this.board.kings.white : 
+      this.board.kings.black;
     const absPins = myKing.getPossitionsOfAbsolutePins();
-    let possibleMovesFromPosForKnight = this.getPossibleMovesFromPosForKing(pos);
-    for( let i=0 ; i<possibleMovesFromPosForKnight.length ; i++ ) {
-      if( this.board.el[possibleMovesFromPosForKnight[i].y][possibleMovesFromPosForKnight[i].x].piece.team===this.team ) {
-        possibleMovesFromPosForKnight.splice(i, 1);
-        i--;
-      }
-    }
+    let possibleMovesFromPosForKnight = this.getPossibleMovesFromPosForKing(pos)
+      .filter(move => this.board.el[move.y][move.x].piece.team !== this.team);
     let possibleMoves = [pos, ...possibleMovesFromPosForKnight];
 
     possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);

@@ -13,21 +13,17 @@ export default class VisualizingSystem {
   }
 
   actionsOnMouseDown = (ev: MouseEvent) => {
-    const leftClickNum = 0;
-    const rightClickNum = 2;
-    if( ev.button===leftClickNum ) {
+    if (ev.button === 0) { // mouse left click
       this.removeAllArrows();
       this.removeHighlightFromAllFields();
       return;
     }
-    if( ev.button!==rightClickNum ) {
+    if (ev.button !== 2) { // mouse right click
       return;
     }
 
     let mouseHold = new Promise<void>((resolve, reject) => {
-      this.board.html.addEventListener(
-        "mouseup", 
-        () => {
+      this.board.html.addEventListener("mouseup", () => {
           reject();
         }, 
         {once: true}
@@ -40,30 +36,32 @@ export default class VisualizingSystem {
       this.board.html.addEventListener("mouseup", endEv => {
         const startPos = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
         const endPos = this.board.getFieldCoorByPx(endEv.clientX, endEv.clientY);
-        if( startPos.x===endPos.x && startPos.y===endPos.y ) {
+        if (
+          startPos.x === endPos.x && 
+          startPos.y === endPos.y
+        ) {
           this.toggleHighlightOnFieldOnPos(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
           return;
         }
-        const matchingArrowNum = this.getMatchingArrowNum(startPos, endPos);
-        if( matchingArrowNum!==-1 ) {
+        const matchingArrowNum = this.getEqualArrowNum(startPos, endPos);
+        if (matchingArrowNum !== -1) {
           this.removeArrow(matchingArrowNum);
           return;
         }
         this.arrows.push(new VisualizingArrow(this.board, startPos, endPos));
-      },
-      {once: true});
+      }, {once: true});
     }).catch( () => {
       this.toggleHighlightOnFieldOnPos(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
     });
   }
 
-  getMatchingArrowNum(startPos: Pos, endPos: Pos) {
+  getEqualArrowNum(startPos: Pos, endPos: Pos) {
     for( let i=0 ; i<this.arrows.length ; i++ ) {
       const arrSPos = this.arrows[i].startPos;
       const arrEPos = this.arrows[i].endPos;
       if( 
-        startPos.x===arrSPos.x && startPos.y===arrSPos.y &&
-        endPos  .x===arrEPos.x && endPos  .y===arrEPos.y
+        startPos.x === arrSPos.x && startPos.y === arrSPos.y &&
+        endPos  .x === arrEPos.x && endPos  .y === arrEPos.y
       ) {
         return i;
       }
@@ -72,7 +70,7 @@ export default class VisualizingSystem {
   }
 
   removeAllArrows() {
-    while( this.arrows.length>0 ) {
+    while (this.arrows.length > 0) {
       this.removeArrow(0);
     }
   }
@@ -88,7 +86,7 @@ export default class VisualizingSystem {
 
   removeHighlightFromAllFields() {
     const fields = document.getElementsByClassName(this.highlightClassName);
-    for( let i=0 ; i<fields.length ; i++ ) {
+    for (let i=0 ; i<fields.length ; i++) {
       fields[i].classList.remove(this.highlightClassName);
       i--;
     }

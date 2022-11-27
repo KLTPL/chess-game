@@ -1,57 +1,79 @@
 import Board from "./Board.js";
-import { BoardInfo } from "./Board.js";
+import { BoardArg } from "./Board.js";
 import Player from "./Player.js";
-import { PlayerInfo } from "./Player.js";
+import { PlayerArg } from "./Player.js";
 import EndType from "./EndType.js";
 import Move from "./Move.js";
 
 type Players = {
-  white: Player,
-  black: Player
+  white: Player;
+  black: Player;
 };
+
 export default class Match {
   gameRunning: Boolean;
   players: Players;
   board: Board;
-  constructor(player1Info: PlayerInfo, player2Info: PlayerInfo, boardInfo: BoardInfo) {
+  constructor(
+    player1Arg: PlayerArg,
+    player2Arg: PlayerArg,
+    boardArg: BoardArg
+  ) {
     this.gameRunning = true;
-    this.board = new Board(boardInfo.htmlQSelector, boardInfo.htmlPageContainerQSelector, this, boardInfo.startPositionsOfPieces);
+    this.board = new Board(
+      boardArg.htmlQSelector,
+      boardArg.htmlPageContainerQSelector,
+      this,
+      boardArg.startPositionsOfPieces
+    );
     this.players = {
-      white: new Player(player1Info.name, player1Info.image, player1Info.team, player1Info.timeS, this.board),
-      black: new Player(player2Info.name, player2Info.image, player2Info.team, player2Info.timeS, this.board)
+      white: new Player(
+        player1Arg.name,
+        player1Arg.image,
+        player1Arg.team,
+        player1Arg.timeS,
+        this.board
+      ),
+      black: new Player(
+        player2Arg.name,
+        player2Arg.image,
+        player2Arg.team,
+        player2Arg.timeS,
+        this.board
+      ),
     };
-
   }
 
   checkIfGameShouldEndAfterMove(move: Move) {
-    const movingPiecesKing = (move.piece.team===this.board.whiteNum) ? this.board.kings.black : this.board.kings.white;
-    const playerWhoMadeMove = (move.piece.team===this.board.whiteNum) ? this.players.white : this.players.black;
-    const otherKing = (move.piece.team!==this.board.whiteNum) ? this.board.kings.black : this.board.kings.white;
-    const othePlayer = (move.piece.team!==this.board.whiteNum) ? this.players.white : this.players.black;
-    if( 
-      this.board.insufficientMaterialThatLeadsToDraw() || 
+    const whiteMoved = move.piece.team === this.board.whiteNum;
+    const playerWhoMadeMove = (whiteMoved) ? this.players.white : this.players.black;
+    const otherKing = (!whiteMoved) ? this.board.kings.white : this.board.kings.black;
+    const otherPlayer = (!whiteMoved) ? this.players.white : this.players.black;
+
+    if (
+      this.board.insufficientMaterialThatLeadsToDraw() ||
       this.board.threeMovesRepetition() ||
-      this.board.noCapturesOrPawnMovesIn50Moves() 
+      this.board.noCapturesOrPawnMovesIn50Moves()
     ) {
       this.end(new EndType(playerWhoMadeMove, "draw"));
       return;
     }
 
-    if( !playerWhoMadeMove.hasMoves() && movingPiecesKing.checks.length>0 ) {
-      this.end(new EndType(playerWhoMadeMove, "check-mate"));
-      return;
+    if (!otherPlayer.hasMoves()) {
+      const endedWith = (otherKing.checks.length > 0) ? "check-mate" : "stale-mate";
+      this.end(new EndType(playerWhoMadeMove, endedWith));
     }
-
-    if( !othePlayer.hasMoves() && otherKing.checks.length===0 ) {
-      this.end(new EndType(playerWhoMadeMove, "stale-mate"));
-      return;
-    }
-
   }
 
-  end( endType: EndType ) {
+  end(endType?: EndType) {
     this.gameRunning = false;
-    console.log(this.board.moves)
-    console.log(`Game has ended by ${endType.cousedBy.name} with a ${endType.type}`);
+    console.log(this.board.moves);
+    if (endType) {
+      console.log(
+        `Game has ended by ${endType.cousedBy.name} with a ${endType.type}`
+      ); 
+    } else {
+      console.log("Game ended");
+    }
   }
 }
