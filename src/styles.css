@@ -184,3 +184,51 @@ body {
   background-size: var(--fieldSize);
   background-position: center;
 }
+
+.w-pawn {
+  background-image: url(./images/pawnW.png);
+}
+
+.w-rook {
+  background-image: url(./images/rookW.png);
+}
+
+.w-knight {
+  background-image: url(./images/knightW.png);
+}
+
+.w-bishop {
+  background-image: url(./images/bishopW.png);
+}
+
+.w-queen {
+  background-image: url(./images/queenW.png);
+}
+
+.w-king {
+  background-image: url(./images/kingW.png);
+}
+
+.b-pawn {
+  background-image: url(./images/pawnB.png);
+}
+
+.b-rook {
+  background-image: url(./images/rookB.png);
+}
+
+.b-knight {
+  background-image: url(./images/knightB.png);
+}
+
+.b-bishop {
+  background-image: url(./images/bishopB.png);
+}
+
+.b-queen {
+  background-image: url(./images/queenB.png);
+}
+
+.b-king {
+  background-image: url(./images/kingB.png);
+}

@@ -147,7 +147,7 @@ export default class Board {
   getNewHtmlPiece(num: number, team: number, className: string) {
     let piece = document.createElement("div");
     piece.classList.add(className);
-    piece.style.backgroundImage = `url(/src/images/${this.getPieceNameByNum(num, team)}.png)`;
+    piece.classList.add(this.getSpecificPieceClassName(num, team));
     return piece;
   }
 
@@ -327,18 +327,19 @@ export default class Board {
     }
   }
 
-  getPieceNameByNum(pieceNum: number, pieceTeam: number) {
-    let name: string;
-    switch (pieceNum) {
-      case this.pawnNum:   name = "pawn";   break;
-      case this.rookNum:   name = "rook";   break;
-      case this.knightNum: name = "knight"; break;
-      case this.bishopNum: name = "bishop"; break;
-      case this.queenNum:  name = "queen";  break;
-      default:             name = "king";   break;
-    }
-    let teamChar = (pieceTeam === this.blackNum) ? "B" : "W";
-    return `${name}${teamChar}`;
+  getSpecificPieceClassName(pieceNum: number, pieceTeam: number) {
+    const teamChar = (pieceTeam === this.blackNum) ? "b" : "w";
+    const name = (() => {
+      switch (pieceNum) {
+        case this.kingNum:   return "king";
+        case this.queenNum:  return "queen";
+        case this.bishopNum: return "bishop";
+        case this.knightNum: return "knight";
+        case this.rookNum:   return "rook";
+        default:             return "pawn";
+      }
+    }) ();
+    return `${teamChar}-${name}`;
   }
 
   placePieceInPos(pos: Pos, piece: Piece, appendHtml?: boolean) {
