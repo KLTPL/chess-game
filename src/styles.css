@@ -30,18 +30,18 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.596);
+  box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.596);
   width: 750px; 
   height: 750px;
 }
 
-.boardFieldsContainer {
+.board-fields-container {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
 }
 
-.boardFieldsContainer, .boardPiecesContainer {
+.board-fields-container, .board-pieces-container {
   position: absolute;
   left: 0;
   top: 0;
@@ -63,25 +63,41 @@ body {
 }
 
 .piece {
+  --transitionDuration: 0; /* set in script*/
   position: absolute;
   width: var(--fieldSize);
   height: var(--fieldSize);
   cursor: grab;
   background-size: var(--fieldSize);
   background-position: center;
+  transition: all var(--transitionDuration) ease-in;
+  z-index: 1;
 }
 
-#fieldHighlightedUnderMovingPiece {
+#field-heighlighted-under-moving-piece {
   box-shadow: 
-    inset 0 0 20px 5px green,
-    0 0 10px 0 green;
+    inset 0 0 20px 5px hsl(120, 100%, 25%),
+    0 0 10px 0 hsl(120, 100%, 25%);
 }
 
-.highlighted {
+.king-check::before {
+  content: "";
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  position: absolute;
+  background: rgb(255,0,0);
+  background: radial-gradient(circle, rgba(255,0,0,0.8239670868347339) 0%, rgba(255,0,0,0.7819502801120448) 31%, rgba(0,0,0,0) 100%);
+}
+
+.highlighted-field {
   background-color: hsla(0, 100%, 50%, 0.9) !important;
 }
 
-.possMove {
+.poss-move {
   border-radius: 50%;
   width: var(--possMoveSize);
   height: var(--possMoveSize);
@@ -93,13 +109,13 @@ body {
 
 }
 
-.possMoveCapture {
+.poss-move-capture {
   background-color: rgba(0, 255, 13, 0.75) !important;
   box-shadow: 0 0 10px black;
   z-index: 10;
 }
 
-.possMoveStart {
+.poss-move-start {
   background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
@@ -108,7 +124,7 @@ body {
   z-index: 2;
 }
 
-.arrowContainer {
+.arrow-container {
   pointer-events: none;
   --rotationDeg: ; /* set in a script*/
   position: absolute;
@@ -118,16 +134,7 @@ body {
   z-index: 100;
 }
 
-.arrowTail {
-  --halfOfFieldSize: ;  /* set in a script*/
-  background-color: var(--arrowBgColor);
-  position: absolute;
-  bottom: 50%;
-  left: var(--halfOfFieldSize);
-  transform: translateY(50%);
-}
-
-.arrowHead {
+.arrow-head {
   --headHeight: ; /* set in a script*/
   position: absolute;
   left: var(--headHeight);
@@ -136,7 +143,16 @@ body {
   overflow: hidden;
 }
 
-.arrowHead::after {
+.arrow-tail {
+  --halfOfFieldSize: ;  /* set in a script*/
+  background-color: var(--arrowBgColor);
+  position: absolute;
+  bottom: 50%;
+  left: var(--halfOfFieldSize);
+  transform: translateY(50%);
+}
+
+.arrow-head::after {
   content: "";
   height: 95%;
   width: 95%;
@@ -148,7 +164,7 @@ body {
   transform: translateY(50%) rotate(45deg);
 }
 
-.promotePopup {
+.promote-popup {
   --widthOfFiveFields: ; /* set in a script*/
   --widthOfThreeFields: ; /* set in a script*/
   --quarterOfField: ; /* set in a script*/
@@ -165,19 +181,20 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: var(--fieldBoxShadow);
+  z-index: 3;
 }
 
-.promotePopup > div {
+.promote-popup > div {
   box-shadow: var(--fieldBoxShadow);
 }
 
-.promotePopup > div:hover {
+.promote-popup > div:hover {
   box-shadow: 
   inset 0 0 20px 5px green,
   0 0 10px 0 green;
 }
 
-.promoteOption {
+.promote-option {
   width: var(--fieldSize);
   height: var(--fieldSize);
   cursor: pointer;

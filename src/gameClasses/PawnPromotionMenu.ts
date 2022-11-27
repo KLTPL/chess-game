@@ -12,7 +12,7 @@ export default class PawnPromotionMenu {
     this.optionsHtmls = [];
     const fieldWidth = this.board.piecesHtml.offsetWidth/this.board.fieldsInOneRow;
     this.html = document.createElement("div");
-    this.html.classList.add("promotePopup");
+    this.html.classList.add("promote-popup");
     this.html.style.setProperty("--widthOfFiveFields", `${fieldWidth*5}px`);
     this.html.style.setProperty("--widthOfThreeFields", `${fieldWidth*3}px`);
     this.html.style.setProperty("--quarterOfField", `${fieldWidth*0.25}px`);
@@ -24,7 +24,7 @@ export default class PawnPromotionMenu {
     ];
     for (let option of promoteOptionsNum) {
       const optionContainer = document.createElement("div");
-      const optionPiece = this.board.getNewHtmlPiece(option, this.team, "promoteOption");
+      const optionPiece = this.board.getNewHtmlPiece(option, this.team, "promote-option");
       optionPiece.dataset.optNum = option.toString();
       this.optionsHtmls.push(optionPiece);
       optionContainer.append(optionPiece);
