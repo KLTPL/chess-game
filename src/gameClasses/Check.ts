@@ -16,21 +16,28 @@ export default class Check {
   }
 
   getFieldsInBetweenCheckingPieceAndKing() {
+    const checkingPiece = this.checkingPiecePos;
     if( 
-      this.board.el[this.checkingPiecePos.y][this.checkingPiecePos.x].piece.num===this.board.knightNum ||
-      this.board.el[this.checkingPiecePos.y][this.checkingPiecePos.x].piece.num===this.board.pawnNum 
+      this.board.el[checkingPiece.y][checkingPiece.x].piece.num === this.board.knightNum ||
+      this.board.el[checkingPiece.y][checkingPiece.x].piece.num === this.board.pawnNum 
     ) {
       return [];
     }
     const checkDir = new Dir(
-      this.checkedKingPos.y-this.checkingPiecePos.y, 
-      this.checkedKingPos.x-this.checkingPiecePos.x, 
+      this.checkedKingPos.y - checkingPiece.y, 
+      this.checkedKingPos.x - checkingPiece.x, 
       true
     );
     let fieldsInBetween: Pos[] = [];
-    let tempPos = new Pos(this.checkingPiecePos.y+checkDir.y, this.checkingPiecePos.x+checkDir.x);
+    let tempPos = new Pos(
+      checkingPiece.y + checkDir.y, 
+      checkingPiece.x + checkDir.x
+    );
 
-    while( tempPos.x!==this.checkedKingPos.x || tempPos.y!==this.checkedKingPos.y ) {
+    while (
+      tempPos.x !== this.checkedKingPos.x || 
+      tempPos.y !== this.checkedKingPos.y
+    ) {
       fieldsInBetween.push(new Pos(tempPos.y, tempPos.x));
       tempPos.x += checkDir.x;
       tempPos.y += checkDir.y;

@@ -14,22 +14,25 @@ export default class Bishop extends Piece {
     let possibleMoves: Pos[] = [];
     let tempPos: Pos;
     let directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
-    for( let dir of directions ) {
-      tempPos = new Pos(pos.y,pos.x);
-      while(true) {
-        if( 
-          this.board.el[tempPos.y][tempPos.x].piece.team===this.enemyTeamNum() && 
-          this.board.el[tempPos.y][tempPos.x].piece.num!==this.board.kingNum
+    for (let dir of directions) {
+      tempPos = new Pos(pos.y, pos.x);
+      while (true) {
+        if ( 
+          this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum() && 
+          this.board.el[tempPos.y][tempPos.x].piece.num  !== this.board.kingNum
         ) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if(tempPos.x<0 || tempPos.x>7 || tempPos.y<0 || tempPos.y>7) {
+        if (
+          tempPos.x < 0 || tempPos.x > 7 || 
+          tempPos.y < 0 || tempPos.y > 7
+        ) {
           break;
         }
-        possibleMoves.push( new Pos(tempPos.y, tempPos.x) );
-        if( this.board.el[tempPos.y][tempPos.x].piece.team===this.team ) {
+        possibleMoves.push(new Pos(tempPos.y, tempPos.x));
+        if (this.board.el[tempPos.y][tempPos.x].piece.team === this.team) {
           break;
         }
       }
@@ -38,22 +41,25 @@ export default class Bishop extends Piece {
   }
 
   getPossibleMovesFromPos(pos: Pos) {
-    const myKing = (this.team===this.board.whiteNum) ? this.board.kings.white : this.board.kings.black;
+    const myKing = 
+      (this.team === this.board.whiteNum) ? 
+      this.board.kings.white : 
+      this.board.kings.black;
     const absPins = myKing.getPossitionsOfAbsolutePins();
     let possibleMoves = [pos];
     let tempPos: Pos;
     let directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
-    for( let dir of directions ) {
+    for (let dir of directions) {
       tempPos = new Pos(pos.y,pos.x);
-      while(true) {
-        if( this.board.el[tempPos.y][tempPos.x].piece.team===this.enemyTeamNum() ) {
+      while (true) {
+        if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum()) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
         if( 
           (tempPos.x<0 || tempPos.x>7 || tempPos.y<0 || tempPos.y>7) ||
-          this.board.el[tempPos.y][tempPos.x].piece.team===this.team
+          this.board.el[tempPos.y][tempPos.x].piece.team === this.team
         ) {
           break;
         }

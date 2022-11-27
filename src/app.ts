@@ -1,42 +1,40 @@
 import Match from "./gameClasses/Match.js";
-import { BoardInfo } from "./gameClasses/Board.js";
-import { PlayerInfo } from "./gameClasses/Player.js";
+import { BoardArg, MapOfPiecesForHuman } from "./gameClasses/Board.js";
+import { PlayerArg } from "./gameClasses/Player.js";
 
-let match: Match;
-let custoStartPieces = undefined;
-// custoStartPieces = [
+let customStartPos: undefined | MapOfPiecesForHuman = undefined;
+// customStartPos = [
 //   ["empty","bking",6,"empty"],
+//   [8,"empty",],
+//   [8,"empty"],
+//   [7,"empty","bbishop"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
-//   [8,"empty"],
-//   [8,"empty"],
-//   [8,"empty"],
-//   [6,"empty","wking","empty"],
-
+//   [7,"empty","wking"],
 // ];
 
 function startGame() {
-  const player1Info: PlayerInfo = {
-    name: "white noob", 
-    image: null, 
-    team: 1, 
-    timeS: 600
+  const player1Info: PlayerArg = {
+    name: "white",
+    image: null,
+    team: 1,
+    timeS: 600,
   };
 
-  const player2Info: PlayerInfo = {
-    name: "black noob", 
-    image: null, 
-    team: 1, 
-    timeS: 600
+  const player2Info: PlayerArg = {
+    name: "black",
+    image: null,
+    team: 2,
+    timeS: 600,
   };
 
-  const boardInfo: BoardInfo = {
-    htmlQSelector: "[data-board-container]", 
-    htmlPageContainerQSelector: "[data-container]", 
-    startPositionsOfPieces: custoStartPieces
+  const boardInfo: BoardArg = {
+    htmlQSelector: "[data-board-container]",
+    htmlPageContainerQSelector: "[data-container]",
+    startPositionsOfPieces: customStartPos,
   };
-  match = new Match(player1Info, player2Info, boardInfo);
+  new Match(player1Info, player2Info, boardInfo);
 }
 
 startGame();

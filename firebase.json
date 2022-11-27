@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "chess-game",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

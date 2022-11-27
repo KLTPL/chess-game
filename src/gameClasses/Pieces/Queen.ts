@@ -8,7 +8,6 @@ export default class Queen extends Piece {
     super(team, html, board);
     this.num = 5;
     this.value = 9;
-
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
@@ -19,22 +18,22 @@ export default class Queen extends Piece {
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
     ];
-    for( let dir of directions ) {
+    for (let dir of directions) {
       tempPos = new Pos(pos.y,pos.x);
-      while(true) {
-        if( 
-          this.board.el[tempPos.y][tempPos.x].piece.team===enemyTeamNum && 
-          this.board.el[tempPos.y][tempPos.x].piece.num!==this.board.kingNum
+      while (true) {
+        if ( 
+          this.board.el[tempPos.y][tempPos.x].piece.team === enemyTeamNum && 
+          this.board.el[tempPos.y][tempPos.x].piece.num !== this.board.kingNum
         ) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if( tempPos.x<0 || tempPos.x>7 || tempPos.y<0 || tempPos.y>7 ) {
+        if (!this.board.posIsInBoard(tempPos)) {
           break;
         }
         possibleMoves.push( new Pos(tempPos.y, tempPos.x) );
-        if( this.board.el[tempPos.y][tempPos.x].piece.team===this.team ) {
+        if (this.board.el[tempPos.y][tempPos.x].piece.team === this.team) {
           break;
         }
       }
@@ -43,7 +42,8 @@ export default class Queen extends Piece {
 
   }
   getPossibleMovesFromPos(pos: Pos) {
-    const myKing = (this.team===this.board.whiteNum) ? this.board.kings.white : this.board.kings.black;
+    const enemyTeamNum = this.enemyTeamNum()
+    const myKing = (this.team === this.board.whiteNum) ? this.board.kings.white : this.board.kings.black;
     const absPins = myKing.getPossitionsOfAbsolutePins();
     let possibleMoves = [pos];
     let tempPos: Pos;
@@ -51,17 +51,17 @@ export default class Queen extends Piece {
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
     ];
-    for( let dir of directions ) {
+    for (let dir of directions) {
       tempPos = new Pos(pos.y,pos.x);
-      while(true) {
-        if( this.board.el[tempPos.y][tempPos.x].piece.team===this.enemyTeamNum() ) {
+      while (true) {
+        if (this.board.el[tempPos.y][tempPos.x].piece.team === enemyTeamNum) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
         if( 
-          (tempPos.x<0 || tempPos.x>7 || tempPos.y<0 || tempPos.y>7) ||
-          this.board.el[tempPos.y][tempPos.x].piece.team===this.team
+          (!this.board.posIsInBoard(tempPos)) ||
+          this.board.el[tempPos.y][tempPos.x].piece.team === this.team
         ) {
           break;
         }

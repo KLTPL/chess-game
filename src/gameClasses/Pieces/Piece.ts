@@ -4,23 +4,23 @@ import Dir from "../Dir.js";
 import Pin from "../Pin.js";
 import King from "./King.js";
 import Check from "../Check.js";
+import GrabbedPieceInfo from "./GrabbedPieceInfo.js";
 
 export default class Piece {
-  num: number;
-  team: (number|null);
-  html: (HTMLElement|null);
-  board: Board;
   value: number;
-  pos: (Pos|null);
+  num: number;
+  team: number;
+  html: (HTMLElement | null);
+  board: Board;
   possMoves: Pos[];
-  constructor(team: number, html: HTMLElement, board: Board) {
+  constructor(team: number, html: HTMLElement | null, board: Board) {
+    this.value = 0;
     this.num = 0;
     this.team = team;
     this.html = html;
     this.board = board;
-    this.pos = null;
     this.possMoves = [];
-    if( this.html!==null ) {
+    if (this.html !== null) {
       this.html.addEventListener(
         "mousedown",
         this.startFollowingCursor,
@@ -30,24 +30,37 @@ export default class Piece {
   }
 
   enemyTeamNum() {
-    return (this.team===this.board.whiteNum) ? this.board.blackNum : this.board.whiteNum;
+    return (
+      (this.team === this.board.whiteNum) ? 
+      this.board.blackNum : 
+      this.board.whiteNum
+    );
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
+    pos
     let possibleMoves: Pos[] = [];
     return possibleMoves;
   }
 
   getPossibleMovesFromPos(pos: Pos) {
+    pos
     let possibleMoves: Pos[] = [];
     return possibleMoves;
   }
 
   startFollowingCursor = (ev: MouseEvent) => {
+    const thisHtml = this.html as HTMLElement;
     const leftClickNum = 0;
     const fieldCoor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
-    if( this.board.currTeam!==this.team || ev.button!==leftClickNum || this.board.pawnPromotionMenu || this.board.grabbedPiece!==null || !this.board.match.gameRunning ) {
-      this.html.addEventListener(
+    if( 
+      this.board.currTeam !== this.team || 
+      ev.button !== leftClickNum || 
+      this.board.pawnPromotionMenu !== null || 
+      this.board.grabbedPieceInfo !== null || 
+      !this.board.match.gameRunning 
+    ) {
+      thisHtml.addEventListener(
         "mousedown",
         this.startFollowingCursor,
         {once: true}
@@ -57,9 +70,8 @@ export default class Piece {
     this.possMoves = this.getPossibleMovesFromPos(fieldCoor);
     this.board.showPossibleMoves(this.possMoves, this.enemyTeamNum());
     let mouseHold = new Promise<void>((resolve, reject) => {
-      this.html.addEventListener(
-        "mouseup", 
-        () => {
+      thisHtml.addEventListener(
+        "mouseup", () => {
           reject();
         }, 
         {once: true}
@@ -69,10 +81,9 @@ export default class Piece {
       }, 150);
     });
 
-    this.board.grabbedPiece = this;
-    this.board.grabbedPiece.pos = fieldCoor;
+    this.board.grabbedPieceInfo = new GrabbedPieceInfo(this, fieldCoor);
     this.board.removePieceInPos(fieldCoor);
-    this.html.id = "move";
+    thisHtml.id = "move";
     this.moveToCursor(ev);
     document.addEventListener(
       "mousemove",
@@ -100,30 +111,45 @@ export default class Piece {
   }
 
   moveToCursor = (ev: MouseEvent) => {
+    const thisHtml = this.html as HTMLElement;
     ev.preventDefault();
     this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
-    const trans = this.html.style.transform;
-    const oldTranslateX = this.html.style.transform.slice(trans.indexOf("translateX"), trans.indexOf("translateY")-1);
-    const oldTranslateY = this.html.style.transform.slice(trans.indexOf("translateY"), trans.length);
+    const trans = thisHtml.style.transform;
+    const oldTranslateX = thisHtml.style.transform.slice(
+      trans.indexOf("translateX"), 
+      trans.indexOf("translateY")-1
+    );
+    const oldTranslateY = thisHtml.style.transform.slice(
+      trans.indexOf("translateY"), 
+      trans.length
+      );
     const newTranslateX = 
       `translateX(${
-          ev.clientX-(this.board.pageContainerHtml.offsetWidth-this.board.piecesHtml.offsetWidth)/2-this.html.offsetWidth/2
+          ev.clientX -
+          (this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) /
+          2 -
+          thisHtml.offsetWidth/2
       }px)`;
     const newTranslateY = 
       `translateY(${
-        ev.clientY-(this.board.pageContainerHtml.offsetHeight-this.board.piecesHtml.offsetHeight)/2-this.html.offsetWidth/2
+        ev.clientY -
+        (this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight) /
+        2 -
+        thisHtml.offsetWidth/2
       }px)`;
     const coor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
-    this.html.style.transform = 
-      `${(coor.x===-1) ? oldTranslateX : newTranslateX}
-       ${(coor.y===-1) ? oldTranslateY : newTranslateY}
+    thisHtml.style.transform = 
+      `${(coor.x === -1) ? oldTranslateX : newTranslateX}
+       ${(coor.y === -1) ? oldTranslateY : newTranslateY}
       `;
   }
 
   stopFollowingCursor = (ev: MouseEvent) => {
-    this.html.id = "";
+    const thisHtml = this.html as HTMLElement;
+    const boardGrabbedPieceInfo = this.board.grabbedPieceInfo as GrabbedPieceInfo;
+    thisHtml.id = "";
     if( document.getElementById("fieldHighlightedUnderMovingPiece") ) {
-      document.getElementById("fieldHighlightedUnderMovingPiece").id = "";
+      (document.getElementById("fieldHighlightedUnderMovingPiece") as HTMLElement).id = "";
     }
     document.removeEventListener(
       "mousemove", 
@@ -131,38 +157,42 @@ export default class Piece {
     );
     this.board.hidePossibleMoves();
     const newPos = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
-    const oldPos = this.board.grabbedPiece.pos;
-    for( let i=0 ; i<this.possMoves.length ; i++ ) {
-      if( 
-        this.board.positionsMatch(this.possMoves[i], newPos) &&
-        (newPos.x!==this.board.grabbedPiece.pos.x || newPos.y!==this.board.grabbedPiece.pos.y)
+    const oldPos = boardGrabbedPieceInfo.grabbedFrom;
+    for (let i=0 ; i<this.possMoves.length ; i++) {
+      if ( 
+        this.possMoves[i].isEqualTo(newPos) &&
+        (newPos.x !== boardGrabbedPieceInfo.grabbedFrom.x || 
+         newPos.y !== boardGrabbedPieceInfo.grabbedFrom.y)
       ) {
         this.board.movePiece(
           oldPos,
           newPos,
-          this.board.grabbedPiece
+          boardGrabbedPieceInfo.piece
         );
         this.possMoves = [];
-        this.board.grabbedPiece = null;
+        this.board.grabbedPieceInfo = null;
         return;
       }
     }
     this.board.placePieceInPos(
-      this.board.grabbedPiece.pos, 
-      this.board.grabbedPiece,
+      boardGrabbedPieceInfo.grabbedFrom, 
+      boardGrabbedPieceInfo.piece,
     );
     this.possMoves = [];
-    this.board.grabbedPiece = null;
+    this.board.grabbedPieceInfo = null;
   }
 
   substractAbsPinsFromPossMoves(possMoves: Pos[], absPins: Pin[], pos: Pos) {
-    for( let p=0 ; p<absPins.length ; p++ ) {
-      if( absPins[p].pinnedPiecePos.x===pos.x && absPins[p].pinnedPiecePos.y===pos.y ) {
-        for( let m=0 ; m<possMoves.length ; m++ ) {
-          const simplifyXAndY = (this.num===this.board.knightNum) ? false : true; // simplify means make 1 if >1 and -1 if <-1
+    for (let p=0 ; p<absPins.length ; p++) {
+      if (
+        absPins[p].pinnedPiecePos.x === pos.x && 
+        absPins[p].pinnedPiecePos.y === pos.y
+      ) {
+        for (let m=0 ; m<possMoves.length ; m++) {
+          const simplifyXAndY = (this.num === this.board.knightNum) ? false : true; // simplify means make 1 if >1 and -1 if <-1
           const moveDir = new Dir(possMoves[m].y-pos.y, possMoves[m].x-pos.x, simplifyXAndY);
           if( 
-            ( moveDir.x===0 && moveDir.y===0 ) ||
+            ( moveDir.x === 0 && moveDir.y === 0 ) ||
             ( moveDir.x    === absPins[p].pinDir.x && moveDir.y    === absPins[p].pinDir.y ) ||
             ( moveDir.x*-1 === absPins[p].pinDir.x && moveDir.y*-1 === absPins[p].pinDir.y )
           ) {
@@ -177,19 +207,19 @@ export default class Piece {
   }
 
   removePossMovesIfKingIsChecked( possMoves: Pos[], myKing: King, pos: Pos ) {
-    if( myKing.checks.length<=0 ) {
+    if (myKing.checks.length <= 0) {
       return possMoves;
     }
-    if( myKing.checks.length===2 ) {
+    if (myKing.checks.length === 2) {
       return [];
     }
 
-    for( let m=0 ; m<possMoves.length ; m++ ) {
-      if( possMoves[m].x===pos.x && possMoves[m].y===pos.y ) {
+    for (let m=0 ; m<possMoves.length ; m++) {
+      if (possMoves[m].x === pos.x && possMoves[m].y === pos.y) {
         continue;
       }
-      for( let c=0 ; c<myKing.checks.length ; c++ ) {
-        if( !this.moveIsACaptureOrIsOnTheWayOfACheck(myKing.checks[c], possMoves[m]) ) {
+      for (let c=0 ; c<myKing.checks.length ; c++) {
+        if (!this.moveIsACaptureOrIsOnTheWayOfACheck(myKing.checks[c], possMoves[m])) {
           possMoves.splice(m, 1);
           m--;
         }
@@ -199,16 +229,18 @@ export default class Piece {
   }
 
   moveIsACaptureOrIsOnTheWayOfACheck(check: Check, move: Pos) {
-    const isACapture = check.checkingPiecePos.x===move.x && check.checkingPiecePos.y===move.y;
+    const isCapture = (
+      check.checkingPiecePos.x === move.x && 
+      check.checkingPiecePos.y === move.y
+    );
     let isOnTheLine = false;
-    for( let field of check.fieldsInBetweenPieceAndKing ) {
-      if( move.x===field.x && move.y===field.y ) {
+    for (let field of check.fieldsInBetweenPieceAndKing) {
+      if (move.isEqualTo(field)) {
         isOnTheLine = true;
       }
     }
-    return isACapture || isOnTheLine;
+    return isCapture || isOnTheLine;
   }
 
-  sideEffectsOfMove( to: Pos, from: Pos ) {
-  }
+  sideEffectsOfMove(to: Pos, from: Pos) {to; from}
 }
