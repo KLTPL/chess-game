@@ -5,12 +5,12 @@ export default class PawnPromotionMenu {
   board: Board;
   optionsHtmls: HTMLElement[];
   html: HTMLElement;
-  waitingForDecision: Promise<number>;
+  playerIsChoosing: Promise<number>;
   constructor(team: number, board: Board) {
     this.team = team;
     this.board = board;
     this.optionsHtmls = [];
-    const fieldWidth = this.board.piecesHtml.offsetWidth/this.board.fieldsInOneRow;
+    const fieldWidth = this.board.piecesHtml.offsetWidth / this.board.fieldsInOneRow;
     this.html = document.createElement("div");
     this.html.classList.add("promote-popup");
     this.html.style.setProperty("--widthOfFiveFields", `${fieldWidth*5}px`);
@@ -31,11 +31,11 @@ export default class PawnPromotionMenu {
       this.html.append(optionContainer);
     }
     this.board.html.append(this.html);
-    this.waitingForDecision = this.askWhatPiecePlayerWants();
+    this.playerIsChoosing = this.askWhatPiecePlayerWants();
   }
 
-  askWhatPiecePlayerWants(): Promise<number> {
-    return new Promise( (resolve) => {
+  askWhatPiecePlayerWants() {
+    return new Promise<number>((resolve) => {
       for (let optHtml of this.optionsHtmls) {
         optHtml.addEventListener("click", ev => {
           const target = ev.target as HTMLElement;

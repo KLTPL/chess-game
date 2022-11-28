@@ -82,7 +82,7 @@ export default class Pawn extends Piece {
 
   promote (pos: Pos) {
     this.board.pawnPromotionMenu = new PawnPromotionMenu(this.team, this.board);
-    this.board.pawnPromotionMenu.waitingForDecision
+    this.board.pawnPromotionMenu.playerIsChoosing
     .then((newPieceNum: number) => {
       const pawnGotPromotedTo = this.board.getNewPieceObj(newPieceNum, this.team);
       this.board.removePieceInPos(pos, true);
