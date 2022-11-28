@@ -499,6 +499,7 @@ export default class Board {
   showPossibleMoves(possMoves: Pos[], enemyTeamNum: number) {
     const root = document.querySelector(":root") as HTMLElement;
     root.style.setProperty("--possMoveSize", `${this.html.offsetWidth/this.fieldsInOneRow/3}px`);
+    root.style.setProperty("--possMoveStartSize", `${this.html.offsetWidth/this.fieldsInOneRow/3.75}px`);
     for (let i=0 ; i<possMoves.length ; i++) {
       const move = possMoves[i];
       const div = document.createElement("div");
