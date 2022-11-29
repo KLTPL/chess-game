@@ -253,8 +253,9 @@ export default class Piece {
 
   sideEffectsOfMove(to: Pos, from: Pos) {to; from}
 
-  static piecesAreTheSamePiece(...pieces: Piece[]) {
-    if (pieces.length <= 1) {
+  static piecesAreEqual(...pieces: Piece[]) {
+    if (pieces.length === 0) {
+      console.error("Not enough pieces to compare");
       return false;
     }
     const firstPiece = pieces[0];

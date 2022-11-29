@@ -675,16 +675,18 @@ export default class Board {
       return false;
     }
     const lastMoveNum = this.moves.length-1;
-    const players1Moves = [this.moves[lastMoveNum-4], this.moves[lastMoveNum-2], this.moves[lastMoveNum]];
-    const players2Moves = [this.moves[lastMoveNum-5], this.moves[lastMoveNum-3], this.moves[lastMoveNum-1]];
+    const p1Moves = [this.moves[lastMoveNum-4], this.moves[lastMoveNum-2], this.moves[lastMoveNum]];
+    const p2Moves = [this.moves[lastMoveNum-5], this.moves[lastMoveNum-3], this.moves[lastMoveNum-1]];
 
     return ( // trust, it works
-      players1Moves[0].from.isEqualTo(players1Moves[1].to) && 
-      players1Moves[1].from.isEqualTo(players1Moves[2].to) && 
-      players2Moves[0].from.isEqualTo(players2Moves[1].to) && 
-      players2Moves[1].from.isEqualTo(players2Moves[2].to) &&
-      Piece.piecesAreTheSamePiece(players1Moves[0].piece, players1Moves[1].piece, players1Moves[2].piece) && 
-      Piece.piecesAreTheSamePiece(players2Moves[0].piece, players2Moves[1].piece, players2Moves[2].piece)
+      p1Moves[0].from.isEqualTo(p1Moves[1].to) && 
+      p1Moves[1].from.isEqualTo(p1Moves[2].to) && 
+      p2Moves[0].from.isEqualTo(p2Moves[1].to) && 
+      p2Moves[1].from.isEqualTo(p2Moves[2].to) &&
+      Piece.piecesAreEqual(p1Moves[0].piece, p1Moves[1].piece, p1Moves[2].piece) && 
+      Piece.piecesAreEqual(p2Moves[0].piece, p2Moves[1].piece, p2Moves[2].piece) &&
+      Move.capturesAreEqual(p1Moves[0].capturedPiece, p1Moves[1].capturedPiece, p1Moves[2].capturedPiece) &&
+      Move.capturesAreEqual(p2Moves[0].capturedPiece, p2Moves[1].capturedPiece, p2Moves[2].capturedPiece)
     );
   }
 
