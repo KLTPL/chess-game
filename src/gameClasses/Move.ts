@@ -5,11 +5,11 @@ export default class Move {
   piece: Piece;
   from: Pos;
   to: Pos;
-  capture: boolean;
-  constructor(piece: Piece, from: Pos, to: Pos, capture: boolean) {
+  capturedPiece: Piece | null;
+  constructor(piece: Piece, from: Pos, to: Pos, capture: Piece | null) {
     this.piece = piece;
     this.from = from;
     this.to = to;
-    this.capture = capture;
+    this.capturedPiece = capture;
   }
 }

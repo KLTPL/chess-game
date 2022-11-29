@@ -252,4 +252,17 @@ export default class Piece {
   }
 
   sideEffectsOfMove(to: Pos, from: Pos) {to; from}
+
+  static piecesAreTheSamePiece(...pieces: Piece[]) {
+    if (pieces.length <= 1) {
+      return false;
+    }
+    const firstPiece = pieces[0];
+    for (let i=1 ; i<pieces.length ; i++) {
+      if (firstPiece !== pieces[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
