@@ -121,7 +121,7 @@ body {
   height: var(--possMoveStartSize);
 }
 
-#move {
+#move:hover {
   cursor: grabbing;
   z-index: 10;
 }

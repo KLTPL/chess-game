@@ -118,7 +118,6 @@ export default class Board {
     }
 
     this.html.addEventListener("mousedown", this.visualizingSystem.actionsOnMouseDown);
-    
   }
 
   createBoardContainer() { // <div class="board-container" data-board-container></div>
@@ -386,17 +385,18 @@ export default class Board {
   }
 
   movePiece(from: Pos, to: Pos, piece: Piece, transitionDelayMs: number) {
-    const moveIsCapture = this.el[to.y][to.x].piece.html !== null;
-    if (moveIsCapture) {
-      this.removePieceInPos(to, true);
-    }
     if (this.el[from.y][from.x].piece.num) {
       this.el[from.y][from.x].piece = new Piece(0, null, this);
     }
+    const moveIsCapture = this.el[to.y][to.x].piece.html !== null;
+    const capturedPiece = (moveIsCapture) ? this.el[to.y][to.x].piece : null;
     const newMove = 
       (this.inverted) ? 
-      new Move(piece, from.invert(this.fieldsInOneRow), to.invert(this.fieldsInOneRow), moveIsCapture) : 
-      new Move(piece, from, to, moveIsCapture);
+      new Move(piece, from.invert(this.fieldsInOneRow), to.invert(this.fieldsInOneRow), capturedPiece) : 
+      new Move(piece, from, to, capturedPiece);
+    if (moveIsCapture) {
+      this.removePieceInPos(to, true);
+    }
     this.moves.push(newMove);
     this.currTeam = 
       (this.currTeam === this.whiteNum) ? 
@@ -661,7 +661,7 @@ export default class Board {
     }
     for (let i=this.moves.length-1 ; i>this.moves.length-1-50 ; i--) {
       if (
-        this.moves[i].capture || 
+        this.moves[i].capturedPiece || 
         this.moves[i].piece.num === this.pawnNum
       ) {
         return false;
@@ -682,7 +682,9 @@ export default class Board {
       players1Moves[0].from.isEqualTo(players1Moves[1].to) && 
       players1Moves[1].from.isEqualTo(players1Moves[2].to) && 
       players2Moves[0].from.isEqualTo(players2Moves[1].to) && 
-      players2Moves[1].from.isEqualTo(players2Moves[2].to)
+      players2Moves[1].from.isEqualTo(players2Moves[2].to) &&
+      Piece.piecesAreTheSamePiece(players1Moves[0].piece, players1Moves[1].piece, players1Moves[2].piece) && 
+      Piece.piecesAreTheSamePiece(players2Moves[0].piece, players2Moves[1].piece, players2Moves[2].piece)
     );
   }
 
