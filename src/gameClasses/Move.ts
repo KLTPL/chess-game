@@ -12,4 +12,18 @@ export default class Move {
     this.to = to;
     this.capturedPiece = capture;
   }
+
+  static capturesAreEqual(...captures: (Piece | null)[]) { //true if all captures are null
+    if (captures.length === 0) {
+      console.error("Not enough captures to compare");
+      return false;
+    }
+    const firstCapture = captures[0];
+    for (let i=1 ; i<captures.length ; i++) {
+      if (firstCapture !== captures[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
