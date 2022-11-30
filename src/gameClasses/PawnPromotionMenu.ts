@@ -10,35 +10,49 @@ export default class PawnPromotionMenu {
     this.team = team;
     this.board = board;
     this.optionsHtmls = [];
+
+    const promotionOptions = this.getArrOfPromoteOptionsHtml();
+    this.html = this.createContainerHtml(promotionOptions);
+    this.board.html.append(this.html);
+    this.playerIsChoosing = this.askWhatPiecePlayerWants(promotionOptions);
+  }
+
+  createContainerHtml(promoteOptions: HTMLDivElement[]) {
     const fieldWidth = this.board.piecesHtml.offsetWidth / this.board.fieldsInOneRow;
-    this.html = document.createElement("div");
-    this.html.classList.add("promote-popup");
-    this.html.style.setProperty("--widthOfFiveFields", `${fieldWidth*5}px`);
-    this.html.style.setProperty("--widthOfThreeFields", `${fieldWidth*3}px`);
-    this.html.style.setProperty("--quarterOfField", `${fieldWidth*0.25}px`);
-    const promoteOptionsNum = [
+    const container = document.createElement("div");
+    container.classList.add("promote-popup");
+    container.style.setProperty("--widthOfFiveFields", `${fieldWidth*5}px`);
+    container.style.setProperty("--widthOfThreeFields", `${fieldWidth*3}px`);
+    container.style.setProperty("--quarterOfField", `${fieldWidth*0.25}px`);
+
+    for (let option of promoteOptions) {
+      container.append(option);
+    }
+    return container;
+  }
+
+  getArrOfPromoteOptionsHtml() {
+    const promoteOptionNums = [
       this.board.bishopNum, 
       this.board.knightNum, 
       this.board.rookNum, 
       this.board.queenNum
     ];
-    for (let option of promoteOptionsNum) {
+
+    return promoteOptionNums.map(num => {
       const optionContainer = document.createElement("div");
-      const optionPiece = this.board.getNewHtmlPiece(option, this.team, "promote-option");
-      optionPiece.dataset.optNum = option.toString();
-      this.optionsHtmls.push(optionPiece);
+      const optionPiece = this.board.getNewHtmlPiece(num, this.team, "promote-option");
+      optionPiece.dataset.optNum = num.toString();
       optionContainer.append(optionPiece);
-      this.html.append(optionContainer);
-    }
-    this.board.html.append(this.html);
-    this.playerIsChoosing = this.askWhatPiecePlayerWants();
+      return optionContainer;
+    });
   }
 
-  askWhatPiecePlayerWants() {
+  askWhatPiecePlayerWants(promoteOptionsHtml: HTMLDivElement[]) {
     return new Promise<number>((resolve) => {
-      for (let optHtml of this.optionsHtmls) {
+      for (let optHtml of promoteOptionsHtml) {
         optHtml.addEventListener("click", ev => {
-          const target = ev.target as HTMLElement;
+          const target = ev.target as HTMLDivElement;
           const chosenPieceNum = parseInt(target.dataset.optNum as string)
           resolve(chosenPieceNum);
         }, {once: true});

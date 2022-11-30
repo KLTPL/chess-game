@@ -140,10 +140,8 @@ export default class Board {
     return piecesHtml;
   }
 
-  setPieceTransitionDeley(htmlEl: HTMLElement, ms: number) {
-    setTimeout(() => {
-      htmlEl.style.setProperty("--transitionDuration", `${ms}ms`);
-    });
+  setPieceTransitionDeley(htmlEl: HTMLDivElement, ms: number) {
+    htmlEl.style.setProperty("--transitionDuration", `${ms}ms`);
   }
 
   getNewPieceObj(num: number, team: number) {
@@ -174,34 +172,28 @@ export default class Board {
         if (c !== 0) {
           fieldNum = (fieldNum === 1) ? 2 : 1;
         }
-        let field = document.createElement("div");
-        field.classList.add(this.classNames.field);
-        field.classList.add(
-          fieldNum === 1 ?
-          this.classNames.fieldColor1 : 
-          this.classNames.fieldColor2
-        );
+        const field = this.createFieldHtml(fieldNum);
         this.fieldsHtml.append(field);
         this.el[r][c] = new Field(field, this.getNewPieceObj(this.noPieceNum, this.noTeamNum));
-        if (this.el[r][c].piece.html) {
-          const pieceHtml = this.el[r][c].piece.html as HTMLElement;
-          this.piecesHtml.append(pieceHtml);
-          pieceHtml.style.transform = 
-            `translateX(
-              ${c * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
-            )
-            translateY(
-              ${r * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
-            )`;
-        }
       }
     }
   }
 
-  placePieces(customPositions: MapOfPiecesForHuman | undefined) {
+  createFieldHtml(fieldNum: number) {
+    const field = document.createElement("div");
+    field.classList.add(this.classNames.field);
+    field.classList.add(
+      fieldNum === 1 ?
+      this.classNames.fieldColor1 : 
+      this.classNames.fieldColor2
+    );
+    return field;
+  }
+
+  placePieces(customPosition: MapOfPiecesForHuman | undefined) {
     const arrOfPiecesToPlaceByPieceNum = 
-      (customPositions) ? 
-      this.convertMapOfPiecesForHumanToMapForScript(customPositions) : 
+      (customPosition) ? 
+      this.convertMapOfPiecesForHumanToMapForScript(customPosition) : 
       this.getMapOfPiecesInDeafultPos();
       
     for (let r=0 ; r<this.el.length ; r++) {
@@ -315,7 +307,7 @@ export default class Board {
     return newMap;
   }
 
-  getFieldCoorByPx(leftPx: number, topPx: number) {
+  getFieldCoorByPx(leftPx: number, topPx: number) { // pos values from 0 to 7 or -1 if not in board
     const boardStartLeft = (this.pageContainerHtml.offsetWidth -this.html.offsetWidth) /2;
     const boardStartTop =  (this.pageContainerHtml.offsetHeight-this.html.offsetHeight)/2;
 
@@ -358,67 +350,85 @@ export default class Board {
   }
 
   placePieceInPos(pos: Pos, piece: Piece, transitionDelayMs: number, appendHtml?: boolean) {
-    if (piece.html) {
-      if (appendHtml) {
-        this.piecesHtml.append(piece.html);
-      }
-      piece.html.
+    if (!piece.html) {    
+      this.el[pos.y][pos.x].piece = piece;
+      return;
+    }
+    const pieceDiv = piece.html as HTMLDivElement;
+    if (appendHtml) {
+      this.piecesHtml.append(pieceDiv);
+    }
+    pieceDiv.
       addEventListener(
         "mousedown",
         piece.startFollowingCursor,
         {once: true}
       );
-      this.setPieceTransitionDeley(piece.html as HTMLElement, transitionDelayMs);
-      setTimeout(() => {
-        (piece.html as HTMLElement).style.transform = 
-          `translate(
-            ${pos.x * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px,
-            ${pos.y * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
-          )`;
-        setTimeout(() => {
-          this.setPieceTransitionDeley(piece.html as HTMLElement, 0);
-
-        }, transitionDelayMs)
-      });
-    }
+    this.setPieceTransitionDeley(pieceDiv, transitionDelayMs);
+    this.transformPieceHtmlToPos(pieceDiv, pos);
+    setTimeout(() => {
+      this.setPieceTransitionDeley(pieceDiv, 0);
+    }, transitionDelayMs);
     this.el[pos.y][pos.x].piece = piece;
   }
 
+  transformPieceHtmlToPos(pieceHtml: HTMLDivElement, pos: Pos) {
+    pieceHtml.style.transform = 
+      `translate(
+        ${pos.x * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px,
+        ${pos.y * this.piecesHtml.offsetWidth / this.fieldsInOneRow}px
+      )`;
+  }
+
+  getNextCurrTeam(currTeam: number) {
+    return (
+      (currTeam === this.whiteNum) ? 
+      this.blackNum : 
+      this.whiteNum
+    );
+  }
+
+  getKingByTeamNum(team: number) {
+    return (
+      (team === this.whiteNum) ? 
+      this.kings.white : 
+      this.kings.black
+    );
+  }
+
   movePiece(from: Pos, to: Pos, piece: Piece, transitionDelayMs: number) {
-    if (this.el[from.y][from.x].piece.num) {
-      this.el[from.y][from.x].piece = new Piece(0, null, this);
-    }
+    this.el[from.y][from.x].piece = new Piece(0, null, this);
     const moveIsCapture = this.el[to.y][to.x].piece.html !== null;
-    const capturedPiece = (moveIsCapture) ? this.el[to.y][to.x].piece : null;
-    const newMove = 
-      (this.inverted) ? 
-      new Move(piece, from.invert(this.fieldsInOneRow), to.invert(this.fieldsInOneRow), capturedPiece) : 
-      new Move(piece, from, to, capturedPiece);
     if (moveIsCapture) {
       this.removePieceInPos(to, true);
     }
-    this.moves.push(newMove);
-    this.currTeam = 
-      (this.currTeam === this.whiteNum) ? 
-      this.blackNum : 
-      this.whiteNum;
+    this.moves.push(
+      this.getNewMoveObj(piece, from, to, moveIsCapture)
+    );
+    this.currTeam = this.getNextCurrTeam(this.currTeam);
     this.placePieceInPos(to, piece, transitionDelayMs);
     piece.sideEffectsOfMove(to, from);
-    const movingPiecesKing = 
-      (piece.team === this.whiteNum) ? 
-      this.kings.black : 
-      this.kings.white;
-    movingPiecesKing.updateChecksArr();
+    const enemyKing = this.getKingByTeamNum(piece.enemyTeamNum());
+    enemyKing.updateChecksArr();
     this.match.checkIfGameShouldEndAfterMove(this.moves[this.moves.length-1]);
     // if (this.match.gameRunning) {
     //   if (this.pawnPromotionMenu) {
-    //     this.pawnPromotionMenu.waitingForDecision.then(() => {
+    //     this.pawnPromotionMenu.playerIsChoosing.then(() => {
     //       this.flipPerspective();
     //     });
     //   } else {
     //     this.flipPerspective();
     //   }
     // }
+  }
+
+  getNewMoveObj(piece: Piece, from: Pos, to: Pos, moveIsCapture: boolean) {
+    const capturedPiece = (moveIsCapture) ? this.el[to.y][to.x].piece : null;
+    return (
+      (this.inverted) ? 
+      new Move(piece, from.invert(this.fieldsInOneRow), to.invert(this.fieldsInOneRow), capturedPiece) : 
+      new Move(piece, from, to, capturedPiece)
+    );
   }
 
   getEmptyFieldsPosAtBeginning() {
@@ -488,7 +498,10 @@ export default class Board {
   findKingsPos(team: number) {
     for (let r=0 ; r<this.fieldsInOneRow ; r++) {
       for (let c=0 ; c<this.fieldsInOneRow ; c++) {
-        if (this.el[r][c].piece.num === this.kingNum && this.el[r][c].piece.team === team) {
+        if (
+          this.el[r][c].piece.num === this.kingNum && 
+          this.el[r][c].piece.team === team
+        ) {
           return new Pos(r, c);
         }
       }
@@ -498,8 +511,14 @@ export default class Board {
 
   showPossibleMoves(possMoves: Pos[], enemyTeamNum: number) {
     const root = document.querySelector(":root") as HTMLElement;
-    root.style.setProperty("--possMoveSize", `${this.html.offsetWidth/this.fieldsInOneRow/3}px`);
-    root.style.setProperty("--possMoveStartSize", `${this.html.offsetWidth/this.fieldsInOneRow/3.75}px`);
+    root.style.setProperty(
+      "--possMoveSize", 
+      `${this.html.offsetWidth / this.fieldsInOneRow / 3}px`
+    );
+    root.style.setProperty(
+      "--possMoveStartSize", 
+      `${this.html.offsetWidth / this.fieldsInOneRow / 3.75}px`
+    );
     for (let i=0 ; i<possMoves.length ; i++) {
       const move = possMoves[i];
       const div = document.createElement("div");
@@ -507,7 +526,7 @@ export default class Board {
       if (this.el[move.y][move.x].piece.team === enemyTeamNum) {
         div.classList.add(this.classNames.possMoveCapture);
       }
-      if (i===0) {
+      if (i === 0) {
         div.classList.add(this.classNames.possMoveStart);
       }
       div.dataset.possMove = "";
@@ -516,20 +535,26 @@ export default class Board {
   }
 
   hidePossibleMoves() {
-    document.querySelectorAll("[data-poss-move]").forEach( move => {
-      move.remove();
+    document.querySelectorAll("[data-poss-move]").forEach(possMove => {
+      possMove.remove();
     });
   }
 
-  flipPerspective() {
-    const boardBefore: Piece[][] = [];
+  getBoardOfPiecesArr() {
+    const board: Piece[][] = [];
     for (let r=0 ; r<this.el.length ; r++) {
-      boardBefore[r] = [];
+      board[r] = [];
       for (let c=0 ; c<this.el[r].length ; c++) {
-        boardBefore[r].push(this.el[r][c].piece);
+        board[r].push(this.el[r][c].piece);
       }
     }
+    return board;
+  }
+
+  flipPerspective() {
+    const boardBefore = this.getBoardOfPiecesArr();
     const boardAfter = this.invertMap(boardBefore);
+
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
         if (boardAfter[r][c].num === this.pawnNum) {
@@ -539,18 +564,10 @@ export default class Board {
         this.placePieceInPos(new Pos(r, c), boardAfter[r][c], 0);
       }
     }
-    const king = 
-      (this.currTeam===this.whiteNum) ? 
-      this.kings.white : 
-      this.kings.black;
-    if (king !== null) {
-      for (let check of king.checks) {
-        check.checkedKingPos = check.checkedKingPos.invert(this.fieldsInOneRow);
-        check.checkingPiecePos = check.checkingPiecePos.invert(this.fieldsInOneRow);        
-        for (let i=0 ; i<check.fieldsInBetweenPieceAndKing.length ; i++) {
-          check.fieldsInBetweenPieceAndKing[i] = check.fieldsInBetweenPieceAndKing[i].invert(this.fieldsInOneRow);
-        }
-      }
+    
+    const currKing = this.getKingByTeamNum(this.currTeam);
+    if (currKing !== null) {
+      currKing.invertChecksArr();
     }
     this.inverted = (this.inverted) ? false : true;
   }
@@ -571,7 +588,10 @@ export default class Board {
   onlyTwoKingsLeft() {
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
-        if (this.el[r][c].piece.num !== this.noPieceNum && this.el[r][c].piece.num !== this.kingNum) {
+        if (
+          this.el[r][c].piece.num !== this.noPieceNum && 
+          this.el[r][c].piece.num !== this.kingNum
+        ) {
           return false;
         }
       }

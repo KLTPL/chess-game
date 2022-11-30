@@ -28,11 +28,11 @@ export default class Check {
       this.checkedKingPos.x - checkingPiece.x, 
       true
     );
-    let fieldsInBetween: Pos[] = [];
     let tempPos = new Pos(
       checkingPiece.y + checkDir.y, 
       checkingPiece.x + checkDir.x
     );
+    let fieldsInBetween: Pos[] = [];
 
     while (
       tempPos.x !== this.checkedKingPos.x || 

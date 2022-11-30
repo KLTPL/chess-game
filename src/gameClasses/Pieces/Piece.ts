@@ -16,10 +16,10 @@ export default class Piece {
   defaultTransitionDelay: number;
   constructor(team: number, html: HTMLElement | null, board: Board) {
     this.value = 0;
-    this.num = 0;
     this.team = team;
     this.html = html;
     this.board = board;
+    this.num = this.board.noPieceNum;
     this.possMoves = [];
     this.defaultTransitionDelay = 30;
     if (this.html !== null) {
@@ -39,16 +39,14 @@ export default class Piece {
     );
   }
 
-  getPossibleMovesFromPosForKing(pos: Pos) {
+  getPossibleMovesFromPosForKing(pos: Pos): Pos[] {
     pos
-    let possibleMoves: Pos[] = [];
-    return possibleMoves;
+    return [];
   }
 
-  getPossibleMovesFromPos(pos: Pos) {
+  getPossibleMovesFromPos(pos: Pos): Pos[] {
     pos
-    let possibleMoves: Pos[] = [];
-    return possibleMoves;
+    return [];
   }
 
   startFollowingCursor = (ev: MouseEvent) => {
@@ -113,35 +111,43 @@ export default class Piece {
   }
 
   moveToCursor = (ev: MouseEvent) => {
-    const thisHtml = this.html as HTMLElement;
     ev.preventDefault();
+    const thisHtml = this.html as HTMLElement;
     this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
+
     const trans = thisHtml.style.transform;
-    const oldTranslateX = thisHtml.style.transform.slice(
-      trans.indexOf("(")+1, 
-      trans.indexOf(",")
+    const oldTranslateX = trans.slice(
+      trans.indexOf("(")+1, trans.indexOf(",")
     );
-    const oldTranslateY = thisHtml.style.transform.slice(
-      trans.indexOf(",")+1, 
-      trans.length-1
-      );
-    const newTranslateX = 
-      `${
-        ev.clientX -
-        (this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) /
-        2 -
-        thisHtml.offsetWidth/2
-      }px`;
-    const newTranslateY = 
-      `${ev.clientY -
-        (this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight) /
-        2 -
-        thisHtml.offsetWidth/2
-      }px`;
+    const oldTranslateY = trans.slice(
+      trans.indexOf(",")+1, trans.length-1
+    );
+
+    const newTranslateX = `${this.calcNewTranslateXValue(ev)}px`;
+    const newTranslateY = `${this.calcNewTranslateYValue(ev)}px`;
     const coor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
+
     const translateX = (coor.x === -1) ? oldTranslateX : newTranslateX;
     const translateY = (coor.y === -1) ? oldTranslateY : newTranslateY;
     thisHtml.style.transform = `translate(${translateX}, ${translateY})`;
+  }
+
+  calcNewTranslateXValue(ev: MouseEvent) {
+    return (
+      ev.clientX -
+      (this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) /
+      2 -
+      (this.html as HTMLDivElement).offsetWidth/2
+    );
+  }
+
+  calcNewTranslateYValue(ev: MouseEvent) {
+    return (
+      ev.clientY -
+      (this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight) /
+      2 -
+      (this.html as HTMLDivElement).offsetWidth/2
+    );
   }
 
   stopFollowingCursor = (ev: MouseEvent) => {
@@ -197,38 +203,35 @@ export default class Piece {
         absPins[p].pinnedPiecePos.x === pos.x && 
         absPins[p].pinnedPiecePos.y === pos.y
       ) {
-        for (let m=0 ; m<possMoves.length ; m++) {
+        possMoves = possMoves.filter(move => {
           const simplifyXAndY = (this.num === this.board.knightNum) ? false : true; // simplify means make 1 if >1 and -1 if <-1
-          const moveDir = new Dir(possMoves[m].y-pos.y, possMoves[m].x-pos.x, simplifyXAndY);
-          if( 
-            ( moveDir.x === 0 && moveDir.y === 0 ) ||
-            ( moveDir.x    === absPins[p].pinDir.x && moveDir.y    === absPins[p].pinDir.y ) ||
-            ( moveDir.x*-1 === absPins[p].pinDir.x && moveDir.y*-1 === absPins[p].pinDir.y )
-          ) {
-            continue; 
-          }
-          possMoves.splice(m, 1);
-          m--;
-        }
+          const moveDir = new Dir(move.y-pos.y, move.x-pos.x, simplifyXAndY);
+          return (
+            (moveDir.x === 0 && moveDir.y === 0) ||
+            (moveDir.x    === absPins[p].pinDir.x && moveDir.y    === absPins[p].pinDir.y) ||
+            (moveDir.x*-1 === absPins[p].pinDir.x && moveDir.y*-1 === absPins[p].pinDir.y)  
+          );
+        });
       }
     }
     return possMoves;
   }
 
-  removePossMovesIfKingIsChecked( possMoves: Pos[], myKing: King, pos: Pos ) {
-    if (myKing.checks.length <= 0) {
+  removePossMovesIfKingIsChecked(possMoves: Pos[], myKing: King, pos: Pos ) {
+    if (myKing.checks.length === 0) {
       return possMoves;
     }
     if (myKing.checks.length === 2) {
       return [];
     }
-
+    // myKing.checks.length === 1
     for (let m=0 ; m<possMoves.length ; m++) {
       if (possMoves[m].x === pos.x && possMoves[m].y === pos.y) {
         continue;
       }
+
       for (let c=0 ; c<myKing.checks.length ; c++) {
-        if (!this.moveIsACaptureOrIsOnTheWayOfACheck(myKing.checks[c], possMoves[m])) {
+        if (!this.moveIsCaptureOrIsOnTheWayOfACheck(myKing.checks[c], possMoves[m])) {
           possMoves.splice(m, 1);
           m--;
         }
@@ -237,13 +240,13 @@ export default class Piece {
     return possMoves;
   }
 
-  moveIsACaptureOrIsOnTheWayOfACheck(check: Check, move: Pos) {
+  moveIsCaptureOrIsOnTheWayOfACheck(check: Check, move: Pos) {
     const isCapture = (
       check.checkingPiecePos.x === move.x && 
       check.checkingPiecePos.y === move.y
     );
     let isOnTheLine = false;
-    for (let field of check.fieldsInBetweenPieceAndKing) {
+    for (const field of check.fieldsInBetweenPieceAndKing) {
       if (move.isEqualTo(field)) {
         isOnTheLine = true;
       }

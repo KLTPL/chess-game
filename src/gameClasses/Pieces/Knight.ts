@@ -13,11 +13,11 @@ export default class Knight extends Piece {
 
   getPossibleMovesFromPosForKing(pos: Pos) {
     let possibleMoves: Pos[] = [];
-    let directions = [
+    const directions = [
       new Dir(1,2), new Dir(1,-2), new Dir(-1,2), new Dir(-1,-2), 
       new Dir(2,1), new Dir(2,-1), new Dir(-2,1), new Dir(-2,-1)
     ];
-    for (let dir of directions) {
+    for (const dir of directions) {
       const newMove = new Pos(pos.y+dir.y, pos.x+dir.x);
       if (this.board.posIsInBoard(newMove)) {
         possibleMoves.push(newMove);
@@ -27,10 +27,7 @@ export default class Knight extends Piece {
   }
 
   getPossibleMovesFromPos(pos: Pos) {
-    const myKing = 
-      (this.team === this.board.whiteNum) ? 
-      this.board.kings.white : 
-      this.board.kings.black;
+    const myKing = this.board.getKingByTeamNum(this.team);
     const absPins = myKing.getPossitionsOfAbsolutePins();
     let possibleMovesFromPosForKnight = this.getPossibleMovesFromPosForKing(pos)
       .filter(move => this.board.el[move.y][move.x].piece.team !== this.team);
