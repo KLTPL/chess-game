@@ -14,11 +14,11 @@ export default class Queen extends Piece {
     const enemyTeamNum = this.enemyTeamNum();
     let possibleMoves: Pos[] = [];
     let tempPos: Pos;
-    let directions = [
+    const directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
     ];
-    for (let dir of directions) {
+    for (const dir of directions) {
       tempPos = new Pos(pos.y,pos.x);
       while (true) {
         if ( 
@@ -43,15 +43,15 @@ export default class Queen extends Piece {
   }
   getPossibleMovesFromPos(pos: Pos) {
     const enemyTeamNum = this.enemyTeamNum()
-    const myKing = (this.team === this.board.whiteNum) ? this.board.kings.white : this.board.kings.black;
+    const myKing = this.board.getKingByTeamNum(this.team);
     const absPins = myKing.getPossitionsOfAbsolutePins();
     let possibleMoves = [pos];
     let tempPos: Pos;
-    let directions = [
+    const directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
-      new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
+      new Dir(1,0), new Dir(-1, 0), new Dir(0, 1), new Dir(0,-1)
     ];
-    for (let dir of directions) {
+    for (const dir of directions) {
       tempPos = new Pos(pos.y,pos.x);
       while (true) {
         if (this.board.el[tempPos.y][tempPos.x].piece.team === enemyTeamNum) {
@@ -60,7 +60,7 @@ export default class Queen extends Piece {
         tempPos.x += dir.x;
         tempPos.y += dir.y;
         if( 
-          (!this.board.posIsInBoard(tempPos)) ||
+          !this.board.posIsInBoard(tempPos) ||
           this.board.el[tempPos.y][tempPos.x].piece.team === this.team
         ) {
           break;

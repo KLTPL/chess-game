@@ -32,7 +32,7 @@ export default class VisualizingSystem {
         resolve();
       }, 150);
     });
-    mouseHold.then( () => {
+    mouseHold.then(() => {
       this.board.html.addEventListener("mouseup", endEv => {
         const startPos = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
         const endPos = this.board.getFieldCoorByPx(endEv.clientX, endEv.clientY);

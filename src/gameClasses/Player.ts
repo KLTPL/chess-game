@@ -36,22 +36,24 @@ export default class Player {
     return null;
   }
 
-  countsPoints() {
-    const board = this.board;
+  countPoints() {
+    const boardEl = this.board.el;
     this.points = 0;
-    for( let r=0 ; r<board.el.length ; r++ ) {
-      for( let c=0 ; c<board.el[r].length ; c++ ) {
-        if( board.el[r][c].piece.team === this.team ) {
-          this.points += board.el[r][c].piece.value;
+    for (let r=0 ; r<boardEl.length ; r++) {
+      for (let c=0 ; c<boardEl[r].length ; c++) {
+        if (boardEl[r][c].piece.team === this.team) {
+          this.points += boardEl[r][c].piece.value;
         }
       }
     }
   }
 
   enemyTeamNum() {
-    return (this.team === this.board.whiteNum) ? 
-    this.board.blackNum : 
-    this.board.whiteNum;
+    return (
+      (this.team === this.board.whiteNum) ? 
+      this.board.blackNum : 
+      this.board.whiteNum
+    );
   }
 
   hasMoves() {

@@ -13,8 +13,8 @@ export default class Bishop extends Piece {
   getPossibleMovesFromPosForKing(pos: Pos) {
     let possibleMoves: Pos[] = [];
     let tempPos: Pos;
-    let directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
-    for (let dir of directions) {
+    const directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
+    for (const dir of directions) {
       tempPos = new Pos(pos.y, pos.x);
       while (true) {
         if ( 
@@ -25,10 +25,7 @@ export default class Bishop extends Piece {
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if (
-          tempPos.x < 0 || tempPos.x > 7 || 
-          tempPos.y < 0 || tempPos.y > 7
-        ) {
+        if (!this.board.posIsInBoard(tempPos)) {
           break;
         }
         possibleMoves.push(new Pos(tempPos.y, tempPos.x));
@@ -41,15 +38,12 @@ export default class Bishop extends Piece {
   }
 
   getPossibleMovesFromPos(pos: Pos) {
-    const myKing = 
-      (this.team === this.board.whiteNum) ? 
-      this.board.kings.white : 
-      this.board.kings.black;
+    const myKing = this.board.getKingByTeamNum(this.team);
     const absPins = myKing.getPossitionsOfAbsolutePins();
     let possibleMoves = [pos];
     let tempPos: Pos;
-    let directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
-    for (let dir of directions) {
+    const directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
+    for (const dir of directions) {
       tempPos = new Pos(pos.y,pos.x);
       while (true) {
         if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum()) {
@@ -57,13 +51,13 @@ export default class Bishop extends Piece {
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if( 
-          (tempPos.x<0 || tempPos.x>7 || tempPos.y<0 || tempPos.y>7) ||
+        if ( 
+          !this.board.posIsInBoard(tempPos) ||
           this.board.el[tempPos.y][tempPos.x].piece.team === this.team
         ) {
           break;
         }
-        possibleMoves.push( new Pos(tempPos.y, tempPos.x) );
+        possibleMoves.push(new Pos(tempPos.y, tempPos.x));
       }
     };
 

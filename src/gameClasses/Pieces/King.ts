@@ -19,11 +19,11 @@ export default class King extends Piece {
 
   getPossibleMovesFromPosForKing(pos: Pos) {
     let possibleMoves: Pos[] = [];
-    let directions = [
+    const directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
-      new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
+      new Dir(1,0), new Dir(-1, 0), new Dir( 0,1), new Dir(0,-1)
     ];
-    for (let dir of directions) {
+    for (const dir of directions) {
       const newPos = new Pos(pos.y+dir.y, pos.x+dir.x);
       if (this.board.posIsInBoard(newPos)) {
         possibleMoves.push(newPos);
@@ -36,7 +36,7 @@ export default class King extends Piece {
   getPossibleMovesFromPos(pos: Pos) {
     const enemyTeamNum = this.enemyTeamNum();
     let possibleMoves = [pos];
-    let directions = [
+    const directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
     ];
@@ -44,14 +44,14 @@ export default class King extends Piece {
     const possibleCastlesDir = this.getPossibleCastlesDir(pos);
     const possibleCastlesPos = (() => {
       let possitions: Pos[] = [];
-      for (let castDir of possibleCastlesDir) {
+      for (const castDir of possibleCastlesDir) {
         possitions.push(new Pos(pos.y+castDir.y, pos.x+castDir.x));
       }
       return possitions;
     }) ();
     possibleMoves.push(...possibleCastlesPos);
 
-    for (let dir of directions) {
+    for (const dir of directions) {
       const newPos = new Pos(pos.y+dir.y, pos.x+dir.x);
       if(
         this.board.posIsInBoard(newPos) &&
@@ -67,14 +67,14 @@ export default class King extends Piece {
           continue;
         }
         const enemyPiecePossMoves = this.board.el[r][c].piece.getPossibleMovesFromPosForKing(new Pos(r, c));
-        for (let e=0 ; e<enemyPiecePossMoves.length ; e++) {
+        for (const enemyPossMove of enemyPiecePossMoves) {
           for (let m=1 ; m<possibleMoves.length ; m++) { // m=1 becouse possibleMoves[0] is kings pos
             if( 
-              enemyPiecePossMoves[e].x === possibleMoves[m].x && 
-              enemyPiecePossMoves[e].y === possibleMoves[m].y &&
+              enemyPossMove.x === possibleMoves[m].x && 
+              enemyPossMove.y === possibleMoves[m].y &&
               (
-                enemyPiecePossMoves[e].x !== c || 
-                enemyPiecePossMoves[e].y !== r
+                enemyPossMove.x !== c || 
+                enemyPossMove.y !== r
               )
             ) {
               possibleMoves.splice(m, 1);
@@ -127,7 +127,7 @@ export default class King extends Piece {
         }
         if (this.board.el[r][c].piece.num !== this.board.pawnNum) { 
           const possMoves = this.board.el[r][c].piece.getPossibleMovesFromPos(new Pos(r, c));
-          for (let move of possMoves) {
+          for (const move of possMoves) {
             if (move.x === pos.x && move.y === pos.y) {
               return true;
             }
@@ -143,7 +143,7 @@ export default class King extends Piece {
     const kingPos = this.board.findKingsPos(this.team);
     let absPins: Pin[] = [];
 
-    let directions = [
+    const directions = [
       new Dir( 1, 0 ), new Dir(-1, 0 ), new Dir( 0, 1 ), new Dir( 0, -1 ), 
       new Dir( 1, 1 ), new Dir(-1, 1 ), new Dir( 1,-1 ), new Dir(-1, -1 )
     ];
@@ -250,7 +250,7 @@ export default class King extends Piece {
           continue;
         }
         const pieceMovesForKing = this.board.el[r][c].piece.getPossibleMovesFromPosForKing(new Pos(r, c));
-        for (let move of pieceMovesForKing) {
+        for (const move of pieceMovesForKing) {
           if (kingPos.x === move.x && kingPos.y === move.y) {
             checkingPieces.push(new Pos(r, c));
           }
@@ -258,5 +258,16 @@ export default class King extends Piece {
       }
     }
     return checkingPieces;
+  }
+
+  invertChecksArr() {
+    const fieldsInOneRow = this.board.fieldsInOneRow;
+    for (const check of this.checks) {
+      check.checkedKingPos   = check.checkedKingPos  .invert(fieldsInOneRow);
+      check.checkingPiecePos = check.checkingPiecePos.invert(fieldsInOneRow);        
+      for (let field of check.fieldsInBetweenPieceAndKing) {
+        field = field.invert(fieldsInOneRow);
+      }
+    }
   }
 }
