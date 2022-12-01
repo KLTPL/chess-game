@@ -703,8 +703,8 @@ export default class Board {
       p1Moves[1].from.isEqualTo(p1Moves[2].to) && 
       p2Moves[0].from.isEqualTo(p2Moves[1].to) && 
       p2Moves[1].from.isEqualTo(p2Moves[2].to) &&
-      Piece.piecesAreEqual(p1Moves[0].piece, p1Moves[1].piece, p1Moves[2].piece) && 
-      Piece.piecesAreEqual(p2Moves[0].piece, p2Moves[1].piece, p2Moves[2].piece) &&
+      Piece.piecesAreEqual(p1Moves[0].piece, p1Moves[2].piece) && 
+      Piece.piecesAreEqual(p2Moves[0].piece, p2Moves[2].piece) &&
       Move.capturesAreEqual(p1Moves[0].capturedPiece, p1Moves[1].capturedPiece, p1Moves[2].capturedPiece) &&
       Move.capturesAreEqual(p2Moves[0].capturedPiece, p2Moves[1].capturedPiece, p2Moves[2].capturedPiece)
     );
