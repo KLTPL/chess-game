@@ -1,6 +1,7 @@
 import Pos from "./Pos.js";
 import Board from "./Board.js";
 import Dir from "./Dir.js";
+import { PIECES } from "./Pieces/Piece.js";
 
 export default class Check {
   checkingPiecePos: Pos;
@@ -18,8 +19,8 @@ export default class Check {
   getFieldsInBetweenCheckingPieceAndKing() {
     const checkingPiece = this.checkingPiecePos;
     if( 
-      this.board.el[checkingPiece.y][checkingPiece.x].piece.num === this.board.knightNum ||
-      this.board.el[checkingPiece.y][checkingPiece.x].piece.num === this.board.pawnNum 
+      this.board.el[checkingPiece.y][checkingPiece.x].piece.num === PIECES.knight ||
+      this.board.el[checkingPiece.y][checkingPiece.x].piece.num === PIECES.pawn
     ) {
       return [];
     }

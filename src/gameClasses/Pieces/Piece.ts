@@ -6,6 +6,20 @@ import King from "./King.js";
 import Check from "../Check.js";
 import GrabbedPieceInfo from "./GrabbedPieceInfo.js";
 
+export const PIECES = {
+  pawn: 1,
+  rook: 2,
+  knight: 3,
+  bishop: 4,
+  queen: 5,
+  king: 6,
+};
+
+export const TEAMS = {
+  white: 1,
+  black: 2
+};
+
 export default class Piece {
   value: number;
   num: number;
@@ -33,9 +47,9 @@ export default class Piece {
 
   enemyTeamNum() {
     return (
-      (this.team === this.board.whiteNum) ? 
-      this.board.blackNum : 
-      this.board.whiteNum
+      (this.team === TEAMS.white) ? 
+      TEAMS.black : 
+      TEAMS.white
     );
   }
 
@@ -204,7 +218,7 @@ export default class Piece {
         absPins[p].pinnedPiecePos.y === pos.y
       ) {
         possMoves = possMoves.filter(move => {
-          const simplifyXAndY = (this.num === this.board.knightNum) ? false : true; // simplify means make 1 if >1 and -1 if <-1
+          const simplifyXAndY = (this.num === PIECES.knight) ? false : true; // simplify means make 1 if >1 and -1 if <-1
           const moveDir = new Dir(move.y-pos.y, move.x-pos.x, simplifyXAndY);
           return (
             (moveDir.x === 0 && moveDir.y === 0) ||
@@ -268,5 +282,37 @@ export default class Piece {
       }
     }
     return true;
+  }
+
+  static getPieceNumByName(name: string): (number|null) {
+    switch (name) {
+      case "pawn":   return PIECES.pawn;
+      case "rook":   return PIECES.rook;
+      case "knight": return PIECES.knight;
+      case "bishop": return PIECES.bishop;
+      case "queen":  return PIECES.queen;
+      case "king":   return PIECES.king;
+      default:       return null;
+    }
+  }
+
+  static getSpecificPieceClassName(pieceNum: number, pieceTeam: number) {
+    const teamChar = (pieceTeam === TEAMS.black) ? "b" : "w";
+    const name = (() => {
+      switch (pieceNum) {
+        case PIECES.king:   return "king";
+        case PIECES.queen:  return "queen";
+        case PIECES.bishop: return "bishop";
+        case PIECES.knight: return "knight";
+        case PIECES.rook:   return "rook";
+        case PIECES.pawn:   return "pawn";
+        default: return null;
+      }
+    }) ();
+    if (name === null) {
+      console.error("Invalid piece number");
+      return null;
+    }
+    return `${teamChar}-${name}`;
   }
 }

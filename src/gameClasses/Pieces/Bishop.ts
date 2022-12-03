@@ -1,12 +1,12 @@
 import Board from "../Board.js";
-import Piece from "./Piece.js";
+import Piece, { PIECES } from "./Piece.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Bishop extends Piece {
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
-    this.num = 4;
+    this.num = PIECES.bishop;
     this.value = 3;
   }
 
@@ -19,7 +19,7 @@ export default class Bishop extends Piece {
       while (true) {
         if ( 
           this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum() && 
-          this.board.el[tempPos.y][tempPos.x].piece.num  !== this.board.kingNum
+          this.board.el[tempPos.y][tempPos.x].piece.num  !== PIECES.king
         ) {
           break;
         }
@@ -44,7 +44,7 @@ export default class Bishop extends Piece {
     let tempPos: Pos;
     const directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
     for (const dir of directions) {
-      tempPos = new Pos(pos.y,pos.x);
+      tempPos = new Pos(pos.y, pos.x);
       while (true) {
         if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum()) {
           break;

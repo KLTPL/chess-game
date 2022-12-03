@@ -1,12 +1,12 @@
 import Board from "../Board.js";
-import Piece from "./Piece.js";
+import Piece, { PIECES } from "./Piece.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Queen extends Piece {
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
-    this.num = 5;
+    this.num = PIECES.queen;
     this.value = 9;
   }
 
@@ -23,7 +23,7 @@ export default class Queen extends Piece {
       while (true) {
         if ( 
           this.board.el[tempPos.y][tempPos.x].piece.team === enemyTeamNum && 
-          this.board.el[tempPos.y][tempPos.x].piece.num !== this.board.kingNum
+          this.board.el[tempPos.y][tempPos.x].piece.num !== PIECES.king
         ) {
           break;
         }

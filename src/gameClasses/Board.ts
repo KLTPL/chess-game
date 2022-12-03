@@ -1,6 +1,6 @@
 import Pos from "./Pos.js";
 import Field from "./Field.js";
-import Piece from "./Pieces/Piece.js";
+import Piece, { PIECES, TEAMS } from "./Pieces/Piece.js";
 import Pawn from "./Pieces/Pawn.js";
 import Rook from "./Pieces/Rook.js";
 import Knight from "./Pieces/Knight.js";
@@ -49,15 +49,15 @@ export default class Board {
     black: King;
   };
   noPieceNum: number;
-  pawnNum: number;
-  rookNum: number;
-  knightNum: number;
-  bishopNum: number;
-  queenNum: number;
-  kingNum: number;
+  // pawnNum: number;
+  // rookNum: number;
+  // knightNum: number;
+  // bishopNum: number;
+  // queenNum: number;
+  // kingNum: number;
   noTeamNum: number;
-  whiteNum: number;
-  blackNum: number;
+  // whiteNum: number;
+  // blackNum: number;
   visualizingSystem: VisualizingSystem;
   pawnPromotionMenu: (PawnPromotionMenu|null);
   classNames: ClassNames;
@@ -66,7 +66,8 @@ export default class Board {
   constructor(
     htmlPageContainerQSelector: string, 
     match: Match, 
-    startPositionsOfPieces: MapOfPiecesForHuman | undefined) {
+    startPositionsOfPieces: MapOfPiecesForHuman | undefined
+  ) {
     this.match = match;
     this.currTeam = 1;
     this.moves = [];
@@ -79,15 +80,16 @@ export default class Board {
     this.inverted = false;
 
     this.noPieceNum = 0;
-    this.pawnNum = 1;
-    this.rookNum = 2;
-    this.knightNum = 3;
-    this.bishopNum = 4;
-    this.queenNum = 5;
-    this.kingNum = 6;
+    // this.pawnNum = 1;
+    // this.rookNum = 2;
+    // this.knightNum = 3;
+    // this.bishopNum = 4;
+    // this.queenNum = 5;
+    // this.kingNum = 6;
+
     this.noTeamNum = 0;
-    this.whiteNum = 1;
-    this.blackNum = 2;
+    // this.whiteNum = 1;
+    // this.blackNum = 2;
 
     this.classNames = {
       field: "field",
@@ -113,7 +115,7 @@ export default class Board {
     this.placePieces(startPositionsOfPieces);
     this.kings = this.getKings();
     this.updateFieldSize();
-    if( this.inverted ) {
+    if (this.inverted) {
       this.flipPerspective();
     }
 
@@ -144,22 +146,25 @@ export default class Board {
     htmlEl.style.setProperty("--transitionDuration", `${ms}ms`);
   }
 
-  getNewPieceObj(num: number, team: number) {
+  getNewPieceObj(num: number|null, team: number) {
     switch (num) {
-      case this.pawnNum:   return new Pawn  (team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
-      case this.rookNum:   return new Rook  (team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
-      case this.knightNum: return new Knight(team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
-      case this.bishopNum: return new Bishop(team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
-      case this.queenNum:  return new Queen (team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
-      case this.kingNum:   return new King  (team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
-      default:             return new Piece (this.noTeamNum, null, this);
+      case PIECES.pawn:   return new Pawn  (team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+      case PIECES.rook:   return new Rook  (team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+      case PIECES.knight: return new Knight(team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+      case PIECES.bishop: return new Bishop(team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+      case PIECES.queen:  return new Queen (team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+      case PIECES.king:   return new King  (team, this.getNewHtmlPiece(num, team, this.classNames.piece), this);
+      default:            return new Piece (this.noTeamNum, null, this);
     }
   }
 
   getNewHtmlPiece(num: number, team: number, className: string) {
     let piece = document.createElement("div");
     piece.classList.add(className);
-    piece.classList.add(this.getSpecificPieceClassName(num, team));
+    const specificClassName = Piece.getSpecificPieceClassName(num, team);
+    if (specificClassName !== null) {
+      piece.classList.add(specificClassName);
+    }
     return piece;
   }
 
@@ -233,45 +238,33 @@ export default class Board {
   getNewPieceObjByString(piece: string) {
     const pieceTeam = this.getPieceTeamByString(piece[0]);
     const pieceName = piece.slice(1, piece.length);
-    return this.getNewPieceObj(this.getPieceNumByName(pieceName), pieceTeam);
+    return this.getNewPieceObj(Piece.getPieceNumByName(pieceName), pieceTeam);
   }
 
   getPieceTeamByString(team: string) {
     switch (team) {
-      case "w": return this.whiteNum;
-      case "b": return this.blackNum;
+      case "w": return TEAMS.white;
+      case "b": return TEAMS.black;
       default:  return this.noTeamNum;
-    }
-  }
-
-  getPieceNumByName(name: string) {
-    switch (name) {
-      case "pawn":   return this.pawnNum;
-      case "rook":   return this.rookNum;
-      case "knight": return this.knightNum;
-      case "bishop": return this.bishopNum;
-      case "queen":  return this.queenNum;
-      case "king":   return this.kingNum;
-      default:       return this.noPieceNum;
     }
   }
 
   getMapOfPiecesInDeafultPos() {
     const firstAndLastRowNums = [
-      this.rookNum, 
-      this.knightNum, 
-      this.bishopNum, 
-      this.queenNum, 
-      this.kingNum, 
-      this.bishopNum, 
-      this.knightNum, 
-      this.rookNum
+      PIECES.rook, 
+      PIECES.knight, 
+      PIECES.bishop, 
+      PIECES.queen, 
+      PIECES.king, 
+      PIECES.bishop, 
+      PIECES.knight, 
+      PIECES.rook
     ];
     let mapOfPieces: Piece[][] = [];
 
     for (let r=0 ; r<this.fieldsInOneRow ; r++) {
       mapOfPieces[r] = [];
-      const teamNum = (r < 4) ? this.blackNum : this.whiteNum;
+      const teamNum = (r < 4) ? TEAMS.black : TEAMS.white;
       if (r === 0 || r === this.fieldsInOneRow-1) {
         for (let pieceNum of firstAndLastRowNums) {
           mapOfPieces[r].push(this.getNewPieceObj(pieceNum, teamNum));
@@ -281,7 +274,7 @@ export default class Board {
 
       const pieceNum = 
         (r === 1 || r === this.fieldsInOneRow-2) ? 
-        this.pawnNum : 
+        PIECES.pawn : 
         this.noPieceNum;
       for (let i=0 ; i<this.fieldsInOneRow ; i++) {
         mapOfPieces[r].push(
@@ -334,21 +327,6 @@ export default class Board {
     }
   }
 
-  getSpecificPieceClassName(pieceNum: number, pieceTeam: number) {
-    const teamChar = (pieceTeam === this.blackNum) ? "b" : "w";
-    const name = (() => {
-      switch (pieceNum) {
-        case this.kingNum:   return "king";
-        case this.queenNum:  return "queen";
-        case this.bishopNum: return "bishop";
-        case this.knightNum: return "knight";
-        case this.rookNum:   return "rook";
-        default:             return "pawn";
-      }
-    }) ();
-    return `${teamChar}-${name}`;
-  }
-
   placePieceInPos(pos: Pos, piece: Piece, transitionDelayMs: number, appendHtml?: boolean) {
     if (!piece.html) {    
       this.el[pos.y][pos.x].piece = piece;
@@ -382,15 +360,15 @@ export default class Board {
 
   getNextCurrTeam(currTeam: number) {
     return (
-      (currTeam === this.whiteNum) ? 
-      this.blackNum : 
-      this.whiteNum
+      (currTeam === TEAMS.white) ? 
+      TEAMS.black : 
+      TEAMS.white
     );
   }
 
   getKingByTeamNum(team: number) {
     return (
-      (team === this.whiteNum) ? 
+      (team === TEAMS.white) ? 
       this.kings.white : 
       this.kings.black
     );
@@ -460,9 +438,9 @@ export default class Board {
     }
     for (let r=0 ; r<this.el.length ; r++) {
       for(let c=0 ; c<this.el[r].length ; c++) {
-        if (this.el[r][c].piece.num === this.kingNum) {
+        if (this.el[r][c].piece.num === PIECES.king) {
           switch (this.el[r][c].piece.team) {
-            case this.whiteNum: 
+            case TEAMS.white: 
               if (whiteKing !== null) {
                 this.match.end();
                 alert("Too many kings");
@@ -470,7 +448,7 @@ export default class Board {
               }
               whiteKing = this.el[r][c].piece as King; 
               break;
-            case this.blackNum: 
+            case TEAMS.black: 
               if (blackKing !== null) {
                 this.match.end();
                 alert("Too many kings");
@@ -499,7 +477,7 @@ export default class Board {
     for (let r=0 ; r<this.fieldsInOneRow ; r++) {
       for (let c=0 ; c<this.fieldsInOneRow ; c++) {
         if (
-          this.el[r][c].piece.num === this.kingNum && 
+          this.el[r][c].piece.num === PIECES.king && 
           this.el[r][c].piece.team === team
         ) {
           return new Pos(r, c);
@@ -557,7 +535,7 @@ export default class Board {
 
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
-        if (boardAfter[r][c].num === this.pawnNum) {
+        if (boardAfter[r][c].num === PIECES.pawn) {
           const pawn = boardAfter[r][c] as Pawn;
           pawn.directionY *= -1;
         }
@@ -590,7 +568,7 @@ export default class Board {
       for (let c=0 ; c<this.el[r].length ; c++) {
         if (
           this.el[r][c].piece.num !== this.noPieceNum && 
-          this.el[r][c].piece.num !== this.kingNum
+          this.el[r][c].piece.num !== PIECES.king
         ) {
           return false;
         }
@@ -600,11 +578,11 @@ export default class Board {
   }
 
   onlyTwoKingsAndBishopLeft() {
-    return this.onlyTwoKingsAndSomePieceLeft(this.bishopNum);
+    return this.onlyTwoKingsAndSomePieceLeft(PIECES.bishop);
   }
 
   onlyTwoKingsAndKnightLeft() {
-    return this.onlyTwoKingsAndSomePieceLeft(this.knightNum);
+    return this.onlyTwoKingsAndSomePieceLeft(PIECES.knight);
   }
 
   onlyTwoKingsAndSomePieceLeft(pieceNum: number) {
@@ -612,7 +590,7 @@ export default class Board {
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
         if (this.el[r][c].piece.num === pieceNum) {
-          if (pieceOccurrencesCounter) {
+          if (pieceOccurrencesCounter > 0) {
             return false;
           }
           pieceOccurrencesCounter++;
@@ -620,7 +598,7 @@ export default class Board {
         }
         if (
           this.el[r][c].piece.num !== this.noPieceNum && 
-          this.el[r][c].piece.num !== this.kingNum
+          this.el[r][c].piece.num !== PIECES.king
         ) {
           return false;
         }
@@ -633,7 +611,7 @@ export default class Board {
     let bishopsPos: Pos[] = [];
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
-        if (this.el[r][c].piece.num === this.bishopNum) {
+        if (this.el[r][c].piece.num === PIECES.bishop) {
           if (bishopsPos.length >= 2) {
             return false;
           }
@@ -642,7 +620,7 @@ export default class Board {
         }
         if(
           this.el[r][c].piece.num !== this.noPieceNum && 
-          this.el[r][c].piece.num !== this.kingNum 
+          this.el[r][c].piece.num !== PIECES.king
         ) {
           return false;
         }
@@ -682,7 +660,7 @@ export default class Board {
     for (let i=this.moves.length-1 ; i>this.moves.length-1-50 ; i--) {
       if (
         this.moves[i].capturedPiece || 
-        this.moves[i].piece.num === this.pawnNum
+        this.moves[i].piece.num === PIECES.pawn
       ) {
         return false;
       }
@@ -710,7 +688,7 @@ export default class Board {
     );
   }
 
-  posIsInBoard( pos: Pos ) {
+  posIsInBoard(pos: Pos) {
     return (
       pos.x >= 0 && pos.x <= this.fieldsInOneRow-1 && 
       pos.y >= 0 && pos.y <= this.fieldsInOneRow-1
