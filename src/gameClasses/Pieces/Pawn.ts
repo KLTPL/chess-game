@@ -1,5 +1,5 @@
 import Board from "../Board.js";
-import Piece from "./Piece.js";
+import Piece, { PIECES, TEAMS } from "./Piece.js";
 import Pos from "../Pos.js";
 import PawnPromotionMenu from "../PawnPromotionMenu.js";
 
@@ -7,9 +7,9 @@ export default class Pawn extends Piece {
   directionY: number;
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
-    this.num = 1;
+    this.num = PIECES.pawn;
     this.value = 1;
-    this.directionY = (this.team === this.board.whiteNum) ? -1 : 1;
+    this.directionY = (this.team === TEAMS.white) ? -1 : 1;
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
@@ -46,7 +46,7 @@ export default class Pawn extends Piece {
       const newCapture = new Pos(pos.y+this.directionY, capturePos.x);
       if (
         board.posIsInBoard(newCapture) &&
-        board.el[capturePos.y][capturePos.x].piece.num  === board.pawnNum &&
+        board.el[capturePos.y][capturePos.x].piece.num  === PIECES.pawn &&
         board.el[capturePos.y][capturePos.x].piece.team === this.enemyTeamNum() && 
         board.el[capturePos.y][capturePos.x].piece      === board.moves[board.moves.length-1].piece
       ) {
@@ -65,7 +65,7 @@ export default class Pawn extends Piece {
     const board = this.board;
     if (
       board.posIsInBoard(new Pos(to.y-this.directionY, to.x)) &&
-      board.el[to.y-this.directionY][to.x].piece.num === board.pawnNum &&
+      board.el[to.y-this.directionY][to.x].piece.num === PIECES.pawn &&
       board.moves[board.moves.length-2].piece === board.el[to.y-this.directionY][to.x].piece
     ) {
       board.removePieceInPos(new Pos(to.y-this.directionY, to.x), true);

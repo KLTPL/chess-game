@@ -1,12 +1,12 @@
 import Board from "../Board.js";
-import Piece from "./Piece.js";
+import Piece, { PIECES } from "./Piece.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Knight extends Piece {
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
-    this.num = 3;
+    this.num = PIECES.knight;
     this.value = 3;
 
   }

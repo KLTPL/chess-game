@@ -1,5 +1,5 @@
 import Board from "../Board.js";
-import Piece from "./Piece.js";
+import Piece, { PIECES } from "./Piece.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
@@ -7,7 +7,7 @@ export default class Rook extends Piece {
   haventMovedYet: boolean;
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
-    this.num = 2;
+    this.num = PIECES.rook;
     this.value = 5;
     this.haventMovedYet = true;
   }
@@ -22,7 +22,7 @@ export default class Rook extends Piece {
       while (true) {
         if( 
           this.board.el[tempPos.y][tempPos.x].piece.team === enemyTeamNum && 
-          this.board.el[tempPos.y][tempPos.x].piece.num !== this.board.kingNum
+          this.board.el[tempPos.y][tempPos.x].piece.num !== PIECES.king
         ) {
           break;
         }

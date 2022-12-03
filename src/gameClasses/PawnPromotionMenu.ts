@@ -1,4 +1,5 @@
 import Board from "./Board.js";
+import { PIECES } from "./Pieces/Piece.js";
 
 export default class PawnPromotionMenu {
   team: number;
@@ -33,10 +34,10 @@ export default class PawnPromotionMenu {
 
   getArrOfPromoteOptionsHtml() {
     const promoteOptionNums = [
-      this.board.bishopNum, 
-      this.board.knightNum, 
-      this.board.rookNum, 
-      this.board.queenNum
+      PIECES.bishop, 
+      PIECES.knight, 
+      PIECES.rook, 
+      PIECES.queen
     ];
 
     return promoteOptionNums.map(num => {

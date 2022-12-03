@@ -4,6 +4,7 @@ import Player from "./Player.js";
 import { PlayerArg } from "./Player.js";
 import EndType from "./EndType.js";
 import Move from "./Move.js";
+import { TEAMS } from "./Pieces/Piece.js";
 
 type Players = {
   white: Player;
@@ -44,7 +45,7 @@ export default class Match {
   }
 
   checkIfGameShouldEndAfterMove(move: Move) {
-    const whiteMoved = move.piece.team === this.board.whiteNum;
+    const whiteMoved = move.piece.team === TEAMS.white;
     const playerWhoMadeMove = (whiteMoved) ? this.players.white : this.players.black;
     const otherKing = (!whiteMoved) ? this.board.kings.white : this.board.kings.black;
     const otherPlayer = (!whiteMoved) ? this.players.white : this.players.black;

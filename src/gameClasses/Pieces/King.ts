@@ -1,5 +1,5 @@
 import Board from "../Board.js";
-import Piece from "./Piece.js";
+import Piece, { PIECES } from "./Piece.js";
 import Rook from "./Rook.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
@@ -11,7 +11,7 @@ export default class King extends Piece {
   checks: Check[]; // could be 0, 1 or 2
   constructor(team: number, html: HTMLElement, board: Board) {
     super(team, html, board);
-    this.num = 6;
+    this.num = PIECES.king;
     this.value = 0;
     this.haventMovedYet = true;
     this.checks = [];
@@ -121,11 +121,11 @@ export default class King extends Piece {
       for (let c=0 ; c<this.board.el[r].length ; c++) {
         if ( 
           this.board.el[r][c].piece.team !== enemyTeamNum || 
-          this.board.el[r][c].piece.num === this.board.kingNum 
+          this.board.el[r][c].piece.num === PIECES.king
         ) {
           continue;
         }
-        if (this.board.el[r][c].piece.num !== this.board.pawnNum) { 
+        if (this.board.el[r][c].piece.num !== PIECES.pawn) { 
           const possMoves = this.board.el[r][c].piece.getPossibleMovesFromPos(new Pos(r, c));
           for (const move of possMoves) {
             if (move.x === pos.x && move.y === pos.y) {
@@ -173,9 +173,9 @@ export default class King extends Piece {
 
           if(   
             (
-              this.board.el[tempPos.y][tempPos.x].piece.num !== this.board.bishopNum &&
-              this.board.el[tempPos.y][tempPos.x].piece.num !== this.board.rookNum &&
-              this.board.el[tempPos.y][tempPos.x].piece.num !== this.board.queenNum
+              this.board.el[tempPos.y][tempPos.x].piece.num !== PIECES.bishop &&
+              this.board.el[tempPos.y][tempPos.x].piece.num !== PIECES.rook &&
+              this.board.el[tempPos.y][tempPos.x].piece.num !== PIECES.queen
             ) ||
             this.board.el[tempPos.y][tempPos.x].piece.team === this.team
             ) {
@@ -185,12 +185,12 @@ export default class King extends Piece {
           if( 
             (
               kingIsInlineVerticallyOrHorizontally &&
-              this.board.el[tempPos.y][tempPos.x].piece.num !== this.board.bishopNum
+              this.board.el[tempPos.y][tempPos.x].piece.num !== PIECES.bishop
             ) 
             ||
             (
               !kingIsInlineVerticallyOrHorizontally &&
-              this.board.el[tempPos.y][tempPos.x].piece.num !== this.board.rookNum
+              this.board.el[tempPos.y][tempPos.x].piece.num !== PIECES.rook
             )
           ) {
             absPins.push(pinInThisDir);

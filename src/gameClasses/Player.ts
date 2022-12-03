@@ -1,5 +1,6 @@
 import Board from "./Board.js";
 import Pos from "./Pos.js";
+import { TEAMS } from "./Pieces/Piece.js";
 
 export type PlayerArg = {
   name: string, 
@@ -50,9 +51,9 @@ export default class Player {
 
   enemyTeamNum() {
     return (
-      (this.team === this.board.whiteNum) ? 
-      this.board.blackNum : 
-      this.board.whiteNum
+      (this.team === TEAMS.white) ? 
+      TEAMS.black : 
+      TEAMS.white
     );
   }
 
