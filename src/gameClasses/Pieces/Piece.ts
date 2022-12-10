@@ -106,7 +106,7 @@ export default class Piece {
     });
 
     this.board.grabbedPieceInfo = new GrabbedPieceInfo(this, fieldCoor);
-    this.board.removePieceInPos(fieldCoor);
+    this.board.removePieceInPos(fieldCoor, false);
     this.html.id = "move";
     this.moveToCursor(ev);
     document.addEventListener(

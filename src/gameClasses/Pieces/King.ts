@@ -226,7 +226,7 @@ export default class King extends Piece {
       const oldRookPos = new Pos(from.y, rookXPos);
       const newRookPos = new Pos(to.y, to.x+(castleDir.x*-1));
       const movingRook = this.board.el[oldRookPos.y][oldRookPos.x].piece as Piece;
-      this.board.removePieceInPos(oldRookPos);
+      this.board.removePieceInPos(oldRookPos, false);
       this.board.placePieceInPos(newRookPos, movingRook, DEFAULT_TRANSITION_DELAY_MS*3.5);
     }
   }
