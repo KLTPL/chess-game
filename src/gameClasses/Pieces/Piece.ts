@@ -20,6 +20,8 @@ export const TEAMS = {
   black: 2
 };
 
+export const DEFAULT_TRANSITION_DELAY_MS = 30;
+
 export default class Piece {
   value: number;
   num: number;
@@ -27,7 +29,6 @@ export default class Piece {
   html: HTMLElement;
   board: Board;
   possMoves: Pos[];
-  defaultTransitionDelay: number;
   constructor(team: number, board: Board) {
     this.value = 0;
     this.team = team;
@@ -35,14 +36,11 @@ export default class Piece {
     this.board = board;
     this.num = 0;
     this.possMoves = [];
-    this.defaultTransitionDelay = 30;
-    if (this.html !== null) {
-      this.html.addEventListener(
-        "mousedown",
-        this.startFollowingCursor,
-        {once: true}
-      );
-    }
+    this.html.addEventListener(
+      "mousedown",
+      this.startFollowingCursor,
+      {once: true}
+    );
   }
 
   createNewHtmlPiece() {
@@ -77,7 +75,6 @@ export default class Piece {
   }
 
   startFollowingCursor = (ev: MouseEvent) => {
-    const thisHtml = this.html as HTMLElement;
     const leftClickNum = 0;
     const fieldCoor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
     if( 
@@ -87,7 +84,7 @@ export default class Piece {
       this.board.grabbedPieceInfo !== null || 
       !this.board.match.gameRunning 
     ) {
-      thisHtml.addEventListener(
+      this.html.addEventListener(
         "mousedown",
         this.startFollowingCursor,
         {once: true}
@@ -97,7 +94,7 @@ export default class Piece {
     this.possMoves = this.getPossibleMovesFromPos(fieldCoor);
     this.board.showPossibleMoves(this.possMoves, this.enemyTeamNum());
     let mouseHold = new Promise<void>((resolve, reject) => {
-      thisHtml.addEventListener(
+      this.html.addEventListener(
         "mouseup", () => {
           reject();
         }, 
@@ -110,7 +107,7 @@ export default class Piece {
 
     this.board.grabbedPieceInfo = new GrabbedPieceInfo(this, fieldCoor);
     this.board.removePieceInPos(fieldCoor);
-    thisHtml.id = "move";
+    this.html.id = "move";
     this.moveToCursor(ev);
     document.addEventListener(
       "mousemove",
@@ -134,15 +131,13 @@ export default class Piece {
         )
       });
     });
-
   }
 
   moveToCursor = (ev: MouseEvent) => {
     ev.preventDefault();
-    const thisHtml = this.html as HTMLElement;
     this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
 
-    const trans = thisHtml.style.transform;
+    const trans = this.html.style.transform; // format: 'transform(Xpx, Ypx)'
     const oldTranslateX = trans.slice(
       trans.indexOf("(")+1, trans.indexOf(",")
     );
@@ -150,37 +145,36 @@ export default class Piece {
       trans.indexOf(",")+1, trans.length-1
     );
 
-    const newTranslateX = `${this.calcNewTranslateXValue(ev)}px`;
-    const newTranslateY = `${this.calcNewTranslateYValue(ev)}px`;
+    const newTranslateX = `${this.calcNewTranslateXValue(ev.clientX)}px`;
+    const newTranslateY = `${this.calcNewTranslateYValue(ev.clientY)}px`;
     const coor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
 
     const translateX = (coor.x === -1) ? oldTranslateX : newTranslateX;
     const translateY = (coor.y === -1) ? oldTranslateY : newTranslateY;
-    thisHtml.style.transform = `translate(${translateX}, ${translateY})`;
+    this.html.style.transform = `translate(${translateX}, ${translateY})`;
   }
 
-  calcNewTranslateXValue(ev: MouseEvent) {
+  calcNewTranslateXValue(clientX: number) {
     return (
-      ev.clientX -
+      clientX -
       (this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) /
       2 -
-      (this.html as HTMLDivElement).offsetWidth/2
+      this.html.offsetWidth/2
     );
   }
 
-  calcNewTranslateYValue(ev: MouseEvent) {
+  calcNewTranslateYValue(clientY: number) {
     return (
-      ev.clientY -
+      clientY -
       (this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight) /
       2 -
-      (this.html as HTMLDivElement).offsetWidth/2
+      this.html.offsetWidth/2
     );
   }
 
   stopFollowingCursor = (ev: MouseEvent) => {
-    const thisHtml = this.html as HTMLElement;
     const boardGrabbedPieceInfo = this.board.grabbedPieceInfo as GrabbedPieceInfo;
-    thisHtml.id = "";
+    this.html.id = "";
     if (document.getElementById(this.board.highlightedFieldIdUnderGrabbedPieceId)) {
       (document.getElementById(this.board.highlightedFieldIdUnderGrabbedPieceId) as HTMLElement).id = "";
     }
@@ -201,7 +195,7 @@ export default class Piece {
           oldPos,
           newPos,
           boardGrabbedPieceInfo.piece,
-          this.defaultTransitionDelay
+          DEFAULT_TRANSITION_DELAY_MS
         );
         this.possMoves = [];
         this.board.grabbedPieceInfo = null;

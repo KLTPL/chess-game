@@ -2,7 +2,7 @@ import Match from "./gameClasses/Match.js";
 import { BoardArg, MapOfPiecesForHuman } from "./gameClasses/Board.js";
 import { PlayerArg } from "./gameClasses/Player.js";
 
-let customStartPos: undefined | MapOfPiecesForHuman = undefined;
+let customStartPos: null | MapOfPiecesForHuman = null;
 // customStartPos = [
 //   [4,"empty","bking",3,"empty"],
 //   ["wpawn",7,"empty"],

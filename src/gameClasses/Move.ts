@@ -6,11 +6,17 @@ export default class Move {
   from: Pos;
   to: Pos;
   capturedPiece: Piece | null;
+  promotedTo: Piece | null;
   constructor(piece: Piece, from: Pos, to: Pos, capture: Piece | null) {
     this.piece = piece;
     this.from = from;
     this.to = to;
     this.capturedPiece = capture;
+    this.promotedTo = null;
+  }
+
+  setPromotedTo(piece: Piece) {
+    this.promotedTo = piece;
   }
 
   static capturesAreEqual(...captures: (Piece | null)[]) { //true if all captures are null
