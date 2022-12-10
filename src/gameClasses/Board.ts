@@ -357,9 +357,9 @@ export default class Board {
     return fieldsPos;
   }
 
-  removePieceInPos(pos: Pos, html?: boolean) {
+  removePieceInPos(pos: Pos, html: boolean) {
     if (html) {
-      this.el[pos.y][pos.x].piece?.html?.remove();
+      this.el[pos.y][pos.x].piece?.html.remove();
     }
     this.el[pos.y][pos.x].setPiece(null);
   }
