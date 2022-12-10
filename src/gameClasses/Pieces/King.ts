@@ -1,5 +1,5 @@
 import Board, { FIELDS_IN_ONE_ROW } from "../Board.js";
-import Piece, { PIECES } from "./Piece.js";
+import Piece, { DEFAULT_TRANSITION_DELAY_MS, PIECES } from "./Piece.js";
 import Rook from "./Rook.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
@@ -227,7 +227,7 @@ export default class King extends Piece {
       const newRookPos = new Pos(to.y, to.x+(castleDir.x*-1));
       const movingRook = this.board.el[oldRookPos.y][oldRookPos.x].piece as Piece;
       this.board.removePieceInPos(oldRookPos);
-      this.board.placePieceInPos(newRookPos, movingRook, this.defaultTransitionDelay*3.5);
+      this.board.placePieceInPos(newRookPos, movingRook, DEFAULT_TRANSITION_DELAY_MS*3.5);
     }
   }
 

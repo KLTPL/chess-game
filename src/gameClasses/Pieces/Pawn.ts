@@ -94,6 +94,7 @@ export default class Pawn extends Piece {
       (this.board.pawnPromotionMenu as PawnPromotionMenu).removeMenu();
       this.board.pawnPromotionMenu = null;
       this.board.getKingByTeamNum(this.enemyTeamNum()).updateChecksArr();
+      this.board.moves[this.board.moves.length-1].setPromotedTo(pawnGotPromotedTo as Piece);
     });
   }
 }

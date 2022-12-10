@@ -15,7 +15,7 @@ import Match from "./Match.js";
 
 export type BoardArg = {
   htmlPageContainerQSelector: string, 
-  startPositionsOfPieces?: MapOfPiecesForHuman
+  startPositionsOfPieces: (MapOfPiecesForHuman | null)
 };
 
 export const FIELDS_IN_ONE_ROW = 8;
@@ -43,22 +43,11 @@ export default class Board {
   fieldsHtml: HTMLDivElement;
   piecesHtml: HTMLDivElement;
   pageContainerHtml: HTMLDivElement;
-  // fieldsInOneRow: number;
   grabbedPieceInfo: GrabbedPieceInfo | null;
   kings: {
     white: King;
     black: King;
   };
-  // noPieceNum: number;
-  // pawnNum: number;
-  // rookNum: number;
-  // knightNum: number;
-  // bishopNum: number;
-  // queenNum: number;
-  // kingNum: number;
-  // noTeamNum: number;
-  // whiteNum: number;
-  // blackNum: number;
   visualizingSystem: VisualizingSystem;
   pawnPromotionMenu: (PawnPromotionMenu|null);
   highlightedFieldIdUnderGrabbedPieceId: string;
@@ -66,7 +55,7 @@ export default class Board {
   constructor(
     htmlPageContainerQSelector: string, 
     match: Match, 
-    startPositionsOfPieces: MapOfPiecesForHuman | undefined
+    startPositionsOfPieces: MapOfPiecesForHuman | null
   ) {
     this.match = match;
     this.currTeam = 1;
@@ -77,17 +66,6 @@ export default class Board {
     this.visualizingSystem = new VisualizingSystem(this);
     this.pawnPromotionMenu = null;
     this.inverted = false;
-
-    // this.noPieceNum = 0;
-    // this.pawnNum = 1;
-    // this.rookNum = 2;
-    // this.knightNum = 3;
-    // this.bishopNum = 4;
-    // this.queenNum = 5;
-    // this.kingNum = 6;
-    // this.noTeamNum = 0;
-    // this.whiteNum = 1;
-    // this.blackNum = 2;
 
     this.highlightedFieldIdUnderGrabbedPieceId = "field-heighlighted-under-moving-piece";
 
@@ -174,11 +152,11 @@ export default class Board {
     return field;
   }
 
-  placePieces(customPosition: MapOfPiecesForHuman | undefined) {
+  placePieces(customPosition: MapOfPiecesForHuman | null) {
     const arrOfPiecesToPlaceByPieceNum = 
-      (customPosition) ? 
-      this.convertMapOfPiecesForHumanToMapForScript(customPosition) : 
-      this.createMapOfPiecesInDefaultPos();
+      (customPosition === null) ? 
+      this.createMapOfPiecesInDefaultPos() :
+      this.convertMapOfPiecesForHumanToMapForScript(customPosition);
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
         this.placePieceInPos(
@@ -337,12 +315,12 @@ export default class Board {
   }
 
   movePiece(from: Pos, to: Pos, piece: Piece, transitionDelayMs: number) {
-    const moveIsCapture = this.el[to.y][to.x].piece !== null;
-    if (moveIsCapture) {
+    const capturedPiece =  this.el[to.y][to.x].piece;
+    if (capturedPiece !== null) {
       this.removePieceInPos(to, true);
     }
     this.moves.push(
-      this.getNewMoveObj(piece, from, to, moveIsCapture)
+      this.createNewMoveObj(piece, from, to, capturedPiece)
     );
     this.currTeam = this.getNextCurrTeam(this.currTeam);
     this.placePieceInPos(to, piece, transitionDelayMs);
@@ -361,8 +339,7 @@ export default class Board {
     // }
   }
 
-  getNewMoveObj(piece: Piece, from: Pos, to: Pos, moveIsCapture: boolean) {
-    const capturedPiece = (moveIsCapture) ? this.el[to.y][to.x].piece : null;
+  createNewMoveObj(piece: Piece, from: Pos, to: Pos, capturedPiece: (Piece|null)) {
     return (
       (this.inverted) ? 
       new Move(piece, from.invert(), to.invert(), capturedPiece) : 
