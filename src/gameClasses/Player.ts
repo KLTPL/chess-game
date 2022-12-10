@@ -1,5 +1,6 @@
 import Board from "./Board.js";
 import Pos from "./Pos.js";
+import Piece from "./Pieces/Piece.js";
 import { TEAMS } from "./Pieces/Piece.js";
 
 export type PlayerArg = {
@@ -42,8 +43,8 @@ export default class Player {
     this.points = 0;
     for (let r=0 ; r<boardEl.length ; r++) {
       for (let c=0 ; c<boardEl[r].length ; c++) {
-        if (boardEl[r][c].piece.team === this.team) {
-          this.points += boardEl[r][c].piece.value;
+        if (boardEl[r][c].piece?.team === this.team) {
+          this.points += (boardEl[r][c].piece as Piece).value;
         }
       }
     }
@@ -62,8 +63,8 @@ export default class Player {
     for (let r=0 ; r<boardEl.length ; r++) {
       for (let c=0 ; c<boardEl[r].length ; c++) {
         if( 
-          boardEl[r][c].piece.team === this.team && 
-          boardEl[r][c].piece.getPossibleMovesFromPos(new Pos(r, c)).length > 1
+          boardEl[r][c].piece?.team === this.team && 
+          (boardEl[r][c].piece as Piece).getPossibleMovesFromPos(new Pos(r, c)).length > 1
         ) {
           return true;
         }

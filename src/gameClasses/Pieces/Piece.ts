@@ -24,16 +24,16 @@ export default class Piece {
   value: number;
   num: number;
   team: number;
-  html: (HTMLElement | null);
+  html: HTMLElement;
   board: Board;
   possMoves: Pos[];
   defaultTransitionDelay: number;
-  constructor(team: number, html: HTMLElement | null, board: Board) {
+  constructor(team: number, board: Board) {
     this.value = 0;
     this.team = team;
-    this.html = html;
+    this.html = this.createNewHtmlPiece();
     this.board = board;
-    this.num = this.board.noPieceNum;
+    this.num = 0;
     this.possMoves = [];
     this.defaultTransitionDelay = 30;
     if (this.html !== null) {
@@ -42,6 +42,19 @@ export default class Piece {
         this.startFollowingCursor,
         {once: true}
       );
+    }
+  }
+
+  createNewHtmlPiece() {
+    const piece = document.createElement("div");
+    piece.classList.add("piece");
+    return piece;
+  }
+
+  addClassName(pieceNum: number) {
+    const specificClassName = Piece.getClassNameByPiece(pieceNum, this.team);
+    if (specificClassName !== null) {
+      this.html.classList.add(specificClassName);
     }
   }
 
@@ -296,7 +309,7 @@ export default class Piece {
     }
   }
 
-  static getSpecificPieceClassName(pieceNum: number, pieceTeam: number) {
+  static getClassNameByPiece(pieceNum: number, pieceTeam: number) {
     const teamChar = (pieceTeam === TEAMS.black) ? "b" : "w";
     const name = (() => {
       switch (pieceNum) {
@@ -314,5 +327,16 @@ export default class Piece {
       return null;
     }
     return `${teamChar}-${name}`;
+  }
+
+  static createPromoteOptionHtml(piece: number, team: number) {
+    const option = document.createElement("div");
+    option.classList.add("promote-option");
+
+    const specificClassName = Piece.getClassNameByPiece(piece, team);
+    if (specificClassName !== null) {
+      option.classList.add(specificClassName);
+    }
+    return option;
   }
 }
