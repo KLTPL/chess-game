@@ -4,10 +4,12 @@ import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Queen extends Piece {
-  constructor(team: number, html: HTMLElement, board: Board) {
-    super(team, html, board);
+  constructor(team: number, board: Board) {
+    super(team, board);
     this.num = PIECES.queen;
     this.value = 9;
+
+    this.addClassName(PIECES.queen);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
@@ -22,8 +24,8 @@ export default class Queen extends Piece {
       tempPos = new Pos(pos.y,pos.x);
       while (true) {
         if ( 
-          this.board.el[tempPos.y][tempPos.x].piece.team === enemyTeamNum && 
-          this.board.el[tempPos.y][tempPos.x].piece.num !== PIECES.king
+          this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
+          this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.king
         ) {
           break;
         }
@@ -33,7 +35,7 @@ export default class Queen extends Piece {
           break;
         }
         possibleMoves.push( new Pos(tempPos.y, tempPos.x) );
-        if (this.board.el[tempPos.y][tempPos.x].piece.team === this.team) {
+        if (this.board.el[tempPos.y][tempPos.x].piece?.team === this.team) {
           break;
         }
       }
@@ -54,14 +56,14 @@ export default class Queen extends Piece {
     for (const dir of directions) {
       tempPos = new Pos(pos.y,pos.x);
       while (true) {
-        if (this.board.el[tempPos.y][tempPos.x].piece.team === enemyTeamNum) {
+        if (this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
         if( 
           !this.board.posIsInBoard(tempPos) ||
-          this.board.el[tempPos.y][tempPos.x].piece.team === this.team
+          this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
         ) {
           break;
         }

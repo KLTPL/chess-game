@@ -4,13 +4,16 @@ import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Bishop extends Piece {
-  constructor(team: number, html: HTMLElement, board: Board) {
-    super(team, html, board);
+  constructor(team: number, board: Board) {
+    super(team, board);
     this.num = PIECES.bishop;
     this.value = 3;
+
+    this.addClassName(PIECES.bishop);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
+    const enemyTeamNum = this.enemyTeamNum();
     let possibleMoves: Pos[] = [];
     let tempPos: Pos;
     const directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
@@ -18,8 +21,8 @@ export default class Bishop extends Piece {
       tempPos = new Pos(pos.y, pos.x);
       while (true) {
         if ( 
-          this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum() && 
-          this.board.el[tempPos.y][tempPos.x].piece.num  !== PIECES.king
+          this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
+          this.board.el[tempPos.y][tempPos.x].piece?.num  !== PIECES.king
         ) {
           break;
         }
@@ -29,7 +32,7 @@ export default class Bishop extends Piece {
           break;
         }
         possibleMoves.push(new Pos(tempPos.y, tempPos.x));
-        if (this.board.el[tempPos.y][tempPos.x].piece.team === this.team) {
+        if (this.board.el[tempPos.y][tempPos.x].piece?.team === this.team) {
           break;
         }
       }
@@ -38,6 +41,7 @@ export default class Bishop extends Piece {
   }
 
   getPossibleMovesFromPos(pos: Pos) {
+    const enemyTeamNum = this.enemyTeamNum();
     const myKing = this.board.getKingByTeamNum(this.team);
     const absPins = myKing.getPossitionsOfAbsolutePins();
     let possibleMoves = [pos];
@@ -46,14 +50,14 @@ export default class Bishop extends Piece {
     for (const dir of directions) {
       tempPos = new Pos(pos.y, pos.x);
       while (true) {
-        if (this.board.el[tempPos.y][tempPos.x].piece.team === this.enemyTeamNum()) {
+        if (this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
         if ( 
           !this.board.posIsInBoard(tempPos) ||
-          this.board.el[tempPos.y][tempPos.x].piece.team === this.team
+          this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
         ) {
           break;
         }

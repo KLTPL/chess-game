@@ -12,7 +12,7 @@ export default class VisualizingSystem {
     this.board = board;
   }
 
-  actionsOnMouseDown = (ev: MouseEvent) => {
+  handleMouseDown = (ev: MouseEvent) => {
     if (ev.button === 0) { // mouse left click
       this.removeAllArrows();
       this.removeHighlightFromAllFields();

@@ -1,5 +1,5 @@
-import Board from "./Board.js";
-import { PIECES } from "./Pieces/Piece.js";
+import Board, { FIELDS_IN_ONE_ROW } from "./Board.js";
+import Piece, { PIECES } from "./Pieces/Piece.js";
 
 export default class PawnPromotionMenu {
   team: number;
@@ -19,7 +19,7 @@ export default class PawnPromotionMenu {
   }
 
   createContainerHtml(promoteOptions: HTMLDivElement[]) {
-    const fieldWidth = this.board.piecesHtml.offsetWidth / this.board.fieldsInOneRow;
+    const fieldWidth = this.board.piecesHtml.offsetWidth / FIELDS_IN_ONE_ROW;
     const container = document.createElement("div");
     container.classList.add("promote-popup");
     container.style.setProperty("--widthOfFiveFields", `${fieldWidth*5}px`);
@@ -42,7 +42,7 @@ export default class PawnPromotionMenu {
 
     return promoteOptionNums.map(num => {
       const optionContainer = document.createElement("div");
-      const optionPiece = this.board.getNewHtmlPiece(num, this.team, "promote-option");
+      const optionPiece = Piece.createPromoteOptionHtml(num, this.team);
       optionPiece.dataset.optNum = num.toString();
       optionContainer.append(optionPiece);
       return optionContainer;

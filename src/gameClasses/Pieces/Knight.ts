@@ -4,11 +4,12 @@ import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Knight extends Piece {
-  constructor(team: number, html: HTMLElement, board: Board) {
-    super(team, html, board);
+  constructor(team: number, board: Board) {
+    super(team, board);
     this.num = PIECES.knight;
     this.value = 3;
 
+    this.addClassName(PIECES.knight);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
@@ -30,7 +31,7 @@ export default class Knight extends Piece {
     const myKing = this.board.getKingByTeamNum(this.team);
     const absPins = myKing.getPossitionsOfAbsolutePins();
     let possibleMovesFromPosForKnight = this.getPossibleMovesFromPosForKing(pos)
-      .filter(move => this.board.el[move.y][move.x].piece.team !== this.team);
+      .filter(move => this.board.el[move.y][move.x].piece?.team !== this.team);
     let possibleMoves = [pos, ...possibleMovesFromPosForKnight];
 
     possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);

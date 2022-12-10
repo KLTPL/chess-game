@@ -1,3 +1,5 @@
+import { FIELDS_IN_ONE_ROW } from "./Board";
+
 export default class Pos {
   x: number;
   y: number;
@@ -6,8 +8,8 @@ export default class Pos {
     this.x = x;
   }
 
-  invert(fieldsInOneRow: number) {
-    return new Pos(fieldsInOneRow-1-this.y, fieldsInOneRow-1-this.x);
+  invert() {
+    return new Pos(FIELDS_IN_ONE_ROW-1-this.y, FIELDS_IN_ONE_ROW-1-this.x);
   }
 
   isEqualTo(pos: Pos) {
