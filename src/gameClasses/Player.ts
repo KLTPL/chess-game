@@ -62,11 +62,15 @@ export default class Player {
     const boardEl = this.board.el;
     for (let r=0 ; r<boardEl.length ; r++) {
       for (let c=0 ; c<boardEl[r].length ; c++) {
-        if( 
-          boardEl[r][c].piece?.team === this.team && 
-          (boardEl[r][c].piece as Piece).getPossibleMovesFromPos(new Pos(r, c)).length > 1
-        ) {
-          return true;
+        if (boardEl[r][c].piece?.team === this.team) {
+          const possMoves = (boardEl[r][c].piece as Piece).getPossibleMovesFromPos(new Pos(r, c));
+          if (
+            possMoves.length !== 0 &&
+            (possMoves.length > 1 || 
+            !possMoves[0].isEqualTo(new Pos(r, c)))
+          ) {
+            return true;
+          }
         }
       }
     }
