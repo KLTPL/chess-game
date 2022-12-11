@@ -16,81 +16,48 @@ export default class King extends Piece {
     this.haventMovedYet = true;
     this.checks = [];
 
-    this.addClassName(PIECES.king);
-
+    this.addClassName(this.num);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
-    let possibleMoves: Pos[] = [];
     const directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1, 0), new Dir( 0,1), new Dir(0,-1)
     ];
-    for (const dir of directions) {
-      const newPos = new Pos(pos.y+dir.y, pos.x+dir.x);
-      if (this.board.posIsInBoard(newPos)) {
-        possibleMoves.push(newPos);
-      }
-    }
 
-    return possibleMoves;
+    return directions
+      .map(dir => new Pos(pos.y+dir.y, pos.x+dir.x))
+      .filter(pos => this.board.isPosInBoard(pos));
   }
 
   getPossibleMovesFromPos(pos: Pos) {
-    const enemyTeamNum = this.enemyTeamNum();
-    let possibleMoves = [pos];
-    const directions = [
-      new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
-      new Dir(1,0), new Dir(-1, 0), new Dir(0, 1), new Dir(0,-1)
+    const possibleMoves = [
+      pos, 
+      ...this.createArrOfNormalMoves(pos), 
+      ...this.getPossibleCastlesPos(pos)
     ];
 
-    const possibleCastlesDir = this.getPossibleCastlesDir(pos);
-    const possibleCastlesPos = (() => {
-      let possitions: Pos[] = [];
-      for (const castDir of possibleCastlesDir) {
-        possitions.push(new Pos(pos.y+castDir.y, pos.x+castDir.x));
-      }
-      return possitions;
-    }) ();
-    possibleMoves.push(...possibleCastlesPos);
+    return this.filterMovesSoKingCantMoveIntoCheck(possibleMoves);
+  }
 
-    for (const dir of directions) {
-      const newPos = new Pos(pos.y+dir.y, pos.x+dir.x);
-      if(
-        this.board.posIsInBoard(newPos) &&
-        this.board.el[newPos.y][newPos.x].piece?.team !== this.team 
-      ) {
-        possibleMoves.push(newPos);
-      }
-    };
+  createArrOfNormalMoves(pos: Pos) {
+    const directions = [
+      new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
+      new Dir(1,0), new Dir(-1, 0), new Dir( 0,1), new Dir(0,-1)
+    ];
+    return directions
+      .map(dir => new Pos(pos.y+dir.y, pos.x+dir.x))
+      .filter(pos => {
+        return (
+          this.board.isPosInBoard(pos) &&
+          this.board.el[pos.y][pos.x].piece?.team !== this.team 
+        );
+      });
+  }
 
-    for (let r=0 ; r<this.board.el.length ; r++) {
-      for (let c=0 ; c<this.board.el[r].length ; c++) {
-        if (this.board.el[r][c].piece?.team !== enemyTeamNum ) {
-          continue;
-        }
-        const enemyPiecePossMoves = 
-          (this.board.el[r][c].piece === null) ?
-          [] :
-          (this.board.el[r][c].piece as Piece).getPossibleMovesFromPosForKing(new Pos(r, c));
-        for (const enemyPossMove of enemyPiecePossMoves) {
-          for (let m=1 ; m<possibleMoves.length ; m++) { // m=1 becouse possibleMoves[0] is kings pos
-            if( 
-              enemyPossMove.x === possibleMoves[m].x && 
-              enemyPossMove.y === possibleMoves[m].y &&
-              (
-                enemyPossMove.x !== c || 
-                enemyPossMove.y !== r
-              )
-            ) {
-              possibleMoves.splice(m, 1);
-              m--;
-            }
-          }
-        };
-      };
-    }
-    return possibleMoves;
+  getPossibleCastlesPos(pos: Pos) {
+    const castlesDir = this.getPossibleCastlesDir(pos);
+    return castlesDir.map(dir => new Pos(pos.y+(dir.y*2), pos.x+(dir.x*2)))
   }
 
   getPossibleCastlesDir(pos: Pos) {
@@ -98,63 +65,61 @@ export default class King extends Piece {
       return [];
     }
 
-    let castlesDir = [new Dir(0, 2), new Dir(0, -2)];
-
-    for (let i=0 ; i<castlesDir.length ; i++) {
-      const currentRookXPos = 
-        castlesDir[i].x > 0 ? 
-        FIELDS_IN_ONE_ROW-1 : 
-        0;
-      const currentRook = this.board.el[pos.y][currentRookXPos].piece as Rook;
-      if ( 
-        !this.board.posIsInBoard(new Pos(pos.y, pos.x+castlesDir[i].x)) ||
-        this.board.el[pos.y][pos.x+(castlesDir[i].x/2)].piece !== null ||
-        this.board.el[pos.y][pos.x+castlesDir[i].x].piece !== null ||
-        this.somePieceHasCheckOnWayOfCastle(new Pos(pos.y, pos.x+(castlesDir[i].x/2))) ||
-        this.somePieceHasCheckOnWayOfCastle(new Pos(pos.y, pos.x+castlesDir[i].x)) || 
-        !currentRook.haventMovedYet
-      ) {
-        castlesDir.splice(i, 1);
-        i--;
-      }
-    }
-    return castlesDir;
+    return [new Dir(0, 1), new Dir(0, -1)]
+      .filter(dir => {
+        const currentRookXPos = (dir.x > 0) ? FIELDS_IN_ONE_ROW-1 : 0;
+        const currentRook = this.board.el[pos.y][currentRookXPos].piece as (Rook | null);
+        const move1 = new Pos(pos.y, pos.x+dir.x);
+        const move2 = new Pos(pos.y, pos.x+(dir.x*2));
+        const moves = [move1, move2];
+        return (
+          this.board.isPosInBoard(new Pos(move2.y, move2.x)) &&
+          currentRook?.haventMovedYet &&
+          this.board.el[move1.y][move1.x].piece === null &&
+          this.board.el[move2.y][move2.x].piece === null &&
+          this.filterMovesSoKingCantMoveIntoCheck(moves).length === moves.length
+        );
+      });
   }
 
-  somePieceHasCheckOnWayOfCastle(pos: Pos) {
+  filterMovesSoKingCantMoveIntoCheck(moves: Pos[]) {
     const enemyTeamNum = this.enemyTeamNum();
-    for (let r=0 ; r<this.board.el.length ; r++) {
-      for (let c=0 ; c<this.board.el[r].length ; c++) {
-        if ( 
-          this.board.el[r][c].piece?.team !== enemyTeamNum || 
-          this.board.el[r][c].piece?.num === PIECES.king
+    const boardEl = this.board.el;
+    for (let r=0 ; r<boardEl.length ; r++) {
+      for (let c=0 ; c<boardEl[r].length ; c++) {
+        if (
+          boardEl[r][c].piece === null || 
+          (boardEl[r][c].piece as Piece).team !== enemyTeamNum
         ) {
           continue;
         }
-        if (this.board.el[r][c].piece?.num !== PIECES.pawn) { 
-          const possMoves = 
-            (this.board.el[r][c].piece === null) ?
-            [] :
-            (this.board.el[r][c].piece as Piece).getPossibleMovesFromPos(new Pos(r, c));
-          for (const move of possMoves) {
-            if (move.x === pos.x && move.y === pos.y) {
-              return true;
-            }
-          }
-          continue;
+        
+        const enemyPiecePossMoves = 
+          (boardEl[r][c].piece as Piece).getPossibleMovesFromPosForKing(new Pos(r, c));
+        for (const enemyPossMove of enemyPiecePossMoves) {
+          moves = moves.filter(move => {
+            return (
+              (enemyPossMove.x !== move.x ||
+               enemyPossMove.y !== move.y) 
+              &&
+              (enemyPossMove.x !== c ||
+               enemyPossMove.y !== r)
+            );
+          });
         }
       }
     }
-    return false;
+    return moves;
   }
 
   getPossitionsOfAbsolutePins(): Pin[] {
     const kingPos = this.board.findKingsPos(this.team);
+    const enemyTeamNum = this.enemyTeamNum();
     let absPins: Pin[] = [];
 
     const directions = [
-      new Dir( 1, 0 ), new Dir(-1, 0 ), new Dir( 0, 1 ), new Dir( 0, -1 ), 
-      new Dir( 1, 1 ), new Dir(-1, 1 ), new Dir( 1,-1 ), new Dir(-1, -1 )
+      new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir( 0,-1), 
+      new Dir(1, 1), new Dir(-1, 1), new Dir(1,-1), new Dir(-1,-1)
     ];
   
     for (let d=0 ; d<directions.length ; d++) {
@@ -163,15 +128,13 @@ export default class King extends Piece {
         directions[d].y === 0
       );
 
-      let tempPos = new Pos(kingPos.y, kingPos.x);
-      let pinInThisDir: Pin | null = null;
+      let pinInThisDir: (Pin|null) = null;
+      let tempPos = new Pos(kingPos.y+directions[d].y, kingPos.x+directions[d].x);
 
-      tempPos.x += directions[d].x;
-      tempPos.y += directions[d].y;
-      while (this.board.posIsInBoard(tempPos)) {
+      while (this.board.isPosInBoard(tempPos)) {
         if (this.board.el[tempPos.y][tempPos.x].piece !== null) {
-          if (!pinInThisDir) {
-            if (this.board.el[tempPos.y][tempPos.x].piece?.team !== this.team) {
+          if (pinInThisDir === null) {
+            if (this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum) {
               break;
             }
             pinInThisDir = new Pin(new Pos(tempPos.y, tempPos.x), directions[d]);
@@ -180,27 +143,20 @@ export default class King extends Piece {
             continue;
           }
 
-          if(   
-            (
-              this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.bishop &&
-              this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.rook &&
-              this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.queen
-            ) ||
+          if( (this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.bishop &&
+               this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.rook &&
+               this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.queen) 
+              ||
               this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
             ) {
             break;
           }
 
-          if( 
-            (
-              kingIsInlineVerticallyOrHorizontally &&
-              this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.bishop
-            ) 
-            ||
-            (
-              !kingIsInlineVerticallyOrHorizontally &&
-              this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.rook
-            )
+          if( (kingIsInlineVerticallyOrHorizontally &&
+              this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.bishop) 
+              ||
+              (!kingIsInlineVerticallyOrHorizontally &&
+              this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.rook)
           ) {
             absPins.push(pinInThisDir);
           }
@@ -251,18 +207,20 @@ export default class King extends Piece {
 
   getPossitionsOfPiecesCheckingKing() {
     const kingPos = this.board.findKingsPos(this.team);
-    let checkingPieces: Pos[] = [];
+    const enemyTeamNum = this.enemyTeamNum();
 
+    let checkingPieces: Pos[] = [];
     for (let r=0 ; r<this.board.el.length ; r++) {
       for (let c=0 ; c<this.board.el[r].length ; c++) {
-        if (this.board.el[r][c].piece?.team !== this.enemyTeamNum()) {
+        if (
+          this.board.el[r][c].piece === null ||
+          this.board.el[r][c].piece?.team !== enemyTeamNum
+          ) {
           continue;
         }
-        const pieceMovesForKing = 
-          (this.board.el[r][c].piece === null)  ?
-          [] :
+        const piecesMovesForKing = 
           (this.board.el[r][c].piece as Piece).getPossibleMovesFromPosForKing(new Pos(r, c));
-        for (const move of pieceMovesForKing) {
+        for (const move of piecesMovesForKing) {
           if (kingPos.x === move.x && kingPos.y === move.y) {
             checkingPieces.push(new Pos(r, c));
           }

@@ -67,7 +67,7 @@ export default class Match {
 
   end(endType?: EndType) {
     this.gameRunning = false;
-    console.log(this.board.moves);
+    console.log("moves: ",this.board.moves);
     if (endType) {
       console.log(
         `Game has ended by ${endType.cousedBy.name} with a ${endType.type}`

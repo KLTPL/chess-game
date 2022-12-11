@@ -306,12 +306,9 @@ export default class Board {
     );
   }
 
-  getKingByTeamNum(team: number) {
-    return (
-      (team === TEAMS.white) ? 
-      this.kings.white : 
-      this.kings.black
-    );
+  getKingByTeam(team: number) {
+    const kingPos = this.findKingsPos(team);
+    return this.el[kingPos.y][kingPos.x].piece as King;
   }
 
   movePiece(from: Pos, to: Pos, piece: Piece, transitionDelayMs: number) {
@@ -325,7 +322,7 @@ export default class Board {
     this.currTeam = this.getNextCurrTeam(this.currTeam);
     this.placePieceInPos(to, piece, transitionDelayMs);
     piece.sideEffectsOfMove(to, from);
-    const enemyKing = this.getKingByTeamNum(piece.enemyTeamNum());
+    const enemyKing = this.getKingByTeam(piece.enemyTeamNum());
     enemyKing.updateChecksArr();
     this.match.checkIfGameShouldEndAfterMove(this.moves[this.moves.length-1]);
     // if (this.match.gameRunning) {
@@ -483,7 +480,7 @@ export default class Board {
       }
     }
     
-    const currKing = this.getKingByTeamNum(this.currTeam);
+    const currKing = this.getKingByTeam(this.currTeam);
     if (currKing !== null) {
       currKing.invertChecksArr();
     }
@@ -628,7 +625,7 @@ export default class Board {
     );
   }
 
-  posIsInBoard(pos: Pos) {
+  isPosInBoard(pos: Pos) {
     return (
       pos.x >= 0 && pos.x <= FIELDS_IN_ONE_ROW-1 && 
       pos.y >= 0 && pos.y <= FIELDS_IN_ONE_ROW-1

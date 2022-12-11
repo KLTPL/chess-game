@@ -9,34 +9,33 @@ export default class Knight extends Piece {
     this.num = PIECES.knight;
     this.value = 3;
 
-    this.addClassName(PIECES.knight);
+    this.addClassName(this.num);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
-    let possibleMoves: Pos[] = [];
     const directions = [
       new Dir(1,2), new Dir(1,-2), new Dir(-1,2), new Dir(-1,-2), 
       new Dir(2,1), new Dir(2,-1), new Dir(-2,1), new Dir(-2,-1)
     ];
-    for (const dir of directions) {
-      const newMove = new Pos(pos.y+dir.y, pos.x+dir.x);
-      if (this.board.posIsInBoard(newMove)) {
-        possibleMoves.push(newMove);
-      }
-    };
-    return possibleMoves;
+
+    return directions
+      .map(dir => new Pos(pos.y+dir.y, pos.x+dir.x))
+      .filter(pos => this.board.isPosInBoard(pos));
   }
 
   getPossibleMovesFromPos(pos: Pos) {
-    const myKing = this.board.getKingByTeamNum(this.team);
+    const myKing = this.board.getKingByTeam(this.team);
     const absPins = myKing.getPossitionsOfAbsolutePins();
-    let possibleMovesFromPosForKnight = this.getPossibleMovesFromPosForKing(pos)
-      .filter(move => this.board.el[move.y][move.x].piece?.team !== this.team);
-    let possibleMoves = [pos, ...possibleMovesFromPosForKnight];
 
+    let possibleMoves = [pos, ...this.createArrOfNormalMoves(pos)];
     possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
-    possibleMoves = this.removePossMovesIfKingIsChecked(possibleMoves, myKing, pos);
+    possibleMoves = this.removePossMovesIfKingIsInCheck(possibleMoves, myKing, pos);
 
     return possibleMoves;
+  }
+
+  createArrOfNormalMoves(pos: Pos) {
+    return this.getPossibleMovesFromPosForKing(pos)
+      .filter(move => this.board.el[move.y][move.x].piece?.team !== this.team);
   }
 }

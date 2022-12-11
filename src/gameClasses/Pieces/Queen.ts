@@ -9,19 +9,18 @@ export default class Queen extends Piece {
     this.num = PIECES.queen;
     this.value = 9;
 
-    this.addClassName(PIECES.queen);
+    this.addClassName(this.num);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
     const enemyTeamNum = this.enemyTeamNum();
-    let possibleMoves: Pos[] = [];
-    let tempPos: Pos;
+    const possibleMoves: Pos[] = [];
     const directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
     ];
     for (const dir of directions) {
-      tempPos = new Pos(pos.y,pos.x);
+      const tempPos = new Pos(pos.y,pos.x);
       while (true) {
         if ( 
           this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
@@ -31,30 +30,38 @@ export default class Queen extends Piece {
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if (!this.board.posIsInBoard(tempPos)) {
+        if (!this.board.isPosInBoard(tempPos)) {
           break;
         }
-        possibleMoves.push( new Pos(tempPos.y, tempPos.x) );
+        possibleMoves.push(new Pos(tempPos.y, tempPos.x));
         if (this.board.el[tempPos.y][tempPos.x].piece?.team === this.team) {
           break;
         }
       }
-    };
+    }
     return possibleMoves;
 
   }
   getPossibleMovesFromPos(pos: Pos) {
-    const enemyTeamNum = this.enemyTeamNum()
-    const myKing = this.board.getKingByTeamNum(this.team);
+    const myKing = this.board.getKingByTeam(this.team);
     const absPins = myKing.getPossitionsOfAbsolutePins();
-    let possibleMoves = [pos];
-    let tempPos: Pos;
+
+    let possibleMoves = [pos, ...this.createArrOfNormalMoves(pos)];
+    possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
+    possibleMoves = this.removePossMovesIfKingIsInCheck(possibleMoves, myKing, pos);
+
+    return possibleMoves;
+  }
+
+  createArrOfNormalMoves(pos: Pos) {
+    const enemyTeamNum = this.enemyTeamNum();
     const directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1, 0), new Dir(0, 1), new Dir(0,-1)
     ];
+    const moves: Pos[] = [];
     for (const dir of directions) {
-      tempPos = new Pos(pos.y,pos.x);
+      const tempPos = new Pos(pos.y,pos.x);
       while (true) {
         if (this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum) {
           break;
@@ -62,18 +69,14 @@ export default class Queen extends Piece {
         tempPos.x += dir.x;
         tempPos.y += dir.y;
         if( 
-          !this.board.posIsInBoard(tempPos) ||
+          !this.board.isPosInBoard(tempPos) ||
           this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
         ) {
           break;
         }
-        possibleMoves.push( new Pos(tempPos.y, tempPos.x) );
+        moves.push(new Pos(tempPos.y, tempPos.x) );
       }
-    };
-
-    possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
-    possibleMoves = this.removePossMovesIfKingIsChecked(possibleMoves, myKing, pos);
-
-    return possibleMoves;
+    }
+    return moves;
   }
 }
