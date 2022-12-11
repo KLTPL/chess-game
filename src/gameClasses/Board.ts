@@ -19,6 +19,7 @@ export type BoardArg = {
 };
 
 export const FIELDS_IN_ONE_ROW = 8;
+export const HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE = "field-heighlighted-under-moving-piece";
 const CLASS_NAMES = {
   field: "field",
   fieldColor1: "field1",
@@ -50,7 +51,6 @@ export default class Board {
   };
   visualizingSystem: VisualizingSystem;
   pawnPromotionMenu: (PawnPromotionMenu|null);
-  highlightedFieldIdUnderGrabbedPieceId: string;
   inverted: boolean;
   constructor(
     htmlPageContainerQSelector: string, 
@@ -66,8 +66,6 @@ export default class Board {
     this.visualizingSystem = new VisualizingSystem(this);
     this.pawnPromotionMenu = null;
     this.inverted = false;
-
-    this.highlightedFieldIdUnderGrabbedPieceId = "field-heighlighted-under-moving-piece";
 
     this.html = this.createBoardContainer();
     this.fieldsHtml = this.createContainerForFields();
@@ -241,14 +239,14 @@ export default class Board {
   }
 
   getFieldCoorByPx(leftPx: number, topPx: number) { // pos values from 0 to 7 or -1 if not in board
-    const boardStartLeft = (this.pageContainerHtml.offsetWidth -this.html.offsetWidth) /2;
+    const boardStartLeft = (this.pageContainerHtml.offsetWidth-this.html.offsetWidth)/2;
     const boardStartTop =  (this.pageContainerHtml.offsetHeight-this.html.offsetHeight)/2;
 
-    const posOnBoardLeft = leftPx-boardStartLeft;
-    const posOnBoardTop =  topPx -boardStartTop;
+    const posOnBoardLeft = leftPx-boardStartLeft+1; // +1 so the piece won't glitch into wrong field
+    const posOnBoardTop =  topPx -boardStartTop +1; // +1 so the piece won't glitch into wrong field
 
-    let fieldC = Math.ceil(posOnBoardLeft/this.html.offsetWidth *FIELDS_IN_ONE_ROW)-1;
-    let fieldR = Math.ceil(posOnBoardTop /this.html.offsetHeight*FIELDS_IN_ONE_ROW)-1;
+    let fieldC = Math.ceil(posOnBoardLeft/this.html.offsetWidth* FIELDS_IN_ONE_ROW)-1;
+    let fieldR = Math.ceil(posOnBoardTop/this.html.offsetHeight*FIELDS_IN_ONE_ROW)-1;
     if (fieldC < 0 || fieldC > FIELDS_IN_ONE_ROW-1) {
       fieldC = -1;
     }
@@ -259,11 +257,12 @@ export default class Board {
   }
 
   highlightFieldUnderMovingPiece(pos: Pos) {
-    if (document.getElementById(this.highlightedFieldIdUnderGrabbedPieceId)) {
-      (document.getElementById(this.highlightedFieldIdUnderGrabbedPieceId) as HTMLElement).id = "";
+    const id = HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE;
+    if (document.getElementById(id)) {
+      (document.getElementById(id) as HTMLElement).id = "";
     }
     if (pos.y !== -1 && pos.x !== -1) {
-      this.el[pos.y][pos.x].html.id = this.highlightedFieldIdUnderGrabbedPieceId;
+      this.el[pos.y][pos.x].html.id = id;
     }
   }
 

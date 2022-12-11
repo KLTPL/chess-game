@@ -1,4 +1,4 @@
-import Board from "../Board.js";
+import Board, { HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE } from "../Board.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 import Pin from "../Pin.js";
@@ -28,14 +28,12 @@ export default class Piece {
   team: number;
   html: HTMLElement;
   board: Board;
-  possMoves: Pos[];
   constructor(team: number, board: Board) {
     this.value = 0;
     this.team = team;
     this.html = this.createNewHtmlPiece();
     this.board = board;
     this.num = 0;
-    this.possMoves = [];
     this.html.addEventListener(
       "mousedown",
       this.startFollowingCursor,
@@ -77,6 +75,7 @@ export default class Piece {
   startFollowingCursor = (ev: MouseEvent) => {
     const leftClickNum = 0;
     const fieldCoor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
+    const possMoves = this.getPossibleMovesFromPos(fieldCoor);
     if( 
       this.board.currTeam !== this.team || 
       ev.button !== leftClickNum || 
@@ -91,20 +90,7 @@ export default class Piece {
       );
       return;
     }
-    this.possMoves = this.getPossibleMovesFromPos(fieldCoor);
-    this.board.showPossibleMoves(this.possMoves, this.enemyTeamNum());
-    let mouseHold = new Promise<void>((resolve, reject) => {
-      this.html.addEventListener(
-        "mouseup", () => {
-          reject();
-        },
-        {once: true}
-      );
-      setTimeout(() => {
-        resolve();
-      }, 150);
-    });
-
+    this.board.showPossibleMoves(possMoves, this.enemyTeamNum());
     this.board.grabbedPieceInfo = new GrabbedPieceInfo(this, fieldCoor);
     this.board.removePieceInPos(fieldCoor, false);
     this.html.id = "move";
@@ -114,19 +100,21 @@ export default class Piece {
       this.moveToCursor
     );
 
-    mouseHold.then(() => {
-      document.addEventListener(
-        "mouseup", 
-        this.stopFollowingCursor, 
-        {once: true}
-      );
-    }).catch(() => {
-      document.addEventListener(
-        "mousedown", 
-        this.stopFollowingCursor, 
-        {once: true}
-      )
-    });
+    this.mouseHold()
+      .then(() => {
+        document.addEventListener(
+          "mouseup",
+          newEv => this.stopFollowingCursor(newEv, possMoves), 
+          {once: true}
+        );
+      })
+      .catch(() => {
+        document.addEventListener(
+          "mousedown", 
+          newEv => this.stopFollowingCursor(newEv, possMoves), 
+          {once: true}
+        )
+      });
   }
 
   moveToCursor = (ev: MouseEvent) => {
@@ -168,11 +156,12 @@ export default class Piece {
     );
   }
 
-  stopFollowingCursor = (ev: MouseEvent) => {
+  stopFollowingCursor = (ev: MouseEvent, possMoves: Pos[]) => {
     const boardGrabbedPieceInfo = this.board.grabbedPieceInfo as GrabbedPieceInfo;
     this.html.id = "";
-    if (document.getElementById(this.board.highlightedFieldIdUnderGrabbedPieceId)) {
-      (document.getElementById(this.board.highlightedFieldIdUnderGrabbedPieceId) as HTMLElement).id = "";
+    const id = HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE;
+    if (document.getElementById(id)) {
+      (document.getElementById(id) as HTMLElement).id = "";
     }
     document.removeEventListener(
       "mousemove", 
@@ -181,9 +170,9 @@ export default class Piece {
     this.board.hidePossibleMoves();
     const newPos = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
     const oldPos = boardGrabbedPieceInfo.grabbedFrom;
-    for (let i=0 ; i<this.possMoves.length ; i++) {
+    for (let i=0 ; i<possMoves.length ; i++) {
       if ( 
-        this.possMoves[i].isEqualTo(newPos) &&
+        possMoves[i].isEqualTo(newPos) &&
         (newPos.x !== oldPos.x || 
          newPos.y !== oldPos.y)
       ) {
@@ -193,7 +182,7 @@ export default class Piece {
           boardGrabbedPieceInfo.piece,
           DEFAULT_TRANSITION_DELAY_MS
         );
-        this.possMoves = [];
+        possMoves = [];
         this.board.grabbedPieceInfo = null;
         return;
       }
@@ -203,7 +192,6 @@ export default class Piece {
       boardGrabbedPieceInfo.piece,
       this.calcTransitionDelay(oldPos, newPos)
     );
-    this.possMoves = [];
     this.board.grabbedPieceInfo = null;
   }
 
@@ -229,6 +217,20 @@ export default class Piece {
       }
     }
     return possMoves;
+  }
+
+  mouseHold() {
+    return new Promise<void>((resolve, reject) => {
+      this.html.addEventListener(
+        "mouseup", () => {
+          reject();
+        },
+        {once: true}
+      );
+      setTimeout(() => {
+        resolve();
+      }, 150);
+    })
   }
 
   removePossMovesIfKingIsInCheck(possMoves: Pos[], myKing: King, pos: Pos ) {
