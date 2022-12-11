@@ -4,14 +4,14 @@ import { PlayerArg } from "./gameClasses/Player.js";
 
 let customStartPos: null | MapOfPiecesForHuman = null;
 // customStartPos = [
-//   [4,"empty","bking",3,"empty"],
+//   [8,"empty"],
 //   ["wpawn",7,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
 //   [8,"empty"],
-//   [8,"empty"],
-//   [8,"empty"],
-//   [4,"empty","wking",3,"empty"],
+//   [4,"empty","bking",3,"empty"],
+//   [6,"empty","bpawn","empty"],
+//   ["wrook",3,"empty","wking",2,"empty","wrook"],
 // ];
 
 function startGame() {

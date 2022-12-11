@@ -97,7 +97,7 @@ export default class Piece {
       this.html.addEventListener(
         "mouseup", () => {
           reject();
-        }, 
+        },
         {once: true}
       );
       setTimeout(() => {
@@ -115,21 +115,17 @@ export default class Piece {
     );
 
     mouseHold.then(() => {
-      setTimeout(() => {
-        document.addEventListener(
-          "mouseup", 
-          this.stopFollowingCursor, 
-          {once: true}
-        );
-      })
+      document.addEventListener(
+        "mouseup", 
+        this.stopFollowingCursor, 
+        {once: true}
+      );
     }).catch(() => {
-      setTimeout(() => {
-        document.addEventListener(
-          "mousedown", 
-          this.stopFollowingCursor, 
-          {once: true}
-        )
-      });
+      document.addEventListener(
+        "mousedown", 
+        this.stopFollowingCursor, 
+        {once: true}
+      )
     });
   }
 
@@ -219,18 +215,15 @@ export default class Piece {
   }
 
   substractAbsPinsFromPossMoves(possMoves: Pos[], absPins: Pin[], pos: Pos) {
-    for (let p=0 ; p<absPins.length ; p++) {
-      if (
-        absPins[p].pinnedPiecePos.x === pos.x && 
-        absPins[p].pinnedPiecePos.y === pos.y
-      ) {
+    for (const pin of absPins) {
+      if (pin.pinnedPiecePos.isEqualTo(pos)) {
         possMoves = possMoves.filter(move => {
           const simplifyXAndY = (this.num === PIECES.knight) ? false : true; // simplify means make 1 if >1 and -1 if <-1
           const moveDir = new Dir(move.y-pos.y, move.x-pos.x, simplifyXAndY);
           return (
-            (moveDir.x === 0 && moveDir.y === 0) ||
-            (moveDir.x    === absPins[p].pinDir.x && moveDir.y    === absPins[p].pinDir.y) ||
-            (moveDir.x*-1 === absPins[p].pinDir.x && moveDir.y*-1 === absPins[p].pinDir.y)  
+            moveDir.isEqualTo(new Dir(0, 0)) ||
+            moveDir.isEqualTo(pin.pinDir) ||
+            moveDir.isEqualTo(new Dir(-pin.pinDir.y, -pin.pinDir.x))
           );
         });
       }
@@ -238,7 +231,7 @@ export default class Piece {
     return possMoves;
   }
 
-  removePossMovesIfKingIsChecked(possMoves: Pos[], myKing: King, pos: Pos ) {
+  removePossMovesIfKingIsInCheck(possMoves: Pos[], myKing: King, pos: Pos ) {
     if (myKing.checks.length === 0) {
       return possMoves;
     }
