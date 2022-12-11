@@ -15,7 +15,8 @@ import Match from "./Match.js";
 
 export type BoardArg = {
   htmlPageContainerQSelector: string, 
-  startPositionsOfPieces: (MapOfPiecesForHuman | null)
+  whiteToPlay: boolean,
+  startPositionsOfPieces: (MapOfPiecesForHuman | null),
 };
 
 export const FIELDS_IN_ONE_ROW = 8;
@@ -54,11 +55,12 @@ export default class Board {
   inverted: boolean;
   constructor(
     htmlPageContainerQSelector: string, 
+    whiteToPlay: boolean,
+    startPositionsOfPieces: MapOfPiecesForHuman | null,
     match: Match, 
-    startPositionsOfPieces: MapOfPiecesForHuman | null
   ) {
     this.match = match;
-    this.currTeam = 1;
+    this.currTeam = (whiteToPlay) ? TEAMS.white : TEAMS.black;
     this.moves = [];
     this.el = [];
     this.pageContainerHtml = document.querySelector(htmlPageContainerQSelector) as HTMLDivElement;
