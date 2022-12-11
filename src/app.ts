@@ -2,7 +2,7 @@ import Match from "./gameClasses/Match.js";
 import { BoardArg, MapOfPiecesForHuman } from "./gameClasses/Board.js";
 import { PlayerArg } from "./gameClasses/Player.js";
 
-let customStartPos: null | MapOfPiecesForHuman = null;
+let customStartPos: (null|MapOfPiecesForHuman) = null;
 // customStartPos = [
 //   [8,"empty"],
 //   ["wpawn",7,"empty"],
@@ -31,11 +31,11 @@ function startGame() {
 
   const boardArg: BoardArg = {
     htmlPageContainerQSelector: "[data-container]",
+    whiteToPlay: true,
     startPositionsOfPieces: customStartPos,
   };
   new Match(player1Arg, player2Arg, boardArg);
 }
-
 startGame();
 
 // function getRandomColor() {

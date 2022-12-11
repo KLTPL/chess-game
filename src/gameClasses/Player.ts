@@ -64,7 +64,7 @@ export default class Player {
       for (let c=0 ; c<boardEl[r].length ; c++) {
         if (boardEl[r][c].piece?.team === this.team) {
           const possMoves = (boardEl[r][c].piece as Piece).getPossibleMovesFromPos(new Pos(r, c));
-          if (
+          if ( //possMoves[0]: first pos is where piece is placed
             possMoves.length !== 0 &&
             (possMoves.length > 1 || 
             !possMoves[0].isEqualTo(new Pos(r, c)))
