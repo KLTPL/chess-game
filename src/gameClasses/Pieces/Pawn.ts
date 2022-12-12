@@ -23,7 +23,7 @@ export default class Pawn extends Piece {
   
   getPossibleMovesFromPos(pos: Pos) {
     const myKing = this.board.getKingByTeam(this.team);
-    const absPins = myKing.getPossitionsOfAbsolutePins();
+    const absPins = myKing.createArrOfAbsolutePins();
 
     let possibleMoves: Pos[] = [
       pos, 

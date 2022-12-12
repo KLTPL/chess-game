@@ -34,16 +34,16 @@ export default class VisualizingSystem {
     });
     mouseHold.then(() => {
       this.board.html.addEventListener("mouseup", endEv => {
-        const startPos = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
-        const endPos = this.board.getFieldCoorByPx(endEv.clientX, endEv.clientY);
+        const startPos = this.board.calcFieldCoorByPx(ev.clientX, ev.clientY);
+        const endPos = this.board.calcFieldCoorByPx(endEv.clientX, endEv.clientY);
         if (
           startPos.x === endPos.x && 
           startPos.y === endPos.y
         ) {
-          this.toggleHighlightOnFieldOnPos(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
+          this.toggleHighlightOnFieldOnPos(this.board.calcFieldCoorByPx(ev.clientX, ev.clientY));
           return;
         }
-        const matchingArrowNum = this.getEqualArrowNum(startPos, endPos);
+        const matchingArrowNum = this.indexOfEqualArrow(startPos, endPos);
         if (matchingArrowNum !== -1) {
           this.removeArrow(matchingArrowNum);
           return;
@@ -51,11 +51,11 @@ export default class VisualizingSystem {
         this.arrows.push(new VisualizingArrow(this.board, startPos, endPos));
       }, {once: true});
     }).catch( () => {
-      this.toggleHighlightOnFieldOnPos(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
+      this.toggleHighlightOnFieldOnPos(this.board.calcFieldCoorByPx(ev.clientX, ev.clientY));
     });
   }
 
-  getEqualArrowNum(startPos: Pos, endPos: Pos) {
+  indexOfEqualArrow(startPos: Pos, endPos: Pos) {
     for( let i=0 ; i<this.arrows.length ; i++ ) {
       const arrSPos = this.arrows[i].startPos;
       const arrEPos = this.arrows[i].endPos;

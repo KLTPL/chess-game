@@ -9,7 +9,8 @@ export default class Pos {
   }
 
   invert() {
-    return new Pos(FIELDS_IN_ONE_ROW-1-this.y, FIELDS_IN_ONE_ROW-1-this.x);
+    this.y = FIELDS_IN_ONE_ROW-1-this.y;
+    this.x = FIELDS_IN_ONE_ROW-1-this.x;
   }
 
   isEqualTo(pos: Pos) {

@@ -3,16 +3,16 @@ import { BoardArg, MapOfPiecesForHuman } from "./gameClasses/Board.js";
 import { PlayerArg } from "./gameClasses/Player.js";
 
 let customStartPos: (null|MapOfPiecesForHuman) = null;
-// customStartPos = [
-//   [8,"empty"],
-//   ["wpawn",7,"empty"],
-//   [8,"empty"],
-//   [8,"empty"],
-//   [8,"empty"],
-//   [4,"empty","bking",3,"empty"],
-//   [6,"empty","bpawn","empty"],
-//   ["wrook",3,"empty","wking",2,"empty","wrook"],
-// ];
+customStartPos = [
+  [8,"empty"],
+  ["wpawn",7,"empty"],
+  [8,"empty"],
+  [8,"empty"],
+  [8,"empty"],
+  [4,"empty","bking",3,"empty"],
+  [6,"empty","bpawn","empty"],
+  ["wrook",2,"empty","wking",3,"empty","wrook"],
+];
 
 function startGame() {
   const player1Arg: PlayerArg = {

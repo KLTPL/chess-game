@@ -12,11 +12,11 @@ export default class Check {
     this.checkingPiecePos = checkingPiecePos;
     this.checkedKingPos = checkedKingPos;
     this.board = board;
-    this.fieldsInBetweenPieceAndKing = this.getFieldsInBetweenCheckingPieceAndKing();
+    this.fieldsInBetweenPieceAndKing = this.createArrOfFieldsInBetweenCheckingPieceAndKing();
 
   }
 
-  getFieldsInBetweenCheckingPieceAndKing() {
+  createArrOfFieldsInBetweenCheckingPieceAndKing() {
     const checkingPiece = this.checkingPiecePos;
     if( 
       this.board.el[checkingPiece.y][checkingPiece.x].piece?.num === PIECES.knight ||
@@ -29,11 +29,11 @@ export default class Check {
       this.checkedKingPos.x - checkingPiece.x, 
       true
     );
-    let tempPos = new Pos(
+    const tempPos = new Pos(
       checkingPiece.y + checkDir.y, 
       checkingPiece.x + checkDir.x
     );
-    let fieldsInBetween: Pos[] = [];
+    const fieldsInBetween: Pos[] = [];
 
     while (
       tempPos.x !== this.checkedKingPos.x || 

@@ -74,7 +74,7 @@ export default class Piece {
 
   startFollowingCursor = (ev: MouseEvent) => {
     const leftClickNum = 0;
-    const fieldCoor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
+    const fieldCoor = this.board.calcFieldCoorByPx(ev.clientX, ev.clientY);
     const possMoves = this.getPossibleMovesFromPos(fieldCoor);
     if( 
       this.board.currTeam !== this.team || 
@@ -119,7 +119,7 @@ export default class Piece {
 
   moveToCursor = (ev: MouseEvent) => {
     ev.preventDefault();
-    this.board.highlightFieldUnderMovingPiece(this.board.getFieldCoorByPx(ev.clientX, ev.clientY));
+    this.board.highlightFieldUnderMovingPiece(this.board.calcFieldCoorByPx(ev.clientX, ev.clientY));
 
     const trans = this.html.style.transform; // format: 'transform(Xpx, Ypx)'
     const oldTranslateX = trans.slice(
@@ -131,7 +131,7 @@ export default class Piece {
 
     const newTranslateX = `${this.calcNewTranslateXValue(ev.clientX)}px`;
     const newTranslateY = `${this.calcNewTranslateYValue(ev.clientY)}px`;
-    const coor = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
+    const coor = this.board.calcFieldCoorByPx(ev.clientX, ev.clientY);
 
     const translateX = (coor.x === -1) ? oldTranslateX : newTranslateX;
     const translateY = (coor.y === -1) ? oldTranslateY : newTranslateY;
@@ -168,7 +168,7 @@ export default class Piece {
       this.moveToCursor
     );
     this.board.hidePossibleMoves();
-    const newPos = this.board.getFieldCoorByPx(ev.clientX, ev.clientY);
+    const newPos = this.board.calcFieldCoorByPx(ev.clientX, ev.clientY);
     const oldPos = boardGrabbedPieceInfo.grabbedFrom;
     for (let i=0 ; i<possMoves.length ; i++) {
       if ( 
@@ -271,20 +271,6 @@ export default class Piece {
   }
 
   sideEffectsOfMove(to: Pos, from: Pos) {to; from}
-
-  static piecesAreEqual(...pieces: Piece[]) {
-    if (pieces.length === 0) {
-      console.error("Not enough pieces to compare");
-      return false;
-    }
-    const firstPiece = pieces[0];
-    for (let i=1 ; i<pieces.length ; i++) {
-      if (firstPiece !== pieces[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
 
   static getPieceNumByName(name: string): (number|null) {
     switch (name) {

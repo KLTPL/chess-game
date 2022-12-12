@@ -109,7 +109,7 @@ export default class Board {
     htmlEl.style.setProperty("--transitionDuration", `${ms}ms`);
   }
 
-  createNewPieceObj(num: number|null, team: number|null) {
+  createNewPieceObj(num: (number|null), team: (number|null)) {
     if (num === null || team === null) {
       return null;
     }
@@ -179,19 +179,19 @@ export default class Board {
           const multiplayer = customPositions[r][c] as number;
           const multiplayedPiece = customPositions[r][c+1] as string;
           for (let i=0 ; i<multiplayer ; i++) {
-            mapForScript[r].push(this.getNewPieceObjByString(multiplayedPiece));
+            mapForScript[r].push(this.createNewPieceObjByString(multiplayedPiece));
           }
           c++;
           continue;
         }
         const multiplayedPiece = customPositions[r][c] as string;
-        mapForScript[r].push(this.getNewPieceObjByString(multiplayedPiece));
+        mapForScript[r].push(this.createNewPieceObjByString(multiplayedPiece));
       }
     }
     return mapForScript;
   }
 
-  getNewPieceObjByString(piece: string) {
+  createNewPieceObjByString(piece: string) {
     const pieceTeam = this.getPieceTeamByString(piece[0]);
     const pieceName = piece.slice(1, piece.length);
     return this.createNewPieceObj(Piece.getPieceNumByName(pieceName), pieceTeam);
@@ -228,19 +228,7 @@ export default class Board {
     ];
   }
 
-  invertMap(map: (Piece|null)[][]) {
-    let newMap: (Piece|null)[][] = [];
-
-    for (let r=map.length-1 ; r>=0 ; r--) {
-      newMap[newMap.length] = [];
-      for (let c=map[r].length-1 ; c>=0 ; c--) {
-        newMap[newMap.length-1].push(map[r][c]);
-      }
-    }
-    return newMap;
-  }
-
-  getFieldCoorByPx(leftPx: number, topPx: number) { // pos values from 0 to 7 or -1 if not in board
+  calcFieldCoorByPx(leftPx: number, topPx: number) { // pos values from 0 to 7 or -1 if not in board
     const boardStartLeft = (this.pageContainerHtml.offsetWidth-this.html.offsetWidth)/2;
     const boardStartTop =  (this.pageContainerHtml.offsetHeight-this.html.offsetHeight)/2;
 
@@ -308,7 +296,7 @@ export default class Board {
   }
 
   getKingByTeam(team: number) {
-    const kingPos = this.findKingsPos(team);
+    const kingPos = this.findKingPos(team);
     return this.el[kingPos.y][kingPos.x].piece as King;
   }
 
@@ -326,6 +314,7 @@ export default class Board {
     const enemyKing = this.getKingByTeam(piece.enemyTeamNum());
     enemyKing.updateChecksArr();
     this.match.checkIfGameShouldEndAfterMove(this.moves[this.moves.length-1]);
+    // future TODO
     // if (this.match.gameRunning) {
     //   if (this.pawnPromotionMenu) {
     //     this.pawnPromotionMenu.playerIsChoosing.then(() => {
@@ -338,21 +327,11 @@ export default class Board {
   }
 
   createNewMoveObj(piece: Piece, from: Pos, to: Pos, capturedPiece: (Piece|null)) {
-    return (
-      (this.inverted) ? 
-      new Move(piece, from.invert(), to.invert(), capturedPiece) : 
-      new Move(piece, from, to, capturedPiece)
-    );
-  }
-
-  getEmptyFieldsPosAtBeginning() {
-    let fieldsPos: Pos[] = [];
-    for (let r=2 ; r<6 ; r++) {
-      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
-        fieldsPos.push(new Pos(r, c));
-      }
+    if (this.inverted) {
+      from.invert();
+      to.invert();
     }
-    return fieldsPos;
+    return new Move(piece, from, to, capturedPiece);
   }
 
   removePieceInPos(pos: Pos, html: boolean) {
@@ -363,8 +342,8 @@ export default class Board {
   }
 
   getKings() {
-    let whiteKing: King | null = null;
-    let blackKing: King | null = null;
+    let whiteKing: (King|null) = null;
+    let blackKing: (King|null) = null;
     let kings: {
       white: King;
       black: King;
@@ -409,7 +388,7 @@ export default class Board {
     return kings;
   }
 
-  findKingsPos(team: number) {
+  findKingPos(team: number) {
     for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
       for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
         if (
@@ -454,30 +433,20 @@ export default class Board {
     });
   }
 
-  getBoardOfPiecesArr() {
-    const board: (Piece|null)[][] = [];
-    for (let r=0 ; r<this.el.length ; r++) {
-      board[r] = [];
-      for (let c=0 ; c<this.el[r].length ; c++) {
-        board[r].push(this.el[r][c].piece);
-      }
-    }
-    return board;
+  createArrOfPieces() {
+    return this.el.map(row => row.map(field => field.piece));
   }
 
   flipPerspective() {
-    const boardBefore = this.getBoardOfPiecesArr();
+    const boardBefore = this.createArrOfPieces();
     const boardAfter = this.invertMap(boardBefore);
-
-    for (let r=0 ; r<this.el.length ; r++) {
-      for (let c=0 ; c<this.el[r].length ; c++) {
+    for (let r=0 ; r<boardAfter.length ; r++) {
+      for (let c=0 ; c<boardAfter[r].length ; c++) {
+        // console.log("pos",r,c,boardAfter[r][c])
         if (boardAfter[r][c]?.num === PIECES.pawn) {
-          const pawn = boardAfter[r][c] as Pawn;
-          pawn.directionY *= -1;
+          (boardAfter[r][c] as Pawn).directionY *= -1;
         }
-        if (boardAfter[r][c] !== null) {
-          this.placePieceInPos(new Pos(r, c), boardAfter[r][c] as Piece, 0);
-        }
+        this.placePieceInPos(new Pos(r, c), boardAfter[r][c], 0, true);
       }
     }
     
@@ -488,25 +457,25 @@ export default class Board {
     this.inverted = (this.inverted) ? false : true;
   }
 
+  invertMap(map: (Piece|null)[][]) {
+    return map.reverse().map(row => row.reverse());
+  }
+
   insufficientMaterialThatLeadsToDraw() {
-    const kingVsKing = this.onlyTwoKingsLeft();
-    const kingAndBishopVsKing = this.onlyTwoKingsAndBishopLeft();
-    const kingAndKnightVsKing = this.onlyTwoKingsAndKnightLeft();
-    const kingAndBishopVsKingAndBishop = this.onlyTwoKingsAndTwoBishopsLeft(); // both bishops on the same color square
     return (
-      kingVsKing || 
-      kingAndBishopVsKing || 
-      kingAndKnightVsKing || 
-      kingAndBishopVsKingAndBishop
+      this.isPositionKingVsKing() || 
+      this.isPositionKingAndBishopVsKing() || 
+      this.isPositionKingAndKnightVsKing() || 
+      this.isPositionKingAndBishopVsKingAndBishop() // both bishops on squeres of the same color
     );
   }
 
-  onlyTwoKingsLeft() {
+  isPositionKingVsKing() {
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
         if (
           this.el[r][c].piece !== null && 
-          this.el[r][c].piece?.num !== PIECES.king
+          (this.el[r][c].piece as Piece).num !== PIECES.king
         ) {
           return false;
         }
@@ -515,11 +484,11 @@ export default class Board {
     return true;
   }
 
-  onlyTwoKingsAndBishopLeft() {
+  isPositionKingAndBishopVsKing() {
     return this.onlyTwoKingsAndSomePieceLeft(PIECES.bishop);
   }
 
-  onlyTwoKingsAndKnightLeft() {
+  isPositionKingAndKnightVsKing() {
     return this.onlyTwoKingsAndSomePieceLeft(PIECES.knight);
   }
 
@@ -545,7 +514,7 @@ export default class Board {
     return true;
   }
 
-  onlyTwoKingsAndTwoBishopsLeft() { // both bishops on the same color square
+  isPositionKingAndBishopVsKingAndBishop() { // both bishops on squeres of the same color
     let bishopsPos: Pos[] = [];
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
@@ -564,10 +533,10 @@ export default class Board {
         }
       }
     }
-    return this.twoEnemyBishopsOnTheSameColor(bishopsPos);
+    return this.isTwoEnemyBishopsOnTheSameColor(bishopsPos);
   }
 
-  twoEnemyBishopsOnTheSameColor(bishopsPos: Pos[]) {
+  isTwoEnemyBishopsOnTheSameColor(bishopsPos: Pos[]) {
     if (bishopsPos.length !== 2) {
       return false;
     }
@@ -575,20 +544,18 @@ export default class Board {
     const bishop2 = this.el[bishopsPos[1].y][bishopsPos[1].x].piece as Piece;
 
     const twoEnemyBishops = bishop1.team !== bishop2.team;
-    const twoBishopsOntheSameColor = this.positionsOnTheSameColor(bishopsPos[0], bishopsPos[1]);
+    const twoBishopsOntheSameColor = this.isPositionsOnTheSameColor(bishopsPos[0], bishopsPos[1]);
 
     return twoEnemyBishops && twoBishopsOntheSameColor;
   }
 
-  positionsOnTheSameColor(pos1: Pos, pos2: Pos) {
-    const pos1OnWhiteSquere = this.hasClass(this.el[pos1.y][pos1.x].html, CLASS_NAMES.fieldColor1);
-    const pos2OnWhiteSquere = this.hasClass(this.el[pos2.y][pos2.x].html, CLASS_NAMES.fieldColor1);
+  isPositionsOnTheSameColor(pos1: Pos, pos2: Pos) {
+    const pos1OnWhiteSquere = 
+      this.el[pos1.y][pos1.x].html.className.includes(CLASS_NAMES.fieldColor1);
+    const pos2OnWhiteSquere = 
+      this.el[pos2.y][pos2.x].html.className.includes(CLASS_NAMES.fieldColor1);
 
     return pos1OnWhiteSquere === pos2OnWhiteSquere;
-  }
-
-  hasClass(element: HTMLElement, className: string) {
-    return element.className.includes(className);
   }
 
   noCapturesOrPawnMovesIn50Moves() {
@@ -597,7 +564,7 @@ export default class Board {
     }
     for (let i=this.moves.length-1 ; i>this.moves.length-1-50 ; i--) {
       if (
-        this.moves[i].capturedPiece || 
+        this.moves[i].capturedPiece !== null || 
         this.moves[i].piece.num === PIECES.pawn
       ) {
         return false;
@@ -619,8 +586,8 @@ export default class Board {
       p1Moves[1].from.isEqualTo(p1Moves[2].to) && 
       p2Moves[0].from.isEqualTo(p2Moves[1].to) && 
       p2Moves[1].from.isEqualTo(p2Moves[2].to) &&
-      Piece.piecesAreEqual(p1Moves[0].piece, p1Moves[2].piece) && 
-      Piece.piecesAreEqual(p2Moves[0].piece, p2Moves[2].piece) &&
+      p1Moves[0].piece === p1Moves[2].piece && 
+      p2Moves[0].piece === p2Moves[2].piece &&
       Move.capturesAreEqual(p1Moves[0].capturedPiece, p1Moves[1].capturedPiece, p1Moves[2].capturedPiece) &&
       Move.capturesAreEqual(p2Moves[0].capturedPiece, p2Moves[1].capturedPiece, p2Moves[2].capturedPiece)
     );

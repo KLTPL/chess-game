@@ -34,7 +34,7 @@ export default class King extends Piece {
     const possibleMoves = [
       pos, 
       ...this.createArrOfNormalMoves(pos), 
-      ...this.getPossibleCastlesPos(pos)
+      ...this.createArrOfPossibleCastlePos(pos)
     ];
 
     return this.filterMovesSoKingCantMoveIntoCheck(possibleMoves);
@@ -55,12 +55,17 @@ export default class King extends Piece {
       });
   }
 
-  getPossibleCastlesPos(pos: Pos) {
-    const castlesDir = this.getPossibleCastlesDir(pos);
-    return castlesDir.map(dir => new Pos(pos.y+(dir.y*2), pos.x+(dir.x*2)))
+  createArrOfPossibleCastlePos(pos: Pos) {
+    const castlesDir = this.createArrOfPossibleCastleDir(pos);
+    const castleNormalMoves = castlesDir.map(dir => new Pos(pos.y+(dir.y*2), pos.x+(dir.x*2)));
+    // const castleMovesOnRook = castlesDir.map(dir => {
+    //   const currentRookXPos = (dir.x > 0) ? FIELDS_IN_ONE_ROW-1 : 0;
+    //   return new Pos(pos.y, currentRookXPos);
+    // });
+    return castleNormalMoves;
   }
 
-  getPossibleCastlesDir(pos: Pos) {
+  createArrOfPossibleCastleDir(pos: Pos) {
     if (!this.haventMovedYet) {
       return [];
     }
@@ -68,18 +73,33 @@ export default class King extends Piece {
     return [new Dir(0, 1), new Dir(0, -1)]
       .filter(dir => {
         const currentRookXPos = (dir.x > 0) ? FIELDS_IN_ONE_ROW-1 : 0;
-        const currentRook = this.board.el[pos.y][currentRookXPos].piece as (Rook | null);
+        const currentRook = this.board.el[pos.y][currentRookXPos].piece as (Rook|null);
         const move1 = new Pos(pos.y, pos.x+dir.x);
         const move2 = new Pos(pos.y, pos.x+(dir.x*2));
         const moves = [move1, move2];
+        const fieldsXPos = this.createArrOfFieldsXPosBetweenKingAndRook(
+          currentRookXPos, 
+          pos.x, 
+          (dir.x as (-1|1))
+        ); // sometimes 2 fields, sometimes 3
         return (
-          this.board.isPosInBoard(new Pos(move2.y, move2.x)) &&
+          this.board.isPosInBoard(new Pos(move2.y, move2.x)) && // if move2 is in board move1 also is
           currentRook?.haventMovedYet &&
-          this.board.el[move1.y][move1.x].piece === null &&
-          this.board.el[move2.y][move2.x].piece === null &&
+          fieldsXPos.filter(xPos => this.board.el[pos.y][xPos].piece === null).length === fieldsXPos.length &&
           this.filterMovesSoKingCantMoveIntoCheck(moves).length === moves.length
         );
       });
+  }
+
+  createArrOfFieldsXPosBetweenKingAndRook(rookXPos: number, kingXPos: number, dirX: (-1 |1)) {
+    const fields: number[] = [];
+    const amountOfFields = Math.abs(rookXPos - kingXPos) - 1;
+    let tempPos = kingXPos+dirX;
+    while (fields.length < amountOfFields) {
+      fields.push(tempPos)
+      tempPos += dirX;
+    }
+    return fields;
   }
 
   filterMovesSoKingCantMoveIntoCheck(moves: Pos[]) {
@@ -112,8 +132,8 @@ export default class King extends Piece {
     return moves;
   }
 
-  getPossitionsOfAbsolutePins(): Pin[] {
-    const kingPos = this.board.findKingsPos(this.team);
+  createArrOfAbsolutePins(): Pin[] {
+    const kingPos = this.board.findKingPos(this.team);
     const enemyTeamNum = this.enemyTeamNum();
     let absPins: Pin[] = [];
 
@@ -177,8 +197,8 @@ export default class King extends Piece {
     const moveIsCastle = Math.abs(from.x-to.x) > 1;
     if (moveIsCastle) {
       const castleDir = new Dir(0, to.x-from.x, true);
-      const toRight = castleDir.x === 1;
-      const rookXPos = (toRight) ? FIELDS_IN_ONE_ROW-1 : 0;
+      const isCastleToRight = castleDir.x === 1;
+      const rookXPos = (isCastleToRight) ? FIELDS_IN_ONE_ROW-1 : 0;
       const oldRookPos = new Pos(from.y, rookXPos);
       const newRookPos = new Pos(to.y, to.x+(castleDir.x*-1));
       const movingRook = this.board.el[oldRookPos.y][oldRookPos.x].piece as Piece;
@@ -189,9 +209,9 @@ export default class King extends Piece {
 
   updateChecksArr() {
     this.checks = [];
-    const kingPos = this.board.findKingsPos(this.team);
+    const kingPos = this.board.findKingPos(this.team);
     const possitionsOfPiecesCheckingKing = this.getPossitionsOfPiecesCheckingKing();
-    for (let posOfPiece of possitionsOfPiecesCheckingKing) {
+    for (const posOfPiece of possitionsOfPiecesCheckingKing) {
       this.checks.push(new Check(posOfPiece, kingPos, this.board));
     }
 
@@ -206,16 +226,16 @@ export default class King extends Piece {
   }
 
   getPossitionsOfPiecesCheckingKing() {
-    const kingPos = this.board.findKingsPos(this.team);
+    const kingPos = this.board.findKingPos(this.team);
     const enemyTeamNum = this.enemyTeamNum();
 
-    let checkingPieces: Pos[] = [];
+    const checkingPieces: Pos[] = [];
     for (let r=0 ; r<this.board.el.length ; r++) {
       for (let c=0 ; c<this.board.el[r].length ; c++) {
         if (
           this.board.el[r][c].piece === null ||
           this.board.el[r][c].piece?.team !== enemyTeamNum
-          ) {
+        ) {
           continue;
         }
         const piecesMovesForKing = 
@@ -232,10 +252,10 @@ export default class King extends Piece {
 
   invertChecksArr() {
     for (const check of this.checks) {
-      check.checkedKingPos   = check.checkedKingPos  .invert();
-      check.checkingPiecePos = check.checkingPiecePos.invert();        
-      for (let field of check.fieldsInBetweenPieceAndKing) {
-        field = field.invert();
+      check.checkedKingPos  .invert();
+      check.checkingPiecePos.invert();        
+      for (const field of check.fieldsInBetweenPieceAndKing) {
+        field.invert();
       }
     }
   }
