@@ -12,10 +12,10 @@ export default class PawnPromotionMenu {
     this.board = board;
     this.optionsHtmls = [];
 
-    const promotionOptions = this.getArrOfPromoteOptionsHtml();
+    const promotionOptions = this.createArrOfPromoteOptionsHtml();
     this.html = this.createContainerHtml(promotionOptions);
     this.board.html.append(this.html);
-    this.playerIsChoosing = this.askWhatPiecePlayerWants(promotionOptions);
+    this.playerIsChoosing = this.waitForPlayersDecision(promotionOptions);
   }
 
   createContainerHtml(promoteOptions: HTMLDivElement[]) {
@@ -32,7 +32,7 @@ export default class PawnPromotionMenu {
     return container;
   }
 
-  getArrOfPromoteOptionsHtml() {
+  createArrOfPromoteOptionsHtml() {
     const promoteOptionNums = [
       PIECES.bishop, 
       PIECES.knight, 
@@ -49,9 +49,9 @@ export default class PawnPromotionMenu {
     });
   }
 
-  askWhatPiecePlayerWants(promoteOptionsHtml: HTMLDivElement[]) {
+  waitForPlayersDecision(promoteOptionsHtml: HTMLDivElement[]) {
     return new Promise<number>((resolve) => {
-      for (let optHtml of promoteOptionsHtml) {
+      for (const optHtml of promoteOptionsHtml) {
         optHtml.addEventListener("click", ev => {
           const target = ev.target as HTMLDivElement;
           const chosenPieceNum = parseInt(target.dataset.optNum as string)

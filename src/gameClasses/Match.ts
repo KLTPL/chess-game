@@ -46,7 +46,7 @@ export default class Match {
   }
 
   checkIfGameShouldEndAfterMove(move: Move) {
-    const whiteMoved = move.piece.team === TEAMS.white;
+    const whiteMoved = (move.piece.team === TEAMS.white);
     const playerWhoMadeMove = (whiteMoved) ? this.players.white : this.players.black;
     const otherKing = (!whiteMoved) ? this.board.kings.white : this.board.kings.black;
     const otherPlayer = (!whiteMoved) ? this.players.white : this.players.black;

@@ -35,7 +35,7 @@ export default class VisualizingArrow {
     const arrHeadLengthPx = fieldWidth / 2;
     const arrTailLengthPx = arrLengthPx - arrHeadLengthPx;
 
-    const rotationDegOfVector = this.getRotationDegOfVector(arrDir);
+    const rotationDegOfVector = this.rotationDegOfVector(arrDir);
     this.arrContainer.style.setProperty("--rotationDeg", `${-rotationDegOfVector}deg`);
     this.arrContainer.classList.add(CLASS_NAMES.arrowContainer);
     this.arrContainer.style.width = `${fieldWidth * 0.8}px`;
@@ -58,20 +58,20 @@ export default class VisualizingArrow {
     this.board.el[this.startPos.y][this.startPos.x].html.append(this.arrContainer);
   }
 
-  getRotationDegOfVector(vecDir: Dir) {
+  rotationDegOfVector(vecDir: Dir) {
     const fromRadtoDegMultiplier = 180 / Math.PI;
     const rotationAngleDeg = Math.atan(Math.abs(vecDir.y)/Math.abs(vecDir.x)) * fromRadtoDegMultiplier;
 
-    const verticallyOrHorizontally = this.getRotationDegVerticallyOrHorizontally(vecDir);
+    const verticallyOrHorizontally = this.rotationDegVerticallyOrHorizontally(vecDir);
     if (verticallyOrHorizontally !== null) {
       return verticallyOrHorizontally;
     }
 
-    const quadrantNum = this.getQuadrantNum(vecDir);
-    return this.getRotationDegDiagonally(rotationAngleDeg, quadrantNum);
+    const quadrantNum = this.quadrantNum(vecDir);
+    return this.rotationDegDiagonally(rotationAngleDeg, quadrantNum);
   }
 
-  getRotationDegVerticallyOrHorizontally(dir: Dir): (null | 0 | 90 | 180 | 270) {
+  rotationDegVerticallyOrHorizontally(dir: Dir): (null | 0 | 90 | 180 | 270) {
     if (dir.y === 0) {
       if (dir.simplifyDir(dir.x) === 1) {
         return 0;
@@ -89,7 +89,7 @@ export default class VisualizingArrow {
     return null;
   }
 
-  getQuadrantNum(aDir: Dir): (1 | 2 | 3 | 4) {
+  quadrantNum(aDir: Dir): (1 | 2 | 3 | 4) {
     const dir = new Dir( //simeplified direction
       aDir.simplifyDir(aDir.y), 
       aDir.simplifyDir(aDir.x)
@@ -107,7 +107,7 @@ export default class VisualizingArrow {
     return 3;
   }
 
-  getRotationDegDiagonally(rotationAngleDeg: number, quadrantNum: (1|2|3|4)) {
+  rotationDegDiagonally(rotationAngleDeg: number, quadrantNum: (1|2|3|4)) {
     switch (quadrantNum) {
       case 1: return rotationAngleDeg;
       case 2: return 180 - rotationAngleDeg;

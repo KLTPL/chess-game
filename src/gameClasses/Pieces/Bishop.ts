@@ -41,7 +41,7 @@ export default class Bishop extends Piece {
 
   getPossibleMovesFromPos(pos: Pos) {
     const myKing = this.board.getKingByTeam(this.team);
-    const absPins = myKing.getPossitionsOfAbsolutePins();
+    const absPins = myKing.createArrOfAbsolutePins();
 
     let possibleMoves = [pos, ...this.createArrOfNormalMoves(pos)];
     possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
