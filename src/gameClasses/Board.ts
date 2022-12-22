@@ -60,7 +60,7 @@ export default class Board {
     match: Match, 
   ) {
     this.match = match;
-    this.currTeam = (whiteToPlay) ? TEAMS.white : TEAMS.black;
+    this.currTeam = (whiteToPlay) ? TEAMS.WHITE : TEAMS.BLACK;
     this.moves = [];
     this.el = [];
     this.pageContainerHtml = document.querySelector(htmlPageContainerQSelector) as HTMLDivElement;
@@ -115,12 +115,12 @@ export default class Board {
     }
 
     switch (num) {
-      case PIECES.pawn:   return new Pawn  (team, this);
-      case PIECES.rook:   return new Rook  (team, this);
-      case PIECES.knight: return new Knight(team, this);
-      case PIECES.bishop: return new Bishop(team, this);
-      case PIECES.queen:  return new Queen (team, this);
-      case PIECES.king:   return new King  (team, this);
+      case PIECES.PAWN:   return new Pawn  (team, this);
+      case PIECES.ROOK:   return new Rook  (team, this);
+      case PIECES.KNIGHT: return new Knight(team, this);
+      case PIECES.BISHOP: return new Bishop(team, this);
+      case PIECES.QUEEN:  return new Queen (team, this);
+      case PIECES.KING:   return new King  (team, this);
       default:            return null;
     }
   }
@@ -199,50 +199,50 @@ export default class Board {
 
   getPieceTeamByString(team: string) {
     switch (team) {
-      case "w": return TEAMS.white;
-      case "b": return TEAMS.black;
+      case "w": return TEAMS.WHITE;
+      case "b": return TEAMS.BLACK;
       default:  return null;
     }
   }
 
   createMapOfPiecesInDefaultPos(): (Piece|null)[][] {
     const firstAndLastRowNums = [
-      PIECES.rook, 
-      PIECES.knight, 
-      PIECES.bishop, 
-      PIECES.queen, 
-      PIECES.king, 
-      PIECES.bishop, 
-      PIECES.knight, 
-      PIECES.rook
+      PIECES.ROOK, 
+      PIECES.KNIGHT, 
+      PIECES.BISHOP, 
+      PIECES.QUEEN, 
+      PIECES.KING, 
+      PIECES.BISHOP, 
+      PIECES.KNIGHT, 
+      PIECES.ROOK
     ];
 
     return [
-      firstAndLastRowNums.map(pieceNum => this.createNewPieceObj(pieceNum, TEAMS.black)),
-      [...Array(FIELDS_IN_ONE_ROW)].map(() => this.createNewPieceObj(PIECES.pawn, TEAMS.black)),
+      firstAndLastRowNums.map(pieceNum => this.createNewPieceObj(pieceNum, TEAMS.BLACK)),
+      [...Array(FIELDS_IN_ONE_ROW)].map(() => this.createNewPieceObj(PIECES.PAWN, TEAMS.BLACK)),
       ...Array(FIELDS_IN_ONE_ROW/2).fill(
         Array(FIELDS_IN_ONE_ROW).fill(null)
       ),
-      [...Array(FIELDS_IN_ONE_ROW)].map(() => this.createNewPieceObj(PIECES.pawn, TEAMS.white)),
-      firstAndLastRowNums.map(pieceNum => this.createNewPieceObj(pieceNum, TEAMS.white))
+      [...Array(FIELDS_IN_ONE_ROW)].map(() => this.createNewPieceObj(PIECES.PAWN, TEAMS.WHITE)),
+      firstAndLastRowNums.map(pieceNum => this.createNewPieceObj(pieceNum, TEAMS.WHITE))
     ];
   }
 
   calcFieldCoorByPx(leftPx: number, topPx: number) { // pos values from 0 to 7 or -1 if not in board
     const boardStartLeft = (this.pageContainerHtml.offsetWidth-this.html.offsetWidth)/2;
     const boardStartTop =  (this.pageContainerHtml.offsetHeight-this.html.offsetHeight)/2;
+    const posOnBoardLeft = leftPx - boardStartLeft;
+    const posOnBoardTop =  topPx - boardStartTop;
 
-    const posOnBoardLeft = leftPx-boardStartLeft+1; // +1 so the piece won't glitch into wrong field
-    const posOnBoardTop =  topPx -boardStartTop +1; // +1 so the piece won't glitch into wrong field
-
-    let fieldC = Math.ceil(posOnBoardLeft/this.html.offsetWidth* FIELDS_IN_ONE_ROW)-1;
-    let fieldR = Math.ceil(posOnBoardTop/this.html.offsetHeight*FIELDS_IN_ONE_ROW)-1;
+    let fieldC = Math.floor(posOnBoardLeft/this.html.offsetWidth* FIELDS_IN_ONE_ROW);
+    let fieldR = Math.floor(posOnBoardTop/this.html.offsetHeight*FIELDS_IN_ONE_ROW);
     if (fieldC < 0 || fieldC > FIELDS_IN_ONE_ROW-1) {
       fieldC = -1;
     }
     if (fieldR < 0 || fieldR > FIELDS_IN_ONE_ROW-1) {
       fieldR = -1;
     }
+
     return new Pos(fieldR, fieldC);
   }
 
@@ -289,9 +289,9 @@ export default class Board {
 
   getNextCurrTeam(currTeam: number) {
     return (
-      (currTeam === TEAMS.white) ? 
-      TEAMS.black : 
-      TEAMS.white
+      (currTeam === TEAMS.WHITE) ? 
+      TEAMS.BLACK : 
+      TEAMS.WHITE
     );
   }
 
@@ -348,14 +348,14 @@ export default class Board {
       white: King;
       black: King;
     } = {
-      white: new King(TEAMS.white, this),
-      black: new King(TEAMS.black, this)
+      white: new King(TEAMS.WHITE, this),
+      black: new King(TEAMS.BLACK, this)
     }
     for (let r=0 ; r<this.el.length ; r++) {
       for(let c=0 ; c<this.el[r].length ; c++) {
-        if (this.el[r][c].piece?.num === PIECES.king) {
+        if (this.el[r][c].piece?.id === PIECES.KING) {
           switch ((this.el[r][c].piece as Piece).team) {
-            case TEAMS.white: 
+            case TEAMS.WHITE: 
               if (whiteKing !== null) {
                 this.match.end();
                 alert("Too many kings");
@@ -363,7 +363,7 @@ export default class Board {
               }
               whiteKing = this.el[r][c].piece as King; 
               break;
-            case TEAMS.black: 
+            case TEAMS.BLACK: 
               if (blackKing !== null) {
                 this.match.end();
                 alert("Too many kings");
@@ -392,7 +392,7 @@ export default class Board {
     for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
       for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
         if (
-          this.el[r][c].piece?.num === PIECES.king && 
+          this.el[r][c].piece?.id === PIECES.KING && 
           this.el[r][c].piece?.team === team
         ) {
           return new Pos(r, c);
@@ -443,7 +443,7 @@ export default class Board {
     for (let r=0 ; r<boardAfter.length ; r++) {
       for (let c=0 ; c<boardAfter[r].length ; c++) {
         // console.log("pos",r,c,boardAfter[r][c])
-        if (boardAfter[r][c]?.num === PIECES.pawn) {
+        if (boardAfter[r][c]?.id === PIECES.PAWN) {
           (boardAfter[r][c] as Pawn).directionY *= -1;
         }
         this.placePieceInPos(new Pos(r, c), boardAfter[r][c], 0, true);
@@ -475,7 +475,7 @@ export default class Board {
       for (let c=0 ; c<this.el[r].length ; c++) {
         if (
           this.el[r][c].piece !== null && 
-          (this.el[r][c].piece as Piece).num !== PIECES.king
+          (this.el[r][c].piece as Piece).id !== PIECES.KING
         ) {
           return false;
         }
@@ -485,18 +485,18 @@ export default class Board {
   }
 
   isPositionKingAndBishopVsKing() {
-    return this.onlyTwoKingsAndSomePieceLeft(PIECES.bishop);
+    return this.onlyTwoKingsAndSomePieceLeft(PIECES.BISHOP);
   }
 
   isPositionKingAndKnightVsKing() {
-    return this.onlyTwoKingsAndSomePieceLeft(PIECES.knight);
+    return this.onlyTwoKingsAndSomePieceLeft(PIECES.KNIGHT);
   }
 
   onlyTwoKingsAndSomePieceLeft(pieceNum: number) {
     let pieceOccurrencesCounter = 0;
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
-        if (this.el[r][c].piece?.num === pieceNum) {
+        if (this.el[r][c].piece?.id === pieceNum) {
           if (pieceOccurrencesCounter > 0) {
             return false;
           }
@@ -505,7 +505,7 @@ export default class Board {
         }
         if (
           this.el[r][c].piece !== null && 
-          this.el[r][c].piece?.num !== PIECES.king
+          this.el[r][c].piece?.id !== PIECES.KING
         ) {
           return false;
         }
@@ -518,7 +518,7 @@ export default class Board {
     let bishopsPos: Pos[] = [];
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
-        if (this.el[r][c].piece?.num === PIECES.bishop) {
+        if (this.el[r][c].piece?.id === PIECES.BISHOP) {
           if (bishopsPos.length >= 2) {
             return false;
           }
@@ -527,7 +527,7 @@ export default class Board {
         }
         if(
           this.el[r][c].piece !== null && 
-          this.el[r][c].piece?.num !== PIECES.king
+          this.el[r][c].piece?.id !== PIECES.KING
         ) {
           return false;
         }
@@ -565,7 +565,7 @@ export default class Board {
     for (let i=this.moves.length-1 ; i>this.moves.length-1-50 ; i--) {
       if (
         this.moves[i].capturedPiece !== null || 
-        this.moves[i].piece.num === PIECES.pawn
+        this.moves[i].piece.id === PIECES.PAWN
       ) {
         return false;
       }

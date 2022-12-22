@@ -34,10 +34,10 @@ export default class PawnPromotionMenu {
 
   createArrOfPromoteOptionsHtml() {
     const promoteOptionNums = [
-      PIECES.bishop, 
-      PIECES.knight, 
-      PIECES.rook, 
-      PIECES.queen
+      PIECES.BISHOP, 
+      PIECES.KNIGHT, 
+      PIECES.ROOK, 
+      PIECES.QUEEN
     ];
 
     return promoteOptionNums.map(num => {

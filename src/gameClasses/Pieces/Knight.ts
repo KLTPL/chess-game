@@ -6,10 +6,10 @@ import Dir from "../Dir.js";
 export default class Knight extends Piece {
   constructor(team: number, board: Board) {
     super(team, board);
-    this.num = PIECES.knight;
+    this.id = PIECES.KNIGHT;
     this.value = 3;
 
-    this.addClassName(this.num);
+    this.addClassName(this.id);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {

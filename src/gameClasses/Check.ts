@@ -19,8 +19,8 @@ export default class Check {
   createArrOfFieldsInBetweenCheckingPieceAndKing() {
     const checkingPiece = this.checkingPiecePos;
     if( 
-      this.board.el[checkingPiece.y][checkingPiece.x].piece?.num === PIECES.knight ||
-      this.board.el[checkingPiece.y][checkingPiece.x].piece?.num === PIECES.pawn
+      this.board.el[checkingPiece.y][checkingPiece.x].piece?.id === PIECES.KNIGHT ||
+      this.board.el[checkingPiece.y][checkingPiece.x].piece?.id === PIECES.PAWN
     ) {
       return [];
     }

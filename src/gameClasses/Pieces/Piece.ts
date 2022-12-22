@@ -6,25 +6,25 @@ import King from "./King.js";
 import Check from "../Check.js";
 import GrabbedPieceInfo from "./GrabbedPieceInfo.js";
 
-export const PIECES = {
-  pawn: 1,
-  rook: 2,
-  knight: 3,
-  bishop: 4,
-  queen: 5,
-  king: 6,
+export enum PIECES {
+  PAWN,
+  ROOK,
+  KNIGHT,
+  BISHOP,
+  QUEEN,
+  KING,
 };
 
-export const TEAMS = {
-  white: 1,
-  black: 2
+export enum TEAMS {
+  WHITE,
+  BLACK,
 };
 
 export const DEFAULT_TRANSITION_DELAY_MS = 30;
 
 export default class Piece {
   value: number;
-  num: number;
+  id: number;
   team: number;
   html: HTMLElement;
   board: Board;
@@ -33,7 +33,7 @@ export default class Piece {
     this.team = team;
     this.html = this.createNewHtmlPiece();
     this.board = board;
-    this.num = 0;
+    this.id = 0;
     this.html.addEventListener(
       "mousedown",
       this.startFollowingCursor,
@@ -56,9 +56,9 @@ export default class Piece {
 
   enemyTeamNum() {
     return (
-      (this.team === TEAMS.white) ? 
-      TEAMS.black : 
-      TEAMS.white
+      (this.team === TEAMS.WHITE) ? 
+      TEAMS.BLACK : 
+      TEAMS.WHITE
     );
   }
 
@@ -206,7 +206,7 @@ export default class Piece {
     for (const pin of absPins) {
       if (pin.pinnedPiecePos.isEqualTo(pos)) {
         possMoves = possMoves.filter(move => {
-          const simplifyXAndY = (this.num === PIECES.knight) ? false : true; // simplify means make 1 if >1 and -1 if <-1
+          const simplifyXAndY = (this.id === PIECES.KNIGHT) ? false : true; // simplify means make 1 if >1 and -1 if <-1
           const moveDir = new Dir(move.y-pos.y, move.x-pos.x, simplifyXAndY);
           return (
             moveDir.isEqualTo(new Dir(0, 0)) ||
@@ -274,26 +274,26 @@ export default class Piece {
 
   static getPieceNumByName(name: string): (number|null) {
     switch (name) {
-      case "pawn":   return PIECES.pawn;
-      case "rook":   return PIECES.rook;
-      case "knight": return PIECES.knight;
-      case "bishop": return PIECES.bishop;
-      case "queen":  return PIECES.queen;
-      case "king":   return PIECES.king;
+      case "pawn":   return PIECES.PAWN;
+      case "rook":   return PIECES.ROOK;
+      case "knight": return PIECES.KNIGHT;
+      case "bishop": return PIECES.BISHOP;
+      case "queen":  return PIECES.QUEEN;
+      case "king":   return PIECES.KING;
       default:       return null;
     }
   }
 
   static getClassNameByPiece(pieceNum: number, pieceTeam: number) {
-    const teamChar = (pieceTeam === TEAMS.black) ? "b" : "w";
+    const teamChar = (pieceTeam === TEAMS.BLACK) ? "b" : "w";
     const name = (() => {
       switch (pieceNum) {
-        case PIECES.king:   return "king";
-        case PIECES.queen:  return "queen";
-        case PIECES.bishop: return "bishop";
-        case PIECES.knight: return "knight";
-        case PIECES.rook:   return "rook";
-        case PIECES.pawn:   return "pawn";
+        case PIECES.KING:   return "king";
+        case PIECES.QUEEN:  return "queen";
+        case PIECES.BISHOP: return "bishop";
+        case PIECES.KNIGHT: return "knight";
+        case PIECES.ROOK:   return "rook";
+        case PIECES.PAWN:   return "pawn";
         default: return null;
       }
     }) ();

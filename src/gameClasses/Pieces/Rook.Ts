@@ -7,11 +7,11 @@ export default class Rook extends Piece {
   haventMovedYet: boolean;
   constructor(team: number, board: Board) {
     super(team, board);
-    this.num = PIECES.rook;
+    this.id = PIECES.ROOK;
     this.value = 5;
     this.haventMovedYet = true;
 
-    this.addClassName(this.num);
+    this.addClassName(this.id);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
@@ -23,7 +23,7 @@ export default class Rook extends Piece {
       while (true) {
         if( 
           this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
-          this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.king
+          this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.KING
         ) {
           break;
         }

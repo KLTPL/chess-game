@@ -1,31 +1,32 @@
 import Match from "./gameClasses/Match.js";
 import { BoardArg, MapOfPiecesForHuman } from "./gameClasses/Board.js";
 import { PlayerArg } from "./gameClasses/Player.js";
+import { TEAMS } from "./gameClasses/Pieces/Piece.js";
 
 let customStartPos: (null|MapOfPiecesForHuman) = null;
-customStartPos = [
-  [8,"empty"],
-  ["wpawn",7,"empty"],
-  [8,"empty"],
-  [8,"empty"],
-  [8,"empty"],
-  [4,"empty","bking",3,"empty"],
-  [6,"empty","bpawn","empty"],
-  ["wrook",2,"empty","wking",3,"empty","wrook"],
-];
+// customStartPos = [
+//   [8,"empty"],
+//   ["wpawn",7,"empty"],
+//   [8,"empty"],
+//   [8,"empty"],
+//   [8,"empty"],
+//   [4,"empty","bking",3,"empty"],
+//   [6,"empty","bpawn","empty"],
+//   ["wrook",2,"empty","wking",3,"empty","wrook"],
+// ];
 
 function startGame() {
   const player1Arg: PlayerArg = {
     name: "white",
     image: null,
-    team: 1,
+    team: TEAMS.WHITE,
     timeS: 600,
   };
 
   const player2Arg: PlayerArg = {
     name: "black",
     image: null,
-    team: 2,
+    team: TEAMS.BLACK,
     timeS: 600,
   };
 

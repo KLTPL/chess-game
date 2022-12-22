@@ -6,10 +6,10 @@ import Dir from "../Dir.js";
 export default class Queen extends Piece {
   constructor(team: number, board: Board) {
     super(team, board);
-    this.num = PIECES.queen;
+    this.id = PIECES.QUEEN;
     this.value = 9;
 
-    this.addClassName(this.num);
+    this.addClassName(this.id);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
@@ -24,7 +24,7 @@ export default class Queen extends Piece {
       while (true) {
         if ( 
           this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
-          this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.king
+          this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.KING
         ) {
           break;
         }

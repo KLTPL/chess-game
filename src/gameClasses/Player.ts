@@ -52,9 +52,9 @@ export default class Player {
 
   enemyTeamNum() {
     return (
-      (this.team === TEAMS.white) ? 
-      TEAMS.black : 
-      TEAMS.white
+      (this.team === TEAMS.WHITE) ? 
+      TEAMS.BLACK : 
+      TEAMS.WHITE
     );
   }
 

@@ -7,11 +7,11 @@ export default class Pawn extends Piece {
   directionY: number;
   constructor(team: number, board: Board) {
     super(team, board);
-    this.num = PIECES.pawn;
+    this.id = PIECES.PAWN;
     this.value = 1;
-    this.directionY = (this.team === TEAMS.white) ? -1 : 1;// direction up od down
+    this.directionY = (this.team === TEAMS.WHITE) ? -1 : 1;// direction up od down
 
-    this.addClassName(this.num);
+    this.addClassName(this.id);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
@@ -67,7 +67,7 @@ export default class Pawn extends Piece {
         const newCapture = new Pos(pos.y+this.directionY, capturePos.x);
         return (
           board.isPosInBoard(newCapture) &&
-          board.el[capturePos.y][capturePos.x].piece?.num  === PIECES.pawn &&
+          board.el[capturePos.y][capturePos.x].piece?.id  === PIECES.PAWN &&
           board.el[capturePos.y][capturePos.x].piece?.team === enemyTeamNum && 
           board.el[capturePos.y][capturePos.x].piece      === board.moves[board.moves.length-1].piece
         );
@@ -80,7 +80,7 @@ export default class Pawn extends Piece {
     const board = this.board;
     if (
       board.isPosInBoard(new Pos(to.y-this.directionY, to.x)) &&
-      board.el[to.y-this.directionY][to.x].piece?.num === PIECES.pawn &&
+      board.el[to.y-this.directionY][to.x].piece?.id === PIECES.PAWN &&
       board.moves[board.moves.length-2].piece === board.el[to.y-this.directionY][to.x].piece
     ) {
       board.removePieceInPos(new Pos(to.y-this.directionY, to.x), true);
