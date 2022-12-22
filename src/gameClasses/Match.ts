@@ -46,7 +46,7 @@ export default class Match {
   }
 
   checkIfGameShouldEndAfterMove(move: Move) {
-    const whiteMoved = (move.piece.team === TEAMS.white);
+    const whiteMoved = (move.piece.team === TEAMS.WHITE);
     const playerWhoMadeMove = (whiteMoved) ? this.players.white : this.players.black;
     const otherKing = (!whiteMoved) ? this.board.kings.white : this.board.kings.black;
     const otherPlayer = (!whiteMoved) ? this.players.white : this.players.black;
@@ -59,7 +59,6 @@ export default class Match {
       this.end(new EndType(playerWhoMadeMove, "draw"));
       return;
     }
-
     if (!otherPlayer.hasMoves()) {
       const endedWith = (otherKing.checks.length > 0) ? "check-mate" : "stale-mate";
       this.end(new EndType(playerWhoMadeMove, endedWith));

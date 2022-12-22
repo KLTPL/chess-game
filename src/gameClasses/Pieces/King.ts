@@ -11,12 +11,12 @@ export default class King extends Piece {
   checks: Check[]; // could be 0, 1 or 2
   constructor(team: number, board: Board) {
     super(team, board);
-    this.num = PIECES.king;
+    this.id = PIECES.KING;
     this.value = 0;
     this.haventMovedYet = true;
     this.checks = [];
 
-    this.addClassName(this.num);
+    this.addClassName(this.id);
   }
 
   getPossibleMovesFromPosForKing(pos: Pos) {
@@ -163,9 +163,9 @@ export default class King extends Piece {
             continue;
           }
 
-          if( (this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.bishop &&
-               this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.rook &&
-               this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.queen) 
+          if( (this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.BISHOP &&
+               this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.ROOK &&
+               this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.QUEEN) 
               ||
               this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
             ) {
@@ -173,10 +173,10 @@ export default class King extends Piece {
           }
 
           if( (kingIsInlineVerticallyOrHorizontally &&
-              this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.bishop) 
+              this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.BISHOP) 
               ||
               (!kingIsInlineVerticallyOrHorizontally &&
-              this.board.el[tempPos.y][tempPos.x].piece?.num !== PIECES.rook)
+              this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.ROOK)
           ) {
             absPins.push(pinInThisDir);
           }
