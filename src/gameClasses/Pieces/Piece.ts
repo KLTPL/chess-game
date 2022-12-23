@@ -6,7 +6,7 @@ import King from "./King.js";
 import Check from "../Check.js";
 import GrabbedPieceInfo from "./GrabbedPieceInfo.js";
 
-export enum PIECES {
+export const enum PIECES {
   PAWN,
   ROOK,
   KNIGHT,
@@ -15,7 +15,7 @@ export enum PIECES {
   KING,
 };
 
-export enum TEAMS {
+export const enum TEAMS {
   WHITE,
   BLACK,
 };
@@ -271,18 +271,6 @@ export default class Piece {
   }
 
   sideEffectsOfMove(to: Pos, from: Pos) {to; from}
-
-  static getPieceNumByName(name: string): (number|null) {
-    switch (name) {
-      case "pawn":   return PIECES.PAWN;
-      case "rook":   return PIECES.ROOK;
-      case "knight": return PIECES.KNIGHT;
-      case "bishop": return PIECES.BISHOP;
-      case "queen":  return PIECES.QUEEN;
-      case "king":   return PIECES.KING;
-      default:       return null;
-    }
-  }
 
   static getClassNameByPiece(pieceNum: number, pieceTeam: number) {
     const teamChar = (pieceTeam === TEAMS.BLACK) ? "b" : "w";

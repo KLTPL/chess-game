@@ -23,8 +23,7 @@ export default class Match {
     this.gameRunning = true;
     this.board = new Board(
       boardArg.htmlPageContainerQSelector,
-      boardArg.whiteToPlay,
-      boardArg.startPositionsOfPieces,
+      boardArg.customPositionFEN,
       this,
       );
     this.players = {
