@@ -25,10 +25,12 @@ export default class Pawn extends Piece {
     const myKing = this.board.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
+    const enPassantPawns = this.createArrOfPawnsThatCanBeCapturedByEnPassant(pos);
+    const enPassantCaptures = enPassantPawns.map(capturePos => new Pos(pos.y+this.directionY, capturePos.x));
     let possibleMoves: Pos[] = [
-      pos, 
+      pos,
       ...this.createArrOfNormalMoves(pos), 
-      ...this.createArrOfEnPassantCapturesPos(pos)
+      ...enPassantCaptures,
     ];
     possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
     possibleMoves = this.removePossMovesIfKingIsInCheck(possibleMoves, myKing, pos);
@@ -58,21 +60,58 @@ export default class Pawn extends Piece {
     return [...moves, ...capturePos];
   }
 
-  createArrOfEnPassantCapturesPos(pos: Pos) {
+  createArrOfPawnsThatCanBeCapturedByEnPassant(pos: Pos) {
     const board = this.board;
     const enemyTeamNum = this.enemyTeamNum();
     const pawnsToCapturePos = [new Pos(pos.y, pos.x+1), new Pos(pos.y, pos.x-1)];
     return pawnsToCapturePos
-      .filter(capturePos => {
-        const newCapture = new Pos(pos.y+this.directionY, capturePos.x);
+      .filter(pawn => {
+        const newCapture = new Pos(pos.y+this.directionY, pawn.x);
         return (
           board.isPosInBoard(newCapture) &&
-          board.el[capturePos.y][capturePos.x].piece?.id  === PIECES.PAWN &&
-          board.el[capturePos.y][capturePos.x].piece?.team === enemyTeamNum && 
-          board.el[capturePos.y][capturePos.x].piece      === board.moves[board.moves.length-1].piece
+          board.el[pawn.y][pawn.x].piece?.id === PIECES.PAWN &&
+          board.el[pawn.y][pawn.x].piece?.team === enemyTeamNum && 
+          board.el[pawn.y][pawn.x].piece === board.moves[board.moves.length-1].piece &&
+          !this.isPawnPinnedAbsolutely(pawn, pos.x)
         );
-      })
-      .map(capturePos => new Pos(pos.y+this.directionY, capturePos.x));
+      });
+  }
+  
+  isPawnPinnedAbsolutely(pawn: Pos, pawnToBeCapturedPosX: number) {
+    const kingPos = this.board.findKingPos(this.team);
+    const isPawnInlineWithKingHoryzontally = (pawn.y-kingPos.y === 0);
+    return isPawnInlineWithKingHoryzontally && this.isRookOrQueenPinningPawns(pawn.y, kingPos.x, pawn.x, pawnToBeCapturedPosX);
+  }
+
+  isRookOrQueenPinningPawns(yPos: number, kingPosX: number, pawnPosX: number, pawnToBeCapturedPosX: number) {
+    const enemyTeamNum = this.enemyTeamNum();
+    const pinDir = (pawnPosX > kingPosX) ? 1 : -1;
+    const pawnsNextToEachOther = {
+      left:  (pawnPosX < pawnToBeCapturedPosX) ? pawnPosX : pawnToBeCapturedPosX,
+      right: (pawnPosX > pawnToBeCapturedPosX) ? pawnPosX : pawnToBeCapturedPosX,
+    };
+    let tempXPos = (pawnPosX > kingPosX) ? pawnsNextToEachOther.right+pinDir : pawnsNextToEachOther.left+pinDir;
+
+    for ( ; this.board.isPosInBoard(new Pos(yPos, tempXPos)) ; tempXPos += pinDir) {
+      console.log("temp pos:",tempXPos)
+      if (
+        this.board.el[yPos][tempXPos].piece !== null &&
+        this.board.el[yPos][tempXPos].piece?.team === this.team ||
+        (this.board.el[yPos][tempXPos].piece?.team === enemyTeamNum &&
+        this.board.el[yPos][tempXPos].piece?.id !== PIECES.QUEEN &&
+        this.board.el[yPos][tempXPos].piece?.id !== PIECES.ROOK)
+      ) {
+        console.log("return",false);
+        return false;
+      }
+      if (
+        this.board.el[yPos][tempXPos].piece?.team === enemyTeamNum
+      ) {
+        console.log("return",true);
+        return true;
+      }
+    }
+    return false;
   }
 
   sideEffectsOfMove( to: Pos ) {

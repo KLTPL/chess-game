@@ -83,6 +83,12 @@ export default class Board {
       this.flipPerspective();
     }
     this.html.addEventListener("mousedown", this.visualizingSystem.handleMouseDown);
+    this.el[6][0].piece?.html.addEventListener("mousemove", (ev: MouseEvent) => {
+      console.log("ev.clientX",ev.clientX)
+    });
+    this.el[6][7].piece?.html.addEventListener("mousemove", (ev: MouseEvent) => {
+      console.log("ev.clientX",ev.clientX)
+    });
   }
 
   createBoardContainer() { // <div class="board-container" data-board-container></div>
@@ -153,6 +159,7 @@ export default class Board {
   }
 
   placePieces(customPosition: MapOfPiecesForHuman | null) {
+    console.log("PlacePieces:")
     const arrOfPiecesToPlaceByPieceNum = 
       (customPosition === null) ? 
       this.createMapOfPiecesInDefaultPos() :
@@ -165,6 +172,16 @@ export default class Board {
           0,
           Boolean(arrOfPiecesToPlaceByPieceNum[r][c]?.html)
         );
+        if (this.el[r][c].piece !== null) {
+          console.log("Pos:",r,c,);
+          console.log(this.el[r][c].piece?.html.style.transform)
+          // const boardStartLeft = (this.pageContainerHtml.offsetWidth-this.html.offsetWidth)/2;
+          // const boardStartTop =  (this.pageContainerHtml.offsetHeight-this.html.offsetHeight)/2;
+          // const posOnBoardLeft = leftPx - boardStartLeft;
+          // const posOnBoardTop =  topPx - boardStartTop;
+          // let fieldC = Math.floor((posOnBoardLeft/this.fieldsHtml.offsetWidth)* FIELDS_IN_ONE_ROW);
+          // let fieldR = Math.floor((posOnBoardTop/this.fieldsHtml.offsetHeight)*FIELDS_IN_ONE_ROW);
+        }
       }
     }
   }
@@ -233,16 +250,14 @@ export default class Board {
     const boardStartTop =  (this.pageContainerHtml.offsetHeight-this.html.offsetHeight)/2;
     const posOnBoardLeft = leftPx - boardStartLeft;
     const posOnBoardTop =  topPx - boardStartTop;
-
-    let fieldC = Math.floor(posOnBoardLeft/this.html.offsetWidth* FIELDS_IN_ONE_ROW);
-    let fieldR = Math.floor(posOnBoardTop/this.html.offsetHeight*FIELDS_IN_ONE_ROW);
+    let fieldC = Math.floor((posOnBoardLeft/this.fieldsHtml.offsetWidth)* FIELDS_IN_ONE_ROW);
+    let fieldR = Math.floor((posOnBoardTop/this.fieldsHtml.offsetHeight)*FIELDS_IN_ONE_ROW);
     if (fieldC < 0 || fieldC > FIELDS_IN_ONE_ROW-1) {
       fieldC = -1;
     }
     if (fieldR < 0 || fieldR > FIELDS_IN_ONE_ROW-1) {
       fieldR = -1;
     }
-
     return new Pos(fieldR, fieldC);
   }
 
