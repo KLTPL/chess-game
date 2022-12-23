@@ -33,7 +33,7 @@ export default class Piece {
     this.team = team;
     this.html = this.createNewHtmlPiece();
     this.board = board;
-    this.id = 0;
+    this.id = -1;
     this.html.addEventListener(
       "mousedown",
       this.startFollowingCursor,

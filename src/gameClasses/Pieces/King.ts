@@ -135,21 +135,21 @@ export default class King extends Piece {
   createArrOfAbsolutePins(): Pin[] {
     const kingPos = this.board.findKingPos(this.team);
     const enemyTeamNum = this.enemyTeamNum();
-    let absPins: Pin[] = [];
+    const absPins: Pin[] = [];
 
     const directions = [
       new Dir(1, 0), new Dir(-1, 0), new Dir(0, 1), new Dir( 0,-1), 
       new Dir(1, 1), new Dir(-1, 1), new Dir(1,-1), new Dir(-1,-1)
     ];
   
-    for (let d=0 ; d<directions.length ; d++) {
-      const kingIsInlineVerticallyOrHorizontally = (
-        directions[d].x === 0 || 
-        directions[d].y === 0
+    for (const direction of directions) {
+      const isKingInlineVerticallyOrHorizontally = (
+        direction.x === 0 || 
+        direction.y === 0
       );
 
       let pinInThisDir: (Pin|null) = null;
-      let tempPos = new Pos(kingPos.y+directions[d].y, kingPos.x+directions[d].x);
+      const tempPos = new Pos(kingPos.y+direction.y, kingPos.x+direction.x);
 
       while (this.board.isPosInBoard(tempPos)) {
         if (this.board.el[tempPos.y][tempPos.x].piece !== null) {
@@ -157,13 +157,13 @@ export default class King extends Piece {
             if (this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum) {
               break;
             }
-            pinInThisDir = new Pin(new Pos(tempPos.y, tempPos.x), directions[d]);
-            tempPos.x += directions[d].x;
-            tempPos.y += directions[d].y;
+            pinInThisDir = new Pin(new Pos(tempPos.y, tempPos.x), direction);
+            tempPos.x += direction.x;
+            tempPos.y += direction.y;
             continue;
           }
 
-          if( (this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.BISHOP &&
+          if((this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.BISHOP &&
                this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.ROOK &&
                this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.QUEEN) 
               ||
@@ -172,17 +172,17 @@ export default class King extends Piece {
             break;
           }
 
-          if( (kingIsInlineVerticallyOrHorizontally &&
+          if((isKingInlineVerticallyOrHorizontally &&
               this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.BISHOP) 
               ||
-              (!kingIsInlineVerticallyOrHorizontally &&
+              (!isKingInlineVerticallyOrHorizontally &&
               this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.ROOK)
           ) {
             absPins.push(pinInThisDir);
           }
         }
-        tempPos.x += directions[d].x;
-        tempPos.y += directions[d].y;
+        tempPos.x += direction.x;
+        tempPos.y += direction.y;
       }
     }
 

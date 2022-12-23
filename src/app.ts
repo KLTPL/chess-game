@@ -4,17 +4,18 @@ import { PlayerArg } from "./gameClasses/Player.js";
 import { TEAMS } from "./gameClasses/Pieces/Piece.js";
 
 let customStartPos: (null|MapOfPiecesForHuman) = null;
-// customStartPos = [
-//   [8,"empty"],
-//   ["wpawn",7,"empty"],
-//   [8,"empty"],
-//   [8,"empty"],
-//   [8,"empty"],
-//   [4,"empty","bking",3,"empty"],
-//   [6,"empty","bpawn","empty"],
-//   ["wrook",2,"empty","wking",3,"empty","wrook"],
-// ];
+customStartPos = [
+  [8,"empty"],
+  [2,"empty","bpawn",5,"empty"],
+  [3,"empty","bpawn",4,"empty"],
+  ["wking","wpawn",4,"empty","wrook","brook"],
+  [8,"empty"],
+  [4,"empty","bking",3,"empty"],
+  ["wpawn",5,"empty","bpawn","empty"],
+  [8,"empty"],
 
+];
+console.log(document.querySelector("body")?.offsetWidth)
 function startGame() {
   const player1Arg: PlayerArg = {
     name: "white",
