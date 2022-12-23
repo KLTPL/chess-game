@@ -1,20 +1,11 @@
 import Match from "./gameClasses/Match.js";
-import { BoardArg, MapOfPiecesForHuman } from "./gameClasses/Board.js";
+import { BoardArg } from "./gameClasses/Board.js";
 import { PlayerArg } from "./gameClasses/Player.js";
 import { TEAMS } from "./gameClasses/Pieces/Piece.js";
 
-let customStartPos: (null|MapOfPiecesForHuman) = null;
-customStartPos = [
-  [8,"empty"],
-  [2,"empty","bpawn",5,"empty"],
-  [3,"empty","bpawn",4,"empty"],
-  ["wking","wpawn",4,"empty","wrook","brook"],
-  [8,"empty"],
-  [4,"empty","bking",3,"empty"],
-  ["wpawn",5,"empty","bpawn","empty"],
-  [8,"empty"],
+let customStartPos: (null|string) = null;
+customStartPos = "rnbqkbnr/ppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-];
 console.log(document.querySelector("body")?.offsetWidth)
 function startGame() {
   const player1Arg: PlayerArg = {
@@ -33,8 +24,7 @@ function startGame() {
 
   const boardArg: BoardArg = {
     htmlPageContainerQSelector: "[data-container]",
-    whiteToPlay: true,
-    startPositionsOfPieces: customStartPos,
+    customPositionFEN: customStartPos,
   };
   new Match(player1Arg, player2Arg, boardArg);
 }

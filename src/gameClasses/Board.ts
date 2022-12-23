@@ -12,14 +12,17 @@ import Move from "./Move.js";
 import VisualizingSystem from "./VisualizingSystem.js";
 import PawnPromotionMenu from "./PawnPromotionMenu.js";
 import Match from "./Match.js";
+import FENNotation from "./FENNotation.js";
 
 export type BoardArg = {
   htmlPageContainerQSelector: string, 
-  whiteToPlay: boolean,
-  startPositionsOfPieces: (MapOfPiecesForHuman | null),
+  customPositionFEN: (string | null),
 };
 
+export type ArrOfPieces2d = (Piece|null)[][];
+
 export const FIELDS_IN_ONE_ROW = 8;
+
 export const HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE = "field-heighlighted-under-moving-piece";
 const CLASS_NAMES = {
   field: "field",
@@ -34,9 +37,8 @@ const CLASS_NAMES = {
   piecesContainer: "board-pieces-container",
 };
 
-export type MapOfPiecesForHuman = (string | number)[][];
-
 export default class Board {
+  FENNotation: FENNotation;
   match: Match;
   currTeam: number;
   moves: Move[];
@@ -55,12 +57,13 @@ export default class Board {
   inverted: boolean;
   constructor(
     htmlPageContainerQSelector: string, 
-    whiteToPlay: boolean,
-    startPositionsOfPieces: MapOfPiecesForHuman | null,
+    customPositionFEN: string | null,
     match: Match, 
   ) {
+    this.FENNotation = new FENNotation(customPositionFEN, this);
+
     this.match = match;
-    this.currTeam = (whiteToPlay) ? TEAMS.WHITE : TEAMS.BLACK;
+    this.currTeam = this.FENNotation.activeColorConverted;
     this.moves = [];
     this.el = [];
     this.pageContainerHtml = document.querySelector(htmlPageContainerQSelector) as HTMLDivElement;
@@ -76,7 +79,7 @@ export default class Board {
     this.html.append(this.fieldsHtml);
     this.html.append(this.piecesHtml);
     this.createFields();
-    this.placePieces(startPositionsOfPieces);
+    this.placePieces(this.FENNotation.piecePlacementConverted);
     this.kings = this.getKings();
     this.updateFieldSize();
     if (this.inverted) {
@@ -115,12 +118,12 @@ export default class Board {
     htmlEl.style.setProperty("--transitionDuration", `${ms}ms`);
   }
 
-  createNewPieceObj(num: (number|null), team: (number|null)) {
-    if (num === null || team === null) {
+  createNewPieceObj(id: (number|null), team: (number|null)) {
+    if (id === null || team === null) {
       return null;
     }
 
-    switch (num) {
+    switch (id) {
       case PIECES.PAWN:   return new Pawn  (team, this);
       case PIECES.ROOK:   return new Rook  (team, this);
       case PIECES.KNIGHT: return new Knight(team, this);
@@ -158,19 +161,14 @@ export default class Board {
     return field;
   }
 
-  placePieces(customPosition: MapOfPiecesForHuman | null) {
-    console.log("PlacePieces:")
-    const arrOfPiecesToPlaceByPieceNum = 
-      (customPosition === null) ? 
-      this.createMapOfPiecesInDefaultPos() :
-      this.convertMapOfPiecesForHumanToMapForScript(customPosition);
+  placePieces(pieces: ArrOfPieces2d) {
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
         this.placePieceInPos(
           new Pos(r, c),
-          arrOfPiecesToPlaceByPieceNum[r][c],
+          pieces[r][c],
           0,
-          Boolean(arrOfPiecesToPlaceByPieceNum[r][c]?.html)
+          Boolean(pieces[r][c]?.html)
         );
         if (this.el[r][c].piece !== null) {
           console.log("Pos:",r,c,);
@@ -186,64 +184,28 @@ export default class Board {
     }
   }
 
-  convertMapOfPiecesForHumanToMapForScript(customPositions: MapOfPiecesForHuman) {
-    let mapForScript: (Piece|null)[][] = [];
+  // createMapOfPiecesInDefaultPos(): ArrOfPieces2d {
+  //   const firstAndLastRowNums = [
+  //     PIECES.ROOK, 
+  //     PIECES.KNIGHT, 
+  //     PIECES.BISHOP, 
+  //     PIECES.QUEEN, 
+  //     PIECES.KING, 
+  //     PIECES.BISHOP, 
+  //     PIECES.KNIGHT, 
+  //     PIECES.ROOK
+  //   ];
 
-    for (let r=0 ; r<customPositions.length ; r++) {
-      mapForScript.push([]);
-      for (let c=0 ; c<customPositions[r].length ; c++) {
-        if (typeof customPositions[r][c] === "number") {
-          const multiplayer = customPositions[r][c] as number;
-          const multiplayedPiece = customPositions[r][c+1] as string;
-          for (let i=0 ; i<multiplayer ; i++) {
-            mapForScript[r].push(this.createNewPieceObjByString(multiplayedPiece));
-          }
-          c++;
-          continue;
-        }
-        const multiplayedPiece = customPositions[r][c] as string;
-        mapForScript[r].push(this.createNewPieceObjByString(multiplayedPiece));
-      }
-    }
-    return mapForScript;
-  }
-
-  createNewPieceObjByString(piece: string) {
-    const pieceTeam = this.getPieceTeamByString(piece[0]);
-    const pieceName = piece.slice(1, piece.length);
-    return this.createNewPieceObj(Piece.getPieceNumByName(pieceName), pieceTeam);
-  }
-
-  getPieceTeamByString(team: string) {
-    switch (team) {
-      case "w": return TEAMS.WHITE;
-      case "b": return TEAMS.BLACK;
-      default:  return null;
-    }
-  }
-
-  createMapOfPiecesInDefaultPos(): (Piece|null)[][] {
-    const firstAndLastRowNums = [
-      PIECES.ROOK, 
-      PIECES.KNIGHT, 
-      PIECES.BISHOP, 
-      PIECES.QUEEN, 
-      PIECES.KING, 
-      PIECES.BISHOP, 
-      PIECES.KNIGHT, 
-      PIECES.ROOK
-    ];
-
-    return [
-      firstAndLastRowNums.map(pieceNum => this.createNewPieceObj(pieceNum, TEAMS.BLACK)),
-      [...Array(FIELDS_IN_ONE_ROW)].map(() => this.createNewPieceObj(PIECES.PAWN, TEAMS.BLACK)),
-      ...Array(FIELDS_IN_ONE_ROW/2).fill(
-        Array(FIELDS_IN_ONE_ROW).fill(null)
-      ),
-      [...Array(FIELDS_IN_ONE_ROW)].map(() => this.createNewPieceObj(PIECES.PAWN, TEAMS.WHITE)),
-      firstAndLastRowNums.map(pieceNum => this.createNewPieceObj(pieceNum, TEAMS.WHITE))
-    ];
-  }
+  //   return [
+  //     firstAndLastRowNums.map(pieceNum => this.createNewPieceObj(pieceNum, TEAMS.BLACK)),
+  //     [...Array(FIELDS_IN_ONE_ROW)].map(() => this.createNewPieceObj(PIECES.PAWN, TEAMS.BLACK)),
+  //     ...Array(FIELDS_IN_ONE_ROW/2).fill(
+  //       Array(FIELDS_IN_ONE_ROW).fill(null)
+  //     ),
+  //     [...Array(FIELDS_IN_ONE_ROW)].map(() => this.createNewPieceObj(PIECES.PAWN, TEAMS.WHITE)),
+  //     firstAndLastRowNums.map(pieceNum => this.createNewPieceObj(pieceNum, TEAMS.WHITE))
+  //   ];
+  // }
 
   calcFieldCoorByPx(leftPx: number, topPx: number) { // pos values from 0 to 7 or -1 if not in board
     const boardStartLeft = (this.pageContainerHtml.offsetWidth-this.html.offsetWidth)/2;
