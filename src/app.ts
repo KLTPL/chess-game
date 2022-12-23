@@ -6,7 +6,7 @@ import { TEAMS } from "./gameClasses/Pieces/Piece.js";
 let customStartPos: (null|string) = null;
 // customStartPos = "rnbqkbnr/ppppppp/8/8/8/8/PPPPPPP/RNBQKBNR/p w KQkq - 0 1";
 // customStartPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-customStartPos ="8/1p3p2/8/K1PrP3/8/8/8/7k b - - 0 1";
+customStartPos ="8/1p3p2/8/K1PqP3/8/8/8/7k b - - 0 1";
 console.log(document.querySelector("body")?.offsetWidth)
 function startGame() {
   const player1Arg: PlayerArg = {
