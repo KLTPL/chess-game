@@ -67,11 +67,14 @@ export default class Pawn extends Piece {
     return pawnsToCapturePos
       .filter(pawn => {
         const newCapture = new Pos(pos.y+this.directionY, pawn.x);
+        const lastMove = board.moves[board.moves.length-1];
+        const isPawnAfterMoving2SqueresForward = Math.abs(lastMove?.from.y - lastMove?.to.y) > 1;
         return (
           board.isPosInBoard(newCapture) &&
           board.el[pawn.y][pawn.x].piece?.id === PIECES.PAWN &&
           board.el[pawn.y][pawn.x].piece?.team === enemyTeamNum && 
-          board.el[pawn.y][pawn.x].piece === board.moves[board.moves.length-1].piece &&
+          board.el[pawn.y][pawn.x].piece === lastMove.piece &&
+          isPawnAfterMoving2SqueresForward &&
           !this.isPawnPinnedAbsolutely(pawn, pos.x)
         );
       });
@@ -84,16 +87,36 @@ export default class Pawn extends Piece {
   }
 
   isRookOrQueenPinningPawns(yPos: number, kingPosX: number, pawnPosX: number, pawnToBeCapturedPosX: number) {
-    const enemyTeamNum = this.enemyTeamNum();
+    // this problem can be seen in this position (FEN notation): 8/1p3p2/8/K1PrP3/8/8/8/7k b - - 0 1
     const pinDir = (pawnPosX > kingPosX) ? 1 : -1;
     const pawnsNextToEachOther = {
       left:  (pawnPosX < pawnToBeCapturedPosX) ? pawnPosX : pawnToBeCapturedPosX,
       right: (pawnPosX > pawnToBeCapturedPosX) ? pawnPosX : pawnToBeCapturedPosX,
     };
-    let tempXPos = (pawnPosX > kingPosX) ? pawnsNextToEachOther.right+pinDir : pawnsNextToEachOther.left+pinDir;
+    const pawnKingSideX = (pawnPosX > kingPosX) ? pawnsNextToEachOther.left : pawnsNextToEachOther.right;
+    const pawnOtherSideX = (pawnPosX < kingPosX) ? pawnsNextToEachOther.left : pawnsNextToEachOther.right;
 
+ 
+    return (
+      this.isPinPossibleFromKingToPawns(yPos, pawnKingSideX, -pinDir, kingPosX) && 
+      this.isPinPossibleFromPawnsToEdgeOfBoard(yPos, pawnOtherSideX, pinDir)
+    );
+  }
+
+  isPinPossibleFromKingToPawns(yPos: number, startPawnXPos: number, pinDir: number, kingPosX: number) {
+    let tempXPos = startPawnXPos + pinDir;
+    for ( ; tempXPos !== kingPosX ; tempXPos += pinDir) {
+      if (this.board.el[yPos][tempXPos].piece !== null) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  isPinPossibleFromPawnsToEdgeOfBoard(yPos: number, startPawnXPos: number, pinDir: number) {
+    const enemyTeamNum = this.enemyTeamNum();
+    let tempXPos = startPawnXPos+pinDir;
     for ( ; this.board.isPosInBoard(new Pos(yPos, tempXPos)) ; tempXPos += pinDir) {
-      console.log("temp pos:",tempXPos)
       if (
         this.board.el[yPos][tempXPos].piece !== null &&
         this.board.el[yPos][tempXPos].piece?.team === this.team ||
@@ -101,20 +124,18 @@ export default class Pawn extends Piece {
         this.board.el[yPos][tempXPos].piece?.id !== PIECES.QUEEN &&
         this.board.el[yPos][tempXPos].piece?.id !== PIECES.ROOK)
       ) {
-        console.log("return",false);
         return false;
       }
       if (
         this.board.el[yPos][tempXPos].piece?.team === enemyTeamNum
       ) {
-        console.log("return",true);
         return true;
       }
     }
     return false;
   }
 
-  sideEffectsOfMove( to: Pos ) {
+  sideEffectsOfMove(to: Pos) {
     // en passant capture
     const board = this.board;
     if (
