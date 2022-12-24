@@ -54,7 +54,7 @@ export default class Board {
   };
   visualizingSystem: VisualizingSystem;
   pawnPromotionMenu: (PawnPromotionMenu|null);
-  inverted: boolean;
+  isInverted: boolean;
   constructor(
     htmlPageContainerQSelector: string, 
     customPositionFEN: string | null,
@@ -70,7 +70,7 @@ export default class Board {
     this.grabbedPieceInfo = null;
     this.visualizingSystem = new VisualizingSystem(this);
     this.pawnPromotionMenu = null;
-    this.inverted = false;
+    this.isInverted = false;
 
     this.html = this.createBoardContainer();
     this.fieldsHtml = this.createContainerForFields();
@@ -82,7 +82,7 @@ export default class Board {
     this.placePieces(this.FENNotation.piecePlacementConverted);
     this.kings = this.getKings();
     this.updateFieldSize();
-    if (this.inverted) {
+    if (this.isInverted) {
       this.flipPerspective();
     }
     this.html.addEventListener("mousedown", this.visualizingSystem.handleMouseDown);
@@ -304,7 +304,7 @@ export default class Board {
   }
 
   createNewMoveObj(piece: Piece, from: Pos, to: Pos, capturedPiece: (Piece|null)) {
-    if (this.inverted) {
+    if (this.isInverted) {
       from.invert();
       to.invert();
     }
@@ -431,7 +431,7 @@ export default class Board {
     if (currKing !== null) {
       currKing.invertChecksArr();
     }
-    this.inverted = (this.inverted) ? false : true;
+    this.isInverted = (this.isInverted) ? false : true;
   }
 
   invertMap(map: (Piece|null)[][]) {
@@ -499,7 +499,7 @@ export default class Board {
           if (bishopsPos.length >= 2) {
             return false;
           }
-          bishopsPos.push(new Pos(r,c));
+          bishopsPos.push(new Pos(r, c));
           continue;
         }
         if(
@@ -580,5 +580,29 @@ export default class Board {
   updateFieldSize() {
     const root = document.querySelector(":root") as HTMLElement;
     root.style.setProperty("--fieldSize", `${this.html.offsetWidth / FIELDS_IN_ONE_ROW}px`);
+  }
+
+  get startQueenPosWhite(): Pos {
+    const queenDefaultXPos = 3;
+    const startYPos = FIELDS_IN_ONE_ROW-1;
+    return new Pos(startYPos, queenDefaultXPos, this.isInverted); 
+  }
+
+  get startKingPosWhite(): Pos {
+    const kingDefaultXPos = 4;
+    const startYPos = FIELDS_IN_ONE_ROW-1;
+    return new Pos(startYPos, kingDefaultXPos, this.isInverted);
+  }
+
+  get startQueenPosBlack(): Pos {
+    const queenDefaultXPos = 3;
+    const startYPos = 0;
+    return new Pos(startYPos, queenDefaultXPos, this.isInverted); 
+  }
+
+  get startKingPosBlack(): Pos {
+    const kingDefaultXPos = 4;
+    const startYPos = 0;
+    return new Pos(startYPos, kingDefaultXPos, this.isInverted); 
   }
 }
