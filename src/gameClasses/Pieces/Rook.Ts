@@ -57,7 +57,7 @@ export default class Rook extends Piece {
     const directions = [new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)];
     const moves: Pos[] = [];
     for (const dir of directions) {
-      const tempPos = new Pos(pos.y,pos.x);
+      const tempPos = new Pos(pos.y, pos.x);
       while (true) {
         if (this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum) {
           break;

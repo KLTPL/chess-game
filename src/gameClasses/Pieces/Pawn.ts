@@ -148,7 +148,7 @@ export default class Pawn extends Piece {
 
     // promotion
     const lastRowNum = 
-      (this.directionY === 1 && !board.inverted) ? 
+      (this.directionY === 1 && !board.isInverted) ? 
       FIELDS_IN_ONE_ROW-1 : 
       0;
     if (to.y === lastRowNum) {

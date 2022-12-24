@@ -1,19 +1,27 @@
 import Board, { FIELDS_IN_ONE_ROW } from "../Board.js";
-import Piece, { DEFAULT_TRANSITION_DELAY_MS, PIECES } from "./Piece.js";
+import Piece, { DEFAULT_TRANSITION_DELAY_MS, PIECES, TEAMS } from "./Piece.js";
 import Rook from "./Rook.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 import Pin from "../Pin.js";
 import Check from "../Check.js";
 
+export type CastleRights = {
+  isAllowedKingSide: boolean,
+  isAllowedQueenSide: boolean,
+};
+
 export default class King extends Piece {
-  haventMovedYet: Boolean;
-  checks: Check[]; // could be 0, 1 or 2
+  isBeforeAnyMove: boolean;
+  castleRights: CastleRights;
+  checks: Check[]; // could be 0, 1 or 2 length
   constructor(team: number, board: Board) {
     super(team, board);
     this.id = PIECES.KING;
     this.value = 0;
-    this.haventMovedYet = true;
+    this.isBeforeAnyMove = true;
+    const castleRights = this.board.FENNotation.castlingRightsConverted;
+    this.castleRights = (this.team === TEAMS.WHITE) ? castleRights.white : castleRights.black;
     this.checks = [];
 
     this.addClassName(this.id);
@@ -66,7 +74,7 @@ export default class King extends Piece {
   }
 
   createArrOfPossibleCastleDir(pos: Pos) {
-    if (!this.haventMovedYet) {
+    if (!this.isBeforeAnyMove  || !this.isKingInStartPos(pos)) {
       return [];
     }
 
@@ -83,12 +91,28 @@ export default class King extends Piece {
           (dir.x as (-1|1))
         ); // sometimes 2 fields, sometimes 3
         return (
-          this.board.isPosInBoard(new Pos(move2.y, move2.x)) && // if move2 is in board move1 also is
+          this.isKingRightToCastle(move2.x, pos.x) &&
           currentRook?.haventMovedYet &&
           fieldsXPos.filter(xPos => this.board.el[pos.y][xPos].piece === null).length === fieldsXPos.length &&
           this.filterMovesSoKingCantMoveIntoCheck(moves).length === moves.length
         );
       });
+  }
+
+  isKingInStartPos(pos: Pos) {
+    const startPos = 
+      (this.team === TEAMS.WHITE) ? 
+      this.board.startKingPosWhite : 
+      this.board.startKingPosBlack;
+    return pos.isEqualTo(startPos);
+  }
+
+  isKingRightToCastle(castleMoveX: number, startKingXPos: number) {
+    const b = this.board;
+    const startQueenXPos = (this.team === TEAMS.WHITE) ? b.startQueenPosWhite.x : b.startQueenPosBlack.x;
+    const isCastleKingSide = 
+      (Math.abs(castleMoveX - startQueenXPos) > Math.abs(castleMoveX - startKingXPos));
+    return (isCastleKingSide) ? this.castleRights.isAllowedKingSide : this.castleRights.isAllowedQueenSide;
   }
 
   createArrOfFieldsXPosBetweenKingAndRook(rookXPos: number, kingXPos: number, dirX: (-1 |1)) {
@@ -190,8 +214,8 @@ export default class King extends Piece {
   }
 
   sideEffectsOfMove(to: Pos, from: Pos) {
-    if (this.haventMovedYet) {
-      this.haventMovedYet = false;
+    if (this.isBeforeAnyMove) {
+      this.isBeforeAnyMove = false;
     }
     // castle
     const moveIsCastle = Math.abs(from.x-to.x) > 1;

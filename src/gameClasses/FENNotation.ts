@@ -1,6 +1,7 @@
 import { PIECES, TEAMS } from "./Pieces/Piece";
 import { ArrOfPieces2d, FIELDS_IN_ONE_ROW } from "./Board";
 import Board from "./Board";
+import { CastleRights } from "./Pieces/King";
 
 /*FEN (Forsyth-Edwards Notation) parts:
     1. Piece placement.
@@ -66,7 +67,7 @@ export default class FENNotation {
         console.error(`Too many pieces in row ${r+1} (FEN notation)`);
         pieces[pieces.length-1] = pieces[pieces.length-1].slice(0, FIELDS_IN_ONE_ROW);
       } else if (pieces[pieces.length-1].length < FIELDS_IN_ONE_ROW) {
-        console.error(`Too many few pieces in row ${r+1} (FEN notation)`);
+        console.error(`Too few pieces in row ${r+1} (FEN notation)`);
         const amountOfEmtyFields = FIELDS_IN_ONE_ROW - pieces[pieces.length-1].length;
         pieces[pieces.length-1] = [...pieces[pieces.length-1], ...Array(amountOfEmtyFields).fill(null)];
       }
@@ -78,8 +79,17 @@ export default class FENNotation {
     return (this.activeColor === "b") ? TEAMS.BLACK : TEAMS.WHITE;
   }
 
-  get castlingRightsConverted() {
-    return this.castlingRights;
+  get castlingRightsConverted(): {white: CastleRights, black: CastleRights} {
+    return {
+      white: {
+        isAllowedKingSide: this.castlingRights.includes("K"),
+        isAllowedQueenSide: this.castlingRights.includes("Q")
+      },
+      black: {
+        isAllowedKingSide: this.castlingRights.includes("k"),
+        isAllowedQueenSide: this.castlingRights.includes("q")
+      }
+    };
   }
 
   get enPassantTargetsConverted() {

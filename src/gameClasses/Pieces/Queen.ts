@@ -20,7 +20,7 @@ export default class Queen extends Piece {
       new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
     ];
     for (const dir of directions) {
-      const tempPos = new Pos(pos.y,pos.x);
+      const tempPos = new Pos(pos.y, pos.x);
       while (true) {
         if ( 
           this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
@@ -61,7 +61,7 @@ export default class Queen extends Piece {
     ];
     const moves: Pos[] = [];
     for (const dir of directions) {
-      const tempPos = new Pos(pos.y,pos.x);
+      const tempPos = new Pos(pos.y, pos.x);
       while (true) {
         if (this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum) {
           break;
