@@ -1,18 +1,17 @@
+import { mouseHold } from "../app.js";
 import Board from "./Board.js";
 import Pos from "./Pos.js";
 import VisualizingArrow from "./VisualizingArrow.js";
 
+const HIGHLIGHT_FIELD_CLASS_NAME = "highlighted-field";
+
 export default class VisualizingSystem {
-  arrows: VisualizingArrow[];
-  highlightClassName: string;
-  board: Board;
-  constructor(board: Board) {
-    this.arrows = [];
-    this.highlightClassName = "highlighted-field";
-    this.board = board;
+  arrows: VisualizingArrow[] = [];
+  constructor(private board: Board) {
+    this.board.html.addEventListener("mousedown", this.handleMouseDown);
   }
 
-  handleMouseDown = (ev: MouseEvent) => {
+  private handleMouseDown = (ev: MouseEvent): void => {
     if (ev.button === 0) { // mouse left click
       this.removeAllArrows();
       this.removeHighlightFromAllFields();
@@ -22,17 +21,8 @@ export default class VisualizingSystem {
       return;
     }
 
-    let mouseHold = new Promise<void>((resolve, reject) => {
-      this.board.html.addEventListener("mouseup", () => {
-          reject();
-        }, 
-        {once: true}
-      );
-      setTimeout(() => {
-        resolve();
-      }, 150);
-    });
-    mouseHold.then(() => {
+    mouseHold(this.board.html)
+    .then(() => {
       this.board.html.addEventListener("mouseup", endEv => {
         const startPos = this.board.calcFieldCoorByPx(ev.clientX, ev.clientY);
         const endPos = this.board.calcFieldCoorByPx(endEv.clientX, endEv.clientY);
@@ -44,7 +34,7 @@ export default class VisualizingSystem {
           return;
         }
         const matchingArrowNum = this.indexOfEqualArrow(startPos, endPos);
-        if (matchingArrowNum !== -1) {
+        if (matchingArrowNum !== null) {
           this.removeArrow(matchingArrowNum);
           return;
         }
@@ -55,10 +45,10 @@ export default class VisualizingSystem {
     });
   }
 
-  indexOfEqualArrow(startPos: Pos, endPos: Pos) {
+  private indexOfEqualArrow(startPos: Pos, endPos: Pos): (number|null) {
     for( let i=0 ; i<this.arrows.length ; i++ ) {
-      const arrSPos = this.arrows[i].startPos;
-      const arrEPos = this.arrows[i].endPos;
+      const arrSPos = this.arrows[i].getStartPos();
+      const arrEPos = this.arrows[i].getEndPos();
       if( 
         startPos.x === arrSPos.x && startPos.y === arrSPos.y &&
         endPos  .x === arrEPos.x && endPos  .y === arrEPos.y
@@ -66,28 +56,28 @@ export default class VisualizingSystem {
         return i;
       }
     }
-    return -1;
+    return null;
   }
 
-  removeAllArrows() {
+  private removeAllArrows(): void {
     while (this.arrows.length > 0) {
       this.removeArrow(0);
     }
   }
 
-  removeArrow(arrNum: number) {
-    this.arrows[arrNum].arrContainer.remove();
+  private removeArrow(arrNum: number): void {
+    this.arrows[arrNum].removeHtml();
     this.arrows.splice(arrNum, 1);
   }
 
-  toggleHighlightOnFieldOnPos(pos: Pos) {
-    this.board.el[pos.y][pos.x].html.classList.toggle(this.highlightClassName);
+  private toggleHighlightOnFieldOnPos(pos: Pos): void {
+    this.board.el[pos.y][pos.x].html.classList.toggle(HIGHLIGHT_FIELD_CLASS_NAME);
   }
 
-  removeHighlightFromAllFields() {
-    const fields = document.getElementsByClassName(this.highlightClassName);
+  private removeHighlightFromAllFields(): void {
+    const fields = document.getElementsByClassName(HIGHLIGHT_FIELD_CLASS_NAME);
     for (let i=0 ; i<fields.length ; i++) {
-      fields[i].classList.remove(this.highlightClassName);
+      fields[i].classList.remove(HIGHLIGHT_FIELD_CLASS_NAME);
       i--;
     }
   }

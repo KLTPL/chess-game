@@ -1,31 +1,29 @@
 import Board, { FIELDS_IN_ONE_ROW } from "../Board.js";
-import Piece, { PIECES, TEAMS } from "./Piece.js";
+import Piece, { AnyPiece, PIECES, TEAMS } from "./Piece.js";
 import Pos from "../Pos.js";
 import PawnPromotionMenu from "../PawnPromotionMenu.js";
 
 export default class Pawn extends Piece {
+  public value: number = 1;
+  public id: number = PIECES.PAWN;
   directionY: number;
-  constructor(team: number, board: Board) {
+  constructor(public team: number, protected board: Board) {
     super(team, board);
-    this.id = PIECES.PAWN;
-    this.value = 1;
     this.directionY = (this.team === TEAMS.WHITE) ? -1 : 1;// direction up od down
-
     this.addClassName(this.id);
   }
 
-  getPossibleMovesFromPosForKing(pos: Pos) {
+  public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
     const capturePos = [new Pos(pos.y+this.directionY, pos.x+1), new Pos(pos.y+this.directionY, pos.x-1)]
       .filter(capture => this.board.isPosInBoard(capture));
     return capturePos;
   }
 
-  
-  getPossibleMovesFromPos(pos: Pos) {
+  public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
     const myKing = this.board.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
-    const enPassantPawns = this.createArrOfPawnsThatCanBeCapturedByEnPassant(pos);
+    const enPassantPawns = this.createArrOfPosOfPawnsThatCanBeCapturedByEnPassant(pos);
     const enPassantCaptures = enPassantPawns.map(capturePos => new Pos(pos.y+this.directionY, capturePos.x));
     let possibleMoves: Pos[] = [
       pos,
@@ -38,10 +36,10 @@ export default class Pawn extends Piece {
     return possibleMoves;
   }
 
-  createArrOfNormalMoves(pos: Pos) {
+  private createArrOfNormalMoves(pos: Pos): Pos[] {
     const board = this.board;
-    const enemyTeamNum = this.enemyTeamNum();
-    const capturePos = this.getPossibleMovesFromPosForKing(pos)
+    const enemyTeamNum = this.enemyTeamNum;
+    const capturePos = this.createArrOfPossibleMovesFromPosForKing(pos)
       .filter(move => board.el[move.y][move.x].piece?.team === enemyTeamNum);
     
     const moves: Pos[] = [];
@@ -60,9 +58,9 @@ export default class Pawn extends Piece {
     return [...moves, ...capturePos];
   }
 
-  createArrOfPawnsThatCanBeCapturedByEnPassant(pos: Pos) {
+  private createArrOfPosOfPawnsThatCanBeCapturedByEnPassant(pos: Pos): Pos[] {
     const board = this.board;
-    const enemyTeamNum = this.enemyTeamNum();
+    const enemyTeamNum = this.enemyTeamNum;
     const pawnsToCapturePos = [new Pos(pos.y, pos.x+1), new Pos(pos.y, pos.x-1)];
     return pawnsToCapturePos
       .filter(pawn => {
@@ -80,13 +78,18 @@ export default class Pawn extends Piece {
       });
   }
   
-  isPawnPinnedAbsolutely(pawn: Pos, pawnToBeCapturedPosX: number) {
+  private isPawnPinnedAbsolutely(pawn: Pos, pawnToBeCapturedPosX: number): boolean {
     const kingPos = this.board.findKingPos(this.team);
     const isPawnInlineWithKingHoryzontally = (pawn.y-kingPos.y === 0);
     return isPawnInlineWithKingHoryzontally && this.isRookOrQueenPinningPawns(pawn.y, kingPos.x, pawn.x, pawnToBeCapturedPosX);
   }
 
-  isRookOrQueenPinningPawns(yPos: number, kingPosX: number, pawnPosX: number, pawnToBeCapturedPosX: number) {
+  private isRookOrQueenPinningPawns(
+    yPos: number, 
+    kingPosX: number, 
+    pawnPosX: number, 
+    pawnToBeCapturedPosX: number
+  ): boolean {
     // this problem can be seen in this position (FEN notation): 8/1p3p2/8/K1PrP3/8/8/8/7k b - - 0 1
     const pinDir = (pawnPosX > kingPosX) ? 1 : -1;
     const pawnsNextToEachOther = {
@@ -96,14 +99,18 @@ export default class Pawn extends Piece {
     const pawnKingSideX = (pawnPosX > kingPosX) ? pawnsNextToEachOther.left : pawnsNextToEachOther.right;
     const pawnOtherSideX = (pawnPosX < kingPosX) ? pawnsNextToEachOther.left : pawnsNextToEachOther.right;
 
- 
     return (
       this.isPinPossibleFromKingToPawns(yPos, pawnKingSideX, -pinDir, kingPosX) && 
       this.isPinPossibleFromPawnsToEdgeOfBoard(yPos, pawnOtherSideX, pinDir)
     );
   }
 
-  isPinPossibleFromKingToPawns(yPos: number, startPawnXPos: number, pinDir: number, kingPosX: number) {
+  private isPinPossibleFromKingToPawns(
+    yPos: number, 
+    startPawnXPos: number, 
+    pinDir: number, 
+    kingPosX: number
+  ): boolean {
     let tempXPos = startPawnXPos + pinDir;
     for ( ; tempXPos !== kingPosX ; tempXPos += pinDir) {
       if (this.board.el[yPos][tempXPos].piece !== null) {
@@ -113,8 +120,8 @@ export default class Pawn extends Piece {
     return true;
   }
 
-  isPinPossibleFromPawnsToEdgeOfBoard(yPos: number, startPawnXPos: number, pinDir: number) {
-    const enemyTeamNum = this.enemyTeamNum();
+  private isPinPossibleFromPawnsToEdgeOfBoard(yPos: number, startPawnXPos: number, pinDir: number): boolean {
+    const enemyTeamNum = this.enemyTeamNum;
     let tempXPos = startPawnXPos+pinDir;
     for ( ; this.board.isPosInBoard(new Pos(yPos, tempXPos)) ; tempXPos += pinDir) {
       if (
@@ -135,7 +142,7 @@ export default class Pawn extends Piece {
     return false;
   }
 
-  sideEffectsOfMove(to: Pos) {
+  public sideEffectsOfMove(to: Pos): void {
     // en passant capture
     const board = this.board;
     if (
@@ -156,7 +163,7 @@ export default class Pawn extends Piece {
     }
   }
 
-  promote(pos: Pos) {
+  private promote(pos: Pos): void {
     this.board.pawnPromotionMenu = new PawnPromotionMenu(this.team, this.board);
     this.board.pawnPromotionMenu.playerIsChoosing
     .then((newPieceNum: number) => {
@@ -165,8 +172,8 @@ export default class Pawn extends Piece {
       this.board.placePieceInPos(pos, pawnGotPromotedTo, 0, true);
       (this.board.pawnPromotionMenu as PawnPromotionMenu).removeMenu();
       this.board.pawnPromotionMenu = null;
-      this.board.getKingByTeam(this.enemyTeamNum()).updateChecksArr();
-      this.board.moves[this.board.moves.length-1].setPromotedTo(pawnGotPromotedTo as Piece);
+      this.board.getKingByTeam(this.enemyTeamNum).updateChecksArr();
+      this.board.moves[this.board.moves.length-1].setPromotedTo(pawnGotPromotedTo as AnyPiece);
     });
   }
 }

@@ -4,16 +4,15 @@ import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Bishop extends Piece {
-  constructor(team: number, board: Board) {
+  public value: number = 3;
+  public id: number = PIECES.BISHOP;
+  constructor(public team: number, protected board: Board) {
     super(team, board);
-    this.id = PIECES.BISHOP;
-    this.value = 3;
-
     this.addClassName(this.id);
   }
 
-  getPossibleMovesFromPosForKing(pos: Pos) {
-    const enemyTeamNum = this.enemyTeamNum();
+  public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
+    const enemyTeamNum = this.enemyTeamNum;
     let possibleMoves: Pos[] = [];
     const directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
     for (const dir of directions) {
@@ -39,7 +38,7 @@ export default class Bishop extends Piece {
     return possibleMoves;
   }
 
-  getPossibleMovesFromPos(pos: Pos) {
+  public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
     const myKing = this.board.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
@@ -50,8 +49,8 @@ export default class Bishop extends Piece {
     return possibleMoves;
   }
 
-  createArrOfNormalMoves(pos: Pos) {
-    const enemyTeamNum = this.enemyTeamNum();
+  private createArrOfNormalMoves(pos: Pos): Pos[] {
+    const enemyTeamNum = this.enemyTeamNum;
     const moves: Pos[] = [];
     const directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
 

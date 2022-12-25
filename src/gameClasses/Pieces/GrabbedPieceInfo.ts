@@ -1,11 +1,9 @@
 import Pos from "../Pos";
-import Piece from "./Piece";
+import Piece, { AnyPiece } from "./Piece";
 
 export default class GrabbedPieceInfo {
-  piece: Piece;
-  grabbedFrom: Pos;
-  constructor(piece: Piece, grabbedFrom: Pos) {
-    this.piece = piece;
-    this.grabbedFrom = grabbedFrom;
-  }
+  constructor(
+    public piece: (AnyPiece|Piece), 
+    public grabbedFrom: Pos
+  ) {}
 }

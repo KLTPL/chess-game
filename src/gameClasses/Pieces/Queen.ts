@@ -4,16 +4,16 @@ import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Queen extends Piece {
-  constructor(team: number, board: Board) {
+  public value: number = 9;
+  public id: number = PIECES.QUEEN;
+  constructor(public team: number, protected board: Board) {
     super(team, board);
-    this.id = PIECES.QUEEN;
-    this.value = 9;
 
     this.addClassName(this.id);
   }
 
-  getPossibleMovesFromPosForKing(pos: Pos) {
-    const enemyTeamNum = this.enemyTeamNum();
+  public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
+    const enemyTeamNum = this.enemyTeamNum;
     const possibleMoves: Pos[] = [];
     const directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
@@ -42,7 +42,7 @@ export default class Queen extends Piece {
     return possibleMoves;
 
   }
-  getPossibleMovesFromPos(pos: Pos) {
+  public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
     const myKing = this.board.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
@@ -53,8 +53,8 @@ export default class Queen extends Piece {
     return possibleMoves;
   }
 
-  createArrOfNormalMoves(pos: Pos) {
-    const enemyTeamNum = this.enemyTeamNum();
+  private createArrOfNormalMoves(pos: Pos): Pos[] {
+    const enemyTeamNum = this.enemyTeamNum;
     const directions = [
       new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
       new Dir(1,0), new Dir(-1, 0), new Dir(0, 1), new Dir(0,-1)

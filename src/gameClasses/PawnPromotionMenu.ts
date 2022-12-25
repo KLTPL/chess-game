@@ -2,23 +2,16 @@ import Board, { FIELDS_IN_ONE_ROW } from "./Board.js";
 import Piece, { PIECES } from "./Pieces/Piece.js";
 
 export default class PawnPromotionMenu {
-  team: number;
-  board: Board;
-  optionsHtmls: HTMLElement[];
-  html: HTMLElement;
-  playerIsChoosing: Promise<number>;
-  constructor(team: number, board: Board) {
-    this.team = team;
-    this.board = board;
-    this.optionsHtmls = [];
-
+  private html: HTMLElement;
+  public playerIsChoosing: Promise<number>;
+  constructor(private team: number, private board: Board) {
     const promotionOptions = this.createArrOfPromoteOptionsHtml();
     this.html = this.createContainerHtml(promotionOptions);
     this.board.html.append(this.html);
     this.playerIsChoosing = this.waitForPlayersDecision(promotionOptions);
   }
 
-  createContainerHtml(promoteOptions: HTMLDivElement[]) {
+  private createContainerHtml(promoteOptions: HTMLDivElement[]): HTMLDivElement {
     const fieldWidth = this.board.piecesHtml.offsetWidth / FIELDS_IN_ONE_ROW;
     const container = document.createElement("div");
     container.classList.add("promote-popup");
@@ -32,7 +25,7 @@ export default class PawnPromotionMenu {
     return container;
   }
 
-  createArrOfPromoteOptionsHtml() {
+  private createArrOfPromoteOptionsHtml(): HTMLDivElement[] {
     const promoteOptionNums = [
       PIECES.BISHOP, 
       PIECES.KNIGHT, 
@@ -49,7 +42,7 @@ export default class PawnPromotionMenu {
     });
   }
 
-  waitForPlayersDecision(promoteOptionsHtml: HTMLDivElement[]) {
+  private waitForPlayersDecision(promoteOptionsHtml: HTMLDivElement[]): Promise<number> {
     return new Promise<number>((resolve) => {
       for (const optHtml of promoteOptionsHtml) {
         optHtml.addEventListener("click", ev => {
@@ -61,7 +54,7 @@ export default class PawnPromotionMenu {
     });
   }
 
-  removeMenu() {
+  public removeMenu(): void {
     this.html.remove();
   }
 }

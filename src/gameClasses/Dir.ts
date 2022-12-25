@@ -1,12 +1,20 @@
-import Pos from "./Pos.js"
-
-export default class Dir extends Pos {
-  constructor( y: number, x: number, simplifyXAndY?: boolean ) {
-    super(y, x);
+export default class Dir {
+  constructor(
+    public y: number, 
+    public x: number, 
+    simplifyXAndY?: boolean 
+  ) {
     if (simplifyXAndY) {
       this.y = this.simplifyDir(y);
       this.x = this.simplifyDir(x);
     }
+  }
+
+  isEqualTo(dir: Dir) {
+    return (
+      this.x === dir.x && 
+      this.y === dir.y
+    );
   }
 
   simplifyDir(dirValue: number) {

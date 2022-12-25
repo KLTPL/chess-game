@@ -1,10 +1,22 @@
+import { mouseHold } from "../../app.js";
 import Board, { HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE } from "../Board.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
-import Pin from "../Pin.js";
 import King from "./King.js";
 import Check from "../Check.js";
 import GrabbedPieceInfo from "./GrabbedPieceInfo.js";
+import Pawn from "./Pawn.js";
+import Rook from "./Rook.js";
+import Knight from "./Knight.js";
+import Bishop from "./Bishop.js";
+import Queen from "./Queen.js";
+
+
+export type AnyPiece = (Pawn|Rook|Knight|Bishop|Queen|King);
+
+// interface SubPiece {
+
+// }
 
 export const enum PIECES {
   PAWN,
@@ -20,78 +32,70 @@ export const enum TEAMS {
   BLACK,
 };
 
+export type Pin = {
+  pinnedPiecePos: Pos;
+  pinDir: Dir;
+};
+
 export const DEFAULT_TRANSITION_DELAY_MS = 30;
 
-export default class Piece {
-  value: number;
-  id: number;
-  team: number;
-  html: HTMLElement;
-  board: Board;
-  constructor(team: number, board: Board) {
-    this.value = 0;
-    this.team = team;
+export default abstract class Piece {
+  public abstract value: number;
+  public abstract id: number;
+  public html: HTMLElement;
+  constructor(public team: number, protected board: Board) {
     this.html = this.createNewHtmlPiece();
-    this.board = board;
-    this.id = -1;
+    this.startListeningForClicks();
+  }
+  
+  abstract createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[];
+
+  abstract createArrOfPossibleMovesFromPos(pos: Pos): Pos[];
+
+  public sideEffectsOfMove(to: Pos, from: Pos): void {to; from};
+
+
+  private startListeningForClicks(): void {
     this.html.addEventListener(
       "mousedown",
-      this.startFollowingCursor,
-      {once: true}
+      this.startFollowingCursor
     );
   }
 
-  createNewHtmlPiece() {
+  public stopListeningForClicks(): void {
+    this.html.removeEventListener(
+      "mousedown",
+      this.startFollowingCursor
+    );
+  }
+
+  private createNewHtmlPiece(): HTMLDivElement {
     const piece = document.createElement("div");
     piece.classList.add("piece");
     return piece;
   }
 
-  addClassName(pieceNum: number) {
+  protected addClassName(pieceNum: number): void {
     const specificClassName = Piece.getClassNameByPiece(pieceNum, this.team);
     if (specificClassName !== null) {
       this.html.classList.add(specificClassName);
     }
   }
 
-  enemyTeamNum() {
-    return (
-      (this.team === TEAMS.WHITE) ? 
-      TEAMS.BLACK : 
-      TEAMS.WHITE
-    );
-  }
-
-  getPossibleMovesFromPosForKing(pos: Pos): Pos[] {
-    pos
-    return [];
-  }
-
-  getPossibleMovesFromPos(pos: Pos): Pos[] {
-    pos
-    return [];
-  }
-
-  startFollowingCursor = (ev: MouseEvent) => {
+   private startFollowingCursor = (ev: MouseEvent): void => { // TODO
     const leftClickNum = 0;
     const fieldCoor = this.board.calcFieldCoorByPx(ev.clientX, ev.clientY);
-    const possMoves = this.getPossibleMovesFromPos(fieldCoor);
+    const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
     if( 
-      this.board.currTeam !== this.team || 
       ev.button !== leftClickNum || 
+      this.board.currTeam !== this.team || 
       this.board.pawnPromotionMenu !== null || 
-      this.board.grabbedPieceInfo !== null || 
-      !this.board.match.gameRunning 
+      this.board.grabbedPieceInfo !== null
     ) {
-      this.html.addEventListener(
-        "mousedown",
-        this.startFollowingCursor,
-        {once: true}
-      );
       return;
     }
-    this.board.showPossibleMoves(possMoves, this.enemyTeamNum());
-    this.board.grabbedPieceInfo = new GrabbedPieceInfo(this, fieldCoor);
+    this.board.showPossibleMoves(possMoves, this.enemyTeamNum);
+    this.board.grabbedPieceInfo = new GrabbedPieceInfo(this, fieldCoor); // TODO this Piece | AnyPiece
     this.board.removePieceInPos(fieldCoor, false);
     this.html.id = "move";
     this.moveToCursor(ev);
@@ -100,7 +104,7 @@ export default class Piece {
       this.moveToCursor
     );
 
-    this.mouseHold()
+    mouseHold(this.html)
       .then(() => {
         document.addEventListener(
           "mouseup",
@@ -117,7 +121,7 @@ export default class Piece {
       });
   }
 
-  moveToCursor = (ev: MouseEvent) => {
+  private moveToCursor = (ev: MouseEvent): void => {
     ev.preventDefault();
     this.board.highlightFieldUnderMovingPiece(this.board.calcFieldCoorByPx(ev.clientX, ev.clientY));
 
@@ -138,7 +142,7 @@ export default class Piece {
     this.html.style.transform = `translate(${translateX}, ${translateY})`;
   }
 
-  calcNewTranslateXValue(clientX: number) {
+  private calcNewTranslateXValue(clientX: number): number {
     return (
       clientX -
       (this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) /
@@ -147,7 +151,7 @@ export default class Piece {
     );
   }
 
-  calcNewTranslateYValue(clientY: number) {
+  private calcNewTranslateYValue(clientY: number): number {
     return (
       clientY -
       (this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight) /
@@ -156,7 +160,7 @@ export default class Piece {
     );
   }
 
-  stopFollowingCursor = (ev: MouseEvent, possMoves: Pos[]) => {
+  private stopFollowingCursor = (ev: MouseEvent, possMoves: Pos[]): void => {
     const boardGrabbedPieceInfo = this.board.grabbedPieceInfo as GrabbedPieceInfo;
     this.html.id = "";
     const id = HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE;
@@ -179,7 +183,7 @@ export default class Piece {
         this.board.movePiece(
           oldPos,
           newPos,
-          boardGrabbedPieceInfo.piece,
+          boardGrabbedPieceInfo.piece as AnyPiece,
           DEFAULT_TRANSITION_DELAY_MS
         );
         possMoves = [];
@@ -189,20 +193,20 @@ export default class Piece {
     }
     this.board.placePieceInPos(
       oldPos, 
-      boardGrabbedPieceInfo.piece,
+      boardGrabbedPieceInfo.piece as AnyPiece,
       this.calcTransitionDelay(oldPos, newPos)
     );
     this.board.grabbedPieceInfo = null;
   }
 
-  calcTransitionDelay(oldPos: Pos, newPos: Pos) {
+  private calcTransitionDelay(oldPos: Pos, newPos: Pos): number {
     const distanceX = Math.abs(newPos.x - oldPos.x);
     const distanceY = Math.abs(newPos.y - oldPos.y);
     const distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
     return distance * 25;
   }
 
-  substractAbsPinsFromPossMoves(possMoves: Pos[], absPins: Pin[], pos: Pos) {
+  protected substractAbsPinsFromPossMoves(possMoves: Pos[], absPins: Pin[], pos: Pos): Pos[] {
     for (const pin of absPins) {
       if (pin.pinnedPiecePos.isEqualTo(pos)) {
         possMoves = possMoves.filter(move => {
@@ -219,21 +223,7 @@ export default class Piece {
     return possMoves;
   }
 
-  mouseHold() {
-    return new Promise<void>((resolve, reject) => {
-      this.html.addEventListener(
-        "mouseup", () => {
-          reject();
-        },
-        {once: true}
-      );
-      setTimeout(() => {
-        resolve();
-      }, 150);
-    })
-  }
-
-  removePossMovesIfKingIsInCheck(possMoves: Pos[], myKing: King, pos: Pos ) {
+  protected removePossMovesIfKingIsInCheck(possMoves: Pos[], myKing: King, pos: Pos): Pos[] {
     if (myKing.checks.length === 0) {
       return possMoves;
     }
@@ -247,7 +237,7 @@ export default class Piece {
       }
 
       for (let c=0 ; c<myKing.checks.length ; c++) {
-        if (!this.moveIsCaptureOrIsOnTheWayOfACheck(myKing.checks[c], possMoves[m])) {
+        if (!this.isMoveCaptureOrOnTheWayOfACheck(myKing.checks[c], possMoves[m])) {
           possMoves.splice(m, 1);
           m--;
         }
@@ -256,7 +246,7 @@ export default class Piece {
     return possMoves;
   }
 
-  moveIsCaptureOrIsOnTheWayOfACheck(check: Check, move: Pos) {
+  private isMoveCaptureOrOnTheWayOfACheck(check: Check, move: Pos): boolean {
     const isCapture = (
       check.checkingPiecePos.x === move.x && 
       check.checkingPiecePos.y === move.y
@@ -270,9 +260,15 @@ export default class Piece {
     return isCapture || isOnTheLine;
   }
 
-  sideEffectsOfMove(to: Pos, from: Pos) {to; from}
+  public get enemyTeamNum(): TEAMS.BLACK|TEAMS.WHITE {
+    return (
+      (this.team === TEAMS.WHITE) ? 
+      TEAMS.BLACK : 
+      TEAMS.WHITE
+    );
+  }
 
-  static getClassNameByPiece(pieceNum: number, pieceTeam: number) {
+  public static getClassNameByPiece(pieceNum: number, pieceTeam: number): (string|null) {
     const teamChar = (pieceTeam === TEAMS.BLACK) ? "b" : "w";
     const name = (() => {
       switch (pieceNum) {
@@ -292,7 +288,7 @@ export default class Piece {
     return `${teamChar}-${name}`;
   }
 
-  static createPromoteOptionHtml(piece: number, team: number) {
+  public static createPromoteOptionHtml(piece: number, team: number): HTMLDivElement {
     const option = document.createElement("div");
     option.classList.add("promote-option");
 
@@ -301,5 +297,19 @@ export default class Piece {
       option.classList.add(specificClassName);
     }
     return option;
+  }
+
+  public static isArrContainingEqualPieces(...pieces: (Piece | null)[]): boolean {
+    if (pieces.length === 0) {
+      console.error("Not enough captures to compare");
+      return false;
+    }
+    const firstCapture = pieces[0];
+    for (let i=1 ; i<pieces.length ; i++) {
+      if (firstCapture !== pieces[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 }

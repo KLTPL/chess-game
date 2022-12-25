@@ -4,18 +4,17 @@ import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Rook extends Piece {
-  haventMovedYet: boolean;
-  constructor(team: number, board: Board) {
+  public value: number = 5;
+  public id: number = PIECES.ROOK;
+  public isBeforeAnyMove: boolean = true;
+  constructor(public team: number, protected board: Board) {
     super(team, board);
-    this.id = PIECES.ROOK;
-    this.value = 5;
-    this.haventMovedYet = true;
 
     this.addClassName(this.id);
   }
 
-  getPossibleMovesFromPosForKing(pos: Pos) {
-    const enemyTeamNum = this.enemyTeamNum();
+  public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
+    const enemyTeamNum = this.enemyTeamNum;
     const possibleMoves: Pos[] = [];
     const directions = [new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)];
     for (const dir of directions) {
@@ -41,7 +40,7 @@ export default class Rook extends Piece {
     return possibleMoves;
   }
 
-  getPossibleMovesFromPos(pos: Pos) {
+  public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
     const myKing = this.board.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
@@ -52,8 +51,8 @@ export default class Rook extends Piece {
     return possibleMoves;
   }
 
-  createArrOfNormalMoves(pos: Pos) {
-    const enemyTeamNum = this.enemyTeamNum();
+  private createArrOfNormalMoves(pos: Pos): Pos[] {
+    const enemyTeamNum = this.enemyTeamNum;
     const directions = [new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)];
     const moves: Pos[] = [];
     for (const dir of directions) {
@@ -76,9 +75,9 @@ export default class Rook extends Piece {
     return moves;
   }
 
-  sideEffectsOfMove() {
-    if (this.haventMovedYet) {
-      this.haventMovedYet = false;
+  public sideEffectsOfMove(): void {
+    if (this.isBeforeAnyMove) {
+      this.isBeforeAnyMove = false;
     }
   }
 }

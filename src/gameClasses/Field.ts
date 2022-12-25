@@ -1,14 +1,31 @@
-import Piece from "./Pieces/Piece.js";
+import { AnyPiece } from "./Pieces/Piece.js";
+
+export const CLASS_NAMES = {
+  field: "field",
+  fieldColor1: "field1",
+  fieldColor2: "field2",
+};
 
 export default class Field {
-  html: HTMLElement;
-  piece: (Piece|null);
-  constructor(html: HTMLElement) {
-    this.html = html;
+  public html: HTMLDivElement;
+  public piece: (AnyPiece|null);
+  constructor(isFieldWhite: boolean) {
+    this.html = this.createFieldHtml(isFieldWhite);
     this.piece = null;
   }
 
-  setPiece(piece: (Piece|null)) {
+  private createFieldHtml(isFieldWhite: boolean): HTMLDivElement {
+    const field = document.createElement("div");
+    field.classList.add(CLASS_NAMES.field);
+    field.classList.add(
+      (isFieldWhite) ?
+      CLASS_NAMES.fieldColor1 : 
+      CLASS_NAMES.fieldColor2
+    );
+    return field;
+  }
+
+  public setPiece(piece: (AnyPiece|null)) {
     this.piece = piece;
   }
 }

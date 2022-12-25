@@ -4,15 +4,15 @@ import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Knight extends Piece {
-  constructor(team: number, board: Board) {
+  public value: number = 3;
+  public id: number = PIECES.KNIGHT;
+  constructor(public team: number, protected board: Board) {
     super(team, board);
-    this.id = PIECES.KNIGHT;
-    this.value = 3;
 
     this.addClassName(this.id);
   }
 
-  getPossibleMovesFromPosForKing(pos: Pos) {
+  public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
     const directions = [
       new Dir(1,2), new Dir(1,-2), new Dir(-1,2), new Dir(-1,-2), 
       new Dir(2,1), new Dir(2,-1), new Dir(-2,1), new Dir(-2,-1)
@@ -23,7 +23,7 @@ export default class Knight extends Piece {
       .filter(pos => this.board.isPosInBoard(pos));
   }
 
-  getPossibleMovesFromPos(pos: Pos) {
+  public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
     const myKing = this.board.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
@@ -34,8 +34,8 @@ export default class Knight extends Piece {
     return possibleMoves;
   }
 
-  createArrOfNormalMoves(pos: Pos) {
-    return this.getPossibleMovesFromPosForKing(pos)
+  private createArrOfNormalMoves(pos: Pos): Pos[] {
+    return this.createArrOfPossibleMovesFromPosForKing(pos)
       .filter(move => this.board.el[move.y][move.x].piece?.team !== this.team);
   }
 }

@@ -4,10 +4,25 @@ import { PlayerArg } from "./gameClasses/Player.js";
 import { TEAMS } from "./gameClasses/Pieces/Piece.js";
 
 let customStartPos: (null|string) = null;
-customStartPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/p w KQkq - 0 1";
-// customStartPos = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w K Qkq - 0 1";
+// customStartPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+// customStartPos = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";
 // customStartPos ="8/1p3p2/8/K1PqP3/8/8/8/7k b - - 0 1";
-console.log(document.querySelector("body")?.offsetWidth);
+// console.log(document.querySelector("body")?.offsetWidth);
+
+export const mouseHold = (element: HTMLElement) => {
+  return new Promise<void>((resolve, reject) => {
+    element.addEventListener(
+      "mouseup", () => {
+        reject();
+      },
+      {once: true}
+    );
+    setTimeout(() => {
+      resolve();
+    }, 150);
+  });
+}
+
 function startGame() {
   const player1Arg: PlayerArg = {
     name: "white",
