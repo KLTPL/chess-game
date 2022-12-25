@@ -4,34 +4,28 @@ import Dir from "./Dir.js";
 import { PIECES } from "./Pieces/Piece.js";
 
 export default class Check {
-  checkingPiecePos: Pos;
-  checkedKingPos: Pos;
-  board: Board;
-  fieldsInBetweenPieceAndKing: Pos[];
-  constructor(checkingPiecePos: Pos, checkedKingPos: Pos, board: Board) {
-    this.checkingPiecePos = checkingPiecePos;
-    this.checkedKingPos = checkedKingPos;
-    this.board = board;
-    this.fieldsInBetweenPieceAndKing = this.createArrOfFieldsInBetweenCheckingPieceAndKing();
+  constructor(
+    public checkingPiecePos: Pos, 
+    public checkedKingPos: Pos, 
+    private board: Board
+  ) {}
 
-  }
-
-  createArrOfFieldsInBetweenCheckingPieceAndKing() {
-    const checkingPiece = this.checkingPiecePos;
+  get fieldsInBetweenPieceAndKing() {
+    const piece = this.checkingPiecePos;
     if( 
-      this.board.el[checkingPiece.y][checkingPiece.x].piece?.id === PIECES.KNIGHT ||
-      this.board.el[checkingPiece.y][checkingPiece.x].piece?.id === PIECES.PAWN
+      this.board.el[piece.y][piece.x].piece?.id === PIECES.KNIGHT ||
+      this.board.el[piece.y][piece.x].piece?.id === PIECES.PAWN
     ) {
       return [];
     }
     const checkDir = new Dir(
-      this.checkedKingPos.y - checkingPiece.y, 
-      this.checkedKingPos.x - checkingPiece.x, 
+      this.checkedKingPos.y - piece.y, 
+      this.checkedKingPos.x - piece.x, 
       true
     );
     const tempPos = new Pos(
-      checkingPiece.y + checkDir.y, 
-      checkingPiece.x + checkDir.x
+      piece.y + checkDir.y, 
+      piece.x + checkDir.x
     );
     const fieldsInBetween: Pos[] = [];
 

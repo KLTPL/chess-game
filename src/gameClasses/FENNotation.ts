@@ -1,4 +1,4 @@
-import { PIECES, TEAMS } from "./Pieces/Piece";
+import { AnyPiece, PIECES, TEAMS } from "./Pieces/Piece";
 import { ArrOfPieces2d, FIELDS_IN_ONE_ROW } from "./Board";
 import Board from "./Board";
 import { CastleRights } from "./Pieces/King";
@@ -32,13 +32,13 @@ export default class FENNotation {
   private fullmoveClock: string;
   constructor(FEN: string|null, board: Board) {
     this.board = board;
-    const arr = this.createArrOfIndividualPartsOfFenNotation(FEN);
-    this.piecePlacement =   (arr[0] === null) ? DEFAULT_VALUES[0] : arr[0];
-    this.activeColor =      (arr[1] === null) ? DEFAULT_VALUES[1] : arr[1];
-    this.castlingRights =   (arr[2] === null) ? DEFAULT_VALUES[2] : arr[2];
-    this.enPassantTargets = (arr[3] === null) ? DEFAULT_VALUES[3] : arr[3];
-    this.halfmoveClock =    (arr[4] === null) ? DEFAULT_VALUES[4] : arr[4];
-    this.fullmoveClock =    (arr[5] === null) ? DEFAULT_VALUES[5] : arr[5];
+    const parsts = this.createArrOfIndividualPartsOfFenNotation(FEN);
+    this.piecePlacement =   (parsts[0] === null) ? DEFAULT_VALUES[0] : parsts[0];
+    this.activeColor =      (parsts[1] === null) ? DEFAULT_VALUES[1] : parsts[1];
+    this.castlingRights =   (parsts[2] === null) ? DEFAULT_VALUES[2] : parsts[2];
+    this.enPassantTargets = (parsts[3] === null) ? DEFAULT_VALUES[3] : parsts[3];
+    this.halfmoveClock =    (parsts[4] === null) ? DEFAULT_VALUES[4] : parsts[4];
+    this.fullmoveClock =    (parsts[5] === null) ? DEFAULT_VALUES[5] : parsts[5];
   }
 
   private createArrOfIndividualPartsOfFenNotation(FEN: string|null): (null[] | string[]) {
@@ -50,14 +50,19 @@ export default class FENNotation {
   }
 
   get piecePlacementConverted(): ArrOfPieces2d {
+    if (this.piecePlacement === DEFAULT_VALUES[0]) {
+      return this.createMapOfPiecesInDefaultPos();
+    }
+
     const piecePlacementSeperated = this.createArrOfPiecesPositionsSeperatedByRows();
     let pieces: ArrOfPieces2d = [];
     for (let r=0 ; r<piecePlacementSeperated.length ; r++) {
       pieces.push([]);
       for (let c=0 ; c<piecePlacementSeperated[r].length ; c++) {
         const char = piecePlacementSeperated[r][c];
-        if (!isNaN(parseInt(char))) {
-          const amountOfEmptyFields = parseInt(char);
+        const charInt = parseInt(char);
+        if (!isNaN(charInt)) {
+          const amountOfEmptyFields = charInt;
           pieces[pieces.length-1].push(...Array(amountOfEmptyFields).fill(null));
         } else {
           pieces[pieces.length-1].push(this.convertCharToPieceObj(char));
@@ -104,7 +109,7 @@ export default class FENNotation {
     return this.fullmoveClock;
   }
 
-  createArrOfPiecesPositionsSeperatedByRows() {
+  private createArrOfPiecesPositionsSeperatedByRows(): string[] {
     const piecePlacementSeperated = this.piecePlacement.split("/");
     if (piecePlacementSeperated.length > FIELDS_IN_ONE_ROW) {
       console.error("Too many rows of pieces (FEN notation)");
@@ -118,11 +123,34 @@ export default class FENNotation {
     return piecePlacementSeperated;
   }
 
-  private convertCharToPieceObj(char: string) {
+    private createMapOfPiecesInDefaultPos(): ArrOfPieces2d {
+    const firstAndLastRowNums = [
+      PIECES.ROOK, 
+      PIECES.KNIGHT, 
+      PIECES.BISHOP, 
+      PIECES.QUEEN, 
+      PIECES.KING, 
+      PIECES.BISHOP, 
+      PIECES.KNIGHT, 
+      PIECES.ROOK
+    ];
+
+    return [
+      firstAndLastRowNums.map(pieceNum => this.board.createNewPieceObj(pieceNum, TEAMS.BLACK)),
+      [...Array(FIELDS_IN_ONE_ROW)].map(() => this.board.createNewPieceObj(PIECES.PAWN, TEAMS.BLACK)),
+      ...Array(FIELDS_IN_ONE_ROW/2).fill(
+        Array(FIELDS_IN_ONE_ROW).fill(null)
+      ),
+      [...Array(FIELDS_IN_ONE_ROW)].map(() => this.board.createNewPieceObj(PIECES.PAWN, TEAMS.WHITE)),
+      firstAndLastRowNums.map(pieceNum => this.board.createNewPieceObj(pieceNum, TEAMS.WHITE))
+    ];
+  }
+
+  private convertCharToPieceObj(char: string): AnyPiece {
     const lowerCase = char.toLowerCase();
     const team = (char === lowerCase) ? TEAMS.BLACK : TEAMS.WHITE;
     const id = this.convertCharToPieceId(lowerCase);
-    return this.board.createNewPieceObj(id, team);
+    return this.board.createNewPieceObj(id, team) as AnyPiece;
   }
 
   private convertCharToPieceId(charLowerCase: string): number {

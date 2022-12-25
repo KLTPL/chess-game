@@ -1,35 +1,16 @@
-import Piece from "./Pieces/Piece.js";
+import Piece, { AnyPiece } from "./Pieces/Piece.js";
 import Pos from "./Pos.js";
 
 export default class Move {
-  piece: Piece;
-  from: Pos;
-  to: Pos;
-  capturedPiece: (Piece|null);
-  promotedTo: (Piece|null);
-  constructor(piece: Piece, from: Pos, to: Pos, capturedPiece: (Piece|null)) {
-    this.piece = piece;
-    this.from = from;
-    this.to = to;
-    this.capturedPiece = capturedPiece;
-    this.promotedTo = null;
-  }
+  public promotedTo: (Piece|null) = null;
+  constructor(
+    public piece: AnyPiece, 
+    public from: Pos, 
+    public to: Pos, 
+    public capturedPiece: (Piece|null)
+  ) {}
 
-  setPromotedTo(piece: Piece) {
+  public setPromotedTo(piece: AnyPiece): void {
     this.promotedTo = piece;
-  }
-
-  static capturesAreEqual(...captures: (Piece | null)[]) { //true if all captures are null
-    if (captures.length === 0) {
-      console.error("Not enough captures to compare");
-      return false;
-    }
-    const firstCapture = captures[0];
-    for (let i=1 ; i<captures.length ; i++) {
-      if (firstCapture !== captures[i]) {
-        return false;
-      }
-    }
-    return true;
   }
 }

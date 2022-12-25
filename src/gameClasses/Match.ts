@@ -2,9 +2,13 @@ import Board from "./Board.js";
 import { BoardArg } from "./Board.js";
 import Player from "./Player.js";
 import { PlayerArg } from "./Player.js";
-import EndType from "./EndType.js";
 import Move from "./Move.js";
 import { TEAMS } from "./Pieces/Piece.js";
+
+type EndInfo = {
+  cousedBy: Player;
+  type: string;
+}
 
 type Players = {
   white: Player;
@@ -12,31 +16,39 @@ type Players = {
 };
 
 export default class Match {
-  gameRunning: Boolean;
-  players: Players;
-  board: Board;
+  public gameRunning: Boolean;
+  public players: Players;
+  private board: Board;
   constructor(
     player1Arg: PlayerArg,
     player2Arg: PlayerArg,
     boardArg: BoardArg
   ) {
     this.gameRunning = true;
-    this.board = new Board(
+    this.board = this.createNewBoardObj(boardArg);
+    this.players = this.createNewPlayersObj(player1Arg, player2Arg);
+  }
+
+  private createNewBoardObj(boardArg: BoardArg): Board {
+    return new Board(
       boardArg.htmlPageContainerQSelector,
       boardArg.customPositionFEN,
       this,
       );
-    this.players = {
+  }
+
+  private createNewPlayersObj(player1Arg: PlayerArg, player2Arg: PlayerArg): Players {
+    return {
       white: new Player(
-        player1Arg.name,
         player1Arg.image,
+        player1Arg.name,
         player1Arg.team,
         player1Arg.timeS,
         this.board
       ),
       black: new Player(
-        player2Arg.name,
         player2Arg.image,
+        player2Arg.name,
         player2Arg.team,
         player2Arg.timeS,
         this.board
@@ -44,30 +56,31 @@ export default class Match {
     };
   }
 
-  checkIfGameShouldEndAfterMove(move: Move) {
+  public checkIfGameShouldEndAfterMove(move: Move): void {
     const whiteMoved = (move.piece.team === TEAMS.WHITE);
     const playerWhoMadeMove = (whiteMoved) ? this.players.white : this.players.black;
-    const otherKing = (!whiteMoved) ? this.board.kings.white : this.board.kings.black;
+    const otherKing = (!whiteMoved) ? this.board.getKingByTeam(TEAMS.WHITE) : this.board.getKingByTeam(TEAMS.WHITE);
     const otherPlayer = (!whiteMoved) ? this.players.white : this.players.black;
 
     if (
-      this.board.insufficientMaterialThatLeadsToDraw() ||
-      this.board.threeMovesRepetition() ||
-      this.board.noCapturesOrPawnMovesIn50Moves()
+      this.board.isDrawByInsufficientMaterial() ||
+      this.board.isDrawByThreeMovesRepetition() ||
+      this.board.isDrawByNoCapturesOrPawnMovesIn50Moves()
     ) {
-      this.end(new EndType(playerWhoMadeMove, "draw"));
+      this.end({cousedBy: playerWhoMadeMove, type: "draw"});
       return;
     }
-    if (!otherPlayer.hasMoves()) {
-      const endedWith = (otherKing.checks.length > 0) ? "check-mate" : "stale-mate";
-      this.end(new EndType(playerWhoMadeMove, endedWith));
+    if (!otherPlayer.isAbleToMakeMove()) {
+      const endType = (otherKing.checks.length > 0) ? "check-mate" : "stale-mate";
+      this.end({cousedBy: playerWhoMadeMove, type: endType});
     }
   }
 
-  end(endType?: EndType) {
+  public end(endType?: EndInfo): void {
     this.gameRunning = false;
+    this.board.removeEventListenersFromPieces();
     console.log("moves: ",this.board.moves);
-    if (endType) {
+    if (endType !== undefined) {
       console.log(
         `Game has ended by ${endType.cousedBy.name} with a ${endType.type}`
       ); 
