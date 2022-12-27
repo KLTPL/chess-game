@@ -11,13 +11,13 @@ type Players = {
   white: Player;
   black: Player;
 };
-type PlayerArg = {
+export type PlayerArg = {
   name: string, 
   image: ImageBitmap | null, 
   team: number, 
   timeS: number
 };
-type BoardArg = {
+export type BoardArg = {
   htmlPageContainerQSelector: string, 
   customPositionFEN: (string|null),
 };

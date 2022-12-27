@@ -1,6 +1,4 @@
-import Match from "./gameClasses/Match.js";
-import { BoardArg } from "./gameClasses/Board.js";
-import { PlayerArg } from "./gameClasses/Player.js";
+import Match, { PlayerArg, BoardArg } from "./gameClasses/Match.js";
 import { TEAMS } from "./gameClasses/Pieces/Piece.js";
 
 let customStartPos: (null|string) = null;
