@@ -1,22 +1,29 @@
 import Board from "./Board.js";
-import { BoardArg } from "./Board.js";
 import Player from "./Player.js";
-import { PlayerArg } from "./Player.js";
 import Move from "./Move.js";
 import { TEAMS } from "./Pieces/Piece.js";
 
 type EndInfo = {
   cousedBy: Player;
   type: string;
-}
-
+};
 type Players = {
   white: Player;
   black: Player;
 };
+type PlayerArg = {
+  name: string, 
+  image: ImageBitmap | null, 
+  team: number, 
+  timeS: number
+};
+type BoardArg = {
+  htmlPageContainerQSelector: string, 
+  customPositionFEN: (string|null),
+};
 
 export default class Match {
-  public gameRunning: Boolean;
+  public gameRunning: Boolean = true;
   public players: Players;
   private board: Board;
   constructor(
@@ -24,21 +31,12 @@ export default class Match {
     player2Arg: PlayerArg,
     boardArg: BoardArg
   ) {
-    this.gameRunning = true;
-    this.board = this.createNewBoardObj(boardArg);
-    this.players = this.createNewPlayersObj(player1Arg, player2Arg);
-  }
-
-  private createNewBoardObj(boardArg: BoardArg): Board {
-    return new Board(
-      boardArg.htmlPageContainerQSelector,
-      boardArg.customPositionFEN,
-      this,
-      );
-  }
-
-  private createNewPlayersObj(player1Arg: PlayerArg, player2Arg: PlayerArg): Players {
-    return {
+    this.board = new Board(
+      boardArg.htmlPageContainerQSelector, 
+      boardArg.customPositionFEN, 
+      this
+    );
+    this.players = {
       white: new Player(
         player1Arg.image,
         player1Arg.name,

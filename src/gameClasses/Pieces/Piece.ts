@@ -11,12 +11,7 @@ import Knight from "./Knight.js";
 import Bishop from "./Bishop.js";
 import Queen from "./Queen.js";
 
-
 export type AnyPiece = (Pawn|Rook|Knight|Bishop|Queen|King);
-
-// interface SubPiece {
-
-// }
 
 export const enum PIECES {
   PAWN,
@@ -48,9 +43,9 @@ export default abstract class Piece {
     this.startListeningForClicks();
   }
   
-  abstract createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[];
+  public abstract createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[];
 
-  abstract createArrOfPossibleMovesFromPos(pos: Pos): Pos[];
+  public abstract createArrOfPossibleMovesFromPos(pos: Pos): Pos[];
 
   public sideEffectsOfMove(to: Pos, from: Pos): void {to; from};
 
@@ -311,5 +306,22 @@ export default abstract class Piece {
       }
     }
     return true;
+  }
+
+  public static createNewObj(id: (number|null), team: (number|null), board: Board)
+  : (AnyPiece | null) {
+    if (id === null || team === null) {
+      return null;
+    }
+
+    switch (id) {
+      case PIECES.PAWN:   return new Pawn  (team, board);
+      case PIECES.ROOK:   return new Rook  (team, board);
+      case PIECES.KNIGHT: return new Knight(team, board);
+      case PIECES.BISHOP: return new Bishop(team, board);
+      case PIECES.QUEEN:  return new Queen (team, board);
+      case PIECES.KING:   return new King  (team, board);
+      default:            return null;
+    }
   }
 }

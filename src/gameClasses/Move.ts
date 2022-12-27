@@ -13,4 +13,18 @@ export default class Move {
   public setPromotedTo(piece: AnyPiece): void {
     this.promotedTo = piece;
   }
+
+  public static createNewObj(
+    piece: AnyPiece, 
+    from: Pos,
+    to: Pos, 
+    capturedPiece: (Piece|null), 
+    isBoardInverted: boolean
+  ): Move {
+    if (isBoardInverted) {
+      // from.invert();
+      // to.invert();
+    }
+    return new Move(piece, from, to, capturedPiece);
+  }
 }

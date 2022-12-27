@@ -2,10 +2,6 @@ import Pos from "./Pos.js";
 import Field, { CLASS_NAMES as FIELDS_CLASS_NAMES } from "./Field.js";
 import Piece, { AnyPiece, PIECES, TEAMS } from "./Pieces/Piece.js";
 import Pawn from "./Pieces/Pawn.js";
-import Rook from "./Pieces/Rook.js";
-import Knight from "./Pieces/Knight.js";
-import Bishop from "./Pieces/Bishop.js";
-import Queen from "./Pieces/Queen.js";
 import King from "./Pieces/King.js";
 import GrabbedPieceInfo from "./Pieces/GrabbedPieceInfo.js";
 import Move from "./Move.js";
@@ -13,11 +9,6 @@ import VisualizingSystem from "./VisualizingSystem.js";
 import PawnPromotionMenu from "./PawnPromotionMenu.js";
 import Match from "./Match.js";
 import FENNotation from "./FENNotation.js";
-
-export type BoardArg = {
-  htmlPageContainerQSelector: string, 
-  customPositionFEN: (string | null),
-};
 
 export type ArrOfPieces2d = (AnyPiece|null)[][];
 
@@ -105,23 +96,6 @@ export default class Board {
 
   private setPieceTransitionDeley(htmlEl: HTMLDivElement, ms: number): void {
     htmlEl.style.setProperty("--transitionDuration", `${ms}ms`);
-  }
-
-  public createNewPieceObj(id: (number|null), team: (number|null))
-    : (King | Pawn | Rook | Knight | Bishop | Queen | null) {
-    if (id === null || team === null) {
-      return null;
-    }
-
-    switch (id) {
-      case PIECES.PAWN:   return new Pawn  (team, this);
-      case PIECES.ROOK:   return new Rook  (team, this);
-      case PIECES.KNIGHT: return new Knight(team, this);
-      case PIECES.BISHOP: return new Bishop(team, this);
-      case PIECES.QUEEN:  return new Queen (team, this);
-      case PIECES.KING:   return new King  (team, this);
-      default:            return null;
-    }
   }
 
   private createFieldsArr(): Field[][] {
@@ -227,7 +201,7 @@ export default class Board {
       this.removePieceInPos(to, true);
     }
     this.moves.push(
-      this.createNewMoveObj(piece, from, to, capturedPiece)
+      Move.createNewObj(piece, from, to, capturedPiece, this.isInverted)
     );
     this.switchCurrTeam();
     this.placePieceInPos(to, piece, transitionDelayMs);
@@ -235,24 +209,16 @@ export default class Board {
     const enemyKing = this.getKingByTeam(piece.enemyTeamNum);
     enemyKing.updateChecksArr();
     this.match.checkIfGameShouldEndAfterMove(this.moves[this.moves.length-1]);
-    // future TODO
-    // if (this.match.gameRunning) {
-    //   if (this.pawnPromotionMenu) {
-    //     this.pawnPromotionMenu.playerIsChoosing.then(() => {
-    //       this.flipPerspective();
-    //     });
-    //   } else {
-    //     this.flipPerspective();
-    //   }
-    // }
-  }
-
-  private createNewMoveObj(piece: AnyPiece, from: Pos, to: Pos, capturedPiece: (Piece|null)): Move {
-    if (this.isInverted) {
-      from.invert();
-      to.invert();
+    // TODO
+    if (this.match.gameRunning) {
+      if (this.pawnPromotionMenu) {
+        this.pawnPromotionMenu.playerIsChoosing.then(() => {
+          this.flipPerspective();
+        });
+      } else {
+        this.flipPerspective();
+      }
     }
-    return new Move(piece, from, to, capturedPiece);
   }
 
   public removePieceInPos(pos: Pos, html: boolean) {
