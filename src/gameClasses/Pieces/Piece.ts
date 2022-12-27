@@ -37,7 +37,7 @@ export const DEFAULT_TRANSITION_DELAY_MS = 30;
 export default abstract class Piece {
   public abstract value: number;
   public abstract id: number;
-  public html: HTMLElement;
+  public html: HTMLDivElement;
   constructor(public team: number, protected board: Board) {
     this.html = this.createNewHtmlPiece();
     this.startListeningForClicks();
@@ -306,22 +306,5 @@ export default abstract class Piece {
       }
     }
     return true;
-  }
-
-  public static createNewObj(id: (number|null), team: (number|null), board: Board)
-  : (AnyPiece | null) {
-    if (id === null || team === null) {
-      return null;
-    }
-
-    switch (id) {
-      case PIECES.PAWN:   return new Pawn  (team, board);
-      case PIECES.ROOK:   return new Rook  (team, board);
-      case PIECES.KNIGHT: return new Knight(team, board);
-      case PIECES.BISHOP: return new Bishop(team, board);
-      case PIECES.QUEEN:  return new Queen (team, board);
-      case PIECES.KING:   return new King  (team, board);
-      default:            return null;
-    }
   }
 }

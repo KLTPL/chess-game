@@ -9,6 +9,10 @@ import VisualizingSystem from "./VisualizingSystem.js";
 import PawnPromotionMenu from "./PawnPromotionMenu.js";
 import Match from "./Match.js";
 import FENNotation from "./FENNotation.js";
+import Rook from "./Pieces/Rook.js";
+import Knight from "./Pieces/Knight.js";
+import Bishop from "./Pieces/Bishop.js";
+import Queen from "./Pieces/Queen.js";
 
 export type ArrOfPieces2d = (AnyPiece|null)[][];
 
@@ -505,6 +509,23 @@ export default class Board {
       for (const field of row) {
         field.piece?.stopListeningForClicks();
       }
+    }
+  }
+
+  public createNewPieceObj(id: (number|null), team: (number|null), board: Board)
+  : (AnyPiece | null) {
+    if (id === null || team === null) {
+      return null;
+    }
+
+    switch (id) {
+      case PIECES.PAWN:   return new Pawn  (team, board);
+      case PIECES.ROOK:   return new Rook  (team, board);
+      case PIECES.KNIGHT: return new Knight(team, board);
+      case PIECES.BISHOP: return new Bishop(team, board);
+      case PIECES.QUEEN:  return new Queen (team, board);
+      case PIECES.KING:   return new King  (team, board);
+      default:            return null;
     }
   }
 
