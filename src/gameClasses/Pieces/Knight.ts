@@ -8,7 +8,6 @@ export default class Knight extends Piece {
   public id: number = PIECES.KNIGHT;
   constructor(public team: number, protected board: Board) {
     super(team, board);
-
     this.addClassName(this.id);
   }
 

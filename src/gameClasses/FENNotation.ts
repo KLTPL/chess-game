@@ -1,4 +1,4 @@
-import { AnyPiece, PIECES, TEAMS } from "./Pieces/Piece";
+import Piece, { AnyPiece, PIECES, TEAMS } from "./Pieces/Piece";
 import { ArrOfPieces2d, FIELDS_IN_ONE_ROW } from "./Board";
 import Board from "./Board";
 import { CastleRights } from "./Pieces/King";
@@ -136,13 +136,13 @@ export default class FENNotation {
     ];
 
     return [
-      firstAndLastRowNums.map(pieceNum => this.board.createNewPieceObj(pieceNum, TEAMS.BLACK)),
-      [...Array(FIELDS_IN_ONE_ROW)].map(() => this.board.createNewPieceObj(PIECES.PAWN, TEAMS.BLACK)),
+      firstAndLastRowNums.map(pieceNum => Piece.createNewObj(pieceNum, TEAMS.BLACK, this.board)),
+      [...Array(FIELDS_IN_ONE_ROW)].map(() => Piece.createNewObj(PIECES.PAWN, TEAMS.BLACK, this.board)),
       ...Array(FIELDS_IN_ONE_ROW/2).fill(
         Array(FIELDS_IN_ONE_ROW).fill(null)
       ),
-      [...Array(FIELDS_IN_ONE_ROW)].map(() => this.board.createNewPieceObj(PIECES.PAWN, TEAMS.WHITE)),
-      firstAndLastRowNums.map(pieceNum => this.board.createNewPieceObj(pieceNum, TEAMS.WHITE))
+      [...Array(FIELDS_IN_ONE_ROW)].map(() => Piece.createNewObj(PIECES.PAWN, TEAMS.WHITE, this.board)),
+      firstAndLastRowNums.map(pieceNum => Piece.createNewObj(pieceNum, TEAMS.WHITE, this.board))
     ];
   }
 
@@ -150,7 +150,7 @@ export default class FENNotation {
     const lowerCase = char.toLowerCase();
     const team = (char === lowerCase) ? TEAMS.BLACK : TEAMS.WHITE;
     const id = this.convertCharToPieceId(lowerCase);
-    return this.board.createNewPieceObj(id, team) as AnyPiece;
+    return Piece.createNewObj(id, team, this.board) as AnyPiece;
   }
 
   private convertCharToPieceId(charLowerCase: string): number {

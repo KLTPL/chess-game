@@ -3,13 +3,6 @@ import Pos from "./Pos.js";
 import Piece from "./Pieces/Piece.js";
 import { TEAMS } from "./Pieces/Piece.js";
 
-export type PlayerArg = {
-  name: string, 
-  image: ImageBitmap | null, 
-  team: number, 
-  timeS: number
-}
-
 export default class Player {
   public image: null;
   public points: number = 0;
