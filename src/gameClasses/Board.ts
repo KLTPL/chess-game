@@ -1,9 +1,8 @@
 import Pos from "./Pos.js";
 import Field, { CLASS_NAMES as FIELDS_CLASS_NAMES } from "./Field.js";
-import Piece, { AnyPiece, PIECES, TEAMS } from "./Pieces/Piece.js";
+import Piece, { AnyPiece, PIECES, TEAMS, GrabbedPieceInfo } from "./Pieces/Piece.js";
 import Pawn from "./Pieces/Pawn.js";
 import King from "./Pieces/King.js";
-import GrabbedPieceInfo from "./Pieces/GrabbedPieceInfo.js";
 import Move from "./Move.js";
 import VisualizingSystem from "./VisualizingSystem.js";
 import PawnPromotionMenu from "./PawnPromotionMenu.js";
@@ -39,12 +38,12 @@ export default class Board {
   private fieldsHtml: HTMLDivElement;
   public piecesHtml: HTMLDivElement;
   public pageContainerHtml: HTMLDivElement;
-  public grabbedPieceInfo: GrabbedPieceInfo | null;
+  public grabbedPieceInfo: (GrabbedPieceInfo|null);
   public pawnPromotionMenu: (PawnPromotionMenu|null);
   public isInverted: boolean;
   constructor(
     htmlPageContainerQSelector: string, 
-    customPositionFEN: string | null,
+    customPositionFEN: (string|null),
     match: Match, 
   ) {
     this.startFENNotation = new FENNotation(customPositionFEN, this);
@@ -70,12 +69,25 @@ export default class Board {
       this.flipPerspective();
     }
     new VisualizingSystem(this);
-    // this.el[6][0].piece?.html.addEventListener("mousemove", (ev: MouseEvent) => {
-    //   console.log("ev.clientX",ev.clientX)
+    // this.html.addEventListener("mousemove", (ev: MouseEvent) => {
+    //   console.log(ev.clientX - this.html.getBoundingClientRect().left);
     // });
-    // this.el[6][7].piece?.html.addEventListener("mousemove", (ev: MouseEvent) => {
-    //   console.log("ev.clientX",ev.clientX)
-    // });
+
+    // console.log(
+    //   this.calcFieldPosByPxTemp(-4,400)
+    // )
+  }
+
+  calcFieldPosByPxTemp(leftPxOnBoard: number, topPxOnBoard: number): Pos { // pos values from 0 to 7 or -1 if not in board
+    let fieldC = Math.floor((leftPxOnBoard/this.fieldsHtml.offsetWidth )*FIELDS_IN_ONE_ROW);
+    let fieldR = Math.floor((topPxOnBoard /this.fieldsHtml.offsetHeight)*FIELDS_IN_ONE_ROW);
+    if (fieldC < 0 || fieldC > FIELDS_IN_ONE_ROW-1) {
+      fieldC = -1;
+    }
+    if (fieldR < 0 || fieldR > FIELDS_IN_ONE_ROW-1) {
+      fieldR = -1;
+    }
+    return new Pos(fieldR, fieldC);
   }
 
   private createBoardContainer(): HTMLDivElement { // <div class="board-container"></div>
@@ -136,11 +148,31 @@ export default class Board {
   }
 
 
-  public calcFieldCoorByPx(leftPx: number, topPx: number): Pos { // pos values from 0 to 7 or -1 if not in board
-    const boardStartLeft = (this.pageContainerHtml.offsetWidth-this.html.offsetWidth)/2;
-    const boardStartTop =  (this.pageContainerHtml.offsetHeight-this.html.offsetHeight)/2;
-    const posOnBoardLeft = leftPx - boardStartLeft;
-    const posOnBoardTop =  topPx - boardStartTop;
+  public calcFieldPosByPx(leftPx: number, topPx: number, isInBoardForSure?: boolean): Pos { // pos values from 0 to 7 or -1 if not in board
+    const boardBoundingRect = this.html.getBoundingClientRect();
+    let posOnBoardLeft = leftPx - boardBoundingRect.left;
+    let posOnBoardTop =  topPx - boardBoundingRect.top;
+    if (!Number.isInteger(posOnBoardLeft)) { // im not happy with how it looks
+      posOnBoardLeft = Math.ceil(posOnBoardLeft);
+    }
+    if (!Number.isInteger(posOnBoardTop)) {
+      posOnBoardTop = Math.ceil(posOnBoardTop);
+    }
+    if (isInBoardForSure) {
+      const boardWidth = this.html.offsetWidth;
+      if (posOnBoardLeft >= boardWidth) {
+        posOnBoardLeft = boardWidth-1;
+      }
+      if (posOnBoardLeft < 0) {
+        posOnBoardLeft = 0;
+      }
+      if (posOnBoardTop >= boardWidth) {
+        posOnBoardTop = boardWidth-1;
+      }
+      if (posOnBoardTop < 0) {
+        posOnBoardTop = 0;
+      }
+    }
     let fieldC = Math.floor((posOnBoardLeft/this.fieldsHtml.offsetWidth)* FIELDS_IN_ONE_ROW);
     let fieldR = Math.floor((posOnBoardTop/this.fieldsHtml.offsetHeight)*FIELDS_IN_ONE_ROW);
     if (fieldC < 0 || fieldC > FIELDS_IN_ONE_ROW-1) {
@@ -179,11 +211,11 @@ export default class Board {
     this.el[pos.y][pos.x].setPiece(piece);
   }
 
-  private transformPieceHtmlToPos(pieceHtml: HTMLDivElement, pos: Pos): void {
+  private transformPieceHtmlToPos(pieceHtml: HTMLDivElement, pos: Pos): void {   
     pieceHtml.style.transform = 
       `translate(
-        ${pos.x * this.piecesHtml.offsetWidth  / FIELDS_IN_ONE_ROW}px,
-        ${pos.y * this.piecesHtml.offsetHeight / FIELDS_IN_ONE_ROW}px
+        ${pos.x * 100}%,
+        ${pos.y * 100}%
       )`;
   }
 
@@ -214,15 +246,15 @@ export default class Board {
     enemyKing.updateChecksArr();
     this.match.checkIfGameShouldEndAfterMove(this.moves[this.moves.length-1]);
     // TODO
-    if (this.match.gameRunning) {
-      if (this.pawnPromotionMenu) {
-        this.pawnPromotionMenu.playerIsChoosing.then(() => {
-          this.flipPerspective();
-        });
-      } else {
-        this.flipPerspective();
-      }
-    }
+    // if (this.match.gameRunning) {
+    //   if (this.pawnPromotionMenu) {
+    //     this.pawnPromotionMenu.playerIsChoosing.then(() => {
+    //       this.flipPerspective();
+    //     });
+    //   } else {
+    //     this.flipPerspective();
+    //   }
+    // }
   }
 
   public removePieceInPos(pos: Pos, html: boolean) {
@@ -501,7 +533,7 @@ export default class Board {
 
   private updateFieldSize(): void {
     const root = document.querySelector(":root") as HTMLElement;
-    root.style.setProperty("--fieldSize", `${this.html.offsetWidth / FIELDS_IN_ONE_ROW}px`);
+    root.style.setProperty("--pieceSize", `${this.html.offsetWidth / FIELDS_IN_ONE_ROW}px`);
   }
 
   public removeEventListenersFromPieces() {
