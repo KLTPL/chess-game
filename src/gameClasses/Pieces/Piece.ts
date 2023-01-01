@@ -4,7 +4,6 @@ import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 import King from "./King.js";
 import Check from "../Check.js";
-import GrabbedPieceInfo from "./GrabbedPieceInfo.js";
 import Pawn from "./Pawn.js";
 import Rook from "./Rook.js";
 import Knight from "./Knight.js";
@@ -12,6 +11,11 @@ import Bishop from "./Bishop.js";
 import Queen from "./Queen.js";
 
 export type AnyPiece = (Pawn|Rook|Knight|Bishop|Queen|King);
+
+export type GrabbedPieceInfo = {
+  piece: (AnyPiece|Piece);
+  grabbedFrom: Pos;
+};
 
 export const enum PIECES {
   PAWN,
@@ -47,8 +51,7 @@ export default abstract class Piece {
 
   public abstract createArrOfPossibleMovesFromPos(pos: Pos): Pos[];
 
-  public sideEffectsOfMove(to: Pos, from: Pos): void {to; from};
-
+  public sideEffectsOfMove(to: Pos, from: Pos): void {to; from;};
 
   private startListeningForClicks(): void {
     this.html.addEventListener(
@@ -79,8 +82,6 @@ export default abstract class Piece {
 
    private startFollowingCursor = (ev: MouseEvent): void => { // TODO
     const leftClickNum = 0;
-    const fieldCoor = this.board.calcFieldCoorByPx(ev.clientX, ev.clientY);
-    const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
     if( 
       ev.button !== leftClickNum || 
       this.board.currTeam !== this.team || 
@@ -89,8 +90,11 @@ export default abstract class Piece {
     ) {
       return;
     }
+
+    const fieldCoor = this.board.calcFieldPosByPx(ev.clientX, ev.clientY, true);
+    const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
     this.board.showPossibleMoves(possMoves, this.enemyTeamNum);
-    this.board.grabbedPieceInfo = new GrabbedPieceInfo(this, fieldCoor); // TODO this Piece | AnyPiece
+    this.board.grabbedPieceInfo = { piece: this, grabbedFrom: fieldCoor }; // TODO this Piece | AnyPiece
     this.board.removePieceInPos(fieldCoor, false);
     this.html.id = "move";
     this.moveToCursor(ev);
@@ -99,26 +103,29 @@ export default abstract class Piece {
       this.moveToCursor
     );
 
-    mouseHold(this.html)
+      mouseHold(this.html)
       .then(() => {
+        const type = "mouseup";
         document.addEventListener(
-          "mouseup",
-          newEv => this.stopFollowingCursor(newEv, possMoves), 
-          {once: true}
+          type,
+          newEv => this.stopFollowingCursor(newEv, possMoves, type), 
+          { once: true }
         );
       })
       .catch(() => {
+        const type = "mousedown";
         document.addEventListener(
-          "mousedown", 
-          newEv => this.stopFollowingCursor(newEv, possMoves), 
-          {once: true}
+          type, 
+          newEv => this.stopFollowingCursor(newEv, possMoves, type), 
+          { once: true }
         )
       });
   }
 
   private moveToCursor = (ev: MouseEvent): void => {
     ev.preventDefault();
-    this.board.highlightFieldUnderMovingPiece(this.board.calcFieldCoorByPx(ev.clientX, ev.clientY));
+    const coor = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
+    this.board.highlightFieldUnderMovingPiece(coor);
 
     const trans = this.html.style.transform; // format: 'transform(Xpx, Ypx)'
     const oldTranslateX = trans.slice(
@@ -130,7 +137,6 @@ export default abstract class Piece {
 
     const newTranslateX = `${this.calcNewTranslateXValue(ev.clientX)}px`;
     const newTranslateY = `${this.calcNewTranslateYValue(ev.clientY)}px`;
-    const coor = this.board.calcFieldCoorByPx(ev.clientX, ev.clientY);
 
     const translateX = (coor.x === -1) ? oldTranslateX : newTranslateX;
     const translateY = (coor.y === -1) ? oldTranslateY : newTranslateY;
@@ -155,8 +161,17 @@ export default abstract class Piece {
     );
   }
 
-  private stopFollowingCursor = (ev: MouseEvent, possMoves: Pos[]): void => {
-    const boardGrabbedPieceInfo = this.board.grabbedPieceInfo as GrabbedPieceInfo;
+  private stopFollowingCursor = (ev: MouseEvent, possMoves: Pos[], type: "mouseup"|"mousedown"): void => {
+    if (ev.button !== 0) { // 0 = left click
+      document.addEventListener(
+        type, 
+        newEv => this.stopFollowingCursor(newEv, possMoves, type), 
+        { once: true }
+      )
+      return;
+    }
+
+    const boardGrabbedPieceInfo = this.board.grabbedPieceInfo as GrabbedPieceInfo; // .piece is equal to this
     this.html.id = "";
     const id = HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE;
     if (document.getElementById(id)) {
@@ -167,13 +182,12 @@ export default abstract class Piece {
       this.moveToCursor
     );
     this.board.hidePossibleMoves();
-    const newPos = this.board.calcFieldCoorByPx(ev.clientX, ev.clientY);
+    const newPos = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
     const oldPos = boardGrabbedPieceInfo.grabbedFrom;
     for (let i=0 ; i<possMoves.length ; i++) {
       if ( 
         possMoves[i].isEqualTo(newPos) &&
-        (newPos.x !== oldPos.x || 
-         newPos.y !== oldPos.y)
+        !newPos.isEqualTo(oldPos)
       ) {
         this.board.movePiece(
           oldPos,
@@ -182,7 +196,7 @@ export default abstract class Piece {
           DEFAULT_TRANSITION_DELAY_MS
         );
         possMoves = [];
-        this.board.grabbedPieceInfo = null;
+    this.board.grabbedPieceInfo = null;
         return;
       }
     }

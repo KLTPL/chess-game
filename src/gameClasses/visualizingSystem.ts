@@ -17,20 +17,18 @@ export default class VisualizingSystem {
       this.removeHighlightFromAllFields();
       return;
     }
-    if (ev.button !== 2) { // mouse right click
+    if (ev.button !== 2 || this.board.grabbedPieceInfo !== null) { // mouse right click
       return;
     }
+    console.log("handleMouseDown further")
 
+    const startPos = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
     mouseHold(this.board.html)
     .then(() => {
       this.board.html.addEventListener("mouseup", endEv => {
-        const startPos = this.board.calcFieldCoorByPx(ev.clientX, ev.clientY);
-        const endPos = this.board.calcFieldCoorByPx(endEv.clientX, endEv.clientY);
-        if (
-          startPos.x === endPos.x && 
-          startPos.y === endPos.y
-        ) {
-          this.toggleHighlightOnFieldOnPos(this.board.calcFieldCoorByPx(ev.clientX, ev.clientY));
+        const endPos = this.board.calcFieldPosByPx(endEv.clientX, endEv.clientY);
+        if (startPos.isEqualTo(endPos)) {
+          this.toggleHighlightOnFieldOnPos(startPos);
           return;
         }
         const matchingArrowNum = this.indexOfEqualArrow(startPos, endPos);
@@ -41,7 +39,7 @@ export default class VisualizingSystem {
         this.arrows.push(new VisualizingArrow(this.board, startPos, endPos));
       }, {once: true});
     }).catch( () => {
-      this.toggleHighlightOnFieldOnPos(this.board.calcFieldCoorByPx(ev.clientX, ev.clientY));
+      this.toggleHighlightOnFieldOnPos(startPos);
     });
   }
 

@@ -11,7 +11,7 @@
   --arrowBgColor: hsla(16, 100%, 50%, 0.9);
   --popupColor: hsl(60, 56%, 91%);
 
-  --fieldSize: 100%; /* set in a script*/
+  --pieceSize: 100%; /* set in a script*/
   --possMoveSize: 100%; /* set in a script*/
   --possMoveStartSize: 100%; /* set in a script*/
 }
@@ -32,8 +32,8 @@ body {
   left: 50%;
   transform: translate(-50%,-50%);
   box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.596);
-  width: 750px; 
-  height: 750px;
+  width: 800px; 
+  height: 800px;
 }
 
 .board-fields-container {
@@ -66,10 +66,10 @@ body {
 .piece {
   --transitionDuration: 0; /* set in script*/
   position: absolute;
-  width: var(--fieldSize);
-  height: var(--fieldSize);
+  width: var(--pieceSize);
+  height: var(--pieceSize);
   cursor: grab;
-  background-size: var(--fieldSize);
+  background-size: var(--pieceSize);
   background-position: center;
   transition: all var(--transitionDuration) ease-in;
   z-index: 1;
@@ -197,10 +197,10 @@ body {
 }
 
 .promote-option {
-  width: var(--fieldSize);
-  height: var(--fieldSize);
+  width: var(--pieceSize);
+  height: var(--pieceSize);
   cursor: pointer;
-  background-size: var(--fieldSize);
+  background-size: var(--pieceSize);
   background-position: center;
 }
 
