@@ -3,7 +3,7 @@ import Field, { CLASS_NAMES as FIELDS_CLASS_NAMES } from "./Field.js";
 import Piece, { AnyPiece, PIECES, TEAMS, GrabbedPieceInfo } from "./Pieces/Piece.js";
 import Pawn from "./Pieces/Pawn.js";
 import King from "./Pieces/King.js";
-import Move from "./Move.js";
+import Halfmove from "./Halfmove.js";
 import VisualizingSystem from "./VisualizingSystem.js";
 import PawnPromotionMenu from "./PawnPromotionMenu.js";
 import Match from "./Match.js";
@@ -12,6 +12,8 @@ import Rook from "./Pieces/Rook.js";
 import Knight from "./Pieces/Knight.js";
 import Bishop from "./Pieces/Bishop.js";
 import Queen from "./Pieces/Queen.js";
+import MovesSystem from "./movesSystem.js";
+import AnalisisSystem from "./AnalisisSystem.js";
 
 export type ArrOfPieces2d = (AnyPiece|null)[][];
 
@@ -30,64 +32,44 @@ const CLASS_NAMES = {
 
 export default class Board {
   public startFENNotation: FENNotation;
-  private match: Match;
   public currTeam: (TEAMS.WHITE|TEAMS.BLACK);
-  public moves: Move[];
-  public el: Field[][];
-  public html: HTMLDivElement;
-  private fieldsHtml: HTMLDivElement;
-  public piecesHtml: HTMLDivElement;
+  public el: Field[][] = [];
+  public html: HTMLDivElement = this.createBoardContainer();
+  private fieldsHtml: HTMLDivElement = this.createContainerForFields();
+  public piecesHtml: HTMLDivElement = this.createContainerForPieces();
   public pageContainerHtml: HTMLDivElement;
-  public grabbedPieceInfo: (GrabbedPieceInfo|null);
-  public pawnPromotionMenu: (PawnPromotionMenu|null);
+  public grabbedPieceInfo: (GrabbedPieceInfo|null) = null;
+  public pawnPromotionMenu: (PawnPromotionMenu|null) = null;
   public isInverted: boolean;
+  public movesSystem: MovesSystem = new MovesSystem(/*this*/);
+  analisisSystem: AnalisisSystem;
   constructor(
     htmlPageContainerQSelector: string, 
     customPositionFEN: (string|null),
-    match: Match, 
+    private match: Match, 
   ) {
     this.startFENNotation = new FENNotation(customPositionFEN, this);
-    this.match = match;
     this.currTeam = this.startFENNotation.activeColorConverted;
-    this.moves = [];
-    this.el = [];
+    this.isInverted = (this.currTeam !== TEAMS.WHITE);
     this.pageContainerHtml = document.querySelector(htmlPageContainerQSelector) as HTMLDivElement;
-    this.grabbedPieceInfo = null;
-    this.pawnPromotionMenu = null;
-    this.isInverted = false;
 
-    this.html = this.createBoardContainer();
-    this.fieldsHtml = this.createContainerForFields();
-    this.piecesHtml = this.createContainerForPieces();
     this.pageContainerHtml.append(this.html);
     this.html.append(this.fieldsHtml);
     this.html.append(this.piecesHtml);
+    this.setCssPieceSize();
+
     this.el = this.createFieldsArr();
     this.placePieces(this.startFENNotation.piecePlacementConverted);
-    this.updateFieldSize();
     if (this.isInverted) {
       this.flipPerspective();
     }
     new VisualizingSystem(this);
-    // this.html.addEventListener("mousemove", (ev: MouseEvent) => {
-    //   console.log(ev.clientX - this.html.getBoundingClientRect().left);
-    // });
+    this.analisisSystem =  new AnalisisSystem(this);
 
-    // console.log(
-    //   this.calcFieldPosByPxTemp(-4,400)
-    // )
-  }
-
-  calcFieldPosByPxTemp(leftPxOnBoard: number, topPxOnBoard: number): Pos { // pos values from 0 to 7 or -1 if not in board
-    let fieldC = Math.floor((leftPxOnBoard/this.fieldsHtml.offsetWidth )*FIELDS_IN_ONE_ROW);
-    let fieldR = Math.floor((topPxOnBoard /this.fieldsHtml.offsetHeight)*FIELDS_IN_ONE_ROW);
-    if (fieldC < 0 || fieldC > FIELDS_IN_ONE_ROW-1) {
-      fieldC = -1;
-    }
-    if (fieldR < 0 || fieldR > FIELDS_IN_ONE_ROW-1) {
-      fieldR = -1;
-    }
-    return new Pos(fieldR, fieldC);
+    window.addEventListener("resize", () => {
+      this.setCssPieceSize();
+      this.positionAllPiecesHtmlsProperly();
+    });
   }
 
   private createBoardContainer(): HTMLDivElement { // <div class="board-container"></div>
@@ -110,7 +92,7 @@ export default class Board {
     return piecesHtml;
   }
 
-  private setPieceTransitionDeley(htmlEl: HTMLDivElement, ms: number): void {
+  private setPieceCssTransitionDeley(htmlEl: HTMLDivElement, ms: number): void {
     htmlEl.style.setProperty("--transitionDuration", `${ms}ms`);
   }
 
@@ -139,20 +121,25 @@ export default class Board {
           0,
           Boolean(pieces[r][c]?.html)
         );
-        // if (this.el[r][c].piece !== null) {
-        //   // console.log("Pos:",r,c,);
-        //   // console.log(this.el[r][c].piece?.html.style.transform)
-        // }
       }
     }
   }
 
+  private positionAllPiecesHtmlsProperly(): void {
+    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
+      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
+        if (this.el[r][c].piece !== null) {
+          this.transformPieceHtmlToPos((this.el[r][c].piece as AnyPiece).html, new Pos(r,c));
+        }
+      }
+    }
+  }
 
   public calcFieldPosByPx(leftPx: number, topPx: number, isInBoardForSure?: boolean): Pos { // pos values from 0 to 7 or -1 if not in board
     const boardBoundingRect = this.html.getBoundingClientRect();
     let posOnBoardLeft = leftPx - boardBoundingRect.left;
     let posOnBoardTop =  topPx - boardBoundingRect.top;
-    if (!Number.isInteger(posOnBoardLeft)) { // im not happy with how it looks
+    if (!Number.isInteger(posOnBoardLeft)) { // im not about how it looks
       posOnBoardLeft = Math.ceil(posOnBoardLeft);
     }
     if (!Number.isInteger(posOnBoardTop)) {
@@ -194,7 +181,12 @@ export default class Board {
     }
   }
 
-  public placePieceInPos(pos: Pos, piece: (AnyPiece|null), transitionDelayMs: number, appendHtml?: boolean): void {
+  public placePieceInPos(
+    pos: Pos, 
+    piece: (AnyPiece|null), 
+    cssPieceTransitionDelayMs: number, 
+    appendHtml: boolean
+  ): void {
     if (piece === null || !piece.html) {    
       this.el[pos.y][pos.x].setPiece(piece);
       return;
@@ -203,11 +195,11 @@ export default class Board {
     if (appendHtml) {
       this.piecesHtml.append(pieceDiv);
     }
-    this.setPieceTransitionDeley(pieceDiv, transitionDelayMs);
+    this.setPieceCssTransitionDeley(pieceDiv, cssPieceTransitionDelayMs);
     this.transformPieceHtmlToPos(pieceDiv, pos);
     setTimeout(() => {
-      this.setPieceTransitionDeley(pieceDiv, 0);
-    }, transitionDelayMs);
+      this.setPieceCssTransitionDeley(pieceDiv, 0);
+    }, cssPieceTransitionDelayMs);
     this.el[pos.y][pos.x].setPiece(piece);
   }
 
@@ -236,15 +228,13 @@ export default class Board {
     if (capturedPiece !== null) {
       this.removePieceInPos(to, true);
     }
-    this.moves.push(
-      Move.createNewObj(piece, from, to, capturedPiece, this.isInverted)
-    );
+    this.movesSystem.pushNewHalfmove(new Halfmove(piece, from, to, capturedPiece))
     this.switchCurrTeam();
-    this.placePieceInPos(to, piece, transitionDelayMs);
+    this.placePieceInPos(to, piece, transitionDelayMs, false);
     piece.sideEffectsOfMove(to, from);
     const enemyKing = this.getKingByTeam(piece.enemyTeamNum);
     enemyKing.updateChecksArr();
-    this.match.checkIfGameShouldEndAfterMove(this.moves[this.moves.length-1]);
+    this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove());
     // TODO
     // if (this.match.gameRunning) {
     //   if (this.pawnPromotionMenu) {
@@ -257,8 +247,8 @@ export default class Board {
     // }
   }
 
-  public removePieceInPos(pos: Pos, html: boolean) {
-    if (html) {
+  public removePieceInPos(pos: Pos, removeHtml: boolean) {
+    if (removeHtml) {
       this.el[pos.y][pos.x].piece?.html.remove();
     }
     this.el[pos.y][pos.x].setPiece(null);
@@ -365,7 +355,6 @@ export default class Board {
     const boardAfter = this.invertMap(boardBefore);
     for (let r=0 ; r<boardAfter.length ; r++) {
       for (let c=0 ; c<boardAfter[r].length ; c++) {
-        // console.log("pos",r,c,boardAfter[r][c])
         if (boardAfter[r][c]?.id === PIECES.PAWN) {
           (boardAfter[r][c] as Pawn).directionY *= -1;
         }
@@ -482,13 +471,14 @@ export default class Board {
   }
 
   public isDrawByNoCapturesOrPawnMovesIn50Moves(): boolean {
-    if (this.moves.length < 50) {
+    const halfmoves = this.movesSystem.halfmoves;
+    if (halfmoves.length < 50) {
       return false;
     }
-    for (let i=this.moves.length-1 ; i>this.moves.length-1-50 ; i--) {
+    for (let i=halfmoves.length-1 ; i>halfmoves.length-1-50 ; i--) {
       if (
-        this.moves[i].capturedPiece !== null || 
-        this.moves[i].piece.id === PIECES.PAWN
+        halfmoves[i].capturedPiece !== null || 
+        halfmoves[i].piece.id === PIECES.PAWN
       ) {
         return false;
       }
@@ -497,12 +487,13 @@ export default class Board {
   }
 
   public isDrawByThreeMovesRepetition(): boolean {
-    if (this.moves.length < 6) {
+    const halfmoves = this.movesSystem.halfmoves;
+    if (halfmoves.length < 6) {
       return false;
     }
-    const lastMoveNum = this.moves.length-1;
-    const p1Moves = [this.moves[lastMoveNum-4], this.moves[lastMoveNum-2], this.moves[lastMoveNum]];
-    const p2Moves = [this.moves[lastMoveNum-5], this.moves[lastMoveNum-3], this.moves[lastMoveNum-1]];
+    const lastMoveNum = halfmoves.length-1;
+    const p1Moves = [halfmoves[lastMoveNum-4], halfmoves[lastMoveNum-2], halfmoves[lastMoveNum]];
+    const p2Moves = [halfmoves[lastMoveNum-5], halfmoves[lastMoveNum-3], halfmoves[lastMoveNum-1]];
 
     return ( // trust, it works
       p1Moves[0].from.isEqualTo(p1Moves[1].to) && 
@@ -531,7 +522,7 @@ export default class Board {
     );
   }
 
-  private updateFieldSize(): void {
+  private setCssPieceSize(): void {
     const root = document.querySelector(":root") as HTMLElement;
     root.style.setProperty("--pieceSize", `${this.html.offsetWidth / FIELDS_IN_ONE_ROW}px`);
   }

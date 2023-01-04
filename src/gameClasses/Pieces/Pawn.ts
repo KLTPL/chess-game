@@ -65,7 +65,7 @@ export default class Pawn extends Piece {
     return pawnsToCapturePos
       .filter(pawn => {
         const newCapture = new Pos(pos.y+this.directionY, pawn.x);
-        const lastMove = board.moves[board.moves.length-1];
+        const lastMove = board.movesSystem.getLatestHalfmove();
         const isPawnAfterMoving2SqueresForward = Math.abs(lastMove?.from.y - lastMove?.to.y) > 1;
         return (
           board.isPosInBoard(newCapture) &&
@@ -145,10 +145,11 @@ export default class Pawn extends Piece {
   public sideEffectsOfMove(to: Pos): void {
     // en passant capture
     const board = this.board;
+    const halfmoves = board.movesSystem.halfmoves;
     if (
       board.isPosInBoard(new Pos(to.y-this.directionY, to.x)) &&
       board.el[to.y-this.directionY][to.x].piece?.id === PIECES.PAWN &&
-      board.moves[board.moves.length-2].piece === board.el[to.y-this.directionY][to.x].piece
+      halfmoves[halfmoves.length-2].piece === board.el[to.y-this.directionY][to.x].piece
     ) {
       board.removePieceInPos(new Pos(to.y-this.directionY, to.x), true);
     }
@@ -173,7 +174,7 @@ export default class Pawn extends Piece {
       (this.board.pawnPromotionMenu as PawnPromotionMenu).removeMenu();
       this.board.pawnPromotionMenu = null;
       this.board.getKingByTeam(this.enemyTeamNum).updateChecksArr();
-      this.board.moves[this.board.moves.length-1].setPromotedTo(pawnGotPromotedTo as AnyPiece);
+      this.board.movesSystem.getLatestHalfmove().setPromotedTo(pawnGotPromotedTo as AnyPiece);
     });
   }
 }

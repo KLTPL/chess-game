@@ -9,10 +9,14 @@ const CLASS_NAMES = {
 };
 
 export default class VisualizingArrow {
-  private arrContainer: HTMLDivElement = document.createElement("div");
+  private html: HTMLDivElement = document.createElement("div");
   constructor(private board: Board, private startPos: Pos, private endPos: Pos) {
-    const arrDir = new Dir(this.endPos.y-this.startPos.y, this.endPos.x-this.startPos.x);
-    this.drawArrowOnBoard(arrDir);
+    this.drawArrowOnBoard();
+  }
+
+  public resize(): void {
+    this.removeHtml();
+    this.drawArrowOnBoard();
   }
 
   public getStartPos(): Pos {
@@ -24,10 +28,11 @@ export default class VisualizingArrow {
   }
 
   public removeHtml(): void {
-    this.arrContainer.remove();
+    this.html.remove();
   }
 
-  private drawArrowOnBoard(arrDir: Dir): void {
+  private drawArrowOnBoard(): void {
+    const arrDir = new Dir(this.endPos.y-this.startPos.y, this.endPos.x-this.startPos.x);
     const arrLengthFields = 
       Math.sqrt(
         Math.abs(
@@ -40,13 +45,13 @@ export default class VisualizingArrow {
     const arrTailLengthPx = arrLengthPx - arrHeadLengthPx;
     const rotationDegOfVector = this.calcRotationDegOfVector(arrDir);
 
-    this.arrContainer = this.createArrowContainerHtml(rotationDegOfVector, fieldWidth);
+    this.html = this.createArrowContainerHtml(rotationDegOfVector, fieldWidth);
     const arrowHead = this.createArrowHeadHtml(arrTailLengthPx, fieldWidth);
     const arrowTail = this.createArrowTailHtml(arrTailLengthPx, fieldWidth);
   
-    this.arrContainer.append(arrowTail);
-    this.arrContainer.append(arrowHead);
-    this.board.el[this.startPos.y][this.startPos.x].html.append(this.arrContainer);
+    this.html.append(arrowTail);
+    this.html.append(arrowHead);
+    this.board.el[this.startPos.y][this.startPos.x].html.append(this.html);
   }
 
   private createArrowContainerHtml(rotationDegOfVector: number, fieldWidth: number): HTMLDivElement {

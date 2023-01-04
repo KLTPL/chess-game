@@ -32,8 +32,8 @@ body {
   left: 50%;
   transform: translate(-50%,-50%);
   box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.596);
-  width: 800px; 
-  height: 800px;
+  width: clamp(300px, 750px, 70%);
+  aspect-ratio: 1/1;
 }
 
 .board-fields-container {
