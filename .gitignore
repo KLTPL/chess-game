@@ -1,5 +1,6 @@
-public
-src/images
+public/*
+src/images/*
+dist
 
 # Logs
 logs

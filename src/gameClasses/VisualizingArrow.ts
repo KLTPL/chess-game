@@ -77,7 +77,7 @@ export default class VisualizingArrow {
     arrowTail.style.setProperty("--halfOfFieldSize", `${fieldWidth/2}px`);
     arrowTail.classList.add(CLASS_NAMES.arrowTail);
     arrowTail.style.width = `${arrTailLengthPx + 1}px`;
-    arrowTail.style.height = `${fieldWidth * 0.3}px`;
+    arrowTail.style.height = `${fieldWidth * 0.175}px`;
     return arrowTail;
   }
 
