@@ -1,10 +1,10 @@
 import Board, { FIELDS_IN_ONE_ROW } from "./Board.js";
-import Piece, { PIECES } from "./Pieces/Piece.js";
+import Piece, { PIECES, TEAMS } from "./Pieces/Piece.js";
 
 export default class PawnPromotionMenu {
   private html: HTMLElement;
   public playerIsChoosing: Promise<number>;
-  constructor(private team: number, private board: Board) {
+  constructor(private team: TEAMS, private board: Board) {
     const promotionOptions = this.createArrOfPromoteOptionsHtml();
     this.html = this.createContainerHtml(promotionOptions);
     this.board.html.append(this.html);

@@ -81,7 +81,7 @@ body {
     0 0 10px 0 hsl(120, 100%, 25%);
 }
 
-.king-check::before {
+.field-king-check::before {
   content: "";
   left: 50%;
   top: 50%;

@@ -1,5 +1,7 @@
 import { FIELDS_IN_ONE_ROW } from "./Board";
 
+export const POS_OUT_OF_BOARD = -1;
+
 export default class Pos {
   constructor(public y: number, public x: number, isInverted?: boolean) {
     if (isInverted) {

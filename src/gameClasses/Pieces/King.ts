@@ -1,7 +1,7 @@
 import Board, { FIELDS_IN_ONE_ROW } from "../Board.js";
 import Piece, { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT, PIECES, TEAMS, Pin, AnyPiece } from "./Piece.js";
 import Rook from "./Rook.js";
-import Pos from "../Pos.js";
+import Pos, { POS_OUT_OF_BOARD } from "../Pos.js";
 import Dir from "../Dir.js";
 import Check from "../Check.js";
 
@@ -12,16 +12,26 @@ export type CastleRights = {
 
 export default class King extends Piece {
   public value: number = 0;
-  public id: number = PIECES.KING;
-  public checks: Check[] = []; // could be 0, 1 or 2 length
+  public id: PIECES = PIECES.KING;
+  public pos = new Pos(POS_OUT_OF_BOARD, POS_OUT_OF_BOARD);
   private isBeforeAnyMove: boolean = true;
   private castleRights: CastleRights;
-  constructor(public team: number, protected board: Board) {
+  constructor(public team: TEAMS, protected board: Board) {
     super(team, board);
     const castleRights = this.board.startFENNotation.castlingRightsConverted;
     this.castleRights = (this.team === TEAMS.WHITE) ? castleRights.white : castleRights.black;
 
     this.addClassName(this.id);
+  }
+
+  public updatePosProperty(): void {
+    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
+      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
+        if (this.board.el[r][c].piece === this) {
+          this.pos =  new Pos(r, c);
+        }
+      }
+    }
   }
 
   public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
@@ -154,7 +164,7 @@ export default class King extends Piece {
   }
 
   public createArrOfAbsolutePins(): Pin[] {
-    const kingPos = this.board.findKingPos(this.team);
+    const kingPos = this.board.getKingPosByTeam(this.team);
     const enemyTeamNum = this.enemyTeamNum;
     const absPins: Pin[] = [];
 
@@ -217,6 +227,8 @@ export default class King extends Piece {
     if (this.isBeforeAnyMove) {
       this.isBeforeAnyMove = false;
     }
+
+    this.pos = to;
     // castle
     const moveIsCastle = Math.abs(from.x-to.x) > 1;
     if (moveIsCastle) {
@@ -231,29 +243,21 @@ export default class King extends Piece {
     }
   }
 
-  public updateChecksArr(): void {
-    const kingPos = this.board.findKingPos(this.team);
+  public isInCheck() {
+    return this.createArrOfChecks().length > 0;
+  }
 
-    this.checks = this.createArrOfPositionsOfPiecesCheckingKing()
-      .map(pos => new Check(pos, kingPos, this.board));
-
-    // field becomes red if in check
-    const fieldClassName = "king-check";
-    document.querySelectorAll(`.${fieldClassName}`).forEach(field => {
-      field.classList.remove(fieldClassName);
-    });
-    if (this.checks.length > 0) {
-      this.board.el[kingPos.y][kingPos.x].html.classList.add(fieldClassName);
-    }
+  public createArrOfChecks(): Check[] {
+    return this.createArrOfPositionsOfPiecesCheckingKing()
+      .map(pos => new Check(pos, this.pos, this.board));
   }
 
   private createArrOfPositionsOfPiecesCheckingKing(): Pos[] {
-    const kingPos = this.board.findKingPos(this.team);
     const enemyTeam = this.enemyTeamNum;
 
     const checkingPieces: Pos[] = [];
-    for (let r=0 ; r<this.board.el.length ; r++) {
-      for (let c=0 ; c<this.board.el[r].length ; c++) {
+    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
+      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
         if (
           this.board.el[r][c].piece === null ||
           this.board.el[r][c].piece?.team !== enemyTeam
@@ -261,24 +265,14 @@ export default class King extends Piece {
           continue;
         }
         const piecesMovesForKing = 
-          (this.board.el[r][c].piece as Piece).createArrOfPossibleMovesFromPosForKing(new Pos(r, c));
+          (this.board.el[r][c].piece as AnyPiece).createArrOfPossibleMovesFromPosForKing(new Pos(r, c));
         for (const move of piecesMovesForKing) {
-          if (kingPos.isEqualTo(move)) {
+          if (this.pos.isEqualTo(move)) {
             checkingPieces.push(new Pos(r, c));
           }
         }
       }
     }
     return checkingPieces;
-  }
-
-  public invertChecksArr(): void {
-    for (const check of this.checks) {
-      check.checkedKingPos  .invert();
-      check.checkingPiecePos.invert();        
-      for (const field of check.getFieldsInBetweenPieceAndKing()) {
-        field.invert();
-      }
-    }
   }
 }

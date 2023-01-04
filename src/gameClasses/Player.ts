@@ -9,7 +9,7 @@ export default class Player {
   constructor(
     image: ImageBitmap | null, 
     public name: string, 
-    public team: TEAMS.WHITE|TEAMS.BLACK, 
+    public team: TEAMS, 
     public timeS: number, 
     private board: Board
   ) {

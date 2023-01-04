@@ -45,7 +45,7 @@ export default class AnalisisSystem {
         (newDelay < CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE) ?  
         CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE : 
         newDelay;
-      this.goOneHalfmoveForward(delayOnThatMove);
+    this.goOneHalfmoveForward(delayOnThatMove);
     }
   }
 
@@ -70,11 +70,13 @@ export default class AnalisisSystem {
   }
 
   private goOneHalfmoveOnBoardHtmlBack(): void {
+    const move0Index = -1;
     const board = this.board;
     const halfmoves = this.board.movesSystem.halfmoves;
     const currHalfmoveIndex = this.currHalfmoveIndex as number;
     const moveToReverse = halfmoves[currHalfmoveIndex+1];
     const isPiecePromoted = (moveToReverse.getPromotedTo() !== null);
+
     if (isPiecePromoted) {
       board.removePieceInPos(moveToReverse.to, true);
       board.placePieceInPos(
@@ -107,6 +109,13 @@ export default class AnalisisSystem {
         CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, 
         true
       );
+    }
+    if (currHalfmoveIndex > move0Index) { // highlight field under checked king
+      const currHalfmove = halfmoves[currHalfmoveIndex];
+      this.board.removeCheckFieldClassName();
+      if (currHalfmove.posOfKingChecked !== null) {
+        this.board.markFieldUnderKingToSignalCheck(currHalfmove.posOfKingChecked);
+      }
     }
   }
 
@@ -147,5 +156,10 @@ export default class AnalisisSystem {
 
     board.removePieceInPos(moveToDo.from, isPiecePromoted);
     board.placePieceInPos(moveToDo.to, pieceToPlace, cssPieceTransitionDelayMs, isPiecePromoted);
+
+    this.board.removeCheckFieldClassName();
+    if (moveToDo.posOfKingChecked !== null) {
+    this.board.markFieldUnderKingToSignalCheck(moveToDo.posOfKingChecked);
+    }
   }
 }

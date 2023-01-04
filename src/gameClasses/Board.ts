@@ -1,6 +1,6 @@
-import Pos from "./Pos.js";
-import Field, { CLASS_NAMES as FIELDS_CLASS_NAMES } from "./Field.js";
-import Piece, { AnyPiece, PIECES, TEAMS, GrabbedPieceInfo } from "./Pieces/Piece.js";
+import Pos, { POS_OUT_OF_BOARD } from "./Pos.js";
+import Field, { CLASS_NAMES as FIELD_CLASS_NAMES } from "./Field.js";
+import Piece, { AnyPiece, PIECES, TEAMS, GrabbedPieceInfo, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "./Pieces/Piece.js";
 import Pawn from "./Pieces/Pawn.js";
 import King from "./Pieces/King.js";
 import Halfmove from "./Halfmove.js";
@@ -17,6 +17,11 @@ import AnalisisSystem from "./AnalisisSystem.js";
 
 export type ArrOfPieces2d = (AnyPiece|null)[][];
 
+type KingsObj = {
+  white: King,
+  black: King,
+};
+
 export const FIELDS_IN_ONE_ROW = 8;
 
 export const HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE = "field-heighlighted-under-moving-piece";
@@ -32,7 +37,7 @@ const CLASS_NAMES = {
 
 export default class Board {
   public startFENNotation: FENNotation;
-  public currTeam: (TEAMS.WHITE|TEAMS.BLACK);
+  public currTeam: TEAMS;
   public el: Field[][] = [];
   public html: HTMLDivElement = this.createBoardContainer();
   private fieldsHtml: HTMLDivElement = this.createContainerForFields();
@@ -42,11 +47,12 @@ export default class Board {
   public pawnPromotionMenu: (PawnPromotionMenu|null) = null;
   public isInverted: boolean;
   public movesSystem: MovesSystem = new MovesSystem(/*this*/);
-  analisisSystem: AnalisisSystem;
+  public analisisSystem: AnalisisSystem;
+  private kings: KingsObj;
   constructor(
     htmlPageContainerQSelector: string, 
     customPositionFEN: (string|null),
-    private match: Match, 
+    public match: Match, 
   ) {
     this.startFENNotation = new FENNotation(customPositionFEN, this);
     this.currTeam = this.startFENNotation.activeColorConverted;
@@ -59,7 +65,9 @@ export default class Board {
     this.setCssPieceSize();
 
     this.el = this.createFieldsArr();
-    this.placePieces(this.startFENNotation.piecePlacementConverted);
+    const pieces = this.startFENNotation.piecePlacementConverted;
+
+    this.placePieces(pieces);
     if (this.isInverted) {
       this.flipPerspective();
     }
@@ -70,6 +78,23 @@ export default class Board {
       this.setCssPieceSize();
       this.positionAllPiecesHtmlsProperly();
     });
+
+    const kings = this.createKingsObj(pieces);
+    const isThereExaclyTwoKingsOfOppositeTeam = (kings !== null);
+
+    if (isThereExaclyTwoKingsOfOppositeTeam) {
+      this.kings = {
+        white: kings.white,
+        black: kings.black,
+      }
+      this.kings.white.updatePosProperty();
+      this.kings.black.updatePosProperty();
+    } else {
+      setTimeout(() => this.match.end({ cousedBy: null, type: "Bad kings"}), 5); 
+      //setTimeout so constructor is finished before calling Match.end
+      this.kings = { white: new King(-1, this), black: new King(-1, this) };
+      //this.kings doesn't matter because the game is already over
+    }
   }
 
   private createBoardContainer(): HTMLDivElement { // <div class="board-container"></div>
@@ -118,7 +143,7 @@ export default class Board {
         this.placePieceInPos(
           new Pos(r, c),
           pieces[r][c],
-          0,
+          CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
           Boolean(pieces[r][c]?.html)
         );
       }
@@ -163,10 +188,10 @@ export default class Board {
     let fieldC = Math.floor((posOnBoardLeft/this.fieldsHtml.offsetWidth)* FIELDS_IN_ONE_ROW);
     let fieldR = Math.floor((posOnBoardTop/this.fieldsHtml.offsetHeight)*FIELDS_IN_ONE_ROW);
     if (fieldC < 0 || fieldC > FIELDS_IN_ONE_ROW-1) {
-      fieldC = -1;
+      fieldC = POS_OUT_OF_BOARD;
     }
     if (fieldR < 0 || fieldR > FIELDS_IN_ONE_ROW-1) {
-      fieldR = -1;
+      fieldR = POS_OUT_OF_BOARD;
     }
     return new Pos(fieldR, fieldC);
   }
@@ -218,22 +243,25 @@ export default class Board {
       TEAMS.WHITE;
   }
 
-  public getKingByTeam(team: number) {
-    const kingPos = this.findKingPos(team);
-    return this.el[kingPos.y][kingPos.x].piece as King;
-  }
-
   public movePiece(from: Pos, to: Pos, piece: AnyPiece, transitionDelayMs: number): void {
     const capturedPiece =  this.el[to.y][to.x].piece;
     if (capturedPiece !== null) {
       this.removePieceInPos(to, true);
     }
-    this.movesSystem.pushNewHalfmove(new Halfmove(piece, from, to, capturedPiece))
     this.switchCurrTeam();
     this.placePieceInPos(to, piece, transitionDelayMs, false);
     piece.sideEffectsOfMove(to, from);
     const enemyKing = this.getKingByTeam(piece.enemyTeamNum);
-    enemyKing.updateChecksArr();
+    this.markFieldUnderKingIfKingIsInCheck(piece.enemyTeamNum)
+    this.movesSystem.pushNewHalfmove(
+      new Halfmove(
+        piece, 
+        from, 
+        to, 
+        capturedPiece, 
+        (enemyKing.isInCheck()) ? enemyKing.pos : null
+        )
+    );
     this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove());
     // TODO
     // if (this.match.gameRunning) {
@@ -254,65 +282,50 @@ export default class Board {
     this.el[pos.y][pos.x].setPiece(null);
   }
 
-  // private getKings(): { white: King; black: King; } {
-  //   let whiteKing: (King|null) = null;
-  //   let blackKing: (King|null) = null;
-  //   let kings: {
-  //     white: King;
-  //     black: King;
-  //   } = {
-  //     white: new King(TEAMS.WHITE, this),
-  //     black: new King(TEAMS.BLACK, this)
-  //   }
-  //   for (let r=0 ; r<this.el.length ; r++) {
-  //     for(let c=0 ; c<this.el[r].length ; c++) {
-  //       if (this.el[r][c].piece?.id === PIECES.KING) {
-  //         switch ((this.el[r][c].piece as Piece).team) {
-  //           case TEAMS.WHITE: 
-  //             if (whiteKing !== null) {
-  //               this.match.end();
-  //               alert("Too many kings");
-  //               return kings;
-  //             }
-  //             whiteKing = this.el[r][c].piece as King; 
-  //             break;
-  //           case TEAMS.BLACK: 
-  //             if (blackKing !== null) {
-  //               this.match.end();
-  //               alert("Too many kings");
-  //               return kings;
-  //             }
-  //             blackKing = this.el[r][c].piece as King; 
-  //             break;
-  //         }
-  //       }
-  //     }
-  //   }
-  //   if (whiteKing === null || blackKing === null) {
-  //     this.match.end();
-  //     alert("Not enough kings on the board"); 
-  //   } else {
-  //     kings = {
-  //       white: whiteKing,
-  //       black: blackKing
-  //     }
-  //   }
+  public getKingByTeam(team: TEAMS) {
+    return (
+      (team === TEAMS.WHITE) ?
+      this.kings.white : 
+      this.kings.black
+    );
+  }
 
-  //   return kings;
-  // }
-
-  public findKingPos(team: number): Pos {
-    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
-      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
-        if (
-          this.el[r][c].piece?.id === PIECES.KING && 
-          this.el[r][c].piece?.team === team
-        ) {
-          return new Pos(r, c);
+  public createKingsObj(pieces: ArrOfPieces2d): KingsObj|null {
+    let kingWhite: null|King = null;
+    let kingBlack: null|King = null;
+    for (let r=0 ; r<pieces.length ; r++) {
+      for (let c=0 ; c<pieces[r].length ; c++) {
+        if (pieces[r][c]?.id === PIECES.KING) {
+          const king = pieces[r][c] as King;
+          switch (king.team) {
+            case TEAMS.WHITE: 
+            if (kingWhite !== null) {
+              return null;
+            }
+            kingWhite = king;
+              break;
+            case TEAMS.BLACK:
+              if (kingBlack !== null) {
+                return null;
+              }
+              kingBlack = king;
+              break;
+          }
         }
       }
     }
-    return new Pos(-1, -1);
+    return (
+      (kingWhite === null || kingBlack === null) ?
+      null :
+      { white: kingWhite, black: kingBlack }
+    );
+  } 
+  public getKingPosByTeam(team: TEAMS): Pos {
+    return (
+      (team === TEAMS.WHITE) ?
+      this.kings.white.pos : 
+      this.kings.black.pos
+    );
   }
 
   public showPossibleMoves(possMoves: Pos[], enemyTeamNum: number): void {
@@ -358,14 +371,10 @@ export default class Board {
         if (boardAfter[r][c]?.id === PIECES.PAWN) {
           (boardAfter[r][c] as Pawn).directionY *= -1;
         }
-        this.placePieceInPos(new Pos(r, c), boardAfter[r][c], 0, true);
+        this.placePieceInPos(new Pos(r, c), boardAfter[r][c], CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, true);
       }
     }
     
-    const currKing = this.getKingByTeam(this.currTeam);
-    if (currKing !== null) {
-      currKing.invertChecksArr();
-    }
     this.isInverted = (this.isInverted) ? false : true;
   }
 
@@ -463,9 +472,9 @@ export default class Board {
 
   private isPositionsOnTheSameColor(pos1: Pos, pos2: Pos): boolean {
     const pos1OnWhiteSquere = 
-      this.el[pos1.y][pos1.x].html.className.includes(FIELDS_CLASS_NAMES.fieldColor1);
+      this.el[pos1.y][pos1.x].html.className.includes(FIELD_CLASS_NAMES.fieldColor1);
     const pos2OnWhiteSquere = 
-      this.el[pos2.y][pos2.x].html.className.includes(FIELDS_CLASS_NAMES.fieldColor1);
+      this.el[pos2.y][pos2.x].html.className.includes(FIELD_CLASS_NAMES.fieldColor1);
 
     return pos1OnWhiteSquere === pos2OnWhiteSquere;
   }
@@ -527,15 +536,27 @@ export default class Board {
     root.style.setProperty("--pieceSize", `${this.html.offsetWidth / FIELDS_IN_ONE_ROW}px`);
   }
 
-  public removeEventListenersFromPieces() {
-    for (const row of this.el) {
-      for (const field of row) {
-        field.piece?.stopListeningForClicks();
-      }
+  public removeCheckFieldClassName() {
+    document.querySelectorAll(`.${FIELD_CLASS_NAMES.fieldInCheck}`).forEach(field => {
+      field.classList.remove(FIELD_CLASS_NAMES.fieldInCheck);
+    });
+  }
+
+  public markFieldUnderKingToSignalCheck(kingPos: Pos): void {// king pos as argument instead of this.pos because of the ability to go back in time and temporarly see what happened
+    this.removeCheckFieldClassName();
+    this.el[kingPos.y][kingPos.x].html.classList.add(FIELD_CLASS_NAMES.fieldInCheck);
+  }
+
+  public markFieldUnderKingIfKingIsInCheck(kingTeam: TEAMS): void {
+    // field becomes red if in check
+    const king = this.getKingByTeam(kingTeam);
+    this.removeCheckFieldClassName();
+    if (king.isInCheck()) {
+      this.markFieldUnderKingToSignalCheck(king.pos);
     }
   }
 
-  public createNewPieceObj(id: (number|null), team: (number|null), board: Board)
+  public createNewPieceObj(id: (PIECES|null), team: (TEAMS|null), board: Board)
   : (AnyPiece | null) {
     if (id === null || team === null) {
       return null;

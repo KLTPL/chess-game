@@ -7,8 +7,13 @@ export default class Halfmove {
     readonly piece: AnyPiece, 
     readonly from: Pos, 
     readonly to: Pos, 
-    readonly capturedPiece: (AnyPiece|null)
+    readonly capturedPiece: (AnyPiece|null),
+    readonly posOfKingChecked: null|Pos,
   ) {}
+
+  public isCheck(): boolean {
+    return (this.posOfKingChecked !== null);
+  }
 
   public getPromotedTo(): (AnyPiece|null) {
     return this.promotedTo;
