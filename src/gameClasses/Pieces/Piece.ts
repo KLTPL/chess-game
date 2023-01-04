@@ -36,7 +36,8 @@ export type Pin = {
   pinDir: Dir;
 };
 
-export const DEFAULT_TRANSITION_DELAY_MS = 30;
+export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT = 30;
+export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE = 0;
 
 export default abstract class Piece {
   public abstract value: number;
@@ -80,13 +81,14 @@ export default abstract class Piece {
     }
   }
 
-   private startFollowingCursor = (ev: MouseEvent): void => { // TODO
+  private startFollowingCursor = (ev: MouseEvent): void => { // TODO
     const leftClickNum = 0;
     if( 
       ev.button !== leftClickNum || 
-      this.board.currTeam !== this.team || 
+      this.board.currTeam !== this.team ||
       this.board.pawnPromotionMenu !== null || 
-      this.board.grabbedPieceInfo !== null
+      this.board.grabbedPieceInfo !== null || 
+      this.board.analisisSystem.isUserAnalising()
     ) {
       return;
     }
@@ -105,18 +107,16 @@ export default abstract class Piece {
 
       mouseHold(this.html)
       .then(() => {
-        const type = "mouseup";
         document.addEventListener(
-          type,
-          newEv => this.stopFollowingCursor(newEv, possMoves, type), 
+          "mouseup",
+          newEv => this.stopFollowingCursor(newEv, possMoves), 
           { once: true }
         );
       })
       .catch(() => {
-        const type = "mousedown";
         document.addEventListener(
-          type, 
-          newEv => this.stopFollowingCursor(newEv, possMoves, type), 
+          "mousedown", 
+          newEv => this.stopFollowingCursor(newEv, possMoves), 
           { once: true }
         )
       });
@@ -161,11 +161,12 @@ export default abstract class Piece {
     );
   }
 
-  private stopFollowingCursor = (ev: MouseEvent, possMoves: Pos[], type: "mouseup"|"mousedown"): void => {
+  private stopFollowingCursor = (ev: MouseEvent, possMoves: Pos[]): void => {
+    const type = ev.type as "mouseup"|"mousedown";
     if (ev.button !== 0) { // 0 = left click
       document.addEventListener(
         type, 
-        newEv => this.stopFollowingCursor(newEv, possMoves, type), 
+        newEv => this.stopFollowingCursor(newEv, possMoves), 
         { once: true }
       )
       return;
@@ -193,17 +194,18 @@ export default abstract class Piece {
           oldPos,
           newPos,
           boardGrabbedPieceInfo.piece as AnyPiece,
-          DEFAULT_TRANSITION_DELAY_MS
+          CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT
         );
         possMoves = [];
-    this.board.grabbedPieceInfo = null;
+        this.board.grabbedPieceInfo = null;
         return;
       }
     }
     this.board.placePieceInPos(
       oldPos, 
       boardGrabbedPieceInfo.piece as AnyPiece,
-      this.calcTransitionDelay(oldPos, newPos)
+      this.calcTransitionDelay(oldPos, newPos),
+      false
     );
     this.board.grabbedPieceInfo = null;
   }
@@ -239,29 +241,22 @@ export default abstract class Piece {
     if (myKing.checks.length === 2) {
       return [];
     }
-    // myKing.checks.length === 1
-    for (let m=0 ; m<possMoves.length ; m++) {
-      if (possMoves[m].x === pos.x && possMoves[m].y === pos.y) {
-        continue;
-      }
 
-      for (let c=0 ; c<myKing.checks.length ; c++) {
-        if (!this.isMoveCaptureOrOnTheWayOfACheck(myKing.checks[c], possMoves[m])) {
-          possMoves.splice(m, 1);
-          m--;
-        }
-      }
-    } 
-    return possMoves;
+    return possMoves.filter(possMove => {
+      return (
+        !possMove.isEqualTo(pos) &&
+        this.isMoveCaptureOrOnTheWayOfCheck(myKing.checks[0], possMove) //myKing.checks[0] is the only check
+      );
+    });
   }
 
-  private isMoveCaptureOrOnTheWayOfACheck(check: Check, move: Pos): boolean {
+  private isMoveCaptureOrOnTheWayOfCheck(check: Check, move: Pos): boolean {
     const isCapture = (
       check.checkingPiecePos.x === move.x && 
       check.checkingPiecePos.y === move.y
     );
     let isOnTheLine = false;
-    for (const field of check.fieldsInBetweenPieceAndKing) {
+    for (const field of check.getFieldsInBetweenPieceAndKing()) {
       if (move.isEqualTo(field)) {
         isOnTheLine = true;
       }

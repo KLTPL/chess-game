@@ -10,7 +10,7 @@ export default class Check {
     private board: Board
   ) {}
 
-  get fieldsInBetweenPieceAndKing() {
+  public getFieldsInBetweenPieceAndKing(): Pos[] {
     const piece = this.checkingPiecePos;
     if( 
       this.board.el[piece.y][piece.x].piece?.id === PIECES.KNIGHT ||

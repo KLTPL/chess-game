@@ -6,12 +6,19 @@ import VisualizingArrow from "./VisualizingArrow.js";
 const HIGHLIGHT_FIELD_CLASS_NAME = "highlighted-field";
 
 export default class VisualizingSystem {
-  arrows: VisualizingArrow[] = [];
+  private arrows: VisualizingArrow[] = [];
   constructor(private board: Board) {
-    this.board.html.addEventListener("mousedown", this.handleMouseDown);
+    this.board.html.addEventListener("mousedown", (ev) => this.handleMouseDown(ev));
+    window.addEventListener("resize", () => this.resizeArrowsHtmls());
   }
 
-  private handleMouseDown = (ev: MouseEvent): void => {
+  private resizeArrowsHtmls(): void {
+    for (const arrow of this.arrows) {
+      arrow.resize();
+    }
+  }
+
+  private handleMouseDown(ev: MouseEvent): void {
     if (ev.button === 0) { // mouse left click
       this.removeAllArrows();
       this.removeHighlightFromAllFields();
@@ -20,7 +27,6 @@ export default class VisualizingSystem {
     if (ev.button !== 2 || this.board.grabbedPieceInfo !== null) { // mouse right click
       return;
     }
-    console.log("handleMouseDown further")
 
     const startPos = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
     mouseHold(this.board.html)
@@ -48,8 +54,8 @@ export default class VisualizingSystem {
       const arrSPos = this.arrows[i].getStartPos();
       const arrEPos = this.arrows[i].getEndPos();
       if( 
-        startPos.x === arrSPos.x && startPos.y === arrSPos.y &&
-        endPos  .x === arrEPos.x && endPos  .y === arrEPos.y
+        startPos.isEqualTo(arrSPos) &&
+        endPos  .isEqualTo(arrEPos)
       ) {
         return i;
       }

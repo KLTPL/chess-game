@@ -1,6 +1,6 @@
 import Board from "./Board.js";
 import Player from "./Player.js";
-import Move from "./Move.js";
+import Halfmove from "./Halfmove.js";
 import { TEAMS } from "./Pieces/Piece.js";
 
 type EndInfo = {
@@ -23,7 +23,7 @@ export type BoardArg = {
 };
 
 export default class Match {
-  public gameRunning: Boolean = true;
+  public isGameRunning: Boolean = true;
   public players: Players;
   private board: Board;
   constructor(
@@ -54,7 +54,7 @@ export default class Match {
     };
   }
 
-  public checkIfGameShouldEndAfterMove(move: Move): void {
+  public checkIfGameShouldEndAfterMove(move: Halfmove): void {
     const whiteMoved = (move.piece.team === TEAMS.WHITE);
     const playerWhoMadeMove = (whiteMoved) ? this.players.white : this.players.black;
     const otherKing = (!whiteMoved) ? this.board.getKingByTeam(TEAMS.WHITE) : this.board.getKingByTeam(TEAMS.WHITE);
@@ -69,19 +69,18 @@ export default class Match {
       return;
     }
     if (!otherPlayer.isAbleToMakeMove()) {
+      console.log(otherKing.checks)
       const endType = (otherKing.checks.length > 0) ? "check-mate" : "stale-mate";
       this.end({cousedBy: playerWhoMadeMove, type: endType});
     }
   }
 
   public end(endType?: EndInfo): void {
-    this.gameRunning = false;
+    this.isGameRunning = false;
     this.board.removeEventListenersFromPieces();
-    console.log("moves: ",this.board.moves);
+    console.log("half moves: ",this.board.movesSystem.halfmoves);
     if (endType !== undefined) {
-      console.log(
-        `Game has ended by ${endType.cousedBy.name} with a ${endType.type}`
-      ); 
+      console.log(`Game has ended by ${endType.cousedBy.name} with a ${endType.type}`); 
     } else {
       console.log("Game ended");
     }

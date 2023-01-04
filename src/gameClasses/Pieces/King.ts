@@ -1,5 +1,5 @@
 import Board, { FIELDS_IN_ONE_ROW } from "../Board.js";
-import Piece, { DEFAULT_TRANSITION_DELAY_MS, PIECES, TEAMS, Pin, AnyPiece } from "./Piece.js";
+import Piece, { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT, PIECES, TEAMS, Pin, AnyPiece } from "./Piece.js";
 import Rook from "./Rook.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
@@ -227,17 +227,15 @@ export default class King extends Piece {
       const newRookPos = new Pos(to.y, to.x+(castleDir.x*-1));
       const movingRook = this.board.el[oldRookPos.y][oldRookPos.x].piece as AnyPiece;
       this.board.removePieceInPos(oldRookPos, false);
-      this.board.placePieceInPos(newRookPos, movingRook, DEFAULT_TRANSITION_DELAY_MS*3.5);
+      this.board.placePieceInPos(newRookPos, movingRook, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT*3.5, false);
     }
   }
 
   public updateChecksArr(): void {
-    this.checks = [];
     const kingPos = this.board.findKingPos(this.team);
-    const possitionsOfPiecesCheckingKing = this.createArrOfPositionsOfPiecesCheckingKing();
-    for (const posOfPiece of possitionsOfPiecesCheckingKing) {
-      this.checks.push(new Check(posOfPiece, kingPos, this.board));
-    }
+
+    this.checks = this.createArrOfPositionsOfPiecesCheckingKing()
+      .map(pos => new Check(pos, kingPos, this.board));
 
     // field becomes red if in check
     const fieldClassName = "king-check";
@@ -251,14 +249,14 @@ export default class King extends Piece {
 
   private createArrOfPositionsOfPiecesCheckingKing(): Pos[] {
     const kingPos = this.board.findKingPos(this.team);
-    const enemyTeamNum = this.enemyTeamNum;
+    const enemyTeam = this.enemyTeamNum;
 
     const checkingPieces: Pos[] = [];
     for (let r=0 ; r<this.board.el.length ; r++) {
       for (let c=0 ; c<this.board.el[r].length ; c++) {
         if (
           this.board.el[r][c].piece === null ||
-          this.board.el[r][c].piece?.team !== enemyTeamNum
+          this.board.el[r][c].piece?.team !== enemyTeam
         ) {
           continue;
         }
@@ -278,7 +276,7 @@ export default class King extends Piece {
     for (const check of this.checks) {
       check.checkedKingPos  .invert();
       check.checkingPiecePos.invert();        
-      for (const field of check.fieldsInBetweenPieceAndKing) {
+      for (const field of check.getFieldsInBetweenPieceAndKing()) {
         field.invert();
       }
     }
