@@ -205,49 +205,49 @@ body {
 }
 
 .w-pawn {
-  background-image: url(./images/pawnW.png);
+  background-image: url(./images/w-pawn.png);
 }
 
 .w-rook {
-  background-image: url(./images/rookW.png);
+  background-image: url(./images/w-rook.png);
 }
 
 .w-knight {
-  background-image: url(./images/knightW.png);
+  background-image: url(./images/w-knight.png);
 }
 
 .w-bishop {
-  background-image: url(./images/bishopW.png);
+  background-image: url(./images/w-bishop.png);
 }
 
 .w-queen {
-  background-image: url(./images/queenW.png);
+  background-image: url(./images/w-queen.png);
 }
 
 .w-king {
-  background-image: url(./images/kingW.png);
+  background-image: url(./images/w-king.png);
 }
 
 .b-pawn {
-  background-image: url(./images/pawnB.png);
+  background-image: url(./images/b-pawn.png);
 }
 
 .b-rook {
-  background-image: url(./images/rookB.png);
+  background-image: url(./images/b-rook.png);
 }
 
 .b-knight {
-  background-image: url(./images/knightB.png);
+  background-image: url(./images/b-knight.png);
 }
 
 .b-bishop {
-  background-image: url(./images/bishopB.png);
+  background-image: url(./images/b-bishop.png);
 }
 
 .b-queen {
-  background-image: url(./images/queenB.png);
+  background-image: url(./images/b-queen.png);
 }
 
 .b-king {
-  background-image: url(./images/kingB.png);
+  background-image: url(./images/b-king.png);
 }
