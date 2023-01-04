@@ -1,12 +1,12 @@
 import Board from "../Board.js";
-import Piece, { PIECES } from "./Piece.js";
+import Piece, { PIECES, TEAMS } from "./Piece.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 
 export default class Knight extends Piece {
   public value: number = 3;
-  public id: number = PIECES.KNIGHT;
-  constructor(public team: number, protected board: Board) {
+  public id: PIECES = PIECES.KNIGHT;
+  constructor(public team: TEAMS, protected board: Board) {
     super(team, board);
     this.addClassName(this.id);
   }

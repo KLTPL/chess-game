@@ -4,6 +4,7 @@ export const CLASS_NAMES = {
   field: "field",
   fieldColor1: "field1",
   fieldColor2: "field2",
+  fieldInCheck: "field-king-check"
 };
 
 export default class Field {

@@ -41,9 +41,9 @@ export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE = 0;
 
 export default abstract class Piece {
   public abstract value: number;
-  public abstract id: number;
+  public abstract id: PIECES;
   public html: HTMLDivElement;
-  constructor(public team: number, protected board: Board) {
+  constructor(public team: TEAMS, protected board: Board) {
     this.html = this.createNewHtmlPiece();
     this.startListeningForClicks();
   }
@@ -85,6 +85,7 @@ export default abstract class Piece {
     const leftClickNum = 0;
     if( 
       ev.button !== leftClickNum || 
+      !this.board.match.isGameRunning || 
       this.board.currTeam !== this.team ||
       this.board.pawnPromotionMenu !== null || 
       this.board.grabbedPieceInfo !== null || 
@@ -214,7 +215,7 @@ export default abstract class Piece {
     const distanceX = Math.abs(newPos.x - oldPos.x);
     const distanceY = Math.abs(newPos.y - oldPos.y);
     const distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
-    return distance * 25;
+    return distance * CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT*0.666;
   }
 
   protected substractAbsPinsFromPossMoves(possMoves: Pos[], absPins: Pin[], pos: Pos): Pos[] {
@@ -235,17 +236,17 @@ export default abstract class Piece {
   }
 
   protected removePossMovesIfKingIsInCheck(possMoves: Pos[], myKing: King, pos: Pos): Pos[] {
-    if (myKing.checks.length === 0) {
+    const checks = myKing.createArrOfChecks();
+    if (checks.length === 0) {
       return possMoves;
     }
-    if (myKing.checks.length === 2) {
+    if (checks.length === 2) {
       return [];
     }
-
     return possMoves.filter(possMove => {
       return (
         !possMove.isEqualTo(pos) &&
-        this.isMoveCaptureOrOnTheWayOfCheck(myKing.checks[0], possMove) //myKing.checks[0] is the only check
+        this.isMoveCaptureOrOnTheWayOfCheck(checks[0], possMove) //myKing.checks[0] is the only check
       );
     });
   }
@@ -272,7 +273,7 @@ export default abstract class Piece {
     );
   }
 
-  public static getClassNameByPiece(pieceNum: number, pieceTeam: number): (string|null) {
+  public static getClassNameByPiece(pieceNum: number, pieceTeam: TEAMS): (string|null) {
     const teamChar = (pieceTeam === TEAMS.BLACK) ? "b" : "w";
     const name = (() => {
       switch (pieceNum) {
@@ -292,7 +293,7 @@ export default abstract class Piece {
     return `${teamChar}-${name}`;
   }
 
-  public static createPromoteOptionHtml(piece: number, team: number): HTMLDivElement {
+  public static createPromoteOptionHtml(piece: number, team: TEAMS): HTMLDivElement {
     const option = document.createElement("div");
     option.classList.add("promote-option");
 

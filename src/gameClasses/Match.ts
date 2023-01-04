@@ -4,7 +4,7 @@ import Halfmove from "./Halfmove.js";
 import { TEAMS } from "./Pieces/Piece.js";
 
 type EndInfo = {
-  cousedBy: Player;
+  cousedBy: Player|null;
   type: string;
 };
 type Players = {
@@ -14,7 +14,7 @@ type Players = {
 export type PlayerArg = {
   name: string, 
   image: ImageBitmap | null, 
-  team: number, 
+  team: TEAMS, 
   timeS: number
 };
 export type BoardArg = {
@@ -55,10 +55,11 @@ export default class Match {
   }
 
   public checkIfGameShouldEndAfterMove(move: Halfmove): void {
-    const whiteMoved = (move.piece.team === TEAMS.WHITE);
-    const playerWhoMadeMove = (whiteMoved) ? this.players.white : this.players.black;
-    const otherKing = (!whiteMoved) ? this.board.getKingByTeam(TEAMS.WHITE) : this.board.getKingByTeam(TEAMS.WHITE);
-    const otherPlayer = (!whiteMoved) ? this.players.white : this.players.black;
+    const isItWhitesMove = (move.piece.team === TEAMS.WHITE);
+    const playerWhoMadeMove = (isItWhitesMove) ? this.players.white : this.players.black;
+    const otherKingTeam = (!isItWhitesMove) ? TEAMS.WHITE : TEAMS.BLACK;
+    const otherKing = this.board.getKingByTeam(otherKingTeam);
+    const otherPlayer = (!isItWhitesMove) ? this.players.white : this.players.black;
 
     if (
       this.board.isDrawByInsufficientMaterial() ||
@@ -69,18 +70,16 @@ export default class Match {
       return;
     }
     if (!otherPlayer.isAbleToMakeMove()) {
-      console.log(otherKing.checks)
-      const endType = (otherKing.checks.length > 0) ? "check-mate" : "stale-mate";
+      const endType = (otherKing.isInCheck()) ? "check-mate" : "stale-mate";
       this.end({cousedBy: playerWhoMadeMove, type: endType});
     }
   }
 
   public end(endType?: EndInfo): void {
     this.isGameRunning = false;
-    this.board.removeEventListenersFromPieces();
     console.log("half moves: ",this.board.movesSystem.halfmoves);
     if (endType !== undefined) {
-      console.log(`Game has ended by ${endType.cousedBy.name} with a ${endType.type}`); 
+      console.log(`Game has ended by ${endType.cousedBy?.name} with a ${endType.type}`); 
     } else {
       console.log("Game ended");
     }

@@ -1,13 +1,13 @@
 import Board, { FIELDS_IN_ONE_ROW } from "../Board.js";
-import Piece, { AnyPiece, PIECES, TEAMS } from "./Piece.js";
+import Piece, { AnyPiece, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, PIECES, TEAMS } from "./Piece.js";
 import Pos from "../Pos.js";
 import PawnPromotionMenu from "../PawnPromotionMenu.js";
 
 export default class Pawn extends Piece {
   public value: number = 1;
-  public id: number = PIECES.PAWN;
+  public id: PIECES = PIECES.PAWN;
   directionY: number;
-  constructor(public team: number, protected board: Board) {
+  constructor(public team: TEAMS, protected board: Board) {
     super(team, board);
     this.directionY = (this.team === TEAMS.WHITE) ? -1 : 1;// direction up od down
     this.addClassName(this.id);
@@ -79,7 +79,7 @@ export default class Pawn extends Piece {
   }
   
   private isPawnPinnedAbsolutely(pawn: Pos, pawnToBeCapturedPosX: number): boolean {
-    const kingPos = this.board.findKingPos(this.team);
+    const kingPos = this.board.getKingPosByTeam(this.team);
     const isPawnInlineWithKingHoryzontally = (pawn.y-kingPos.y === 0);
     return isPawnInlineWithKingHoryzontally && this.isRookOrQueenPinningPawns(pawn.y, kingPos.x, pawn.x, pawnToBeCapturedPosX);
   }
@@ -170,10 +170,10 @@ export default class Pawn extends Piece {
     .then((newPieceNum: number) => {
       const pawnGotPromotedTo = this.board.createNewPieceObj(newPieceNum, this.team, this.board);
       this.board.removePieceInPos(pos, true);
-      this.board.placePieceInPos(pos, pawnGotPromotedTo, 0, true);
+      this.board.placePieceInPos(pos, pawnGotPromotedTo, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, true);
       (this.board.pawnPromotionMenu as PawnPromotionMenu).removeMenu();
       this.board.pawnPromotionMenu = null;
-      this.board.getKingByTeam(this.enemyTeamNum).updateChecksArr();
+      this.board.markFieldUnderKingIfKingIsInCheck(this.enemyTeamNum);
       this.board.movesSystem.getLatestHalfmove().setPromotedTo(pawnGotPromotedTo as AnyPiece);
     });
   }

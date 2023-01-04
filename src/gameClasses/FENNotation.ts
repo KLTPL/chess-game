@@ -80,7 +80,7 @@ export default class FENNotation {
     return pieces;
   }
 
-  get activeColorConverted(): TEAMS.WHITE|TEAMS.BLACK {
+  get activeColorConverted(): TEAMS {
     return (this.activeColor === "b") ? TEAMS.BLACK : TEAMS.WHITE;
   }
 
@@ -153,14 +153,15 @@ export default class FENNotation {
     return this.board.createNewPieceObj(id, team, this.board) as AnyPiece;
   }
 
-  private convertCharToPieceId(charLowerCase: string): number {
+  private convertCharToPieceId(charLowerCase: string): PIECES|null {
     switch (charLowerCase) {
       case "r": return PIECES.ROOK;
       case "n": return PIECES.KNIGHT;
       case "b": return PIECES.BISHOP;
       case "q": return PIECES.QUEEN;
       case "k": return PIECES.KING;
-      default:  return PIECES.PAWN;
+      case "p":  return PIECES.PAWN;
+      default: return null;
     }
   }
 }
