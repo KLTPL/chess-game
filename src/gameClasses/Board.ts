@@ -164,12 +164,9 @@ export default class Board {
     const boardBoundingRect = this.html.getBoundingClientRect();
     let posOnBoardLeft = leftPx - boardBoundingRect.left;
     let posOnBoardTop =  topPx - boardBoundingRect.top;
-    if (!Number.isInteger(posOnBoardLeft)) { // im not about how it looks
-      posOnBoardLeft = Math.ceil(posOnBoardLeft);
-    }
-    if (!Number.isInteger(posOnBoardTop)) {
-      posOnBoardTop = Math.ceil(posOnBoardTop);
-    }
+    // im not happy about how it looks
+    posOnBoardLeft = Math.floor(posOnBoardLeft+1);
+    posOnBoardTop = Math.floor(posOnBoardTop+1);
     if (isInBoardForSure) {
       const boardWidth = this.html.offsetWidth;
       if (posOnBoardLeft >= boardWidth) {
