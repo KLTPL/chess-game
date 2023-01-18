@@ -7,7 +7,7 @@ export default class Pawn extends Piece {
   public value: number = 1;
   public id: PIECES = PIECES.PAWN;
   directionY: number;
-  constructor(public team: TEAMS, protected board: Board) {
+  constructor(readonly team: TEAMS, protected board: Board) {
     super(team, board);
     this.directionY = (this.team === TEAMS.WHITE) ? -1 : 1;// direction up od down
     this.addClassName(this.id);
@@ -63,17 +63,18 @@ export default class Pawn extends Piece {
     const enemyTeamNum = this.enemyTeamNum;
     const pawnsToCapturePos = [new Pos(pos.y, pos.x+1), new Pos(pos.y, pos.x-1)];
     return pawnsToCapturePos
-      .filter(pawn => {
-        const newCapture = new Pos(pos.y+this.directionY, pawn.x);
+      .filter(pawnToCapturePos => {
+        const newCapture = new Pos(pos.y+this.directionY, pawnToCapturePos.x);
         const lastMove = board.movesSystem.getLatestHalfmove();
         const isPawnAfterMoving2SqueresForward = Math.abs(lastMove?.from.y - lastMove?.to.y) > 1;
+        const piece = (board.isPosInBoard(pawnToCapturePos)) ? board.el[pawnToCapturePos.y][pawnToCapturePos.x].piece : null;
         return (
           board.isPosInBoard(newCapture) &&
-          board.el[pawn.y][pawn.x].piece?.id === PIECES.PAWN &&
-          board.el[pawn.y][pawn.x].piece?.team === enemyTeamNum && 
-          board.el[pawn.y][pawn.x].piece === lastMove.piece &&
+          Piece.isPawn(piece) &&
+          piece?.team === enemyTeamNum && 
+          piece === lastMove.piece &&
           isPawnAfterMoving2SqueresForward &&
-          !this.isPawnPinnedAbsolutely(pawn, pos.x)
+          !this.isPawnPinnedAbsolutely(pawnToCapturePos, pos.x)
         );
       });
   }
@@ -124,12 +125,13 @@ export default class Pawn extends Piece {
     const enemyTeamNum = this.enemyTeamNum;
     let tempXPos = startPawnXPos+pinDir;
     for ( ; this.board.isPosInBoard(new Pos(yPos, tempXPos)) ; tempXPos += pinDir) {
+      const piece = this.board.el[yPos][tempXPos].piece;
       if (
-        this.board.el[yPos][tempXPos].piece !== null &&
-        this.board.el[yPos][tempXPos].piece?.team === this.team ||
-        (this.board.el[yPos][tempXPos].piece?.team === enemyTeamNum &&
-        this.board.el[yPos][tempXPos].piece?.id !== PIECES.QUEEN &&
-        this.board.el[yPos][tempXPos].piece?.id !== PIECES.ROOK)
+        piece !== null &&
+        piece?.team === this.team ||
+        (piece?.team === enemyTeamNum &&
+         !Piece.isQueen(piece) &&
+         !Piece.isRook(piece))
       ) {
         return false;
       }
@@ -145,13 +147,14 @@ export default class Pawn extends Piece {
   public sideEffectsOfMove(to: Pos): void {
     // en passant capture
     const board = this.board;
-    const halfmoves = board.movesSystem.halfmoves;
+    const enPassantPos = new Pos(to.y-this.directionY, to.x);
+    const enPassanPiece = board.el[enPassantPos.y][enPassantPos.x].piece;
     if (
-      board.isPosInBoard(new Pos(to.y-this.directionY, to.x)) &&
-      board.el[to.y-this.directionY][to.x].piece?.id === PIECES.PAWN &&
-      halfmoves[halfmoves.length-2].piece === board.el[to.y-this.directionY][to.x].piece
+      board.isPosInBoard(enPassantPos) &&
+      Piece.isPawn(enPassanPiece) &&
+      enPassanPiece === board.movesSystem.getLatestHalfmove().piece
     ) {
-      board.removePieceInPos(new Pos(to.y-this.directionY, to.x), true);
+      board.removePieceInPos(enPassantPos, true);
     }
 
     // promotion

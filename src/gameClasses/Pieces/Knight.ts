@@ -6,7 +6,7 @@ import Dir from "../Dir.js";
 export default class Knight extends Piece {
   public value: number = 3;
   public id: PIECES = PIECES.KNIGHT;
-  constructor(public team: TEAMS, protected board: Board) {
+  constructor(readonly team: TEAMS, protected board: Board) {
     super(team, board);
     this.addClassName(this.id);
   }

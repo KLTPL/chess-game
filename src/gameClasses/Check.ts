@@ -1,7 +1,7 @@
 import Pos from "./Pos.js";
 import Board from "./Board.js";
 import Dir from "./Dir.js";
-import { PIECES } from "./Pieces/Piece.js";
+import Piece from "./Pieces/Piece.js";
 
 export default class Check {
   constructor(
@@ -10,22 +10,23 @@ export default class Check {
     private board: Board
   ) {}
 
-  public getFieldsInBetweenPieceAndKing(): Pos[] {
-    const piece = this.checkingPiecePos;
+  public createArrOfFieldsInBetweenPieceAndKing(): Pos[] {
+    const piecePos = this.checkingPiecePos;
+    const piece = this.board.el[piecePos.y][piecePos.x].piece;
     if( 
-      this.board.el[piece.y][piece.x].piece?.id === PIECES.KNIGHT ||
-      this.board.el[piece.y][piece.x].piece?.id === PIECES.PAWN
+      Piece.isKnight(piece) ||
+      Piece.isPawn(piece)
     ) {
       return [];
     }
     const checkDir = new Dir(
-      this.checkedKingPos.y - piece.y, 
-      this.checkedKingPos.x - piece.x, 
+      this.checkedKingPos.y - piecePos.y, 
+      this.checkedKingPos.x - piecePos.x, 
       true
     );
     const tempPos = new Pos(
-      piece.y + checkDir.y, 
-      piece.x + checkDir.x
+      piecePos.y + checkDir.y, 
+      piecePos.x + checkDir.x
     );
     const fieldsInBetween: Pos[] = [];
 

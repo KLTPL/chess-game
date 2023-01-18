@@ -43,7 +43,7 @@ export default abstract class Piece {
   public abstract value: number;
   public abstract id: PIECES;
   public html: HTMLDivElement;
-  constructor(public team: TEAMS, protected board: Board) {
+  constructor(readonly team: TEAMS, protected board: Board) {
     this.html = this.createNewHtmlPiece();
     this.startListeningForClicks();
   }
@@ -222,7 +222,10 @@ export default abstract class Piece {
     for (const pin of absPins) {
       if (pin.pinnedPiecePos.isEqualTo(pos)) {
         possMoves = possMoves.filter(move => {
-          const simplifyXAndY = (this.id === PIECES.KNIGHT) ? false : true; // simplify means make 1 if >1 and -1 if <-1
+          const simplifyXAndY = 
+            (Piece.isKnight(this.board.el[pos.y][pos.x].piece)) ? 
+            false : 
+            true; // simplify means make 1 if >1 and -1 if <-1
           const moveDir = new Dir(move.y-pos.y, move.x-pos.x, simplifyXAndY);
           return (
             moveDir.isEqualTo(new Dir(0, 0)) ||
@@ -257,7 +260,7 @@ export default abstract class Piece {
       check.checkingPiecePos.y === move.y
     );
     let isOnTheLine = false;
-    for (const field of check.getFieldsInBetweenPieceAndKing()) {
+    for (const field of check.createArrOfFieldsInBetweenPieceAndKing()) {
       if (move.isEqualTo(field)) {
         isOnTheLine = true;
       }
@@ -316,5 +319,29 @@ export default abstract class Piece {
       }
     }
     return true;
+  }
+
+  public static isKing(piece: AnyPiece|null): piece is King {
+    return piece?.id === PIECES.KING;
+  }
+
+  public static isPawn(piece: AnyPiece|null): piece is Pawn {
+    return piece?.id === PIECES.PAWN;
+  }
+
+  public static isBishop(piece: AnyPiece|null): piece is Bishop {
+    return piece?.id === PIECES.BISHOP;
+  }
+
+  public static isKnight(piece: AnyPiece|null): piece is Knight {
+    return piece?.id === PIECES.KNIGHT;
+  }
+
+  public static isQueen(piece: AnyPiece|null): piece is Queen {
+    return piece?.id === PIECES.QUEEN;
+  }
+
+  public static isRook(piece: AnyPiece|null): piece is Rook {
+    return piece?.id === PIECES.ROOK;
   }
 }

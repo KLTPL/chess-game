@@ -90,10 +90,14 @@ export default class Board {
       this.kings.white.updatePosProperty();
       this.kings.black.updatePosProperty();
     } else {
-      setTimeout(() => this.match.end({ cousedBy: null, type: "Bad kings"}), 5); 
+      setTimeout(() => this.match.end({ cousedBy: null, type: "Bad kings"})); 
       //setTimeout so constructor is finished before calling Match.end
       this.kings = { white: new King(-1, this), black: new King(-1, this) };
       //this.kings doesn't matter because the game is already over
+    }
+
+    if (this.isDrawByInsufficientMaterial()) {
+      setTimeout(() => this.match.end({ cousedBy: null, type: "draw"}));
     }
   }
 
@@ -153,7 +157,7 @@ export default class Board {
   private positionAllPiecesHtmlsProperly(): void {
     for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
       for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
-        if (this.el[r][c].piece !== null) {
+        if (this.el[r][c].isFieldOccupied()) {
           this.transformPieceHtmlToPos((this.el[r][c].piece as AnyPiece).html, new Pos(r,c));
         }
       }
@@ -209,18 +213,17 @@ export default class Board {
     cssPieceTransitionDelayMs: number, 
     appendHtml: boolean
   ): void {
-    if (piece === null || !piece.html) {    
+    if (piece === null || piece.html === null) {    
       this.el[pos.y][pos.x].setPiece(piece);
       return;
     }
-    const pieceDiv = piece.html as HTMLDivElement;
     if (appendHtml) {
-      this.piecesHtml.append(pieceDiv);
+      this.piecesHtml.append(piece.html);
     }
-    this.setPieceCssTransitionDeley(pieceDiv, cssPieceTransitionDelayMs);
-    this.transformPieceHtmlToPos(pieceDiv, pos);
+    this.setPieceCssTransitionDeley(piece.html, cssPieceTransitionDelayMs);
+    this.transformPieceHtmlToPos(piece.html, pos);
     setTimeout(() => {
-      this.setPieceCssTransitionDeley(pieceDiv, 0);
+      this.setPieceCssTransitionDeley(piece.html, 0);
     }, cssPieceTransitionDelayMs);
     this.el[pos.y][pos.x].setPiece(piece);
   }
@@ -292,20 +295,20 @@ export default class Board {
     let kingBlack: null|King = null;
     for (let r=0 ; r<pieces.length ; r++) {
       for (let c=0 ; c<pieces[r].length ; c++) {
-        if (pieces[r][c]?.id === PIECES.KING) {
-          const king = pieces[r][c] as King;
-          switch (king.team) {
+        const piece = pieces[r][c];
+        if (Piece.isKing(piece)) {
+          switch (piece.team) {
             case TEAMS.WHITE: 
             if (kingWhite !== null) {
               return null;
             }
-            kingWhite = king;
+            kingWhite = piece;
               break;
             case TEAMS.BLACK:
               if (kingBlack !== null) {
                 return null;
               }
-              kingBlack = king;
+              kingBlack = piece;
               break;
           }
         }
@@ -365,10 +368,11 @@ export default class Board {
     const boardAfter = this.invertMap(boardBefore);
     for (let r=0 ; r<boardAfter.length ; r++) {
       for (let c=0 ; c<boardAfter[r].length ; c++) {
-        if (boardAfter[r][c]?.id === PIECES.PAWN) {
-          (boardAfter[r][c] as Pawn).directionY *= -1;
+        const piece = boardAfter[r][c];
+        if (Piece.isPawn(piece)) {
+          piece.directionY *= -1;
         }
-        this.placePieceInPos(new Pos(r, c), boardAfter[r][c], CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, true);
+        this.placePieceInPos(new Pos(r, c), piece, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, true);
       }
     }
     
@@ -392,8 +396,8 @@ export default class Board {
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
         if (
-          this.el[r][c].piece !== null && 
-          (this.el[r][c].piece as AnyPiece).id !== PIECES.KING
+          this.el[r][c].isFieldOccupied() && 
+          !Piece.isKing(this.el[r][c].piece)
         ) {
           return false;
         }
@@ -410,7 +414,7 @@ export default class Board {
     return this.isPositionKingAndSomePieceVsKing(PIECES.KNIGHT);
   }
 
-  private isPositionKingAndSomePieceVsKing(pieceId: number): boolean {
+  private isPositionKingAndSomePieceVsKing(pieceId: PIECES.BISHOP|PIECES.KNIGHT): boolean {
     let pieceOccurrencesCounter = 0;
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
@@ -422,8 +426,8 @@ export default class Board {
           continue;
         }
         if (
-          this.el[r][c].piece !== null && 
-          this.el[r][c].piece?.id !== PIECES.KING
+          this.el[r][c].isFieldOccupied() && 
+          !Piece.isKing(this.el[r][c].piece)
         ) {
           return false;
         }
@@ -436,21 +440,20 @@ export default class Board {
     const bishops: Pos[] = [];
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
-        if (this.el[r][c].piece?.id === PIECES.BISHOP) {
-          if (bishops.length >= 2) {
-            return false;
-          }
-          bishops.push(new Pos(r, c));
+        if (!this.el[r][c].isFieldOccupied() || Piece.isKing(this.el[r][c].piece)) {
           continue;
         }
-        if(
-          this.el[r][c].piece !== null && 
-          this.el[r][c].piece?.id !== PIECES.KING
-        ) {
+        const piece = this.el[r][c].piece as AnyPiece;
+        if (!Piece.isBishop(piece)) {
           return false;
         }
+        if (bishops.length >= 2) {
+          return false;
+        }
+        bishops.push(new Pos(r, c));
       }
     }
+    console.log(bishops)
     return this.isTwoEnemyBishopsOnTheSameColor(bishops);
   }
 
@@ -484,7 +487,7 @@ export default class Board {
     for (let i=halfmoves.length-1 ; i>halfmoves.length-1-50 ; i--) {
       if (
         halfmoves[i].capturedPiece !== null || 
-        halfmoves[i].piece.id === PIECES.PAWN
+        Piece.isPawn(halfmoves[i].piece)
       ) {
         return false;
       }

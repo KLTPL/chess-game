@@ -6,7 +6,7 @@ import Dir from "../Dir.js";
 export default class Bishop extends Piece {
   public value: number = 3;
   public id: PIECES = PIECES.BISHOP;
-  constructor(public team: TEAMS, protected board: Board) {
+  constructor(readonly team: TEAMS, protected board: Board) {
     super(team, board);
     this.addClassName(this.id);
   }
@@ -18,9 +18,10 @@ export default class Bishop extends Piece {
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
       while (true) {
+        const piece = this.board.el[tempPos.y][tempPos.x].piece;
         if ( 
           this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
-          this.board.el[tempPos.y][tempPos.x].piece?.id  !== PIECES.KING
+          !Piece.isKing(piece)
         ) {
           break;
         }

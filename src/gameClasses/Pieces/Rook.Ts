@@ -7,7 +7,7 @@ export default class Rook extends Piece {
   public value: number = 5;
   public id: PIECES = PIECES.ROOK;
   public isBeforeAnyMove: boolean = true;
-  constructor(public team: TEAMS, protected board: Board) {
+  constructor(readonly team: TEAMS, protected board: Board) {
     super(team, board);
 
     this.addClassName(this.id);
@@ -22,7 +22,7 @@ export default class Rook extends Piece {
       while (true) {
         if( 
           this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
-          this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.KING
+          !Piece.isKing(this.board.el[tempPos.y][tempPos.x].piece)
         ) {
           break;
         }

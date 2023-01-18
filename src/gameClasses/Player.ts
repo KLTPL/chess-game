@@ -8,9 +8,9 @@ export default class Player {
   public points: number = 0;
   constructor(
     image: ImageBitmap | null, 
-    public name: string, 
-    public team: TEAMS, 
-    public timeS: number, 
+    readonly name: string, 
+    readonly team: TEAMS, 
+    readonly timeS: number, 
     private board: Board
   ) {
     this.image = this.getImage(image);

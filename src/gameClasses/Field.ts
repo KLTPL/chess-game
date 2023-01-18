@@ -29,4 +29,8 @@ export default class Field {
   public setPiece(piece: (AnyPiece|null)) {
     this.piece = piece;
   }
+
+  public isFieldOccupied(): boolean {
+    return this.piece !== null;
+  }
 }
