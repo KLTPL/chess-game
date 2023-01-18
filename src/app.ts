@@ -3,8 +3,7 @@ import { TEAMS } from "./gameClasses/Pieces/Piece.js";
 
 let customStartPos: (null|string) = null;
 customStartPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-// customStartPos = "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";
-// customStartPos ="8/1p3p2/8/K1PqP3/8/8/8/7k b - - 0 1";
+// customStartPos = "7K/8/7b/8/7B/8/8/k7 w KQkq - 0 1";
 
 export const mouseHold = (element: HTMLElement) => {
   return new Promise<void>((resolve, reject) => {

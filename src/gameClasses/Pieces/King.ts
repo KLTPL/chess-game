@@ -16,7 +16,7 @@ export default class King extends Piece {
   public pos = new Pos(POS_OUT_OF_BOARD, POS_OUT_OF_BOARD);
   private isBeforeAnyMove: boolean = true;
   private castleRights: CastleRights;
-  constructor(public team: TEAMS, protected board: Board) {
+  constructor(readonly team: TEAMS, protected board: Board) {
     super(team, board);
     const castleRights = this.board.startFENNotation.castlingRightsConverted;
     this.castleRights = (this.team === TEAMS.WHITE) ? castleRights.white : castleRights.black;
@@ -183,43 +183,47 @@ export default class King extends Piece {
       const tempPos = new Pos(kingPos.y+direction.y, kingPos.x+direction.x);
 
       while (this.board.isPosInBoard(tempPos)) {
-        if (this.board.el[tempPos.y][tempPos.x].piece !== null) {
-          if (pinInThisDir === null) {
-            if (this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum) {
-              break;
-            }
-            pinInThisDir = {
-              pinnedPiecePos: new Pos(tempPos.y, tempPos.x),
-              pinDir: direction
-            };
-            tempPos.x += direction.x;
-            tempPos.y += direction.y;
-            continue;
-          }
-
-          if((this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.BISHOP &&
-               this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.ROOK &&
-               this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.QUEEN) 
-              ||
-              this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
-            ) {
+        const piece = this.board.el[tempPos.y][tempPos.x].piece;
+        if (piece === null) {
+          tempPos.x += direction.x;
+          tempPos.y += direction.y;
+          continue;
+        }
+        if (pinInThisDir === null) {
+          if (piece.team === enemyTeamNum) {
             break;
           }
-
-          if((isKingInlineVerticallyOrHorizontally &&
-              this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.BISHOP) 
-              ||
-              (!isKingInlineVerticallyOrHorizontally &&
-              this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.ROOK)
-          ) {
-            absPins.push(pinInThisDir);
-          }
+          pinInThisDir = {
+            pinnedPiecePos: new Pos(tempPos.y, tempPos.x),
+            pinDir: direction
+          };
+          tempPos.x += direction.x;
+          tempPos.y += direction.y;
+          continue;
         }
+
+        if((!Piece.isBishop(piece) &&
+            !Piece.isRook(piece) &&
+            !Piece.isQueen(piece)) 
+            ||
+            piece.team === this.team
+          ) {
+          break;
+        }
+
+        if((isKingInlineVerticallyOrHorizontally &&
+            !Piece.isBishop(piece)) 
+            ||
+            (!isKingInlineVerticallyOrHorizontally &&
+            !Piece.isRook(piece))
+        ) {
+          absPins.push(pinInThisDir);
+        }
+        
         tempPos.x += direction.x;
         tempPos.y += direction.y;
       }
     }
-
     return absPins;
   }
 

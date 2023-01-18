@@ -6,7 +6,7 @@ import Dir from "../Dir.js";
 export default class Queen extends Piece {
   public value: number = 9;
   public id: PIECES = PIECES.QUEEN;
-  constructor(public team: TEAMS, protected board: Board) {
+  constructor(readonly team: TEAMS, protected board: Board) {
     super(team, board);
 
     this.addClassName(this.id);
@@ -24,7 +24,7 @@ export default class Queen extends Piece {
       while (true) {
         if ( 
           this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
-          this.board.el[tempPos.y][tempPos.x].piece?.id !== PIECES.KING
+          !Piece.isKing(this.board.el[tempPos.y][tempPos.x].piece)
         ) {
           break;
         }
