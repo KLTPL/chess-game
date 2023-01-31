@@ -176,7 +176,7 @@ export default class Pawn extends Piece {
       this.board.placePieceInPos(pos, pawnGotPromotedTo, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, true);
       (this.board.pawnPromotionMenu as PawnPromotionMenu).removeMenu();
       this.board.pawnPromotionMenu = null;
-      this.board.markFieldUnderKingIfKingIsInCheck(this.enemyTeamNum);
+      this.board.showCheckIfKingIsInCheck(this.enemyTeamNum);
       this.board.movesSystem.getLatestHalfmove().setPromotedTo(pawnGotPromotedTo as AnyPiece);
     });
   }

@@ -5,17 +5,17 @@ let customStartPos: (null|string) = null;
 customStartPos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 // customStartPos = "7K/8/7b/8/7B/8/8/k7 w KQkq - 0 1";
 
-export const mouseHold = (element: HTMLElement) => {
+export const hold = (element: HTMLElement, rejectEventType: string, timeMs: number) => {
   return new Promise<void>((resolve, reject) => {
     element.addEventListener(
-      "mouseup", () => {
+      rejectEventType, () => {
         reject();
       },
       {once: true}
     );
     setTimeout(() => {
       resolve();
-    }, 150);
+    }, timeMs);
   });
 }
 

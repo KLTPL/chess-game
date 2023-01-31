@@ -1,5 +1,5 @@
-import { mouseHold } from "../../app.js";
-import Board, { HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE } from "../Board.js";
+import { hold } from "../../app.js";
+import Board from "../Board.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 import King from "./King.js";
@@ -12,7 +12,7 @@ import Queen from "./Queen.js";
 
 export type AnyPiece = (Pawn|Rook|Knight|Bishop|Queen|King);
 
-export type GrabbedPieceInfo = {
+export type SelectedPieceInfo = {
   piece: (AnyPiece|Piece);
   grabbedFrom: Pos;
 };
@@ -36,6 +36,10 @@ export type Pin = {
   pinDir: Dir;
 };
 
+const PIECE_GRAB_CLASS_NAME = "grab";
+const ID_SELECTED_PIECE_MOVING = "move";
+export const HOLD_MOUSE_TIME_MS = 150;
+const HOLD_MOUSE_TOUCH_MS = 100;
 export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT = 30;
 export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE = 0;
 
@@ -45,6 +49,9 @@ export default abstract class Piece {
   public html: HTMLDivElement;
   constructor(readonly team: TEAMS, protected board: Board) {
     this.html = this.createNewHtmlPiece();
+    if (this.board.currTeam === this.team) {
+      this.html.classList.add(PIECE_GRAB_CLASS_NAME);
+    }
     this.startListeningForClicks();
   }
   
@@ -54,17 +61,25 @@ export default abstract class Piece {
 
   public sideEffectsOfMove(to: Pos, from: Pos): void {to; from;};
 
+  public toggleCssGrab() {
+    this.html.classList.toggle(PIECE_GRAB_CLASS_NAME);
+  }
+
   private startListeningForClicks(): void {
     this.html.addEventListener(
       "mousedown",
-      this.startFollowingCursor
+      this.startFollowingCursorMouse
     );
+    this.html.addEventListener(
+      "touchstart",
+      this.startFollowingCursorTouch
+    )
   }
 
   public stopListeningForClicks(): void {
     this.html.removeEventListener(
       "mousedown",
-      this.startFollowingCursor
+      this.startFollowingCursorMouse
     );
   }
 
@@ -81,14 +96,14 @@ export default abstract class Piece {
     }
   }
 
-  private startFollowingCursor = (ev: MouseEvent): void => { // TODO
+  private startFollowingCursorMouse = (ev: MouseEvent): void => { // TODO
     const leftClickNum = 0;
     if( 
       ev.button !== leftClickNum || 
       !this.board.match.isGameRunning || 
       this.board.currTeam !== this.team ||
       this.board.pawnPromotionMenu !== null || 
-      this.board.grabbedPieceInfo !== null || 
+      this.board.selectedPieceInfo !== null || 
       this.board.analisisSystem.isUserAnalising()
     ) {
       return;
@@ -96,37 +111,93 @@ export default abstract class Piece {
 
     const fieldCoor = this.board.calcFieldPosByPx(ev.clientX, ev.clientY, true);
     const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
-    this.board.showPossibleMoves(possMoves, this.enemyTeamNum);
-    this.board.grabbedPieceInfo = { piece: this, grabbedFrom: fieldCoor }; // TODO this Piece | AnyPiece
+    this.board.showFieldPieceWasSelectedFrom(fieldCoor);
+    this.board.showPossibleMoves(possMoves.filter(move => !move.isEqualTo(fieldCoor)), this.enemyTeamNum, fieldCoor);
+    this.board.selectedPieceInfo = { piece: this, grabbedFrom: fieldCoor }; // TODO this Piece | AnyPiece
     this.board.removePieceInPos(fieldCoor, false);
-    this.html.id = "move";
-    this.moveToCursor(ev);
+    this.html.id = ID_SELECTED_PIECE_MOVING;
+    this.moveToPointer(ev.clientX, ev.clientY);
     document.addEventListener(
       "mousemove",
-      this.moveToCursor
+      this.handleMouseMove
     );
 
-      mouseHold(this.html)
+    hold(this.html, "mouseup", HOLD_MOUSE_TIME_MS)
       .then(() => {
         document.addEventListener(
           "mouseup",
-          newEv => this.stopFollowingCursor(newEv, possMoves), 
+          newEv => this.stopFollowingCursorMouse(newEv, possMoves), 
           { once: true }
         );
       })
       .catch(() => {
         document.addEventListener(
           "mousedown", 
-          newEv => this.stopFollowingCursor(newEv, possMoves), 
+          newEv => this.stopFollowingCursorMouse(newEv, possMoves), 
           { once: true }
         )
       });
   }
 
-  private moveToCursor = (ev: MouseEvent): void => {
-    ev.preventDefault();
-    const coor = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
-    this.board.highlightFieldUnderMovingPiece(coor);
+  private handleMouseMove = (ev: MouseEvent): void => {
+    this.moveToPointer(ev.clientX, ev.clientY);
+  }
+
+  private hanldeTouchMove = (ev: TouchEvent): void => {
+    this.moveToPointer(ev.changedTouches[0].clientX, ev.changedTouches[0].clientY);
+  }
+
+  private startFollowingCursorTouch = (ev: TouchEvent): void => {
+    ev.preventDefault(); // prevents this.startFollowingCursorMouse from executing
+    // const tak = document.querySelector(".container");
+    // if (tak !== null) {
+    //   const div = document.createElement("div");
+    //   div.style.color = "white";
+    //   div.innerText = JSON.stringify(ev.which);
+    //   tak.append(div);
+    // }
+    const touch = ev.changedTouches[0];
+    if( 
+      !this.board.match.isGameRunning || 
+      this.board.currTeam !== this.team ||
+      this.board.pawnPromotionMenu !== null || 
+      this.board.selectedPieceInfo !== null || 
+      this.board.analisisSystem.isUserAnalising() ||
+      touch.identifier > 0
+    ) {
+      return;
+    }
+    const fieldCoor = this.board.calcFieldPosByPx(touch.clientX, touch.clientY, true);
+    const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
+    this.board.removePieceInPos(fieldCoor, false);
+    this.board.selectedPieceInfo = { piece: this, grabbedFrom: fieldCoor }; // TODO this Piece | AnyPiece
+    this.board.showFieldPieceWasSelectedFrom(fieldCoor);
+    this.board.showPossibleMoves(possMoves.filter(move => !move.isEqualTo(fieldCoor)), this.enemyTeamNum, fieldCoor);
+
+    hold(this.html, "touchend", HOLD_MOUSE_TOUCH_MS)
+      .then(() => {
+        this.board.removePieceInPos(fieldCoor, false);
+        this.html.id = ID_SELECTED_PIECE_MOVING;
+        this.moveToPointer(touch.clientX, touch.clientY);
+        this.html.addEventListener("touchmove", this.hanldeTouchMove);
+        document.addEventListener(
+          "touchend",
+          newEv => this.stopFollowingCursorTouch(newEv, possMoves), 
+          { once: true }
+        );
+      })
+      .catch(() => {
+        document.addEventListener(
+          "touchstart", 
+          newEv => this.stopFollowingCursorTouch(newEv, possMoves), 
+          { once: true }
+        )
+      });
+  }
+
+  private moveToPointer = (clientX: number, clientY: number): void => {
+    const coor = this.board.calcFieldPosByPx(clientX, clientY);
+    this.board.showFieldUnderMovingPiece(coor);
 
     const trans = this.html.style.transform; // format: 'transform(Xpx, Ypx)'
     const oldTranslateX = trans.slice(
@@ -136,8 +207,8 @@ export default abstract class Piece {
       trans.indexOf(",")+1, trans.length-1
     );
 
-    const newTranslateX = `${this.calcNewTranslateXValue(ev.clientX)}px`;
-    const newTranslateY = `${this.calcNewTranslateYValue(ev.clientY)}px`;
+    const newTranslateX = `${this.calcNewTranslateXValue(clientX)}px`;
+    const newTranslateY = `${this.calcNewTranslateYValue(clientY)}px`;
 
     const translateX = (coor.x === -1) ? oldTranslateX : newTranslateX;
     const translateY = (coor.y === -1) ? oldTranslateY : newTranslateY;
@@ -162,33 +233,31 @@ export default abstract class Piece {
     );
   }
 
-  private stopFollowingCursor = (ev: MouseEvent, possMoves: Pos[]): void => {
+  private stopFollowingCursorMouse = (ev: MouseEvent, possMoves: Pos[]): void => {
     const type = ev.type as "mouseup"|"mousedown";
     if (ev.button !== 0) { // 0 = left click
       document.addEventListener(
         type, 
-        newEv => this.stopFollowingCursor(newEv, possMoves), 
+        newEv => this.stopFollowingCursorMouse(newEv, possMoves), 
         { once: true }
       )
       return;
     }
 
-    const boardGrabbedPieceInfo = this.board.grabbedPieceInfo as GrabbedPieceInfo; // .piece is equal to this
+    const boardGrabbedPieceInfo = this.board.selectedPieceInfo as SelectedPieceInfo; // .piece is equal to this
     this.html.id = "";
-    const id = HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE;
-    if (document.getElementById(id)) {
-      (document.getElementById(id) as HTMLElement).id = "";
-    }
     document.removeEventListener(
       "mousemove", 
-      this.moveToCursor
+      this.handleMouseMove
     );
-    this.board.hidePossibleMoves();
+    this.board.stopShowingFieldPieceWasSelectedFrom();
+    this.board.stopShowingFieldUnderMovingPiece();
+    this.board.stopShowingPossibleMoves();
     const newPos = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
     const oldPos = boardGrabbedPieceInfo.grabbedFrom;
-    for (let i=0 ; i<possMoves.length ; i++) {
+    for (const possMove of possMoves) {
       if ( 
-        possMoves[i].isEqualTo(newPos) &&
+        possMove.isEqualTo(newPos) &&
         !newPos.isEqualTo(oldPos)
       ) {
         this.board.movePiece(
@@ -197,8 +266,7 @@ export default abstract class Piece {
           boardGrabbedPieceInfo.piece as AnyPiece,
           CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT
         );
-        possMoves = [];
-        this.board.grabbedPieceInfo = null;
+        this.board.selectedPieceInfo = null;
         return;
       }
     }
@@ -208,7 +276,44 @@ export default abstract class Piece {
       this.calcTransitionDelay(oldPos, newPos),
       false
     );
-    this.board.grabbedPieceInfo = null;
+    this.board.selectedPieceInfo = null;
+  }
+
+  private stopFollowingCursorTouch = (ev: TouchEvent, possMoves: Pos[]): void => {
+    const touch = ev.changedTouches[0];
+    const selectedPieceInfo = this.board.selectedPieceInfo as SelectedPieceInfo; // .piece is equal to this
+    this.html.id = "";
+    document.removeEventListener(
+      "touchmove", 
+      this.hanldeTouchMove
+    );
+    this.board.stopShowingFieldPieceWasSelectedFrom();
+    this.board.stopShowingFieldUnderMovingPiece();
+    this.board.stopShowingPossibleMoves();
+    const newPos = this.board.calcFieldPosByPx(touch.clientX, touch.clientY);
+    const oldPos = selectedPieceInfo.grabbedFrom;
+    for (const possMove of possMoves) {
+      if ( 
+        possMove.isEqualTo(newPos) &&
+        !newPos.isEqualTo(oldPos)
+      ) {
+        this.board.movePiece(
+          oldPos,
+          newPos,
+          selectedPieceInfo.piece as AnyPiece,
+          CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT
+        );
+        this.board.selectedPieceInfo = null;
+        return;
+      }
+    }
+    this.board.placePieceInPos(
+      oldPos, 
+      selectedPieceInfo.piece as AnyPiece,
+      this.calcTransitionDelay(oldPos, newPos),
+      false
+    );
+    this.board.selectedPieceInfo = null;
   }
 
   private calcTransitionDelay(oldPos: Pos, newPos: Pos): number {

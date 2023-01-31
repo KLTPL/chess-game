@@ -6,10 +6,11 @@
   background-color: #202225;
   color: black;
   --firstFieldColor: hsl(0, 0%, 100%);
-  --secondFieldColor: hsl(190, 98%, 24%);
+  --secondFieldColor: hsl(189, 98%, 24%);
   --fieldBoxShadow: 0 0 10px rgba(0, 0, 0, 0.5);
   --arrowBgColor: hsla(16, 100%, 50%, 0.9);
   --popupColor: hsl(60, 56%, 91%);
+  --possMovePlainCol: rgba(0, 0, 0, 0.7); 
 
   --pieceSize: 100%; /* set in a script*/
   --possMoveSize: 100%; /* set in a script*/
@@ -68,17 +69,35 @@ body {
   position: absolute;
   width: var(--pieceSize);
   height: var(--pieceSize);
-  cursor: grab;
   background-size: var(--pieceSize);
   background-position: center;
   transition: all var(--transitionDuration) ease-in;
   z-index: 1;
+} 
+
+.piece.grab {
+  cursor: grab;
 }
 
-#field-heighlighted-under-moving-piece {
-  box-shadow: 
-    inset 0 0 20px 5px hsl(120, 100%, 25%),
-    0 0 10px 0 hsl(120, 100%, 25%);
+.field-piece-selected-from {
+  width: 10%;
+  height: 10%;
+  background-color: black;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.field-heighlighted-under-moving-piece {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border: 5px solid hsl(172, 100%, 26%);
+  box-shadow: 0 0 10px 0 hsla(173, 26%, 18%, 0.582);
 }
 
 .field-king-check::before {
@@ -95,30 +114,62 @@ body {
 }
 
 .highlighted-field {
-  background-color: hsla(0, 100%, 50%, 0.9) !important;
+  background-color: hsla(0, 100%, 50%, 0.9);
 }
 
-.poss-move {
-  border-radius: 50%;
-  width: var(--possMoveSize);
-  height: var(--possMoveSize);
-  background-color: rgba(0, 0, 0, 0.7);
+.poss-move {background-color: unset;} /* used only in spript to delete elements */
+
+.poss-move-plain {
   position: absolute;
   left: 50%;
   top: 50%;
+  border-radius: 50%;
+  width: var(--possMoveSize);
+  height: var(--possMoveSize);
+  background-color: var(--possMovePlainCol);
   transform: translate(-50%, -50%);
-
 }
 
 .poss-move-capture {
-  background-color: rgba(0, 255, 13, 0.75) !important;
-  box-shadow: 0 0 10px black;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   z-index: 10;
 }
 
-.poss-move-start {
-  width: var(--possMoveStartSize);
-  height: var(--possMoveStartSize);
+.poss-move-capture::before,
+.poss-move-capture::after {
+  --rotate: ;
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(45%*1.41421356237); /* diagonal_length = box_width*sqrt(2) */
+  height: 4px;
+  border-radius: 27%;
+  background-color: green;
+  transform: translate(-50%, -50%) rotate(var(--rotate));
+}
+
+.poss-move-capture::before {
+  --rotate: 45deg;
+}
+
+.poss-move-capture::after {
+  --rotate: -45deg;
+}
+
+.brilliant-move {
+  position: absolute;
+  width: 40%;
+  height: 40%;
+  top: -10%;
+  left: -10%;
+  background-image: url(./images/brilliant_move.png);
+  background-size: 100%;
+  z-index: 10;
 }
 
 #move {
@@ -133,7 +184,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(var(--rotationDeg));
-  z-index: 100;
+  z-index: 10;
 }
 
 .arrow-head {
@@ -183,7 +234,7 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: var(--fieldBoxShadow);
-  z-index: 3;
+  z-index: 2;
 }
 
 .promote-popup > div {

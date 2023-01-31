@@ -4,7 +4,14 @@ export const CLASS_NAMES = {
   field: "field",
   fieldColor1: "field1",
   fieldColor2: "field2",
-  fieldInCheck: "field-king-check"
+  fieldHighlightGeneral: "highlight",
+  fieldInCheck: "field-king-check",
+  fieldUnderMovingPiece: "field-heighlighted-under-moving-piece",
+  fieldPieceWasSelectedFrom: "field-piece-selected-from",
+  possMove: "poss-move",
+  possMovePlain: "poss-move-plain",
+  possMoveCapture: "poss-move-capture",
+  brilliantMove: "brilliant-move",
 };
 
 export default class Field {

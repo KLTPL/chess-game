@@ -1,6 +1,6 @@
 import Pos, { POS_OUT_OF_BOARD } from "./Pos.js";
-import Field, { CLASS_NAMES as FIELD_CLASS_NAMES } from "./Field.js";
-import Piece, { AnyPiece, PIECES, TEAMS, GrabbedPieceInfo, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "./Pieces/Piece.js";
+import Field, { CLASS_NAMES as CLASS_NAMES_FIELD } from "./Field.js";
+import Piece, { AnyPiece, PIECES, TEAMS, SelectedPieceInfo, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "./Pieces/Piece.js";
 import Pawn from "./Pieces/Pawn.js";
 import King from "./Pieces/King.js";
 import Halfmove from "./Halfmove.js";
@@ -24,12 +24,8 @@ type KingsObj = {
 
 export const FIELDS_IN_ONE_ROW = 8;
 
-export const HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE = "field-heighlighted-under-moving-piece";
 const CLASS_NAMES = {
   piece: "piece",
-  possMove: "poss-move",
-  possMoveCapture: "poss-move-capture",
-  possMoveStart: "poss-move-start",
   thisHtml: "board-container",
   fieldsContainer: "board-fields-container",
   piecesContainer: "board-pieces-container",
@@ -43,7 +39,7 @@ export default class Board {
   private fieldsHtml: HTMLDivElement = this.createContainerForFields();
   public piecesHtml: HTMLDivElement = this.createContainerForPieces();
   public pageContainerHtml: HTMLDivElement;
-  public grabbedPieceInfo: (GrabbedPieceInfo|null) = null;
+  public selectedPieceInfo: (SelectedPieceInfo|null) = null;
   public pawnPromotionMenu: (PawnPromotionMenu|null) = null;
   public isInverted: boolean;
   public movesSystem: MovesSystem = new MovesSystem(/*this*/);
@@ -197,16 +193,6 @@ export default class Board {
     return new Pos(fieldR, fieldC);
   }
 
-  public highlightFieldUnderMovingPiece(pos: Pos): void {
-    const id = HIGHLIGHTED_FIELD_ID_UNDER_GRABBED_PIECE;
-    if (document.getElementById(id)) {
-      (document.getElementById(id) as HTMLElement).id = "";
-    }
-    if (this.isPosInBoard(pos)) {
-      this.el[pos.y][pos.x].html.id = id;
-    }
-  }
-
   public placePieceInPos(
     pos: Pos, 
     piece: (AnyPiece|null), 
@@ -243,6 +229,14 @@ export default class Board {
       TEAMS.WHITE;
   }
 
+  private toggleCssGrabOnPieces() {
+    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
+      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
+        this.el[r][c].piece?.toggleCssGrab();
+      }
+    }
+  }
+
   public movePiece(from: Pos, to: Pos, piece: AnyPiece, transitionDelayMs: number): void {
     const capturedPiece =  this.el[to.y][to.x].piece;
     if (capturedPiece !== null) {
@@ -252,7 +246,7 @@ export default class Board {
     this.placePieceInPos(to, piece, transitionDelayMs, false);
     piece.sideEffectsOfMove(to, from);
     const enemyKing = this.getKingByTeam(piece.enemyTeamNum);
-    this.markFieldUnderKingIfKingIsInCheck(piece.enemyTeamNum)
+    this.showCheckIfKingIsInCheck(piece.enemyTeamNum)
     this.movesSystem.pushNewHalfmove(
       new Halfmove(
         piece, 
@@ -262,6 +256,8 @@ export default class Board {
         (enemyKing.isInCheck()) ? enemyKing.pos : null
         )
     );
+    this.toggleCssGrabOnPieces();
+    this.showNextBrilliantMove(to);
     this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove());
     // TODO
     // if (this.match.gameRunning) {
@@ -328,7 +324,43 @@ export default class Board {
     );
   }
 
-  public showPossibleMoves(possMoves: Pos[], enemyTeamNum: number): void {
+  public showFieldUnderMovingPiece(pos: Pos): void {
+    this.stopShowingFieldUnderMovingPiece();
+    if (this.isPosInBoard(pos)) {
+      const div = document.createElement("div");
+      div.classList.add(CLASS_NAMES_FIELD.fieldHighlightGeneral)
+      div.classList.add(CLASS_NAMES_FIELD.fieldUnderMovingPiece)
+      this.el[pos.y][pos.x].html.append(div);
+    }
+  }
+
+  public stopShowingFieldUnderMovingPiece() {
+    const field = document.querySelector(`.${CLASS_NAMES_FIELD.fieldUnderMovingPiece}`);
+    if (field !== null) {
+      field.remove();
+    }
+  }
+
+  public showFieldPieceWasSelectedFrom(pos: Pos): void {
+    this.stopShowingFieldPieceWasSelectedFrom();
+    if (this.isPosInBoard(pos)) {
+      const div = document.createElement("div");
+      div.classList.add(
+        CLASS_NAMES_FIELD.fieldHighlightGeneral,
+        CLASS_NAMES_FIELD.fieldPieceWasSelectedFrom
+      );
+      this.el[pos.y][pos.x].html.append(div);
+    }
+  }
+
+  public stopShowingFieldPieceWasSelectedFrom() {
+    const field = document.querySelector(`.${CLASS_NAMES_FIELD.fieldPieceWasSelectedFrom}`);
+    if (field !== null) {
+      field.remove();
+    }
+  }
+
+  public showPossibleMoves(possMovesToShow: Pos[], enemyTeamNum: number, from: Pos): void {
     const root = document.querySelector(":root") as HTMLElement;
     root.style.setProperty(
       "--possMoveSize", 
@@ -338,29 +370,73 @@ export default class Board {
       "--possMoveStartSize", 
       `${this.html.offsetWidth / FIELDS_IN_ONE_ROW / 3.75}px`
     );
-    for (let i=0 ; i<possMoves.length ; i++) {
-      const move = possMoves[i];
+    for (const possMove of possMovesToShow) {
       const div = document.createElement("div");
-      div.classList.add(CLASS_NAMES.possMove);
-      if (this.el[move.y][move.x].piece?.team === enemyTeamNum) {
-        div.classList.add(CLASS_NAMES.possMoveCapture);
-      }
-      if (i === 0) {
-        div.classList.add(CLASS_NAMES.possMoveStart);
-      }
-      div.dataset.possMove = "";
-      this.el[move.y][move.x].html.append(div);
+      const isMoveCapture = 
+        (this.el[possMove.y][possMove.x].piece?.team === enemyTeamNum ||
+         (Piece.isPawn(this.el[from.y][from.x].piece) && // en passant
+          from.x !== possMove.x));
+      div.classList.add(
+        CLASS_NAMES_FIELD.fieldHighlightGeneral,
+        CLASS_NAMES_FIELD.possMove,
+        (isMoveCapture) ? CLASS_NAMES_FIELD.possMoveCapture : CLASS_NAMES_FIELD.possMovePlain
+      );
+
+      this.el[possMove.y][possMove.x].html.append(div);
     }
   }
 
-  public hidePossibleMoves(): void {
-    document.querySelectorAll("[data-poss-move]").forEach(possMove => {
+  public stopShowingPossibleMoves(): void {
+    document.querySelectorAll(`.${CLASS_NAMES_FIELD.possMove}`).forEach(possMove => {
       possMove.remove();
     });
   }
 
-  private createArrOfPieces(): ArrOfPieces2d {
-    return this.el.map(row => row.map(field => field.piece));
+  public stopShowingCheck() {
+    document.querySelectorAll(`.${CLASS_NAMES_FIELD.fieldInCheck}`).forEach(field => {
+      field.remove();
+    });
+  }
+
+  public showCheck(kingPos: Pos): void {// king pos as argument instead of this.pos because of the ability to go back in time and temporarly see what happened
+    this.stopShowingCheck();
+    const div = document.createElement("div");
+    div.classList.add(
+      CLASS_NAMES_FIELD.fieldHighlightGeneral,
+      CLASS_NAMES_FIELD.fieldInCheck
+    );
+    this.el[kingPos.y][kingPos.x].html.append(div);
+  }
+
+  public showCheckIfKingIsInCheck(kingTeam: TEAMS): void {
+    // field becomes red if in check
+    const king = this.getKingByTeam(kingTeam);
+    this.stopShowingCheck();
+    if (king.isInCheck()) {
+      this.showCheck(king.pos);
+    }
+  }
+
+  private showNextBrilliantMove(pos: Pos): void {
+    this.stopShowingBrilliantMove();
+    if (Math.floor(Math.random()*10) === 0) { // 10%
+      this.showBrilliantMove(pos);
+    }
+  }
+
+  private showBrilliantMove(pos: Pos): void {
+    const div = document.createElement("div");
+    div.classList.add(
+      CLASS_NAMES_FIELD.fieldHighlightGeneral,
+      CLASS_NAMES_FIELD.brilliantMove,
+    );
+    this.el[pos.y][pos.x].html.append(div);
+  }
+
+  private stopShowingBrilliantMove(): void {
+    document.querySelectorAll(`.${CLASS_NAMES_FIELD.brilliantMove}`).forEach(field => {
+      field.remove();
+    });
   }
 
   private flipPerspective(): void {
@@ -377,6 +453,10 @@ export default class Board {
     }
     
     this.isInverted = (this.isInverted) ? false : true;
+  }
+
+  private createArrOfPieces(): ArrOfPieces2d {
+    return this.el.map(row => row.map(field => field.piece));
   }
 
   private invertMap(map: ArrOfPieces2d): ArrOfPieces2d {
@@ -453,7 +533,6 @@ export default class Board {
         bishops.push(new Pos(r, c));
       }
     }
-    console.log(bishops)
     return this.isTwoEnemyBishopsOnTheSameColor(bishops);
   }
 
@@ -472,9 +551,9 @@ export default class Board {
 
   private isPositionsOnTheSameColor(pos1: Pos, pos2: Pos): boolean {
     const pos1OnWhiteSquere = 
-      this.el[pos1.y][pos1.x].html.className.includes(FIELD_CLASS_NAMES.fieldColor1);
+      this.el[pos1.y][pos1.x].html.className.includes(CLASS_NAMES_FIELD.fieldColor1);
     const pos2OnWhiteSquere = 
-      this.el[pos2.y][pos2.x].html.className.includes(FIELD_CLASS_NAMES.fieldColor1);
+      this.el[pos2.y][pos2.x].html.className.includes(CLASS_NAMES_FIELD.fieldColor1);
 
     return pos1OnWhiteSquere === pos2OnWhiteSquere;
   }
@@ -534,26 +613,6 @@ export default class Board {
   private setCssPieceSize(): void {
     const root = document.querySelector(":root") as HTMLElement;
     root.style.setProperty("--pieceSize", `${this.html.offsetWidth / FIELDS_IN_ONE_ROW}px`);
-  }
-
-  public removeCheckFieldClassName() {
-    document.querySelectorAll(`.${FIELD_CLASS_NAMES.fieldInCheck}`).forEach(field => {
-      field.classList.remove(FIELD_CLASS_NAMES.fieldInCheck);
-    });
-  }
-
-  public markFieldUnderKingToSignalCheck(kingPos: Pos): void {// king pos as argument instead of this.pos because of the ability to go back in time and temporarly see what happened
-    this.removeCheckFieldClassName();
-    this.el[kingPos.y][kingPos.x].html.classList.add(FIELD_CLASS_NAMES.fieldInCheck);
-  }
-
-  public markFieldUnderKingIfKingIsInCheck(kingTeam: TEAMS): void {
-    // field becomes red if in check
-    const king = this.getKingByTeam(kingTeam);
-    this.removeCheckFieldClassName();
-    if (king.isInCheck()) {
-      this.markFieldUnderKingToSignalCheck(king.pos);
-    }
   }
 
   public createNewPieceObj(id: (PIECES|null), team: (TEAMS|null), board: Board)
