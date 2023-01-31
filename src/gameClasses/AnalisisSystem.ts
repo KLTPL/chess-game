@@ -112,9 +112,9 @@ export default class AnalisisSystem {
     }
     if (currHalfmoveIndex > move0Index) { // highlight field under checked king
       const currHalfmove = halfmoves[currHalfmoveIndex];
-      this.board.removeCheckFieldClassName();
+      this.board.stopShowingCheck();
       if (currHalfmove.posOfKingChecked !== null) {
-        this.board.markFieldUnderKingToSignalCheck(currHalfmove.posOfKingChecked);
+        this.board.showCheck(currHalfmove.posOfKingChecked);
       }
     }
   }
@@ -157,9 +157,9 @@ export default class AnalisisSystem {
     board.removePieceInPos(moveToDo.from, isPiecePromoted);
     board.placePieceInPos(moveToDo.to, pieceToPlace, cssPieceTransitionDelayMs, isPiecePromoted);
 
-    this.board.removeCheckFieldClassName();
+    this.board.stopShowingCheck();
     if (moveToDo.posOfKingChecked !== null) {
-    this.board.markFieldUnderKingToSignalCheck(moveToDo.posOfKingChecked);
+    this.board.showCheck(moveToDo.posOfKingChecked);
     }
   }
 }

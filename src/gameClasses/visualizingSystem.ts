@@ -1,5 +1,6 @@
-import { mouseHold } from "../app.js";
+import { hold } from "../app.js";
 import Board from "./Board.js";
+import { HOLD_MOUSE_TIME_MS } from "./Pieces/Piece.js";
 import Pos from "./Pos.js";
 import VisualizingArrow from "./VisualizingArrow.js";
 
@@ -19,34 +20,36 @@ export default class VisualizingSystem {
   }
 
   private handleMouseDown(ev: MouseEvent): void {
-    if (ev.button === 0) { // mouse left click
+    const leftMouse = 0;
+    const rightMouse = 2;
+    if (ev.button === leftMouse) { // mouse left click
       this.removeAllArrows();
       this.removeHighlightFromAllFields();
       return;
     }
-    if (ev.button !== 2 || this.board.grabbedPieceInfo !== null) { // mouse right click
+    if (ev.button !== rightMouse || this.board.selectedPieceInfo !== null) { // mouse right click
       return;
     }
 
     const startPos = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
-    mouseHold(this.board.html)
-    .then(() => {
-      this.board.html.addEventListener("mouseup", endEv => {
-        const endPos = this.board.calcFieldPosByPx(endEv.clientX, endEv.clientY);
-        if (startPos.isEqualTo(endPos)) {
-          this.toggleHighlightOnFieldOnPos(startPos);
-          return;
-        }
-        const matchingArrowNum = this.indexOfEqualArrow(startPos, endPos);
-        if (matchingArrowNum !== null) {
-          this.removeArrow(matchingArrowNum);
-          return;
-        }
-        this.arrows.push(new VisualizingArrow(this.board, startPos, endPos));
-      }, {once: true});
-    }).catch( () => {
-      this.toggleHighlightOnFieldOnPos(startPos);
-    });
+    hold(this.board.html, "mouseup", HOLD_MOUSE_TIME_MS)
+      .then(() => {
+        this.board.html.addEventListener("mouseup", endEv => {
+          const endPos = this.board.calcFieldPosByPx(endEv.clientX, endEv.clientY);
+          if (startPos.isEqualTo(endPos)) {
+            this.toggleHighlightOnFieldOnPos(startPos);
+            return;
+          }
+          const matchingArrowNum = this.indexOfEqualArrow(startPos, endPos);
+          if (matchingArrowNum !== null) {
+            this.removeArrow(matchingArrowNum);
+            return;
+          }
+          this.arrows.push(new VisualizingArrow(this.board, startPos, endPos));
+        }, {once: true});
+      }).catch( () => {
+        this.toggleHighlightOnFieldOnPos(startPos);
+      });
   }
 
   private indexOfEqualArrow(startPos: Pos, endPos: Pos): (number|null) {
