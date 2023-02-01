@@ -77,6 +77,7 @@ export default class Match {
 
   public end(endType?: EndInfo): void {
     this.isGameRunning = false;
+    this.board.turnOfCssGrabOnPieces();
     console.log("half moves: ",this.board.movesSystem.halfmoves);
     if (endType !== undefined) {
       console.log(`Game has ended by ${endType.cousedBy?.name} with a ${endType.type}`); 

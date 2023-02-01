@@ -8,10 +8,13 @@ export const CLASS_NAMES = {
   fieldInCheck: "field-king-check",
   fieldUnderMovingPiece: "field-heighlighted-under-moving-piece",
   fieldPieceWasSelectedFrom: "field-piece-selected-from",
+  fieldRowAndColHighlight: "row-col-highlight",
   possMove: "poss-move",
   possMovePlain: "poss-move-plain",
   possMoveCapture: "poss-move-capture",
-  brilliantMove: "brilliant-move",
+  fieldMoveClassification: "move-classification",
+  fieldBlunder: "move-classification-blunder",
+  fieldBrilliant: "move-classification-brilliant",
 };
 
 export default class Field {

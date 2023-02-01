@@ -210,6 +210,14 @@ export default class Board {
     }
   }
 
+  public turnOfCssGrabOnPieces() {
+    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
+      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
+        this.el[r][c].piece?.removeCssGrab();
+      }
+    }
+  }
+
   public movePiece(from: Pos, to: Pos, piece: AnyPiece, transitionDelayMs: number): void {
     const capturedPiece =  this.el[to.y][to.x].piece;
     if (capturedPiece !== null) {
@@ -226,11 +234,12 @@ export default class Board {
         from, 
         to, 
         capturedPiece, 
-        (enemyKing.isInCheck()) ? enemyKing.pos : null
-        )
+        (enemyKing.isInCheck()) ? enemyKing.pos : null,
+        this.getRookIfKingCastled(piece, from, to)
+      )
     );
     this.toggleCssGrabOnPieces();
-    this.showNextBrilliantMove(to);
+    this.showNextMoveClassification(to);
     this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove());
     // TODO
     // if (this.match.gameRunning) {
@@ -242,6 +251,15 @@ export default class Board {
     //     this.flipPerspective();
     //   }
     // }
+  }
+
+  private getRookIfKingCastled(piece: AnyPiece, from: Pos, to: Pos): Rook|null {
+    if (!Piece.isKing(piece) || Math.abs(from.x - to.x) < 2) {
+      return null;
+    }
+    const castleXDir = (to.x - from.x > 0) ? 1 : -1;
+    const currRookPos = new Pos(to.y, to.x - castleXDir);
+    return this.el[currRookPos.y][currRookPos.x].piece as Rook;
   }
 
   public removePieceInPos(pos: Pos, removeHtml: boolean) {
@@ -299,38 +317,24 @@ export default class Board {
 
   public showFieldUnderMovingPiece(pos: Pos): void {
     this.stopShowingFieldUnderMovingPiece();
-    if (this.isPosInBoard(pos)) {
-      const div = document.createElement("div");
-      div.classList.add(CLASS_NAMES_FIELD.fieldHighlightGeneral)
-      div.classList.add(CLASS_NAMES_FIELD.fieldUnderMovingPiece)
-      this.el[pos.y][pos.x].html.append(div);
-    }
+    const div = document.createElement("div");
+    div.classList.add(CLASS_NAMES_FIELD.fieldUnderMovingPiece)
+    this.el[pos.y][pos.x].html.append(div);
   }
 
   public stopShowingFieldUnderMovingPiece() {
-    const field = document.querySelector(`.${CLASS_NAMES_FIELD.fieldUnderMovingPiece}`);
-    if (field !== null) {
-      field.remove();
-    }
+    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldUnderMovingPiece}`);
   }
 
   public showFieldPieceWasSelectedFrom(pos: Pos): void {
     this.stopShowingFieldPieceWasSelectedFrom();
-    if (this.isPosInBoard(pos)) {
-      const div = document.createElement("div");
-      div.classList.add(
-        CLASS_NAMES_FIELD.fieldHighlightGeneral,
-        CLASS_NAMES_FIELD.fieldPieceWasSelectedFrom
-      );
-      this.el[pos.y][pos.x].html.append(div);
-    }
+    const div = document.createElement("div");
+    div.classList.add(CLASS_NAMES_FIELD.fieldPieceWasSelectedFrom);
+    this.el[pos.y][pos.x].html.append(div);
   }
 
   public stopShowingFieldPieceWasSelectedFrom() {
-    const field = document.querySelector(`.${CLASS_NAMES_FIELD.fieldPieceWasSelectedFrom}`);
-    if (field !== null) {
-      field.remove();
-    }
+    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldPieceWasSelectedFrom}`);
   }
 
   public showPossibleMoves(possMovesToShow: Pos[], enemyTeamNum: number, from: Pos): void {
@@ -350,7 +354,6 @@ export default class Board {
          (Piece.isPawn(this.el[from.y][from.x].piece) && // en passant
           from.x !== possMove.x));
       div.classList.add(
-        CLASS_NAMES_FIELD.fieldHighlightGeneral,
         CLASS_NAMES_FIELD.possMove,
         (isMoveCapture) ? CLASS_NAMES_FIELD.possMoveCapture : CLASS_NAMES_FIELD.possMovePlain
       );
@@ -360,24 +363,18 @@ export default class Board {
   }
 
   public stopShowingPossibleMoves(): void {
-    document.querySelectorAll(`.${CLASS_NAMES_FIELD.possMove}`).forEach(possMove => {
-      possMove.remove();
-    });
+    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.possMove}`);
+
   }
 
   public stopShowingCheck() {
-    document.querySelectorAll(`.${CLASS_NAMES_FIELD.fieldInCheck}`).forEach(field => {
-      field.remove();
-    });
+    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldInCheck}`);
   }
 
   public showCheck(kingPos: Pos): void {// king pos as argument instead of this.pos because of the ability to go back in time and temporarly see what happened
     this.stopShowingCheck();
     const div = document.createElement("div");
-    div.classList.add(
-      CLASS_NAMES_FIELD.fieldHighlightGeneral,
-      CLASS_NAMES_FIELD.fieldInCheck
-    );
+    div.classList.add(CLASS_NAMES_FIELD.fieldInCheck);
     this.el[kingPos.y][kingPos.x].html.append(div);
   }
 
@@ -390,25 +387,60 @@ export default class Board {
     }
   }
 
-  private showNextBrilliantMove(pos: Pos): void {
-    this.stopShowingBrilliantMove();
-    if (Math.floor(Math.random()*10) === 0) { // 10%
-      this.showBrilliantMove(pos);
+  public showNextMoveClassification(pos: Pos): void {
+    this.stopShowingMoveClassification();
+    const rand = Math.floor(Math.random()*20);
+    switch (rand) { // both 5% chance
+      case 0: this.showBrilliantMove(pos); break;
+      case 1: this.showBlunderMove(pos); break;
     }
   }
 
   private showBrilliantMove(pos: Pos): void {
     const div = document.createElement("div");
-    div.classList.add(
-      CLASS_NAMES_FIELD.fieldHighlightGeneral,
-      CLASS_NAMES_FIELD.brilliantMove,
-    );
+    div.classList.add(CLASS_NAMES_FIELD.fieldMoveClassification, CLASS_NAMES_FIELD.fieldBrilliant);
     this.el[pos.y][pos.x].html.append(div);
   }
 
-  private stopShowingBrilliantMove(): void {
-    document.querySelectorAll(`.${CLASS_NAMES_FIELD.brilliantMove}`).forEach(field => {
-      field.remove();
+  private showBlunderMove(pos: Pos): void {
+    const div = document.createElement("div");
+    div.classList.add(CLASS_NAMES_FIELD.fieldMoveClassification, CLASS_NAMES_FIELD.fieldBlunder);
+    this.el[pos.y][pos.x].html.append(div);
+  }
+
+  private stopShowingMoveClassification(): void {
+    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldBrilliant}`);
+    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldBlunder}`);
+  }
+
+  public showNewRowAndColUserIsTouching(touch: Pos) {
+    this.stopShowingRowAndColUserIsTouching();
+    this.showRowAndColUserIsTouching(touch);
+  }
+
+  public showRowAndColUserIsTouching(touch: Pos) {
+    const createHighlight = (): HTMLDivElement => {
+      const highlight = document.createElement("div");
+      highlight.classList.add(
+        CLASS_NAMES_FIELD.fieldRowAndColHighlight,
+      );
+      return highlight;
+    };
+    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
+      this.el[r][touch.x].html.append(createHighlight());
+    }
+    for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
+      this.el[touch.y][c].html.append(createHighlight());
+    }
+  }
+
+  public stopShowingRowAndColUserIsTouching() {
+    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldRowAndColHighlight}`);
+  }
+
+  private stopShowingHighlight(querySelectorAll: string) {
+    document.querySelectorAll(querySelectorAll).forEach(el => {
+      el.remove();
     });
   }
 
@@ -608,7 +640,7 @@ export default class Board {
   private resizeHtml(): void {
     this.html.style.width = "clamp(300px, 750px, 70%)";
     const fieldSize = this.html.getBoundingClientRect().width / FIELDS_IN_ONE_ROW;
-    if (fieldSize !== Math.floor(fieldSize)) { // field size has to be int
+    if (fieldSize !== Math.floor(fieldSize)) { // field size has to be int - read the Board.positionHtmlProperly comment
       this.html.style.width = `${Math.floor(fieldSize) * FIELDS_IN_ONE_ROW}px`;
     }
   }
