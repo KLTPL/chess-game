@@ -1,11 +1,12 @@
-import Board from "./Board";
-import { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "./Pieces/Piece";
+import Board, { FIELDS_IN_ONE_ROW } from "./Board";
+import { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "./Pieces/Piece";
+import Pos from "./Pos";
 
 const ARROW_KEY_BACK = "ArrowLeft";
 const ARROW_KEY_FORWARD = "ArrowRight";
 
-const CSS_PIECE_TRASITION_DELAY_MS_DEFAULT = 10;
-const CSS_PIECE_TRASITION_DELAY_MS_GO_BACK_TO_CURR_POS = 500;
+const CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT = 10;
+const CSS_PIECE_TRANSITION_DELAY_MS_GO_BACK_TO_CURR_POS = 500;
 
 export default class AnalisisSystem {
   private currHalfmoveIndex: (number|null) = null; // null means latest halfmove so user is not analising
@@ -26,7 +27,7 @@ export default class AnalisisSystem {
           this.goOneHalfmoveBack();
           break;
         case ARROW_KEY_FORWARD:
-          this.goOneHalfmoveForward(CSS_PIECE_TRASITION_DELAY_MS_DEFAULT);
+          this.goOneHalfmoveForward(CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT);
           break;
       }
     });
@@ -40,7 +41,7 @@ export default class AnalisisSystem {
     let tempAmount = 1;
     while (this.currHalfmoveIndex !== null) {
       tempAmount++;
-      const newDelay = CSS_PIECE_TRASITION_DELAY_MS_GO_BACK_TO_CURR_POS / tempAmount;
+      const newDelay = CSS_PIECE_TRANSITION_DELAY_MS_GO_BACK_TO_CURR_POS / tempAmount;
       const delayOnThatMove = 
         (newDelay < CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE) ?  
         CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE : 
@@ -77,7 +78,7 @@ export default class AnalisisSystem {
     const moveToReverse = halfmoves[currHalfmoveIndex+1];
     const isPiecePromoted = (moveToReverse.getPromotedTo() !== null);
 
-    if (isPiecePromoted) {
+    if (isPiecePromoted) { // behavior when piece is promoted
       board.removePieceInPos(moveToReverse.to, true);
       board.placePieceInPos(
         moveToReverse.to, 
@@ -89,20 +90,20 @@ export default class AnalisisSystem {
       board.placePieceInPos(
         moveToReverse.from, 
         moveToReverse.piece, 
-        CSS_PIECE_TRASITION_DELAY_MS_DEFAULT, 
+        CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT, 
         true
       );
-    } else {
+    } else { // normal behavior
       board.removePieceInPos(moveToReverse.to, false);
       board.placePieceInPos(
         moveToReverse.from, 
         moveToReverse.piece, 
-        CSS_PIECE_TRASITION_DELAY_MS_DEFAULT, 
+        CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT, 
         false
       );
     }
 
-    if (moveToReverse.capturedPiece !== null) {
+    if (moveToReverse.capturedPiece !== null) { // capture
       board.placePieceInPos(
         moveToReverse.to, 
         moveToReverse.capturedPiece, 
@@ -110,6 +111,22 @@ export default class AnalisisSystem {
         true
       );
     }
+    if (moveToReverse.isCastle()) { 
+      const fromX = moveToReverse.from.x;
+      const toX = moveToReverse.to.x;
+      const castleXDir = (toX - fromX > 0) ? 1 : -1;
+      const currRookPos = new Pos(moveToReverse.to.y, toX - castleXDir);
+      const rookStartPosX = (castleXDir > 0) ? FIELDS_IN_ONE_ROW-1 : 0;
+      const rookStartPos = new Pos(moveToReverse.to.y, rookStartPosX);
+      this.board.removePieceInPos(currRookPos, false);
+      this.board.placePieceInPos(
+        rookStartPos, 
+        moveToReverse.rookThatCastled, 
+        CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT*3.5, 
+        false
+      );
+    }
+    this.board.showNextMoveClassification(moveToReverse.from);
     if (currHalfmoveIndex > move0Index) { // highlight field under checked king
       const currHalfmove = halfmoves[currHalfmoveIndex];
       this.board.stopShowingCheck();
@@ -157,6 +174,22 @@ export default class AnalisisSystem {
     board.removePieceInPos(moveToDo.from, isPiecePromoted);
     board.placePieceInPos(moveToDo.to, pieceToPlace, cssPieceTransitionDelayMs, isPiecePromoted);
 
+    if (moveToDo.isCastle()) { // castle
+      const fromX = moveToDo.from.x;
+      const toX = moveToDo.to.x;
+      const castleXDir = (toX - fromX > 0) ? 1 : -1;
+      const currRookPosX = (castleXDir > 0) ? FIELDS_IN_ONE_ROW-1 : 0;
+      const rookPosXAfter = toX - castleXDir;
+      this.board.removePieceInPos(new Pos(moveToDo.to.y, currRookPosX), false);
+      this.board.placePieceInPos(
+        new Pos(moveToDo.to.y, rookPosXAfter), 
+        moveToDo.rookThatCastled, 
+        CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT*3.5, 
+        false
+      );
+    }
+
+    this.board.showNextMoveClassification(moveToDo.to);
     this.board.stopShowingCheck();
     if (moveToDo.posOfKingChecked !== null) {
     this.board.showCheck(moveToDo.posOfKingChecked);

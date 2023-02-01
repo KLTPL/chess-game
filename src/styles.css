@@ -93,27 +93,6 @@ body {
   height: var(--pieceMoveTouchSize);
   z-index: 10;
   position: absolute;
-} 
-
-#move-touch::before,
-#move-touch::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgba(18, 250, 18, 0.404);
-  z-index: 10;
-}
-
-#move-touch::before {
-  width: calc(100vw * 2);
-  height: 3px;
-}
-
-#move-touch::after {
-  height: calc(100vh * 2);
-  width: 3px;
 }
 
 .field-piece-selected-from {
@@ -198,15 +177,32 @@ body {
   --rotate: -45deg;
 }
 
-.brilliant-move {
+.move-classification {
+  --src: url(./images/move-brilliant.png);
   position: absolute;
   width: 40%;
   height: 40%;
   top: -10%;
   left: -10%;
-  background-image: url(./images/brilliant_move.png);
+  background-image: var(--src);
   background-size: 100%;
   z-index: 10;
+}
+
+.move-classification-brilliant {
+  --src: url(./images/move-brilliant.png);
+}
+
+.move-classification-blunder {
+  --src: url(./images/move-blunder.png);
+}
+
+
+.row-col-highlight {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: hsla(143, 100%, 26%, 0.356);
 }
 
 .arrow-container {

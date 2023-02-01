@@ -16,7 +16,6 @@ export default class MovesSystem {
   }
 
   
-
   public getLatestHalfmove(): Halfmove {
     return this.halfmoves[this.halfmoves.length-1];
   }

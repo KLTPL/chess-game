@@ -1,4 +1,5 @@
 import { AnyPiece } from "./Pieces/Piece.js";
+import Rook from "./Pieces/Rook.js";
 import Pos from "./Pos.js";
 
 export default class Halfmove {
@@ -9,10 +10,15 @@ export default class Halfmove {
     readonly to: Pos, 
     readonly capturedPiece: (AnyPiece|null),
     readonly posOfKingChecked: null|Pos,
+    readonly rookThatCastled: null|Rook,
   ) {}
 
   public isCheck(): boolean {
     return (this.posOfKingChecked !== null);
+  }
+
+  public isCastle(): boolean {
+    return (this.rookThatCastled !== null);
   }
 
   public getPromotedTo(): (AnyPiece|null) {

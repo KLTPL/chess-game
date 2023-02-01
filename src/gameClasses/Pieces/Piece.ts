@@ -66,6 +66,10 @@ export default abstract class Piece {
     this.html.classList.toggle(PIECE_GRAB_CLASS_NAME);
   }
 
+  public removeCssGrab() {
+    this.html.classList.remove(PIECE_GRAB_CLASS_NAME);
+  }
+
   private startListeningForClicks(): void {
     this.html.addEventListener(
       "mousedown",
@@ -145,6 +149,9 @@ export default abstract class Piece {
   }
 
   private hanldeTouchMove = (ev: TouchEvent): void => {
+    this.board.showNewRowAndColUserIsTouching(
+      this.board.calcFieldPosByPx(ev.changedTouches[0].clientX, ev.changedTouches[0].clientY)
+    );
     this.moveToPointer(ev.changedTouches[0].clientX, ev.changedTouches[0].clientY);
   }
 
@@ -172,6 +179,7 @@ export default abstract class Piece {
       .then(() => {
         this.board.removePieceInPos(fieldCoor, false);
         this.html.id = ID_SELECTED_PIECE_TOUCH;
+        this.board.showRowAndColUserIsTouching(fieldCoor);
 
         this.moveToPointer(touch.clientX, touch.clientY);
         this.html.addEventListener("touchmove", this.hanldeTouchMove);
@@ -244,6 +252,7 @@ export default abstract class Piece {
       "mousemove", 
       this.handleMouseMove
     );
+    this.html.id = ""; // remove the ID_SELECTED_PIECE_MOUSE
     this.board.stopShowingFieldPieceWasSelectedFrom();
     this.board.stopShowingFieldUnderMovingPiece();
     this.board.stopShowingPossibleMoves();
@@ -276,7 +285,7 @@ export default abstract class Piece {
   private stopFollowingCursorTouch = (ev: TouchEvent, possMoves: Pos[]): void => {
     const touch = ev.changedTouches[0];
     const selectedPieceInfo = this.board.selectedPieceInfo as SelectedPieceInfo; // .piece is equal to this
-    this.html.id = "";
+    this.html.id = ""; // remove the ID_SELECTED_PIECE_TOUCH
     document.removeEventListener(
       "touchmove", 
       this.hanldeTouchMove
@@ -284,6 +293,7 @@ export default abstract class Piece {
     this.board.stopShowingFieldPieceWasSelectedFrom();
     this.board.stopShowingFieldUnderMovingPiece();
     this.board.stopShowingPossibleMoves();
+    this.board.stopShowingRowAndColUserIsTouching();
     const newPos = this.board.calcFieldPosByPx(touch.clientX, touch.clientY);
     const oldPos = selectedPieceInfo.grabbedFrom;
     for (const possMove of possMoves) {
