@@ -37,7 +37,7 @@ export default class Field {
     this.piece = piece;
   }
 
-  public isFieldOccupied(): boolean {
+  public isOccupied(): boolean {
     return this.piece !== null;
   }
 }
