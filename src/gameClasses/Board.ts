@@ -58,7 +58,9 @@ export default class Board {
     this.pageContainerHtml.append(this.html);
     this.html.append(this.fieldsHtml);
     this.html.append(this.piecesHtml);
+    this.resizeHtml();
     this.setCssPieceSize();
+    this.positionHtmlProperly();
 
     this.el = this.createFieldsArr();
     const pieces = this.startFENNotation.piecePlacementConverted;
@@ -71,6 +73,8 @@ export default class Board {
     this.analisisSystem =  new AnalisisSystem(this);
 
     window.addEventListener("resize", () => {
+      this.resizeHtml();
+      this.positionHtmlProperly();
       this.setCssPieceSize();
       this.positionAllPiecesHtmlsProperly();
     });
@@ -150,47 +154,16 @@ export default class Board {
     }
   }
 
-  private positionAllPiecesHtmlsProperly(): void {
-    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
-      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
-        if (this.el[r][c].isFieldOccupied()) {
-          this.transformPieceHtmlToPos((this.el[r][c].piece as AnyPiece).html, new Pos(r,c));
-        }
-      }
-    }
-  }
-
-  public calcFieldPosByPx(leftPx: number, topPx: number, isInBoardForSure?: boolean): Pos { // pos values from 0 to 7 or -1 if not in board
+  public calcFieldPosByPx(leftPx: number, topPx: number): Pos { // pos values from 0 to 7 or -1 if not in board
     const boardBoundingRect = this.html.getBoundingClientRect();
-    let posOnBoardLeft = leftPx - boardBoundingRect.left;
-    let posOnBoardTop =  topPx - boardBoundingRect.top;
-    // im not happy about how it looks
-    posOnBoardLeft = Math.floor(posOnBoardLeft+1);
-    posOnBoardTop = Math.floor(posOnBoardTop+1);
-    if (isInBoardForSure) {
-      const boardWidth = this.html.offsetWidth;
-      if (posOnBoardLeft >= boardWidth) {
-        posOnBoardLeft = boardWidth-1;
-      }
-      if (posOnBoardLeft < 0) {
-        posOnBoardLeft = 0;
-      }
-      if (posOnBoardTop >= boardWidth) {
-        posOnBoardTop = boardWidth-1;
-      }
-      if (posOnBoardTop < 0) {
-        posOnBoardTop = 0;
-      }
-    }
-    let fieldC = Math.floor((posOnBoardLeft/this.fieldsHtml.offsetWidth)* FIELDS_IN_ONE_ROW);
-    let fieldR = Math.floor((posOnBoardTop/this.fieldsHtml.offsetHeight)*FIELDS_IN_ONE_ROW);
-    if (fieldC < 0 || fieldC > FIELDS_IN_ONE_ROW-1) {
-      fieldC = POS_OUT_OF_BOARD;
-    }
-    if (fieldR < 0 || fieldR > FIELDS_IN_ONE_ROW-1) {
-      fieldR = POS_OUT_OF_BOARD;
-    }
-    return new Pos(fieldR, fieldC);
+    const posOnBoardLeft = leftPx - boardBoundingRect.left;
+    const posOnBoardTop =  topPx - boardBoundingRect.top;
+    const fieldC = Math.floor((posOnBoardLeft/boardBoundingRect.width)* FIELDS_IN_ONE_ROW);
+    const fieldR = Math.floor((posOnBoardTop/boardBoundingRect.height)*FIELDS_IN_ONE_ROW);
+    return new Pos(
+      (fieldR >= 0 && fieldR <= FIELDS_IN_ONE_ROW-1) ? fieldR : POS_OUT_OF_BOARD, 
+      (fieldC >= 0 && fieldC <= FIELDS_IN_ONE_ROW-1) ? fieldC : POS_OUT_OF_BOARD, 
+    );
   }
 
   public placePieceInPos(
@@ -476,7 +449,7 @@ export default class Board {
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
         if (
-          this.el[r][c].isFieldOccupied() && 
+          this.el[r][c].isOccupied() && 
           !Piece.isKing(this.el[r][c].piece)
         ) {
           return false;
@@ -506,7 +479,7 @@ export default class Board {
           continue;
         }
         if (
-          this.el[r][c].isFieldOccupied() && 
+          this.el[r][c].isOccupied() && 
           !Piece.isKing(this.el[r][c].piece)
         ) {
           return false;
@@ -520,7 +493,7 @@ export default class Board {
     const bishops: Pos[] = [];
     for (let r=0 ; r<this.el.length ; r++) {
       for (let c=0 ; c<this.el[r].length ; c++) {
-        if (!this.el[r][c].isFieldOccupied() || Piece.isKing(this.el[r][c].piece)) {
+        if (!this.el[r][c].isOccupied() || Piece.isKing(this.el[r][c].piece)) {
           continue;
         }
         const piece = this.el[r][c].piece as AnyPiece;
@@ -610,9 +583,51 @@ export default class Board {
     );
   }
 
+  private positionHtmlProperly(): void { 
+    /*
+    this.html.getBoundingClientRect().left and .top have to be int, 
+    becouse MouseEvent.clinetX and .clientY is int.
+    this is important in the Board.calcFieldPosByPx function, whitch uses .clientX and .clinetY.
+    */
+    this.html.style.left = "50%";
+    this.html.style.top = "50%";
+    this.html.style.setProperty("--translateX", "-50%");
+    this.html.style.setProperty("--translateY", "-50%");
+
+    const bounding = this.html.getBoundingClientRect();
+    if (bounding.left !== Math.floor(bounding.left)) {
+      this.html.style.left = `${Math.floor(bounding.left).toString()}px`;
+      this.html.style.setProperty("--translateX", "0%");
+    }
+    if (bounding.top !== Math.floor(bounding.top)) {
+      this.html.style.top = `${Math.floor(bounding.top).toString()}px`;
+      this.html.style.setProperty("--translateY", "0%");
+    }
+  }
+
+  private resizeHtml(): void {
+    this.html.style.width = "clamp(300px, 750px, 70%)";
+    const fieldSize = this.html.getBoundingClientRect().width / FIELDS_IN_ONE_ROW;
+    if (fieldSize !== Math.floor(fieldSize)) { // field size has to be int
+      this.html.style.width = `${Math.floor(fieldSize) * FIELDS_IN_ONE_ROW}px`;
+    }
+  }
+
   private setCssPieceSize(): void {
     const root = document.querySelector(":root") as HTMLElement;
-    root.style.setProperty("--pieceSize", `${this.html.offsetWidth / FIELDS_IN_ONE_ROW}px`);
+    const fieldSize = this.html.offsetWidth / FIELDS_IN_ONE_ROW; // field size will allways be int thanks to Board.resizeHtml function
+    root.style.setProperty("--pieceSize", `${fieldSize}px`);
+    root.style.setProperty("--pieceMoveTouchSize", `${fieldSize * 2}px`);
+  }
+
+  private positionAllPiecesHtmlsProperly(): void {
+    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
+      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
+        if (this.el[r][c].isOccupied()) {
+          this.transformPieceHtmlToPos((this.el[r][c].piece as AnyPiece).html, new Pos(r, c));
+        }
+      }
+    }
   }
 
   public createNewPieceObj(id: (PIECES|null), team: (TEAMS|null), board: Board)

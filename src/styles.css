@@ -13,6 +13,7 @@
   --possMovePlainCol: rgba(0, 0, 0, 0.7); 
 
   --pieceSize: 100%; /* set in a script*/
+  --pieceMoveTouchSize: 100%; /* set in a script*/
   --possMoveSize: 100%; /* set in a script*/
   --possMoveStartSize: 100%; /* set in a script*/
 }
@@ -25,15 +26,18 @@ body {
 .container {
   height: 100vh;
   position: relative;
+  overflow: hidden;
 }
 
 .board-container {
+  --translateX: -50%;
+  --translateY: -50%;
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%,-50%);
+  transform: translate(var(--translateX), var(--translateY));
   box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.596);
-  width: clamp(300px, 750px, 70%);
+  width: clamp(300px, 750px, 70%);  /* also set in script*/
   aspect-ratio: 1/1;
 }
 
@@ -69,7 +73,7 @@ body {
   position: absolute;
   width: var(--pieceSize);
   height: var(--pieceSize);
-  background-size: var(--pieceSize);
+  background-size: 100%;
   background-position: center;
   transition: all var(--transitionDuration) ease-in;
   z-index: 1;
@@ -77,6 +81,39 @@ body {
 
 .piece.grab {
   cursor: grab;
+}
+
+#move-mouse {
+  cursor: grabbing;
+  z-index: 10;
+}
+
+#move-touch {
+  width: var(--pieceMoveTouchSize);
+  height: var(--pieceMoveTouchSize);
+  z-index: 10;
+  position: absolute;
+} 
+
+#move-touch::before,
+#move-touch::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(18, 250, 18, 0.404);
+  z-index: 10;
+}
+
+#move-touch::before {
+  width: calc(100vw * 2);
+  height: 3px;
+}
+
+#move-touch::after {
+  height: calc(100vh * 2);
+  width: 3px;
 }
 
 .field-piece-selected-from {
@@ -169,11 +206,6 @@ body {
   left: -10%;
   background-image: url(./images/brilliant_move.png);
   background-size: 100%;
-  z-index: 10;
-}
-
-#move {
-  cursor: grabbing;
   z-index: 10;
 }
 

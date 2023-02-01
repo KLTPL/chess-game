@@ -37,7 +37,8 @@ export type Pin = {
 };
 
 const PIECE_GRAB_CLASS_NAME = "grab";
-const ID_SELECTED_PIECE_MOVING = "move";
+const ID_SELECTED_PIECE_MOUSE = "move-mouse";
+const ID_SELECTED_PIECE_TOUCH = "move-touch";
 export const HOLD_MOUSE_TIME_MS = 150;
 const HOLD_MOUSE_TOUCH_MS = 100;
 export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT = 30;
@@ -109,13 +110,13 @@ export default abstract class Piece {
       return;
     }
 
-    const fieldCoor = this.board.calcFieldPosByPx(ev.clientX, ev.clientY, true);
+    const fieldCoor = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
     const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
     this.board.showFieldPieceWasSelectedFrom(fieldCoor);
     this.board.showPossibleMoves(possMoves.filter(move => !move.isEqualTo(fieldCoor)), this.enemyTeamNum, fieldCoor);
     this.board.selectedPieceInfo = { piece: this, grabbedFrom: fieldCoor }; // TODO this Piece | AnyPiece
     this.board.removePieceInPos(fieldCoor, false);
-    this.html.id = ID_SELECTED_PIECE_MOVING;
+    this.html.id = ID_SELECTED_PIECE_MOUSE;
     this.moveToPointer(ev.clientX, ev.clientY);
     document.addEventListener(
       "mousemove",
@@ -149,13 +150,6 @@ export default abstract class Piece {
 
   private startFollowingCursorTouch = (ev: TouchEvent): void => {
     ev.preventDefault(); // prevents this.startFollowingCursorMouse from executing
-    // const tak = document.querySelector(".container");
-    // if (tak !== null) {
-    //   const div = document.createElement("div");
-    //   div.style.color = "white";
-    //   div.innerText = JSON.stringify(ev.which);
-    //   tak.append(div);
-    // }
     const touch = ev.changedTouches[0];
     if( 
       !this.board.match.isGameRunning || 
@@ -167,7 +161,7 @@ export default abstract class Piece {
     ) {
       return;
     }
-    const fieldCoor = this.board.calcFieldPosByPx(touch.clientX, touch.clientY, true);
+    const fieldCoor = this.board.calcFieldPosByPx(touch.clientX, touch.clientY);
     const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
     this.board.removePieceInPos(fieldCoor, false);
     this.board.selectedPieceInfo = { piece: this, grabbedFrom: fieldCoor }; // TODO this Piece | AnyPiece
@@ -177,7 +171,8 @@ export default abstract class Piece {
     hold(this.html, "touchend", HOLD_MOUSE_TOUCH_MS)
       .then(() => {
         this.board.removePieceInPos(fieldCoor, false);
-        this.html.id = ID_SELECTED_PIECE_MOVING;
+        this.html.id = ID_SELECTED_PIECE_TOUCH;
+
         this.moveToPointer(touch.clientX, touch.clientY);
         this.html.addEventListener("touchmove", this.hanldeTouchMove);
         document.addEventListener(
@@ -245,7 +240,6 @@ export default abstract class Piece {
     }
 
     const boardGrabbedPieceInfo = this.board.selectedPieceInfo as SelectedPieceInfo; // .piece is equal to this
-    this.html.id = "";
     document.removeEventListener(
       "mousemove", 
       this.handleMouseMove
