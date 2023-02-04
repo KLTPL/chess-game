@@ -245,6 +245,7 @@ export default class King extends Piece {
       this.board.removePieceInPos(oldRookPos, false);
       this.board.placePieceInPos(newRookPos, movingRook, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT*3.5, false);
     }
+
   }
 
   public isInCheck() {
@@ -256,26 +257,30 @@ export default class King extends Piece {
       .map(pos => new Check(pos, this.pos, this.board));
   }
 
+  public invert() {
+    this.pos.invert();
+  }
+
   private createArrOfPositionsOfPiecesCheckingKing(): Pos[] {
     const enemyTeam = this.enemyTeamNum;
-
     const checkingPieces: Pos[] = [];
+
     for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
       for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
+        const piece = this.board.el[r][c].piece;
+        const pos = new Pos(r, c);
         if (
-          this.board.el[r][c].piece === null ||
-          this.board.el[r][c].piece?.team !== enemyTeam
+          piece === null ||
+          piece.team !== enemyTeam
         ) {
           continue;
         }
-        const piecesMovesForKing = 
-          (this.board.el[r][c].piece as AnyPiece).createArrOfPossibleMovesFromPosForKing(new Pos(r, c));
-        for (const move of piecesMovesForKing) {
+        for (const move of piece.createArrOfPossibleMovesFromPosForKing(pos)) {
           if (this.pos.isEqualTo(move)) {
-            checkingPieces.push(new Pos(r, c));
+            checkingPieces.push(pos);
           }
         }
-      }
+        }
     }
     return checkingPieces;
   }

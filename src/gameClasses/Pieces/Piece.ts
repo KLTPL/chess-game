@@ -62,6 +62,8 @@ export default abstract class Piece {
 
   public sideEffectsOfMove(to: Pos, from: Pos): void {to; from;};
 
+  public invert(): void {};
+
   public toggleCssGrab() {
     this.html.classList.toggle(PIECE_GRAB_CLASS_NAME);
   }

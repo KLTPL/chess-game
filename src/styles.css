@@ -37,7 +37,7 @@ body {
   left: 50%;
   transform: translate(var(--translateX), var(--translateY));
   box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.596);
-  width: clamp(300px, 750px, 70%);  /* also set in script*/
+  width: clamp(300px, 60%, 900px);  /* also set in script*/
   aspect-ratio: 1/1;
 }
 
@@ -55,6 +55,31 @@ body {
   height: 100%;
 }
 
+.buttons-container {
+  width: 100%;
+  min-height: 2rem;
+  position: absolute;
+  top: 101%;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.buttons-container > button {
+  background-color: var(--secondFieldColor);
+  color: var(--firstFieldColor);
+  padding: .5rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border: 2px solid black;
+  border-radius: 40%;
+  cursor: pointer;
+}
+
+.buttons-container > button:hover {
+  background-color: hsl(189, 97%, 31%);
+}
+
 .field {
   box-shadow: var(--fieldBoxShadow);
   position: relative;
@@ -67,6 +92,37 @@ body {
 .field2 {
   background-color: var(--secondFieldColor);
 }
+
+.field-label {
+  position: absolute;
+  font-size: 3vw;
+  color: black;
+  display: grid;
+  place-content: center;
+  pointer-events: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+.field-label-field1 {
+  color: var(--secondFieldColor);
+}
+
+.field-label-field2 {
+  color: var(--firstFieldColor);
+}
+
+.field-label-number {
+  left: 5%;
+  top: 5%;
+}
+
+.field-label-letter {
+  right: 5%;
+  bottom: 5%;
+}
+
 
 .piece {
   --transitionDuration: 0; /* set in script*/
@@ -178,7 +234,7 @@ body {
 }
 
 .move-classification {
-  --src: url(./images/move-brilliant.png);
+  --src: ;
   position: absolute;
   width: 40%;
   height: 40%;
