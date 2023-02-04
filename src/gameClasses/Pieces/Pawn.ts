@@ -13,6 +13,10 @@ export default class Pawn extends Piece {
     this.addClassName(this.id);
   }
 
+  public invert() {
+    this.directionY *= -1;
+  }
+
   public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
     const capturePos = [new Pos(pos.y+this.directionY, pos.x+1), new Pos(pos.y+this.directionY, pos.x-1)]
       .filter(capture => this.board.isPosInBoard(capture));

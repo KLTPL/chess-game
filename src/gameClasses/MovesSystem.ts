@@ -10,11 +10,14 @@ export default class MovesSystem {
     
   }
 
-  public pushNewHalfmove(halfmove: Halfmove) {
+  public pushNewHalfmove(halfmove: Halfmove): void {
     this.halfmoves.push(halfmove);
     // this.currMoveNum = this.halfmoves.length;
   }
 
+  public isThereAtLeastOneHalfMove(): boolean {
+    return this.halfmoves.length > 0;
+  }
   
   public getLatestHalfmove(): Halfmove {
     return this.halfmoves[this.halfmoves.length-1];

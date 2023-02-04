@@ -1,6 +1,5 @@
 import Board from "./Board.js";
 import Pos from "./Pos.js";
-import Piece from "./Pieces/Piece.js";
 import { TEAMS } from "./Pieces/Piece.js";
 
 export default class Player {
@@ -38,8 +37,9 @@ export default class Player {
     const boardEl = this.board.el;
     for (let r=0 ; r<boardEl.length ; r++) {
       for (let c=0 ; c<boardEl[r].length ; c++) {
-        if (boardEl[r][c].piece?.team === this.team) {
-          const possMoves = (boardEl[r][c].piece as Piece).createArrOfPossibleMovesFromPos(new Pos(r, c));
+        const piece = boardEl[r][c].piece;
+        if (piece?.team === this.team) {
+          const possMoves = piece.createArrOfPossibleMovesFromPos(new Pos(r, c));
           if ( //possMoves[0]: first pos is where piece is placed
             possMoves.length !== 0 &&
             (possMoves.length > 1 || 

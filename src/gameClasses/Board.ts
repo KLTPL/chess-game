@@ -13,7 +13,7 @@ import Knight from "./Pieces/Knight.js";
 import Bishop from "./Pieces/Bishop.js";
 import Queen from "./Pieces/Queen.js";
 import MovesSystem from "./movesSystem.js";
-import AnalisisSystem from "./AnalisisSystem.js";
+import AnalisisSystem, { BUTTON_ID_BACK, BUTTON_ID_FORWARD } from "./AnalisisSystem.js";
 
 export type ArrOfPieces2d = (AnyPiece|null)[][];
 
@@ -29,6 +29,7 @@ const CLASS_NAMES = {
   thisHtml: "board-container",
   fieldsContainer: "board-fields-container",
   piecesContainer: "board-pieces-container",
+  buttonsContainer: "buttons-container",
 };
 
 export default class Board {
@@ -45,6 +46,7 @@ export default class Board {
   public movesSystem: MovesSystem = new MovesSystem(/*this*/);
   public analisisSystem: AnalisisSystem;
   private kings: KingsObj;
+  private moveClassification: Pos|null = null;
   constructor(
     htmlPageContainerQSelector: string, 
     customPositionFEN: (string|null),
@@ -55,9 +57,10 @@ export default class Board {
     this.isInverted = (this.currTeam !== TEAMS.WHITE);
     this.pageContainerHtml = document.querySelector(htmlPageContainerQSelector) as HTMLDivElement;
 
-    this.pageContainerHtml.append(this.html);
     this.html.append(this.fieldsHtml);
     this.html.append(this.piecesHtml);
+    this.html.append(this.createContainerForButtons());
+    this.pageContainerHtml.append(this.html);
     this.resizeHtml();
     this.setCssPieceSize();
     this.positionHtmlProperly();
@@ -67,10 +70,10 @@ export default class Board {
 
     this.placePieces(pieces);
     if (this.isInverted) {
-      this.flipPerspective();
+      this.invert();
     }
     new VisualizingSystem(this);
-    this.analisisSystem =  new AnalisisSystem(this);
+    this.analisisSystem = new AnalisisSystem(this);
 
     window.addEventListener("resize", () => {
       this.resizeHtml();
@@ -121,20 +124,32 @@ export default class Board {
     return piecesHtml;
   }
 
+  private createContainerForButtons(): HTMLDivElement {
+    const container = document.createElement("div");
+    container.classList.add(CLASS_NAMES.buttonsContainer);
+    const buttonBack = document.createElement("button");
+    buttonBack.innerText = "<";
+    buttonBack.id = BUTTON_ID_BACK;
+    const buttonFroward = document.createElement("button");
+    buttonFroward.innerText = ">";
+    buttonFroward.id = BUTTON_ID_FORWARD;
+    const buttonInvert = document.createElement("button");
+    buttonInvert.addEventListener("click", () => this.invert());
+    buttonInvert.innerText = "obróć";
+    container.append(buttonBack, buttonInvert, buttonFroward);
+    return container;
+  }
+
   private setPieceCssTransitionDeley(htmlEl: HTMLDivElement, ms: number): void {
     htmlEl.style.setProperty("--transitionDuration", `${ms}ms`);
   }
 
   private createFieldsArr(): Field[][] {
     const el: Field[][] = [];
-    let isFieldWhite = true;
     for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
       el[r] = [];
       for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
-        if (c !== 0) {
-          isFieldWhite = (isFieldWhite) ? false : true;
-        }
-        el[r][c] = new Field(isFieldWhite);
+        el[r][c] = new Field(new Pos(r, c), this.isInverted);
         this.fieldsHtml.append(el[r][c].html);
       }
     }
@@ -172,8 +187,8 @@ export default class Board {
     cssPieceTransitionDelayMs: number, 
     appendHtml: boolean
   ): void {
-    if (piece === null || piece.html === null) {    
-      this.el[pos.y][pos.x].setPiece(piece);
+    if (piece === null) {
+      this.el[pos.y][pos.x].piece = null;
       return;
     }
     if (appendHtml) {
@@ -181,9 +196,7 @@ export default class Board {
     }
     this.setPieceCssTransitionDeley(piece.html, cssPieceTransitionDelayMs);
     this.transformPieceHtmlToPos(piece.html, pos);
-    setTimeout(() => {
-      this.setPieceCssTransitionDeley(piece.html, 0);
-    }, cssPieceTransitionDelayMs);
+    setTimeout(() => this.setPieceCssTransitionDeley(piece.html, 0), cssPieceTransitionDelayMs);
     this.el[pos.y][pos.x].setPiece(piece);
   }
 
@@ -227,26 +240,24 @@ export default class Board {
     this.placePieceInPos(to, piece, transitionDelayMs, false);
     piece.sideEffectsOfMove(to, from);
     const enemyKing = this.getKingByTeam(piece.enemyTeamNum);
+    this.toggleCssGrabOnPieces();
     this.showCheckIfKingIsInCheck(piece.enemyTeamNum)
+    this.showNewMoveClassification(to);
     this.movesSystem.pushNewHalfmove(
       new Halfmove(
         piece, 
-        from, 
-        to, 
+        from.getInvertedProperly(this.isInverted), 
+        to.getInvertedProperly(this.isInverted), 
         capturedPiece, 
         (enemyKing.isInCheck()) ? enemyKing.pos : null,
         this.getRookIfKingCastled(piece, from, to)
       )
     );
-    this.toggleCssGrabOnPieces();
-    this.showNextMoveClassification(to);
-    this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove());
+    this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove() as Halfmove);
     // TODO
-    // if (this.match.gameRunning) {
+    // if (this.match.isGameRunning) {
     //   if (this.pawnPromotionMenu) {
-    //     this.pawnPromotionMenu.playerIsChoosing.then(() => {
-    //       this.flipPerspective();
-    //     });
+    //     this.pawnPromotionMenu.playerIsChoosing.then(() => this.flipPerspective());
     //   } else {
     //     this.flipPerspective();
     //   }
@@ -317,6 +328,9 @@ export default class Board {
 
   public showFieldUnderMovingPiece(pos: Pos): void {
     this.stopShowingFieldUnderMovingPiece();
+    if (!this.isPosInBoard(pos)) {
+      return;
+    }
     const div = document.createElement("div");
     div.classList.add(CLASS_NAMES_FIELD.fieldUnderMovingPiece)
     this.el[pos.y][pos.x].html.append(div);
@@ -387,7 +401,7 @@ export default class Board {
     }
   }
 
-  public showNextMoveClassification(pos: Pos): void {
+  public showNewMoveClassification(pos: Pos): void {
     this.stopShowingMoveClassification();
     const rand = Math.floor(Math.random()*20);
     switch (rand) { // both 5% chance
@@ -400,17 +414,20 @@ export default class Board {
     const div = document.createElement("div");
     div.classList.add(CLASS_NAMES_FIELD.fieldMoveClassification, CLASS_NAMES_FIELD.fieldBrilliant);
     this.el[pos.y][pos.x].html.append(div);
+    this.moveClassification = pos;
   }
 
   private showBlunderMove(pos: Pos): void {
     const div = document.createElement("div");
     div.classList.add(CLASS_NAMES_FIELD.fieldMoveClassification, CLASS_NAMES_FIELD.fieldBlunder);
     this.el[pos.y][pos.x].html.append(div);
+    this.moveClassification = pos;
   }
 
-  private stopShowingMoveClassification(): void {
+  public stopShowingMoveClassification(): void {
     this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldBrilliant}`);
     this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldBlunder}`);
+    this.moveClassification = null;
   }
 
   public showNewRowAndColUserIsTouching(touch: Pos) {
@@ -444,20 +461,43 @@ export default class Board {
     });
   }
 
-  private flipPerspective(): void {
+  private invert(): void {
+    this.isInverted = (this.isInverted) ? false : true;
+
+    this.invertPieces();
+    this.invertFields();
+  }
+
+  private invertPieces(): void {
     const boardBefore = this.createArrOfPieces();
     const boardAfter = this.invertMap(boardBefore);
     for (let r=0 ; r<boardAfter.length ; r++) {
       for (let c=0 ; c<boardAfter[r].length ; c++) {
         const piece = boardAfter[r][c];
-        if (Piece.isPawn(piece)) {
-          piece.directionY *= -1;
-        }
-        this.placePieceInPos(new Pos(r, c), piece, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, true);
+        piece?.invert();
+        this.placePieceInPos(new Pos(r, c), piece, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, false);
       }
     }
-    
-    this.isInverted = (this.isInverted) ? false : true;
+  }
+
+  private invertFields() {
+    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
+      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
+        this.el[r][c].invertHtml(new Pos(r, c), this.isInverted);
+      }
+    }
+    if (this.movesSystem.isThereAtLeastOneHalfMove()) { // show new chech
+      this.showCheckIfKingIsInCheck(
+        this.movesSystem.getLatestHalfmove().piece.enemyTeamNum
+      );
+    }
+
+    if (this.moveClassification !== null) {
+      const div = document.querySelector(`.${CLASS_NAMES_FIELD.fieldMoveClassification}`) as HTMLDivElement;
+      div.remove();
+      this.moveClassification.invert();
+      this.el[this.moveClassification.y][this.moveClassification.x].html.append(div);
+    }
   }
 
   private createArrOfPieces(): ArrOfPieces2d {

@@ -1,6 +1,9 @@
 import Board, { FIELDS_IN_ONE_ROW } from "./Board";
-import { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "./Pieces/Piece";
+import { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "./Pieces/Piece";
 import Pos from "./Pos";
+
+export const BUTTON_ID_BACK = "back";
+export const BUTTON_ID_FORWARD = "forward";
 
 const ARROW_KEY_BACK = "ArrowLeft";
 const ARROW_KEY_FORWARD = "ArrowRight";
@@ -11,9 +14,20 @@ const CSS_PIECE_TRANSITION_DELAY_MS_GO_BACK_TO_CURR_POS = 500;
 export default class AnalisisSystem {
   private currHalfmoveIndex: (number|null) = null; // null means latest halfmove so user is not analising
   constructor(private board: Board) {
-    this.board.html.addEventListener("click", () => {
+    this.board.piecesHtml.addEventListener("click", () => {
       if (this.isUserAnalising()) {
         this.goBackToCurrMoveIfUserIsAnalising();
+      }
+    });
+    document.querySelector(`#${BUTTON_ID_BACK}`)?.addEventListener("click", () => {
+      if (this.board.movesSystem.halfmoves.length > 0) {
+        this.goOneHalfmoveBack();
+      }
+    });
+
+    document.querySelector(`#${BUTTON_ID_FORWARD}`)?.addEventListener("click", () => {
+      if (this.board.movesSystem.halfmoves.length > 0) {
+        this.goOneHalfmoveForward(CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT);
       }
     });
 
@@ -46,7 +60,7 @@ export default class AnalisisSystem {
         (newDelay < CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE) ?  
         CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE : 
         newDelay;
-    this.goOneHalfmoveForward(delayOnThatMove);
+      this.goOneHalfmoveForward(delayOnThatMove);
     }
   }
 
@@ -76,27 +90,29 @@ export default class AnalisisSystem {
     const halfmoves = this.board.movesSystem.halfmoves;
     const currHalfmoveIndex = this.currHalfmoveIndex as number;
     const moveToReverse = halfmoves[currHalfmoveIndex+1];
+    const to = moveToReverse.to.getInvertedProperly(board.isInverted);
+    const from = moveToReverse.from.getInvertedProperly(board.isInverted);
     const isPiecePromoted = (moveToReverse.getPromotedTo() !== null);
 
     if (isPiecePromoted) { // behavior when piece is promoted
-      board.removePieceInPos(moveToReverse.to, true);
+      board.removePieceInPos(to, true);
       board.placePieceInPos(
-        moveToReverse.to, 
+        to, 
         moveToReverse.piece, 
         CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, 
         true
       );
-      board.removePieceInPos(moveToReverse.to, false);
+      board.removePieceInPos(to, false);
       board.placePieceInPos(
-        moveToReverse.from, 
+        from, 
         moveToReverse.piece, 
         CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT, 
         true
       );
     } else { // normal behavior
-      board.removePieceInPos(moveToReverse.to, false);
+      board.removePieceInPos(to, false);
       board.placePieceInPos(
-        moveToReverse.from, 
+        from, 
         moveToReverse.piece, 
         CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT, 
         false
@@ -105,19 +121,19 @@ export default class AnalisisSystem {
 
     if (moveToReverse.capturedPiece !== null) { // capture
       board.placePieceInPos(
-        moveToReverse.to, 
+        to, 
         moveToReverse.capturedPiece, 
         CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, 
         true
       );
     }
     if (moveToReverse.isCastle()) { 
-      const fromX = moveToReverse.from.x;
-      const toX = moveToReverse.to.x;
+      const fromX = from.x;
+      const toX = to.x;
       const castleXDir = (toX - fromX > 0) ? 1 : -1;
-      const currRookPos = new Pos(moveToReverse.to.y, toX - castleXDir);
+      const currRookPos = new Pos(to.y, toX - castleXDir);
       const rookStartPosX = (castleXDir > 0) ? FIELDS_IN_ONE_ROW-1 : 0;
-      const rookStartPos = new Pos(moveToReverse.to.y, rookStartPosX);
+      const rookStartPos = new Pos(to.y, rookStartPosX);
       this.board.removePieceInPos(currRookPos, false);
       this.board.placePieceInPos(
         rookStartPos, 
@@ -126,7 +142,7 @@ export default class AnalisisSystem {
         false
       );
     }
-    this.board.showNextMoveClassification(moveToReverse.from);
+    this.board.stopShowingMoveClassification();
     if (currHalfmoveIndex > move0Index) { // highlight field under checked king
       const currHalfmove = halfmoves[currHalfmoveIndex];
       this.board.stopShowingCheck();
@@ -139,7 +155,7 @@ export default class AnalisisSystem {
   private goOneHalfmoveForward(cssPieceTransitionDelayMs: number): void {
     const isIndexChanged = this.changeCurrHalfmoveIndexForward();
     if (isIndexChanged) {
-      this.goOneHalfmoveOnBoardHtmlForward(cssPieceTransitionDelayMs);
+      this.goOneHalfMoveOnBoardHtmlForward(cssPieceTransitionDelayMs);
     }
   }
 
@@ -154,7 +170,7 @@ export default class AnalisisSystem {
     return true;
   }
 
-  private goOneHalfmoveOnBoardHtmlForward(cssPieceTransitionDelayMs: number): void {
+  private goOneHalfMoveOnBoardHtmlForward(cssPieceTransitionDelayMs: number): void {
     const board = this.board;
     const halfmoves = this.board.movesSystem.halfmoves;
     const currHalfmoveIndex = 
@@ -162,37 +178,38 @@ export default class AnalisisSystem {
       halfmoves.length-1 : 
       this.currHalfmoveIndex;
     const moveToDo = halfmoves[currHalfmoveIndex];
+    const to = moveToDo.to.getInvertedProperly(board.isInverted);
+    const from = moveToDo.from.getInvertedProperly(board.isInverted);
 
     if (moveToDo.capturedPiece !== null) {
-      board.removePieceInPos(moveToDo.to, true);
+      board.removePieceInPos(to, true);
     }
 
     const promotedTo = moveToDo.getPromotedTo();
     const isPiecePromoted = (promotedTo !== null);
     const pieceToPlace = (isPiecePromoted) ? promotedTo : moveToDo.piece;
 
-    board.removePieceInPos(moveToDo.from, isPiecePromoted);
-    board.placePieceInPos(moveToDo.to, pieceToPlace, cssPieceTransitionDelayMs, isPiecePromoted);
-
+    board.removePieceInPos(from, isPiecePromoted);
+    board.placePieceInPos(to, pieceToPlace, cssPieceTransitionDelayMs, isPiecePromoted);
     if (moveToDo.isCastle()) { // castle
-      const fromX = moveToDo.from.x;
-      const toX = moveToDo.to.x;
+      const fromX = from.x;
+      const toX = to.x;
       const castleXDir = (toX - fromX > 0) ? 1 : -1;
       const currRookPosX = (castleXDir > 0) ? FIELDS_IN_ONE_ROW-1 : 0;
       const rookPosXAfter = toX - castleXDir;
-      this.board.removePieceInPos(new Pos(moveToDo.to.y, currRookPosX), false);
+      this.board.removePieceInPos(new Pos(to.y, currRookPosX), false);
       this.board.placePieceInPos(
-        new Pos(moveToDo.to.y, rookPosXAfter), 
+        new Pos(to.y, rookPosXAfter), 
         moveToDo.rookThatCastled, 
-        CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT*3.5, 
+        CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT*3.5, 
         false
       );
     }
 
-    this.board.showNextMoveClassification(moveToDo.to);
+    this.board.showNewMoveClassification(to);
     this.board.stopShowingCheck();
     if (moveToDo.posOfKingChecked !== null) {
-    this.board.showCheck(moveToDo.posOfKingChecked);
+      this.board.showCheck(moveToDo.posOfKingChecked);
     }
   }
 }
