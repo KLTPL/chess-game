@@ -30,6 +30,7 @@ const CLASS_NAMES = {
   fieldsContainer: "board-fields-container",
   piecesContainer: "board-pieces-container",
   buttonsContainer: "buttons-container",
+  buttonArrow: "arrow-button",
 };
 
 export default class Board {
@@ -62,7 +63,7 @@ export default class Board {
     this.html.append(this.createContainerForButtons());
     this.pageContainerHtml.append(this.html);
     this.resizeHtml();
-    this.setCssPieceSize();
+    this.setCssVariables();
     this.positionHtmlProperly();
 
     this.el = this.createFieldsArr();
@@ -78,7 +79,7 @@ export default class Board {
     window.addEventListener("resize", () => {
       this.resizeHtml();
       this.positionHtmlProperly();
-      this.setCssPieceSize();
+      this.setCssVariables();
       this.positionAllPiecesHtmlsProperly();
     });
 
@@ -127,17 +128,38 @@ export default class Board {
   private createContainerForButtons(): HTMLDivElement {
     const container = document.createElement("div");
     container.classList.add(CLASS_NAMES.buttonsContainer);
+    const buttonBack = this.createButtonBack();
+    const buttonForward = this.createButtonForward();
+    const buttonInvert = this.createButtonInvert();
+    container.append(buttonBack, buttonInvert, buttonForward);
+    return container;
+  }
+
+  private createButtonBack(): HTMLButtonElement {
     const buttonBack = document.createElement("button");
-    buttonBack.innerText = "<";
+    const innerDiv = document.createElement("div");
+    innerDiv.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg"  fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>';
     buttonBack.id = BUTTON_ID_BACK;
+    buttonBack.classList.add(CLASS_NAMES.buttonArrow);
+    buttonBack.append(innerDiv);
+    return buttonBack;
+  }
+
+  private createButtonForward(): HTMLButtonElement {
     const buttonFroward = document.createElement("button");
-    buttonFroward.innerText = ">";
+    const innerDiv = document.createElement("div");
+    innerDiv.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/></svg>';
     buttonFroward.id = BUTTON_ID_FORWARD;
+    buttonFroward.classList.add(CLASS_NAMES.buttonArrow);
+    buttonFroward.append(innerDiv);
+    return buttonFroward;
+  }
+
+  private createButtonInvert(): HTMLButtonElement {
     const buttonInvert = document.createElement("button");
     buttonInvert.addEventListener("click", () => this.invert());
     buttonInvert.innerText = "obróć";
-    container.append(buttonBack, buttonInvert, buttonFroward);
-    return container;
+    return buttonInvert;
   }
 
   private setPieceCssTransitionDeley(htmlEl: HTMLDivElement, ms: number): void {
@@ -240,9 +262,6 @@ export default class Board {
     this.placePieceInPos(to, piece, transitionDelayMs, false);
     piece.sideEffectsOfMove(to, from);
     const enemyKing = this.getKingByTeam(piece.enemyTeamNum);
-    this.toggleCssGrabOnPieces();
-    this.showCheckIfKingIsInCheck(piece.enemyTeamNum)
-    this.showNewMoveClassification(to);
     this.movesSystem.pushNewHalfmove(
       new Halfmove(
         piece, 
@@ -253,15 +272,18 @@ export default class Board {
         this.getRookIfKingCastled(piece, from, to)
       )
     );
-    this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove() as Halfmove);
-    // TODO
-    // if (this.match.isGameRunning) {
-    //   if (this.pawnPromotionMenu) {
-    //     this.pawnPromotionMenu.playerIsChoosing.then(() => this.flipPerspective());
-    //   } else {
-    //     this.flipPerspective();
-    //   }
-    // }
+    const afterMoveIsFinished = () => {
+      this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove());
+      this.showNewMoveClassification(to);
+      this.toggleCssGrabOnPieces();
+      this.showCheckIfKingIsInCheck(piece.enemyTeamNum)
+    }
+
+    if (this.pawnPromotionMenu !== null) {
+      this.pawnPromotionMenu.playerIsChoosing.then(afterMoveIsFinished);
+    } else {
+      afterMoveIsFinished();
+    }
   }
 
   private getRookIfKingCastled(piece: AnyPiece, from: Pos, to: Pos): Rook|null {
@@ -352,15 +374,6 @@ export default class Board {
   }
 
   public showPossibleMoves(possMovesToShow: Pos[], enemyTeamNum: number, from: Pos): void {
-    const root = document.querySelector(":root") as HTMLElement;
-    root.style.setProperty(
-      "--possMoveSize", 
-      `${this.html.offsetWidth / FIELDS_IN_ONE_ROW / 3}px`
-    );
-    root.style.setProperty(
-      "--possMoveStartSize", 
-      `${this.html.offsetWidth / FIELDS_IN_ONE_ROW / 3.75}px`
-    );
     for (const possMove of possMovesToShow) {
       const div = document.createElement("div");
       const isMoveCapture = 
@@ -685,11 +698,12 @@ export default class Board {
     }
   }
 
-  private setCssPieceSize(): void {
+  private setCssVariables(): void {
     const root = document.querySelector(":root") as HTMLElement;
     const fieldSize = this.html.offsetWidth / FIELDS_IN_ONE_ROW; // field size will allways be int thanks to Board.resizeHtml function
     root.style.setProperty("--pieceSize", `${fieldSize}px`);
     root.style.setProperty("--pieceMoveTouchSize", `${fieldSize * 2}px`);
+    root.style.setProperty("--fieldLabelFontSize", `${fieldSize*0.35}px`);
   }
 
   private positionAllPiecesHtmlsProperly(): void {

@@ -69,6 +69,7 @@ export default class Pawn extends Piece {
     return pawnsToCapturePos
       .filter(pawnToCapturePos => {
         const newCapture = new Pos(pos.y+this.directionY, pawnToCapturePos.x);
+        const isAtLestOneMove = board.movesSystem.isThereAtLeastOneHalfMove();
         const lastMove = board.movesSystem.getLatestHalfmove();
         const isPawnAfterMoving2SqueresForward = Math.abs(lastMove?.from.y - lastMove?.to.y) > 1;
         const piece = (board.isPosInBoard(pawnToCapturePos)) ? board.el[pawnToCapturePos.y][pawnToCapturePos.x].piece : null;
@@ -76,6 +77,7 @@ export default class Pawn extends Piece {
           board.isPosInBoard(newCapture) &&
           Piece.isPawn(piece) &&
           piece?.team === enemyTeamNum && 
+          isAtLestOneMove &&
           piece === lastMove.piece &&
           isPawnAfterMoving2SqueresForward &&
           !this.isPawnPinnedAbsolutely(pawnToCapturePos, pos.x)
@@ -180,7 +182,6 @@ export default class Pawn extends Piece {
       this.board.placePieceInPos(pos, pawnGotPromotedTo, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, true);
       (this.board.pawnPromotionMenu as PawnPromotionMenu).removeMenu();
       this.board.pawnPromotionMenu = null;
-      this.board.showCheckIfKingIsInCheck(this.enemyTeamNum);
       this.board.movesSystem.getLatestHalfmove().setPromotedTo(pawnGotPromotedTo as AnyPiece);
     });
   }
