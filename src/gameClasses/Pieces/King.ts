@@ -51,7 +51,6 @@ export default class King extends Piece {
       ...this.createArrOfNormalMoves(pos), 
       ...this.createArrOfPossibleCastlePos(pos)
     ];
-
     return this.filterMovesSoKingCantMoveIntoCheck(possibleMoves);
   }
 

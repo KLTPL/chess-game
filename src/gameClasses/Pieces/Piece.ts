@@ -115,7 +115,6 @@ export default abstract class Piece {
     ) {
       return;
     }
-
     const fieldCoor = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
     const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
     this.board.showFieldPieceWasSelectedFrom(fieldCoor);
@@ -405,17 +404,6 @@ export default abstract class Piece {
       return null;
     }
     return `${teamChar}-${name}`;
-  }
-
-  public static createPromoteOptionHtml(piece: number, team: TEAMS): HTMLDivElement {
-    const option = document.createElement("div");
-    option.classList.add("promote-option");
-
-    const specificClassName = Piece.getClassNameByPiece(piece, team);
-    if (specificClassName !== null) {
-      option.classList.add(specificClassName);
-    }
-    return option;
   }
 
   public static isArrContainingEqualPieces(...pieces: (Piece | null)[]): boolean {

@@ -1,21 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
 *, *::after, *::before {
   box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
 }
 
 :root {
   background-color: #202225;
   color: black;
-  --firstFieldColor: hsl(0, 0%, 100%);
-  --secondFieldColor: hsl(189, 98%, 24%);
+  font-size: clamp(10px,3vw, 20px);
+  --fieldColor1: hsl(0, 0%, 100%);
+  --fieldColor2: hsl(189, 98%, 24%);
+  --fieldColor2-b: hsla(189, 98%, 30%);
+  --fieldColor2-d: hsla(189, 98%, 20%);
   --fieldBoxShadow: 0 0 10px rgba(0, 0, 0, 0.5);
   --arrowBgColor: hsla(16, 100%, 50%, 0.9);
   --popupColor: hsl(60, 56%, 91%);
+  --popupBoxShadow: 0 5px 15px hsla(0, 0%, 0%, 0.904);
   --possMovePlainCol: rgba(0, 0, 0, 0.7); 
+  --box-shadow-field-under-piece:
+    0 0 10px 0 hsla(173, 26%, 18%, 0.582),
+    inset 0 0 0 5px hsl(172, 100%, 26%);
 
-  --pieceSize: 100%; /* set in a script*/
-  --pieceMoveTouchSize: 100%; /* set in a script*/
-  --possMoveSize: 100%; /* set in a script*/
-  --possMoveStartSize: 100%; /* set in a script*/
+  /* each set in a script*/
+  --pieceSize: 100%; 
+  --pieceMoveTouchSize: 100%;
+  --fieldLabelFontSize: 1rem;
 }
 
 body {
@@ -66,18 +76,31 @@ body {
 }
 
 .buttons-container > button {
-  background-color: var(--secondFieldColor);
-  color: var(--firstFieldColor);
-  padding: .5rem 1.5rem;
+  background-color: var(--fieldColor2);
+  color: var(--fieldColor1);
+  padding: .75rem 1rem;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   border: 2px solid black;
-  border-radius: 40%;
   cursor: pointer;
 }
 
+.buttons-container > button:not(.arrow-button) {
+  border-radius: 10%;
+}
+
+.buttons-container > button:active {
+  background-color: var(--fieldColor2-d) !important;
+}
+
+.arrow-button {
+  width: 3rem;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+}
+
 .buttons-container > button:hover {
-  background-color: hsl(189, 97%, 31%);
+  background-color: var(--fieldColor2-b);
 }
 
 .field {
@@ -86,16 +109,16 @@ body {
 }
 
 .field1 {
-  background-color: var(--firstFieldColor);
+  background-color: var(--fieldColor1);
 }
 
 .field2 {
-  background-color: var(--secondFieldColor);
+  background-color: var(--fieldColor2);
 }
 
 .field-label {
   position: absolute;
-  font-size: 3vw;
+  font-size: var(--fieldLabelFontSize);
   color: black;
   display: grid;
   place-content: center;
@@ -106,11 +129,11 @@ body {
 }
 
 .field-label-field1 {
-  color: var(--secondFieldColor);
+  color: var(--fieldColor2);
 }
 
 .field-label-field2 {
-  color: var(--firstFieldColor);
+  color: var(--fieldColor1);
 }
 
 .field-label-number {
@@ -122,7 +145,6 @@ body {
   right: 5%;
   bottom: 5%;
 }
-
 
 .piece {
   --transitionDuration: 0; /* set in script*/
@@ -164,12 +186,9 @@ body {
 
 .field-heighlighted-under-moving-piece {
   position: absolute;
-  left: 0;
-  top: 0;
   width: 100%;
   height: 100%;
-  border: 5px solid hsl(172, 100%, 26%);
-  box-shadow: 0 0 10px 0 hsla(173, 26%, 18%, 0.582);
+  box-shadow: var(--box-shadow-field-under-piece);
 }
 
 .field-king-check::before {
@@ -196,8 +215,8 @@ body {
   left: 50%;
   top: 50%;
   border-radius: 50%;
-  width: var(--possMoveSize);
-  height: var(--possMoveSize);
+  width: 33%;
+  height: 33%;
   background-color: var(--possMovePlainCol);
   transform: translate(-50%, -50%);
 }
@@ -218,10 +237,10 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: calc(45%*1.41421356237); /* diagonal_length = box_width*sqrt(2) */
-  height: 4px;
+  width: calc(40%*1.41421356237); /* diagonal_length = box_width*sqrt(2) */
+  height: 5px;
   border-radius: 27%;
-  background-color: green;
+  background-color: rgb(2, 165, 2);
   transform: translate(-50%, -50%) rotate(var(--rotate));
 }
 
@@ -234,7 +253,7 @@ body {
 }
 
 .move-classification {
-  --src: ;
+  --src: url(./images/move-brilliant.png);
   position: absolute;
   width: 40%;
   height: 40%;
@@ -302,41 +321,44 @@ body {
 }
 
 .promote-popup {
+  box-sizing: content-box;
   --widthOfFiveFields: ; /* set in a script*/
   --widthOfThreeFields: ; /* set in a script*/
   --quarterOfField: ; /* set in a script*/
-  width: var(--widthOfFiveFields);
-  height: var(--widthOfThreeFields);
-  padding-inline: var(--quarterOfField);
+  width: 62.5%;  /* 5/8 */
+  height: 37.5%; /* 3/8 */
+  padding-inline: 5%; /* 0.25/8 */
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: var(--popupColor);
   display: flex;
-  gap: var(--quarterOfField);
   align-items: center;
-  justify-content: center;
-  box-shadow: var(--fieldBoxShadow);
+  justify-content: space-between;
+  box-shadow: var(--popupBoxShadow);
+  border: 3px solid black;
+  border-radius: 1%;
   z-index: 2;
 }
 
 .promote-popup > div {
+  width: 20%; /* exacly 1 field size */
+  height: calc(100% / 3); /* exacly 1 field size */
   box-shadow: var(--fieldBoxShadow);
 }
 
 .promote-popup > div:hover {
-  box-shadow: 
-  inset 0 0 20px 5px green,
-  0 0 10px 0 green;
+  box-shadow: var(--box-shadow-field-under-piece);
 }
 
 .promote-option {
-  width: var(--pieceSize);
-  height: var(--pieceSize);
+  width: 100%;
+  height: 100%;
   cursor: pointer;
   background-size: var(--pieceSize);
   background-position: center;
+  position: relative;
 }
 
 .w-pawn {
