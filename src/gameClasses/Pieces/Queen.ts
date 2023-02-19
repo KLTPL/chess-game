@@ -30,7 +30,7 @@ export default class Queen extends Piece {
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if (!this.board.isPosInBoard(tempPos)) {
+        if (!Board.isPosIn(tempPos)) {
           break;
         }
         possibleMoves.push(new Pos(tempPos.y, tempPos.x));
@@ -69,7 +69,7 @@ export default class Queen extends Piece {
         tempPos.x += dir.x;
         tempPos.y += dir.y;
         if( 
-          !this.board.isPosInBoard(tempPos) ||
+          !Board.isPosIn(tempPos) ||
           this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
         ) {
           break;

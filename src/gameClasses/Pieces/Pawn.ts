@@ -19,7 +19,7 @@ export default class Pawn extends Piece {
 
   public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
     const capturePos = [new Pos(pos.y+this.directionY, pos.x+1), new Pos(pos.y+this.directionY, pos.x-1)]
-      .filter(capture => this.board.isPosInBoard(capture));
+      .filter(capture => Board.isPosIn(capture));
     return capturePos;
   }
 
@@ -52,7 +52,7 @@ export default class Pawn extends Piece {
       const pawnStartRow = (this.directionY === 1) ? 1 : FIELDS_IN_ONE_ROW-2;
       if( 
         pos.y === pawnStartRow &&   
-        board.isPosInBoard(new Pos(pos.y+(this.directionY*2), pos.x)) &&
+        Board.isPosIn(new Pos(pos.y+(this.directionY*2), pos.x)) &&
         board.el[pos.y+(this.directionY*2)][pos.x].piece === null
       ) {
         moves.push(new Pos(pos.y+(this.directionY*2), pos.x));
@@ -72,9 +72,9 @@ export default class Pawn extends Piece {
         const isAtLestOneMove = board.movesSystem.isThereAtLeastOneHalfMove();
         const lastMove = board.movesSystem.getLatestHalfmove();
         const isPawnAfterMoving2SqueresForward = Math.abs(lastMove?.from.y - lastMove?.to.y) > 1;
-        const piece = (board.isPosInBoard(pawnToCapturePos)) ? board.el[pawnToCapturePos.y][pawnToCapturePos.x].piece : null;
+        const piece = (Board.isPosIn(pawnToCapturePos)) ? board.el[pawnToCapturePos.y][pawnToCapturePos.x].piece : null;
         return (
-          board.isPosInBoard(newCapture) &&
+          Board.isPosIn(newCapture) &&
           Piece.isPawn(piece) &&
           piece?.team === enemyTeamNum && 
           isAtLestOneMove &&
@@ -130,7 +130,7 @@ export default class Pawn extends Piece {
   private isPinPossibleFromPawnsToEdgeOfBoard(yPos: number, startPawnXPos: number, pinDir: number): boolean {
     const enemyTeamNum = this.enemyTeamNum;
     let tempXPos = startPawnXPos+pinDir;
-    for ( ; this.board.isPosInBoard(new Pos(yPos, tempXPos)) ; tempXPos += pinDir) {
+    for ( ; Board.isPosIn(new Pos(yPos, tempXPos)) ; tempXPos += pinDir) {
       const piece = this.board.el[yPos][tempXPos].piece;
       if (
         piece !== null &&
@@ -156,7 +156,7 @@ export default class Pawn extends Piece {
     const enPassantPos = new Pos(to.y-this.directionY, to.x);
     const enPassanPiece = board.el[enPassantPos.y][enPassantPos.x].piece;
     if (
-      board.isPosInBoard(enPassantPos) &&
+      Board.isPosIn(enPassantPos) &&
       Piece.isPawn(enPassanPiece) &&
       enPassanPiece === board.movesSystem.getLatestHalfmove().piece
     ) {

@@ -19,7 +19,7 @@ export default class Knight extends Piece {
 
     return directions
       .map(dir => new Pos(pos.y+dir.y, pos.x+dir.x))
-      .filter(pos => this.board.isPosInBoard(pos));
+      .filter(pos => Board.isPosIn(pos));
   }
 
   public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {

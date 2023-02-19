@@ -6,8 +6,8 @@
 }
 
 :root {
-  background-color: #202225;
-  color: black;
+  background-color: hsl(216, 7%, 14%);
+  color: hsl(0, 0%, 0%);
   font-size: clamp(10px,3vw, 20px);
   --fieldColor1: hsl(0, 0%, 100%);
   --fieldColor2: hsl(189, 98%, 24%);
@@ -99,8 +99,10 @@ body {
   aspect-ratio: 1 / 1;
 }
 
-.buttons-container > button:hover {
-  background-color: var(--fieldColor2-b);
+@media (hover: hover) { /* so the button doesn't stay 'hovered' on mobile */
+  .buttons-container > button:hover{
+    background-color: var(--fieldColor2-b);
+  }
 }
 
 .field {
