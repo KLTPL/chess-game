@@ -350,7 +350,7 @@ export default class Board {
 
   public showFieldUnderMovingPiece(pos: Pos): void {
     this.stopShowingFieldUnderMovingPiece();
-    if (!this.isPosInBoard(pos)) {
+    if (!Board.isPosIn(pos)) {
       return;
     }
     const div = document.createElement("div");
@@ -445,7 +445,9 @@ export default class Board {
 
   public showNewRowAndColUserIsTouching(touch: Pos) {
     this.stopShowingRowAndColUserIsTouching();
-    this.showRowAndColUserIsTouching(touch);
+    if (Board.isPosIn(touch)) {
+      this.showRowAndColUserIsTouching(touch);
+    }
   }
 
   public showRowAndColUserIsTouching(touch: Pos) {
@@ -456,11 +458,9 @@ export default class Board {
       );
       return highlight;
     };
-    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
-      this.el[r][touch.x].html.append(createHighlight());
-    }
-    for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
-      this.el[touch.y][c].html.append(createHighlight());
+    for (let i=0 ; i<FIELDS_IN_ONE_ROW ; i++) {
+      this.el[i][touch.x].html.append(createHighlight());
+      this.el[touch.y][i].html.append(createHighlight());
     }
   }
 
@@ -661,13 +661,6 @@ export default class Board {
     );
   }
 
-  public isPosInBoard(pos: Pos): boolean {
-    return (
-      pos.x >= 0 && pos.x <= FIELDS_IN_ONE_ROW-1 && 
-      pos.y >= 0 && pos.y <= FIELDS_IN_ONE_ROW-1
-    );
-  }
-
   private positionHtmlProperly(): void { 
     /*
     this.html.getBoundingClientRect().left and .top have to be int, 
@@ -755,5 +748,12 @@ export default class Board {
     const kingDefaultXPos = 4;
     const startYPos = 0;
     return new Pos(startYPos, kingDefaultXPos, this.isInverted); 
+  }
+
+  public static isPosIn(pos: Pos): boolean {
+    return (
+      pos.x >= 0 && pos.x <= FIELDS_IN_ONE_ROW-1 && 
+      pos.y >= 0 && pos.y <= FIELDS_IN_ONE_ROW-1
+    );
   }
 }

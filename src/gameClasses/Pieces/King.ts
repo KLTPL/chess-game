@@ -42,7 +42,7 @@ export default class King extends Piece {
 
     return directions
       .map(dir => new Pos(pos.y+dir.y, pos.x+dir.x))
-      .filter(pos => this.board.isPosInBoard(pos));
+      .filter(pos => Board.isPosIn(pos));
   }
 
   public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
@@ -63,7 +63,7 @@ export default class King extends Piece {
       .map(dir => new Pos(pos.y+dir.y, pos.x+dir.x))
       .filter(pos => {
         return (
-          this.board.isPosInBoard(pos) &&
+          Board.isPosIn(pos) &&
           this.board.el[pos.y][pos.x].piece?.team !== this.team 
         );
       });
@@ -181,7 +181,7 @@ export default class King extends Piece {
       let pinInThisDir: (Pin|null) = null;
       const tempPos = new Pos(kingPos.y+direction.y, kingPos.x+direction.x);
 
-      while (this.board.isPosInBoard(tempPos)) {
+      while (Board.isPosIn(tempPos)) {
         const piece = this.board.el[tempPos.y][tempPos.x].piece;
         if (piece === null) {
           tempPos.x += direction.x;

@@ -40,7 +40,7 @@ const PIECE_GRAB_CLASS_NAME = "grab";
 const ID_SELECTED_PIECE_MOUSE = "move-mouse";
 const ID_SELECTED_PIECE_TOUCH = "move-touch";
 export const HOLD_MOUSE_TIME_MS = 150;
-const HOLD_MOUSE_TOUCH_MS = 100;
+const HOLD_TOUCH_TIME_MS = 100;
 export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT = 30;
 export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE = 0;
 
@@ -176,7 +176,7 @@ export default abstract class Piece {
     this.board.showFieldPieceWasSelectedFrom(fieldCoor);
     this.board.showPossibleMoves(possMoves.filter(move => !move.isEqualTo(fieldCoor)), this.enemyTeamNum, fieldCoor);
 
-    hold(this.html, "touchend", HOLD_MOUSE_TOUCH_MS)
+    hold(this.html, "touchend", HOLD_TOUCH_TIME_MS)
       .then(() => {
         this.board.removePieceInPos(fieldCoor, false);
         this.html.id = ID_SELECTED_PIECE_TOUCH;
@@ -287,7 +287,7 @@ export default abstract class Piece {
     const touch = ev.changedTouches[0];
     const selectedPieceInfo = this.board.selectedPieceInfo as SelectedPieceInfo; // .piece is equal to this
     this.html.id = ""; // remove the ID_SELECTED_PIECE_TOUCH
-    document.removeEventListener(
+    this.html.removeEventListener(
       "touchmove", 
       this.hanldeTouchMove
     );
