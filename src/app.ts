@@ -5,20 +5,6 @@ import "./styles.css";
 let customStartPos: (null|string) = null;
 // customStartPos = "4k2r/Pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";
 
-export const hold = (element: HTMLElement, rejectEventType: string, timeMs: number) => {
-  return new Promise<void>((resolve, reject) => {
-    element.addEventListener(
-      rejectEventType, () => {
-        reject();
-      },
-      {once: true}
-    );
-    setTimeout(() => {
-      resolve();
-    }, timeMs);
-  });
-}
-
 function startGame() {
   const player1Arg: PlayerArg = {
     name: "white",

@@ -1,5 +1,4 @@
-import { hold } from "../../app.js";
-import Board from "../Board.js";
+import Board, { hold } from "../Board.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";
 import King from "./King.js";
@@ -40,7 +39,7 @@ const PIECE_GRAB_CLASS_NAME = "grab";
 const ID_SELECTED_PIECE_MOUSE = "move-mouse";
 const ID_SELECTED_PIECE_TOUCH = "move-touch";
 export const HOLD_MOUSE_TIME_MS = 150;
-const HOLD_TOUCH_TIME_MS = 100;
+const HOLD_TOUCH_TIME_MS = 125;
 export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT = 30;
 export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE = 0;
 

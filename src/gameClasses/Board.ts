@@ -22,6 +22,20 @@ type KingsObj = {
   black: King,
 };
 
+export const hold = (element: HTMLElement, rejectEventType: string, timeMs: number) => {
+  return new Promise<void>((resolve, reject) => {
+    element.addEventListener(
+      rejectEventType, () => {
+        reject();
+      },
+      {once: true}
+    );
+    setTimeout(() => {
+      resolve();
+    }, timeMs);
+  });
+}
+
 export const FIELDS_IN_ONE_ROW = 8;
 
 const CLASS_NAMES = {
