@@ -265,6 +265,13 @@ body {
   --rotate: -45deg;
 }
 
+.highlight-last-move {
+  background-color: #FA9038;
+  /* background-color: hsla(335, 100%, 50%, 0.6); */
+  width: 100%;
+  height: 100%;
+}
+
 .move-classification {
   --src: url(./images/move-brilliant.png);
   position: absolute;

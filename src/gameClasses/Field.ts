@@ -14,6 +14,7 @@ export const CLASS_NAMES = {
   possMove: "poss-move",
   possMovePlain: "poss-move-plain",
   possMoveCapture: "poss-move-capture",
+  fieldLastMove: "highlight-last-move",
   fieldMoveClassification: "move-classification",
   fieldBlunder: "move-classification-blunder",
   fieldBrilliant: "move-classification-brilliant",
