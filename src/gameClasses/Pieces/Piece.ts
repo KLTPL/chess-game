@@ -103,19 +103,20 @@ export default abstract class Piece {
     }
   }
 
-  private startFollowingCursorMouse = (ev: MouseEvent): void => { // TODO
+   private startFollowingCursorMouse = (ev: MouseEvent): void => { // TODO
     const leftClickNum = 0;
+    const fieldCoor = this.board.findPosOfPiece(this);
     if( 
       ev.button !== leftClickNum || 
       !this.board.match.isGameRunning || 
       this.board.currTeam !== this.team ||
       this.board.pawnPromotionMenu !== null || 
       this.board.selectedPieceInfo !== null || 
-      this.board.analisisSystem.isUserAnalising()
+      this.board.analisisSystem.isUserAnalising() ||
+      fieldCoor === null
     ) {
       return;
     }
-    const fieldCoor = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
     const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
     this.board.showFieldPieceWasSelectedFrom(fieldCoor);
     this.board.showPossibleMoves(possMoves.filter(move => !move.isEqualTo(fieldCoor)), this.enemyTeamNum, fieldCoor);
@@ -159,17 +160,18 @@ export default abstract class Piece {
   private startFollowingCursorTouch = (ev: TouchEvent): void => {
     ev.preventDefault(); // prevents this.startFollowingCursorMouse from executing
     const touch = ev.changedTouches[0];
+    const fieldCoor = this.board.findPosOfPiece(this);
     if( 
       !this.board.match.isGameRunning || 
       this.board.currTeam !== this.team ||
       this.board.pawnPromotionMenu !== null || 
       this.board.selectedPieceInfo !== null || 
       this.board.analisisSystem.isUserAnalising() ||
-      touch.identifier > 0
+      touch.identifier > 0 ||
+      fieldCoor === null
     ) {
       return;
     }
-    const fieldCoor = this.board.calcFieldPosByPx(touch.clientX, touch.clientY);
     const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
     this.board.removePieceInPos(fieldCoor, false);
     this.board.selectedPieceInfo = { piece: this, grabbedFrom: fieldCoor }; // TODO this Piece | AnyPiece
