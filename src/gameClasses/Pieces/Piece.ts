@@ -224,8 +224,7 @@ export default abstract class Piece {
   private calcNewTranslateXValue(clientX: number): number {
     return (
       clientX -
-      (this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth) /
-      2 -
+      (this.board.pageContainerHtml.offsetWidth - this.board.piecesHtml.offsetWidth)/2 -
       this.html.offsetWidth/2
     );
   }
@@ -233,8 +232,7 @@ export default abstract class Piece {
   private calcNewTranslateYValue(clientY: number): number {
     return (
       clientY -
-      (this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight) /
-      2 -
+      (this.board.pageContainerHtml.offsetHeight - this.board.piecesHtml.offsetHeight)/2 -
       this.html.offsetWidth/2
     );
   }

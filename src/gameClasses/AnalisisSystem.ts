@@ -143,13 +143,15 @@ export default class AnalisisSystem {
       );
     }
     this.board.stopShowingMoveClassification();
+    this.board.stopShowingLastMove();
     if (currHalfmoveIndex > move0Index) { // highlight field under checked king
       const currHalfmove = halfmoves[currHalfmoveIndex];
       this.board.stopShowingCheck();
       if (currHalfmove.posOfKingChecked !== null) {
         this.board.showCheck(currHalfmove.posOfKingChecked);
       }
-    }
+      this.board.showNewLastMove(currHalfmove.from, currHalfmove.to);
+    } 
   }
 
   private goOneHalfmoveForward(cssPieceTransitionDelayMs: number): void {
@@ -206,6 +208,7 @@ export default class AnalisisSystem {
       );
     }
 
+    this.board.showNewLastMove(from, to);
     this.board.showNewMoveClassification(to);
     this.board.stopShowingCheck();
     if (moveToDo.posOfKingChecked !== null) {

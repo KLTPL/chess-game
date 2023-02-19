@@ -277,7 +277,8 @@ export default class Board {
       this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove());
       this.showNewMoveClassification(to);
       this.toggleCssGrabOnPieces();
-      this.showCheckIfKingIsInCheck(piece.enemyTeamNum)
+      this.showCheckIfKingIsInCheck(piece.enemyTeamNum);
+      this.showNewLastMove(from, to);
     }
 
     if (this.pawnPromotionMenu !== null) {
@@ -444,14 +445,14 @@ export default class Board {
     this.moveClassification = null;
   }
 
-  public showNewRowAndColUserIsTouching(touch: Pos) {
+  public showNewRowAndColUserIsTouching(touch: Pos): void {
     this.stopShowingRowAndColUserIsTouching();
     if (Board.isPosIn(touch)) {
       this.showRowAndColUserIsTouching(touch);
     }
   }
 
-  public showRowAndColUserIsTouching(touch: Pos) {
+  public showRowAndColUserIsTouching(touch: Pos): void {
     const createHighlight = (): HTMLDivElement => {
       const highlight = document.createElement("div");
       highlight.classList.add(
@@ -465,15 +466,34 @@ export default class Board {
     }
   }
 
-  public stopShowingRowAndColUserIsTouching() {
+  public stopShowingRowAndColUserIsTouching(): void {
     this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldRowAndColHighlight}`);
   }
 
-  private stopShowingHighlight(querySelectorAll: string) {
+  public showNewLastMove(from: Pos, to: Pos): void {
+    this.stopShowingLastMove();
+    this.showLastMove(from, to);
+  }
+
+  private showLastMove(from: Pos, to: Pos): void {
+    const toShow = [from, to];
+    for (const pos of toShow) {
+      const lastMove = document.createElement("div");
+      lastMove.classList.add(CLASS_NAMES_FIELD.fieldLastMove);
+      this.el[pos.y][pos.x].html.append(lastMove);
+    }
+  }
+
+  public stopShowingLastMove(): void {
+    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldLastMove}`);
+  }
+
+  private stopShowingHighlight(querySelectorAll: string): void {
     document.querySelectorAll(querySelectorAll).forEach(el => {
       el.remove();
     });
   }
+
 
   private invert(): void {
     this.isInverted = (this.isInverted) ? false : true;
