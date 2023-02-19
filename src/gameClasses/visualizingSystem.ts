@@ -1,5 +1,4 @@
-import { hold } from "../app.js";
-import Board from "./Board.js";
+import Board, { hold } from "./Board.js";
 import { HOLD_MOUSE_TIME_MS } from "./Pieces/Piece.js";
 import Pos from "./Pos.js";
 import VisualizingArrow from "./VisualizingArrow.js";

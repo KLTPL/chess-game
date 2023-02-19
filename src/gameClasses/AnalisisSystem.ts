@@ -14,7 +14,7 @@ const CSS_PIECE_TRANSITION_DELAY_MS_GO_BACK_TO_CURR_POS = 500;
 export default class AnalisisSystem {
   private currHalfmoveIndex: (number|null) = null; // null means latest halfmove so user is not analising
   constructor(private board: Board) {
-    this.board.piecesHtml.addEventListener("click", () => {
+    this.board.piecesHtml.addEventListener("pointerdown", () => {
       if (this.isUserAnalising()) {
         this.goBackToCurrMoveIfUserIsAnalising();
       }
