@@ -27,6 +27,7 @@ export const FIELDS_IN_ONE_ROW = 8;
 const CLASS_NAMES = {
   piece: "piece",
   thisHtml: "board-container",
+  thisHtmlDefaultWidth: "board-container-default-width",
   fieldsContainer: "board-fields-container",
   piecesContainer: "board-pieces-container",
   buttonsContainer: "buttons-container",
@@ -684,10 +685,12 @@ export default class Board {
   }
 
   private resizeHtml(): void {
-    this.html.style.width = "clamp(300px, 750px, 70%)";
+    this.html.classList.add(CLASS_NAMES.thisHtmlDefaultWidth);
     const fieldSize = this.html.getBoundingClientRect().width / FIELDS_IN_ONE_ROW;
-    if (fieldSize !== Math.floor(fieldSize)) { // field size has to be int - read the Board.positionHtmlProperly comment
-      this.html.style.width = `${Math.floor(fieldSize) * FIELDS_IN_ONE_ROW}px`;
+    if (fieldSize !== Math.floor(fieldSize)) // field size has to be int - read the Board.positionHtmlProperly comment
+    { 
+      this.html.classList.remove(CLASS_NAMES.thisHtmlDefaultWidth);
+      this.html.style.setProperty("--customWidth", `${Math.floor(fieldSize) * FIELDS_IN_ONE_ROW}px`);
     }
   }
 
@@ -724,6 +727,17 @@ export default class Board {
       case PIECES.KING:   return new King  (team, board);
       default:            return null;
     }
+  }
+
+  public findPosOfPiece(piece: AnyPiece|Piece): Pos|null {
+    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
+      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
+        if (this.el[r][c].piece === piece) {
+          return new Pos(r, c);
+        }
+      }
+    }
+    return null;
   }
 
   get startQueenPosWhite(): Pos {
