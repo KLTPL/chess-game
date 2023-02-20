@@ -9,11 +9,11 @@ export default class Pos {
     }
   }
 
-  public getInvertedProperly(isBoardInverted?: boolean): Pos {
+  public getInvertedProperly(isBoardInverted: boolean): Pos {
     return (
       (isBoardInverted) ?
       new Pos(Pos.invertPosXOrY(this.y), Pos.invertPosXOrY(this.x)) :
-      this
+      new Pos(this.y, this.x)
     );
   }
 

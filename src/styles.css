@@ -139,13 +139,14 @@ body {
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
+  z-index: 2;
 }
 
-.field-label-field1 {
+.field1 > .field-label {
   color: var(--fieldColor2);
 }
 
-.field-label-field2 {
+.field2 > .field-label {
   color: var(--fieldColor1);
 }
 
@@ -266,6 +267,7 @@ body {
 }
 
 .highlight-last-move {
+  position: absolute;
   background-color: #FA9038;
   /* background-color: hsla(335, 100%, 50%, 0.6); */
   width: 100%;
@@ -297,7 +299,7 @@ body {
   width: 100%;
   height: 100%;
   position: absolute;
-  background-color: hsla(143, 100%, 26%, 0.356);
+  background-color: hsla(169, 73%, 38%, 0.388);
 }
 
 .arrow-container {

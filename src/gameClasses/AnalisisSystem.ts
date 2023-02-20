@@ -11,6 +11,8 @@ const ARROW_KEY_FORWARD = "ArrowRight";
 const CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT = 10;
 const CSS_PIECE_TRANSITION_DELAY_MS_GO_BACK_TO_CURR_POS = 500;
 
+const MOVE_0_INDEX = -1;
+
 export default class AnalisisSystem {
   private currHalfmoveIndex: (number|null) = null; // null means latest halfmove so user is not analising
   constructor(private board: Board) {
@@ -51,6 +53,18 @@ export default class AnalisisSystem {
     return (this.currHalfmoveIndex !== null);
   }
 
+  public getIndexOfHalfmoveUserIsOn(): number {
+    return (
+      (this.currHalfmoveIndex === null) ?
+      this.board.movesSystem.halfmoves.length-1 :
+      this.currHalfmoveIndex
+    );
+  }
+
+  public isUserAnalisingMove0(): boolean {
+    return this.currHalfmoveIndex === MOVE_0_INDEX;
+  }
+
   private goBackToCurrMoveIfUserIsAnalising(): void { 
     let tempAmount = 1;
     while (this.currHalfmoveIndex !== null) {
@@ -72,8 +86,7 @@ export default class AnalisisSystem {
   }
 
   private changeCurrHalfmoveIndexBack(): boolean { // returns isIndexChanged
-    const startIndex = -1;
-    if (this.currHalfmoveIndex === startIndex) {
+    if (this.currHalfmoveIndex === MOVE_0_INDEX) {
       return false;
     }
     if (this.currHalfmoveIndex === null) {
@@ -85,7 +98,6 @@ export default class AnalisisSystem {
   }
 
   private goOneHalfmoveOnBoardHtmlBack(): void {
-    const move0Index = -1;
     const board = this.board;
     const halfmoves = this.board.movesSystem.halfmoves;
     const currHalfmoveIndex = this.currHalfmoveIndex as number;
@@ -134,23 +146,26 @@ export default class AnalisisSystem {
       const currRookPos = new Pos(to.y, toX - castleXDir);
       const rookStartPosX = (castleXDir > 0) ? FIELDS_IN_ONE_ROW-1 : 0;
       const rookStartPos = new Pos(to.y, rookStartPosX);
-      this.board.removePieceInPos(currRookPos, false);
-      this.board.placePieceInPos(
+      board.removePieceInPos(currRookPos, false);
+      board.placePieceInPos(
         rookStartPos, 
         moveToReverse.rookThatCastled, 
         CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT*3.5, 
         false
       );
     }
-    this.board.stopShowingMoveClassification();
-    this.board.stopShowingLastMove();
-    if (currHalfmoveIndex > move0Index) { // highlight field under checked king
+    board.stopShowingMoveClassification();
+    board.stopShowingLastMove();
+    if (currHalfmoveIndex > MOVE_0_INDEX) { // highlight field under checked king
       const currHalfmove = halfmoves[currHalfmoveIndex];
-      this.board.stopShowingCheck();
+      board.stopShowingCheck();
       if (currHalfmove.posOfKingChecked !== null) {
-        this.board.showCheck(currHalfmove.posOfKingChecked);
+        board.showCheck(currHalfmove.posOfKingChecked.getInvertedProperly(board.isInverted));
       }
-      this.board.showNewLastMove(currHalfmove.from, currHalfmove.to);
+      board.showNewLastMove(
+        currHalfmove.from.getInvertedProperly(board.isInverted), 
+        currHalfmove.to.getInvertedProperly(board.isInverted)
+      );
     } 
   }
 
@@ -199,8 +214,8 @@ export default class AnalisisSystem {
       const castleXDir = (toX - fromX > 0) ? 1 : -1;
       const currRookPosX = (castleXDir > 0) ? FIELDS_IN_ONE_ROW-1 : 0;
       const rookPosXAfter = toX - castleXDir;
-      this.board.removePieceInPos(new Pos(to.y, currRookPosX), false);
-      this.board.placePieceInPos(
+      board.removePieceInPos(new Pos(to.y, currRookPosX), false);
+      board.placePieceInPos(
         new Pos(to.y, rookPosXAfter), 
         moveToDo.rookThatCastled, 
         CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT*3.5, 
@@ -208,11 +223,11 @@ export default class AnalisisSystem {
       );
     }
 
-    this.board.showNewLastMove(from, to);
-    this.board.showNewMoveClassification(to);
-    this.board.stopShowingCheck();
+    board.showNewLastMove(from, to);
+    board.showNewMoveClassification(to);
+    board.stopShowingCheck();
     if (moveToDo.posOfKingChecked !== null) {
-      this.board.showCheck(moveToDo.posOfKingChecked);
+      board.showCheck(moveToDo.posOfKingChecked.getInvertedProperly(board.isInverted));
     }
   }
 }

@@ -61,14 +61,12 @@ export default class Field {
   }
 
   private addLabelToHtml(pos: Pos, isBoardInverted: boolean) { // numbers 1 to 8 and letters A to H
-    const isFieldField1 = (this.html.classList.contains(CLASS_NAMES.fieldColor1));
     this.getLabelsForField(pos, isBoardInverted)?.forEach(labelInfo => {
       const div = document.createElement("div");
       div.innerText = labelInfo.value;
       div.classList.add(
         CLASS_NAMES.fieldLabel,
         (labelInfo.isNumber) ? CLASS_NAMES.fieldLabelNumber : CLASS_NAMES.fieldLabelLetter,
-        isFieldField1 ? CLASS_NAMES.fieldLabelField1 : CLASS_NAMES.fieldLabelField2
       );
       this.html.append(div);
     });
@@ -77,8 +75,8 @@ export default class Field {
   private getLabelsForField(pos: Pos, isBoardInverted: boolean): FieldLabelInfo[]|null {
     const posStr = `${pos.y},${pos.x}`;
     const substract = (isBoardInverted) ? FIELDS_IN_ONE_ROW-1 : 0;
-    const numbers = ["8", "7", "6", "5", "4", "3", "2", "1"];
-    const letters = ["a", "b", "c", "d", "e", "f", "g", "h"];
+    const numbers = ["8", "7", "6", "5", "4", "3", "2", "1"]; // .length === FIELDS_IN_ONE_ROW
+    const letters = ["a", "b", "c", "d", "e", "f", "g", "h"]; // .length === FIELDS_IN_ONE_ROW
     const getNum  = (index: number) => numbers[Math.abs(substract - index)];
     const getLett = (index: number) => letters[Math.abs(substract - index)];
     switch (posStr) {
