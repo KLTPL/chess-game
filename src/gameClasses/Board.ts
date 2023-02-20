@@ -283,10 +283,11 @@ export default class Board {
         from.getInvertedProperly(this.isInverted), 
         to.getInvertedProperly(this.isInverted), 
         capturedPiece, 
-        (enemyKing.isInCheck()) ? enemyKing.pos : null,
+        (enemyKing.isInCheck()) ? enemyKing.pos.getInvertedProperly(this.isInverted) : null,
         this.getRookIfKingCastled(piece, from, to)
       )
     );
+    // console.log("posOfCheckedKing:",this.movesSystem.getLatestHalfmove().)
     const afterMoveIsFinished = () => {
       this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove());
       this.showNewMoveClassification(to);

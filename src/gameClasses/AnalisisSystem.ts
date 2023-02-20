@@ -156,7 +156,7 @@ export default class AnalisisSystem {
     }
     board.stopShowingMoveClassification();
     board.stopShowingLastMove();
-    if (currHalfmoveIndex > MOVE_0_INDEX) { // highlight field under checked king
+    if (!this.isUserAnalisingMove0()) { // highlight field under checked king
       const currHalfmove = halfmoves[currHalfmoveIndex];
       board.stopShowingCheck();
       if (currHalfmove.posOfKingChecked !== null) {
