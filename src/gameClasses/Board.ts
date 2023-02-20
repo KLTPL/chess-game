@@ -443,14 +443,14 @@ export default class Board {
     const div = document.createElement("div");
     div.classList.add(CLASS_NAMES_FIELD.fieldMoveClassification, CLASS_NAMES_FIELD.fieldBrilliant);
     this.el[pos.y][pos.x].html.append(div);
-    this.moveClassification = pos;
+    this.moveClassification = new Pos(pos.y, pos.x);
   }
 
   private showBlunderMove(pos: Pos): void {
     const div = document.createElement("div");
     div.classList.add(CLASS_NAMES_FIELD.fieldMoveClassification, CLASS_NAMES_FIELD.fieldBlunder);
     this.el[pos.y][pos.x].html.append(div);
-    this.moveClassification = pos;
+    this.moveClassification = new Pos(pos.y, pos.x);
   }
 
   public stopShowingMoveClassification(): void {
@@ -503,7 +503,7 @@ export default class Board {
   }
 
   private stopShowingHighlight(querySelectorAll: string): void {
-    document.querySelectorAll(querySelectorAll).forEach(el => {
+    this.html.querySelectorAll(querySelectorAll).forEach(el => {
       el.remove();
     });
   }
@@ -534,10 +534,17 @@ export default class Board {
         this.el[r][c].invertHtml(new Pos(r, c), this.isInverted);
       }
     }
-    if (this.movesSystem.isThereAtLeastOneHalfMove()) { // show new chech
+    if (this.movesSystem.isThereAtLeastOneHalfMove()) {
       this.showCheckIfKingIsInCheck(
         this.movesSystem.getLatestHalfmove().piece.enemyTeamNum
       );
+      if (!this.analisisSystem.isUserAnalisingMove0()) {
+        const currHalfMove = this.movesSystem.halfmoves[this.analisisSystem.getIndexOfHalfmoveUserIsOn()];
+        this.showNewLastMove(
+          currHalfMove.from.getInvertedProperly(this.isInverted), 
+          currHalfMove.to.getInvertedProperly(this.isInverted)
+        );
+      }
     }
 
     if (this.moveClassification !== null) {
