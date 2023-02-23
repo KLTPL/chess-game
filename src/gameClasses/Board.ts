@@ -233,7 +233,7 @@ export default class Board {
     }
     this.setPieceCssTransitionDeley(piece.html, cssPieceTransitionDelayMs);
     this.transformPieceHtmlToPos(piece.html, pos);
-    setTimeout(() => this.setPieceCssTransitionDeley(piece.html, 0), cssPieceTransitionDelayMs);
+    setTimeout(() => this.setPieceCssTransitionDeley(piece.html, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE), cssPieceTransitionDelayMs);
     this.el[pos.y][pos.x].setPiece(piece);
   }
 
@@ -287,7 +287,6 @@ export default class Board {
         this.getRookIfKingCastled(piece, from, to)
       )
     );
-    // console.log("posOfCheckedKing:",this.movesSystem.getLatestHalfmove().)
     const afterMoveIsFinished = () => {
       this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove());
       this.showNewMoveClassification(to);
@@ -336,10 +335,10 @@ export default class Board {
         if (Piece.isKing(piece)) {
           switch (piece.team) {
             case TEAMS.WHITE: 
-            if (kingWhite !== null) {
-              return null;
-            }
-            kingWhite = piece;
+              if (kingWhite !== null) {
+                return null;
+              }
+              kingWhite = piece;
               break;
             case TEAMS.BLACK:
               if (kingBlack !== null) {
@@ -535,17 +534,17 @@ export default class Board {
         this.el[r][c].invertHtml(new Pos(r, c), this.isInverted);
       }
     }
-    if (this.movesSystem.isThereAtLeastOneHalfMove()) {
-      this.showCheckIfKingIsInCheck(
-        this.movesSystem.getLatestHalfmove().piece.enemyTeamNum
-      );
-      if (!this.analisisSystem.isUserAnalisingMove0()) {
-        const currHalfMove = this.movesSystem.halfmoves[this.analisisSystem.getIndexOfHalfmoveUserIsOn()];
-        this.showNewLastMove(
-          currHalfMove.from.getInvertedProperly(this.isInverted), 
-          currHalfMove.to.getInvertedProperly(this.isInverted)
+    if (this.movesSystem.isThereAtLeastOneHalfMove() && !this.analisisSystem.isUserAnalisingMove0()) {
+      const currHalfMove = this.movesSystem.halfmoves[this.analisisSystem.getIndexOfHalfmoveUserIsOn()];
+      if (currHalfMove.isCheck()) {
+        this.showCheck(
+          (currHalfMove.posOfKingChecked as Pos).getInvertedProperly(this.isInverted)
         );
       }
+      this.showNewLastMove(
+        currHalfMove.from.getInvertedProperly(this.isInverted), 
+        currHalfMove.to.getInvertedProperly(this.isInverted)
+      );
     }
 
     if (this.moveClassification !== null) {
@@ -729,8 +728,7 @@ export default class Board {
   private resizeHtml(): void {
     this.html.classList.add(CLASS_NAMES.thisHtmlDefaultWidth);
     const fieldSize = this.html.getBoundingClientRect().width / FIELDS_IN_ONE_ROW;
-    if (fieldSize !== Math.floor(fieldSize)) // field size has to be int - read the Board.positionHtmlProperly comment
-    { 
+    if (fieldSize !== Math.floor(fieldSize)) { //field size has to be int-read the Board.positionHtmlProperly comment
       this.html.classList.remove(CLASS_NAMES.thisHtmlDefaultWidth);
       this.html.style.setProperty("--customWidth", `${Math.floor(fieldSize) * FIELDS_IN_ONE_ROW}px`);
     }
@@ -741,7 +739,7 @@ export default class Board {
     const fieldSize = this.html.offsetWidth / FIELDS_IN_ONE_ROW; // field size will allways be int thanks to Board.resizeHtml function
     root.style.setProperty("--pieceSize", `${fieldSize}px`);
     root.style.setProperty("--pieceMoveTouchSize", `${fieldSize * 2}px`);
-    root.style.setProperty("--fieldLabelFontSize", `${fieldSize*0.35}px`);
+    root.style.setProperty("--fieldLabelFontSize", `${fieldSize * 0.35}px`);
   }
 
   private positionAllPiecesHtmlsProperly(): void {
