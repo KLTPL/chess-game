@@ -161,13 +161,12 @@ body {
 }
 
 .piece {
-  --transitionDuration: 0; /* set in script*/
   position: absolute;
   width: var(--pieceSize);
   height: var(--pieceSize);
   background-size: 100%;
   background-position: center;
-  transition: all var(--transitionDuration) ease-in;
+  transition: all var(--transitionDuration) ease-in; /* --transitionDuration set in script*/
   z-index: 1;
 } 
 
