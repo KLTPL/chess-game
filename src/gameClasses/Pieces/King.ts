@@ -231,7 +231,7 @@ export default class King extends Piece {
       this.isBeforeAnyMove = false;
     }
 
-    this.pos = to;
+    this.pos = to.getInvertedProperly(this.board.isInverted);
     // castle
     const moveIsCastle = Math.abs(from.x-to.x) > 1;
     if (moveIsCastle) {
@@ -253,11 +253,7 @@ export default class King extends Piece {
 
   public createArrOfChecks(): Check[] {
     return this.createArrOfPositionsOfPiecesCheckingKing()
-      .map(pos => new Check(pos, this.pos, this.board));
-  }
-
-  public invert() {
-    this.pos.invert();
+      .map(pos => new Check(pos, this.pos.getInvertedProperly(this.board.isInverted), this.board));
   }
 
   private createArrOfPositionsOfPiecesCheckingKing(): Pos[] {
@@ -275,7 +271,7 @@ export default class King extends Piece {
           continue;
         }
         for (const move of piece.createArrOfPossibleMovesFromPosForKing(pos)) {
-          if (this.pos.isEqualTo(move)) {
+          if (this.pos.getInvertedProperly(this.board.isInverted).isEqualTo(move)) {
             checkingPieces.push(pos);
           }
         }

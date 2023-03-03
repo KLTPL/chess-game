@@ -361,7 +361,7 @@ export default class Board {
       (team === TEAMS.WHITE) ?
       this.kings.white.pos : 
       this.kings.black.pos
-    );
+    ).getInvertedProperly(this.isInverted);
   }
 
   public showFieldUnderMovingPiece(pos: Pos): void {
@@ -426,7 +426,7 @@ export default class Board {
     const king = this.getKingByTeam(kingTeam);
     this.stopShowingCheck();
     if (king.isInCheck()) {
-      this.showCheck(king.pos);
+      this.showCheck(king.pos.getInvertedProperly(this.isInverted));
     }
   }
 
@@ -550,8 +550,8 @@ export default class Board {
     if (this.moveClassification !== null) {
       const div = document.querySelector(`.${CLASS_NAMES_FIELD.fieldMoveClassification}`) as HTMLDivElement;
       div.remove();
-      this.moveClassification.invert();
-      this.el[this.moveClassification.y][this.moveClassification.x].html.append(div);
+      const pos = this.moveClassification.getInvertedProperly(this.isInverted);
+      this.el[pos.y][pos.x].html.append(div);
     }
   }
 
@@ -783,25 +783,25 @@ export default class Board {
   get startQueenPosWhite(): Pos {
     const queenDefaultXPos = 3;
     const startYPos = FIELDS_IN_ONE_ROW-1;
-    return new Pos(startYPos, queenDefaultXPos, this.isInverted); 
+    return new Pos(startYPos, queenDefaultXPos).getInvertedProperly(this.isInverted); 
   }
 
   get startKingPosWhite(): Pos {
     const kingDefaultXPos = 4;
     const startYPos = FIELDS_IN_ONE_ROW-1;
-    return new Pos(startYPos, kingDefaultXPos, this.isInverted);
+    return new Pos(startYPos, kingDefaultXPos).getInvertedProperly(this.isInverted);
   }
 
   get startQueenPosBlack(): Pos {
     const queenDefaultXPos = 3;
     const startYPos = 0;
-    return new Pos(startYPos, queenDefaultXPos, this.isInverted); 
+    return new Pos(startYPos, queenDefaultXPos).getInvertedProperly(this.isInverted); 
   }
 
   get startKingPosBlack(): Pos {
     const kingDefaultXPos = 4;
     const startYPos = 0;
-    return new Pos(startYPos, kingDefaultXPos, this.isInverted); 
+    return new Pos(startYPos, kingDefaultXPos).getInvertedProperly(this.isInverted); 
   }
 
   public static isPosIn(pos: Pos): boolean {
