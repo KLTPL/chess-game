@@ -9,7 +9,7 @@ export default class Pawn extends Piece {
   directionY: number;
   constructor(readonly team: TEAMS, protected board: Board) {
     super(team, board);
-    this.directionY = (this.team === TEAMS.WHITE) ? -1 : 1;// direction up od down
+    this.directionY = (this.team === TEAMS.WHITE) ? -1 : 1;// direction up or down
     this.addClassName(this.id);
   }
 
@@ -150,6 +150,10 @@ export default class Pawn extends Piece {
     return false;
   }
 
+  private isGoingUp(): boolean {
+    return this.directionY === -1;
+  }
+
   public sideEffectsOfMove(to: Pos): void {
     // en passant capture
     const board = this.board;
@@ -164,11 +168,8 @@ export default class Pawn extends Piece {
     }
 
     // promotion
-    const lastRowNum = 
-      (this.directionY === 1 && !board.isInverted) ? 
-      FIELDS_IN_ONE_ROW-1 : 
-      0;
-    if (to.y === lastRowNum) {
+    const promotionPosY = (this.isGoingUp()) ? 0 : FIELDS_IN_ONE_ROW-1;
+    if (to.y === promotionPosY) {
       this.promote(to);
     }
   }
