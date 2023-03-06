@@ -1,4 +1,4 @@
-import { FIELDS_IN_ONE_ROW } from "./Board";
+import { FIELDS_IN_ONE_ROW } from "./board-components/Board";
 
 export const POS_OUT_OF_BOARD = -1;
 

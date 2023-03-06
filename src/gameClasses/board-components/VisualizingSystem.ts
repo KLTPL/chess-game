@@ -1,6 +1,6 @@
 import Board, { hold } from "./Board.js";
-import { HOLD_MOUSE_TIME_MS } from "./Pieces/Piece.js";
-import Pos from "./Pos.js";
+import { HOLD_MOUSE_TIME_MS } from "../pieces/Piece.js";
+import Pos from "../Pos.js";
 import VisualizingArrow from "./VisualizingArrow.js";
 
 const HIGHLIGHT_FIELD_CLASS_NAME = "highlighted-field";

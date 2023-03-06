@@ -1,6 +1,6 @@
 import Board, { FIELDS_IN_ONE_ROW } from "./Board";
-import { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "./Pieces/Piece";
-import Pos from "./Pos";
+import { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "../pieces/Piece";
+import Pos from "../Pos";
 
 export const BUTTON_ID_BACK = "back";
 export const BUTTON_ID_FORWARD = "forward";
@@ -154,15 +154,15 @@ export default class AnalisisSystem {
         false
       );
     }
-    board.stopShowingMoveClassification();
-    board.stopShowingLastMove();
+    board.showEventsOnBoard.stopShowingMoveClassification();
+    board.showEventsOnBoard.stopShowingLastMove();
     if (!this.isUserAnalisingMove0()) { // highlight field under checked king
       const currHalfmove = halfmoves[currHalfmoveIndex];
-      board.stopShowingCheck();
+      board.showEventsOnBoard.stopShowingCheck();
       if (currHalfmove.posOfKingChecked !== null) {
-        board.showCheck(currHalfmove.posOfKingChecked.getInvertedProperly(board.isInverted));
+        board.showEventsOnBoard.showCheck(currHalfmove.posOfKingChecked.getInvertedProperly(board.isInverted));
       }
-      board.showNewLastMove(
+      board.showEventsOnBoard.showNewLastMove(
         currHalfmove.from.getInvertedProperly(board.isInverted), 
         currHalfmove.to.getInvertedProperly(board.isInverted)
       );
@@ -223,11 +223,11 @@ export default class AnalisisSystem {
       );
     }
 
-    board.showNewLastMove(from, to);
-    board.showNewMoveClassification(to);
-    board.stopShowingCheck();
+    board.showEventsOnBoard.showNewLastMove(from, to);
+    board.showEventsOnBoard.showNewMoveClassification(to);
+    board.showEventsOnBoard.stopShowingCheck();
     if (moveToDo.posOfKingChecked !== null) {
-      board.showCheck(moveToDo.posOfKingChecked.getInvertedProperly(board.isInverted));
+      board.showEventsOnBoard.showCheck(moveToDo.posOfKingChecked.getInvertedProperly(board.isInverted));
     }
   }
 }

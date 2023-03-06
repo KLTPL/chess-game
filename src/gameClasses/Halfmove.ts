@@ -1,5 +1,5 @@
-import { AnyPiece } from "./Pieces/Piece.js";
-import Rook from "./Pieces/Rook.js";
+import { AnyPiece } from "./pieces/Piece.js";
+import Rook from "./pieces/Rook.js";
 import Pos from "./Pos.js";
 
 export default class Halfmove {

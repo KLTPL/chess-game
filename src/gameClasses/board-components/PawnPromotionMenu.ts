@@ -1,5 +1,5 @@
 import Board from "./Board.js";
-import Piece, { PIECES, TEAMS } from "./Pieces/Piece.js";
+import Piece, { PIECES, TEAMS } from "../pieces/Piece.js";
 import { CLASS_NAMES as CLASS_NAMES_FIELD } from "./Field.js";
 
 const CLASS_NAMES = {

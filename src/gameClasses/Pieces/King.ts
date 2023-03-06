@@ -1,4 +1,4 @@
-import Board, { FIELDS_IN_ONE_ROW } from "../Board.js";
+import Board, { FIELDS_IN_ONE_ROW } from "../board-components/Board.js";
 import Piece, { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT, PIECES, TEAMS, Pin, AnyPiece } from "./Piece.js";
 import Rook from "./Rook.js";
 import Pos, { POS_OUT_OF_BOARD } from "../Pos.js";

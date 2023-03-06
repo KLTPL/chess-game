@@ -1,5 +1,5 @@
 import Match, { PlayerArg, BoardArg } from "./gameClasses/Match.js";
-import { TEAMS } from "./gameClasses/Pieces/Piece.js";
+import { TEAMS } from "./gameClasses/pieces/Piece.js";
 import "./styles.css";
 
 let customStartPos: (null|string) = null;
