@@ -1,4 +1,4 @@
-import Board from "../Board.js";
+import Board from "../board-components/Board.js";
 import Piece, { PIECES, TEAMS } from "./Piece.js";
 import Pos from "../Pos.js";
 import Dir from "../Dir.js";

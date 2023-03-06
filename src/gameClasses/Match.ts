@@ -1,7 +1,7 @@
-import Board from "./Board.js";
+import Board from "./board-components/Board.js";
 import Player from "./Player.js";
 import Halfmove from "./Halfmove.js";
-import { TEAMS } from "./Pieces/Piece.js";
+import { TEAMS } from "./pieces/Piece.js";
 
 type EndInfo = {
   cousedBy: Player|null;
@@ -77,7 +77,7 @@ export default class Match {
 
   public end(endType?: EndInfo): void {
     this.isGameRunning = false;
-    this.board.turnOfCssGrabOnPieces();
+    this.board.showEventsOnBoard.turnOfCssGrabOnPieces();
     console.log("half moves: ",this.board.movesSystem.halfmoves);
     if (endType !== undefined) {
       console.log(`Game has ended by ${endType.cousedBy?.name} with a ${endType.type}`); 

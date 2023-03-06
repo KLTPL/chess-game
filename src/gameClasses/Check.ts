@@ -1,7 +1,7 @@
 import Pos from "./Pos.js";
-import Board from "./Board.js";
+import Board from "./board-components/Board.js";
 import Dir from "./Dir.js";
-import Piece from "./Pieces/Piece.js";
+import Piece from "./pieces/Piece.js";
 
 export default class Check {
   constructor(

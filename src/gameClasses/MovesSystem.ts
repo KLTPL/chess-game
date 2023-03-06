@@ -8,7 +8,7 @@ export default class MovesSystem {
   // private currMoveNum = 0;
   constructor(/*private board: Board*/) {
     
-  }
+  } 
 
   public pushNewHalfmove(halfmove: Halfmove): void {
     this.halfmoves.push(halfmove);

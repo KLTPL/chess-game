@@ -1,19 +1,20 @@
-import Pos, { POS_OUT_OF_BOARD } from "./Pos.js";
+import Pos, { POS_OUT_OF_BOARD } from "../Pos.js";
 import Field, { CLASS_NAMES as CLASS_NAMES_FIELD } from "./Field.js";
-import Piece, { AnyPiece, PIECES, TEAMS, SelectedPieceInfo, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "./Pieces/Piece.js";
-import Pawn from "./Pieces/Pawn.js";
-import King from "./Pieces/King.js";
-import Halfmove from "./Halfmove.js";
+import Piece, { AnyPiece, PIECES, TEAMS, SelectedPieceInfo, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "../pieces/Piece.js";
+import Pawn from "../pieces/Pawn.js";
+import King from "../pieces/King.js";
+import Halfmove from "../Halfmove.js";
 import VisualizingSystem from "./VisualizingSystem.js";
 import PawnPromotionMenu from "./PawnPromotionMenu.js";
-import Match from "./Match.js";
+import Match from "../Match.js";
 import FENNotation from "./FENNotation.js";
-import Rook from "./Pieces/Rook.js";
-import Knight from "./Pieces/Knight.js";
-import Bishop from "./Pieces/Bishop.js";
-import Queen from "./Pieces/Queen.js";
-import MovesSystem from "./movesSystem.js";
+import Rook from "../pieces/Rook.js";
+import Knight from "../pieces/Knight.js";
+import Bishop from "../pieces/Bishop.js";
+import Queen from "../pieces/Queen.js";
+import MovesSystem from "../movesSystem.js";
 import AnalisisSystem, { BUTTON_ID_BACK, BUTTON_ID_FORWARD } from "./AnalisisSystem.js";
+import ShowEvetsOnBoard from "./ShowEventsOnBoard.js";
 
 export type ArrOfPieces2d = (AnyPiece|null)[][];
 
@@ -60,9 +61,9 @@ export default class Board {
   public pawnPromotionMenu: (PawnPromotionMenu|null) = null;
   public isInverted: boolean;
   public movesSystem: MovesSystem = new MovesSystem(/*this*/);
+  public showEventsOnBoard: ShowEvetsOnBoard = new ShowEvetsOnBoard(this);
   public analisisSystem: AnalisisSystem;
   private kings: KingsObj;
-  private moveClassification: Pos|null = null;
   constructor(
     htmlPageContainerQSelector: string, 
     customPositionFEN: (string|null),
@@ -233,7 +234,10 @@ export default class Board {
     }
     this.setPieceCssTransitionDeley(piece.html, cssPieceTransitionDelayMs);
     this.transformPieceHtmlToPos(piece.html, pos);
-    setTimeout(() => this.setPieceCssTransitionDeley(piece.html, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE), cssPieceTransitionDelayMs);
+    setTimeout(
+      () => this.setPieceCssTransitionDeley(piece.html, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE), 
+      cssPieceTransitionDelayMs
+    );
     this.el[pos.y][pos.x].setPiece(piece);
   }
 
@@ -252,22 +256,6 @@ export default class Board {
       TEAMS.WHITE;
   }
 
-  private toggleCssGrabOnPieces() {
-    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
-      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
-        this.el[r][c].piece?.toggleCssGrab();
-      }
-    }
-  }
-
-  public turnOfCssGrabOnPieces() {
-    for (let r=0 ; r<FIELDS_IN_ONE_ROW ; r++) {
-      for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
-        this.el[r][c].piece?.removeCssGrab();
-      }
-    }
-  }
-
   public movePiece(from: Pos, to: Pos, piece: AnyPiece, transitionDelayMs: number): void {
     const capturedPiece =  this.el[to.y][to.x].piece;
     if (capturedPiece !== null) {
@@ -283,16 +271,16 @@ export default class Board {
         from.getInvertedProperly(this.isInverted), 
         to.getInvertedProperly(this.isInverted), 
         capturedPiece, 
-        (enemyKing.isInCheck()) ? enemyKing.pos.getInvertedProperly(this.isInverted) : null,
+        (enemyKing.isInCheck()) ? enemyKing.pos : null,
         this.getRookIfKingCastled(piece, from, to)
       )
     );
     const afterMoveIsFinished = () => {
       this.match.checkIfGameShouldEndAfterMove(this.movesSystem.getLatestHalfmove());
-      this.showNewMoveClassification(to);
-      this.toggleCssGrabOnPieces();
-      this.showCheckIfKingIsInCheck(piece.enemyTeamNum);
-      this.showNewLastMove(from, to);
+      this.showEventsOnBoard.showNewMoveClassification(to);
+      this.showEventsOnBoard.toggleCssGrabOnPieces();
+      this.showEventsOnBoard.showCheckIfKingIsInCheck(piece.enemyTeamNum);
+      this.showEventsOnBoard.showNewLastMove(from, to);
     }
 
     if (this.pawnPromotionMenu !== null) {
@@ -364,156 +352,13 @@ export default class Board {
     ).getInvertedProperly(this.isInverted);
   }
 
-  public showFieldUnderMovingPiece(pos: Pos): void {
-    this.stopShowingFieldUnderMovingPiece();
-    if (!Board.isPosIn(pos)) {
-      return;
-    }
-    const div = document.createElement("div");
-    div.classList.add(CLASS_NAMES_FIELD.fieldUnderMovingPiece)
-    this.el[pos.y][pos.x].html.append(div);
-  }
-
-  public stopShowingFieldUnderMovingPiece() {
-    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldUnderMovingPiece}`);
-  }
-
-  public showFieldPieceWasSelectedFrom(pos: Pos): void {
-    this.stopShowingFieldPieceWasSelectedFrom();
-    const div = document.createElement("div");
-    div.classList.add(CLASS_NAMES_FIELD.fieldPieceWasSelectedFrom);
-    this.el[pos.y][pos.x].html.append(div);
-  }
-
-  public stopShowingFieldPieceWasSelectedFrom() {
-    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldPieceWasSelectedFrom}`);
-  }
-
-  public showPossibleMoves(possMovesToShow: Pos[], enemyTeamNum: number, from: Pos): void {
-    for (const possMove of possMovesToShow) {
-      const div = document.createElement("div");
-      const isMoveCapture = 
-        (this.el[possMove.y][possMove.x].piece?.team === enemyTeamNum ||
-         (Piece.isPawn(this.el[from.y][from.x].piece) && // en passant
-          from.x !== possMove.x));
-      div.classList.add(
-        CLASS_NAMES_FIELD.possMove,
-        (isMoveCapture) ? CLASS_NAMES_FIELD.possMoveCapture : CLASS_NAMES_FIELD.possMovePlain
-      );
-
-      this.el[possMove.y][possMove.x].html.append(div);
-    }
-  }
-
-  public stopShowingPossibleMoves(): void {
-    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.possMove}`);
-
-  }
-
-  public stopShowingCheck() {
-    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldInCheck}`);
-  }
-
-  public showCheck(kingPos: Pos): void {// king pos as argument instead of this.pos because of the ability to go back in time and temporarly see what happened
-    this.stopShowingCheck();
-    const div = document.createElement("div");
-    div.classList.add(CLASS_NAMES_FIELD.fieldInCheck);
-    this.el[kingPos.y][kingPos.x].html.append(div);
-  }
-
-  public showCheckIfKingIsInCheck(kingTeam: TEAMS): void {
-    // field becomes red if in check
-    const king = this.getKingByTeam(kingTeam);
-    this.stopShowingCheck();
-    if (king.isInCheck()) {
-      this.showCheck(king.pos.getInvertedProperly(this.isInverted));
-    }
-  }
-
-  public showNewMoveClassification(pos: Pos): void {
-    this.stopShowingMoveClassification();
-    const rand = Math.floor(Math.random()*20);
-    switch (rand) { // both 5% chance
-      case 0: this.showBrilliantMove(pos); break;
-      case 1: this.showBlunderMove(pos); break;
-    }
-  }
-
-  private showBrilliantMove(pos: Pos): void {
-    const div = document.createElement("div");
-    div.classList.add(CLASS_NAMES_FIELD.fieldMoveClassification, CLASS_NAMES_FIELD.fieldBrilliant);
-    this.el[pos.y][pos.x].html.append(div);
-    this.moveClassification = new Pos(pos.y, pos.x);
-  }
-
-  private showBlunderMove(pos: Pos): void {
-    const div = document.createElement("div");
-    div.classList.add(CLASS_NAMES_FIELD.fieldMoveClassification, CLASS_NAMES_FIELD.fieldBlunder);
-    this.el[pos.y][pos.x].html.append(div);
-    this.moveClassification = new Pos(pos.y, pos.x);
-  }
-
-  public stopShowingMoveClassification(): void {
-    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldBrilliant}`);
-    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldBlunder}`);
-    this.moveClassification = null;
-  }
-
-  public showNewRowAndColUserIsTouching(touch: Pos): void {
-    this.stopShowingRowAndColUserIsTouching();
-    if (Board.isPosIn(touch)) {
-      this.showRowAndColUserIsTouching(touch);
-    }
-  }
-
-  public showRowAndColUserIsTouching(touch: Pos): void {
-    const createHighlight = (): HTMLDivElement => {
-      const highlight = document.createElement("div");
-      highlight.classList.add(
-        CLASS_NAMES_FIELD.fieldRowAndColHighlight,
-      );
-      return highlight;
-    };
-    for (let i=0 ; i<FIELDS_IN_ONE_ROW ; i++) {
-      this.el[i][touch.x].html.append(createHighlight());
-      this.el[touch.y][i].html.append(createHighlight());
-    }
-  }
-
-  public stopShowingRowAndColUserIsTouching(): void {
-    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldRowAndColHighlight}`);
-  }
-
-  public showNewLastMove(from: Pos, to: Pos): void {
-    this.stopShowingLastMove();
-    this.showLastMove(from, to);
-  }
-
-  private showLastMove(from: Pos, to: Pos): void {
-    const toShow = [from, to];
-    for (const pos of toShow) {
-      const lastMove = document.createElement("div");
-      lastMove.classList.add(CLASS_NAMES_FIELD.fieldLastMove);
-      this.el[pos.y][pos.x].html.append(lastMove);
-    }
-  }
-
-  public stopShowingLastMove(): void {
-    this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldLastMove}`);
-  }
-
-  private stopShowingHighlight(querySelectorAll: string): void {
-    this.html.querySelectorAll(querySelectorAll).forEach(el => {
-      el.remove();
-    });
-  }
-
 
   private invert(): void {
     this.isInverted = (this.isInverted) ? false : true;
 
     this.invertPieces();
     this.invertFields();
+    this.showEventsOnBoard.invertEvents();
   }
 
   private invertPieces(): void {
@@ -533,25 +378,6 @@ export default class Board {
       for (let c=0 ; c<FIELDS_IN_ONE_ROW ; c++) {
         this.el[r][c].invertHtml(new Pos(r, c), this.isInverted);
       }
-    }
-    if (this.movesSystem.isThereAtLeastOneHalfMove() && !this.analisisSystem.isUserAnalisingMove0()) {
-      const currHalfMove = this.movesSystem.halfmoves[this.analisisSystem.getIndexOfHalfmoveUserIsOn()];
-      if (currHalfMove.isCheck()) {
-        this.showCheck(
-          (currHalfMove.posOfKingChecked as Pos).getInvertedProperly(this.isInverted)
-        );
-      }
-      this.showNewLastMove(
-        currHalfMove.from.getInvertedProperly(this.isInverted), 
-        currHalfMove.to.getInvertedProperly(this.isInverted)
-      );
-    }
-
-    if (this.moveClassification !== null) {
-      const div = document.querySelector(`.${CLASS_NAMES_FIELD.fieldMoveClassification}`) as HTMLDivElement;
-      div.remove();
-      const pos = this.moveClassification.getInvertedProperly(this.isInverted);
-      this.el[pos.y][pos.x].html.append(div);
     }
   }
 

@@ -1,6 +1,6 @@
 import Board, { FIELDS_IN_ONE_ROW } from "./Board.js";
-import Pos from "./Pos.js";
-import Dir from "./Dir.js";
+import Pos from "../Pos.js";
+import Dir from "../Dir.js";
 
 const CLASS_NAMES = {
   arrowContainer: "arrow-container",

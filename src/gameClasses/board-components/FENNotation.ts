@@ -1,7 +1,7 @@
-import { AnyPiece, PIECES, TEAMS } from "./Pieces/Piece";
+import { AnyPiece, PIECES, TEAMS } from "../pieces/Piece";
 import { ArrOfPieces2d, FIELDS_IN_ONE_ROW } from "./Board";
 import Board from "./Board";
-import { CastleRights } from "./Pieces/King";
+import { CastleRights } from "../pieces/King";
 
 /*FEN (Forsyth-Edwards Notation) parts:
     1. Piece placement.
