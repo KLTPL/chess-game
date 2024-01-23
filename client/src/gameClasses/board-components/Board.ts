@@ -112,7 +112,7 @@ export default class Board {
     } else {
       setTimeout(() => this.match.end({ cousedBy: null, type: "Bad kings"})); 
       //setTimeout so constructor is finished before calling Match.end
-      this.kings = { white: new King(-1, this), black: new King(-1, this) };
+      this.kings = null as never;
       //this.kings doesn't matter because the game is already over
     }
 
