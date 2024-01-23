@@ -12,7 +12,7 @@ import Rook from "../pieces/Rook.js";
 import Knight from "../pieces/Knight.js";
 import Bishop from "../pieces/Bishop.js";
 import Queen from "../pieces/Queen.js";
-import MovesSystem from "../movesSystem.js";
+import MovesSystem from "../MovesSystem.js";
 import AnalisisSystem, { BUTTON_ID_BACK, BUTTON_ID_FORWARD } from "./AnalisisSystem.js";
 import ShowEvetsOnBoard from "./ShowEventsOnBoard.js";
 
