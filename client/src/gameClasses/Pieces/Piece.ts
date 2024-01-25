@@ -229,7 +229,6 @@ export default abstract class Piece {
   };
 
   private calcNewTranslateXValue(clientX: number): number {
-    console.log(this.board.pageContainerHtml);
     return (
       clientX -
       (this.board.pageContainerHtml.offsetWidth -
