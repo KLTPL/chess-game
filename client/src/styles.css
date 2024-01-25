@@ -1,14 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
 
-*, *::after, *::before {
+*,
+*::after,
+*::before {
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 :root {
   background-color: hsl(216, 7%, 14%);
   color: hsl(0, 0%, 0%);
-  font-size: clamp(10px,3vw, 20px);
+  font-size: clamp(10px, 3vw, 20px);
   --fieldColor1: hsl(0, 0%, 100%);
   --fieldColor2: hsl(189, 98%, 24%);
   --fieldColor2-b: hsla(189, 98%, 30%);
@@ -17,13 +19,12 @@
   --arrowBgColor: hsla(16, 100%, 50%, 0.9);
   --popupColor: hsl(60, 56%, 91%);
   --popupBoxShadow: 0 5px 15px hsla(0, 0%, 0%, 0.904);
-  --possMovePlainCol: rgba(0, 0, 0, 0.7); 
-  --box-shadow-field-under-piece:
-    0 0 10px 0 hsla(173, 26%, 18%, 0.582),
+  --possMovePlainCol: rgba(0, 0, 0, 0.7);
+  --box-shadow-field-under-piece: 0 0 10px 0 hsla(173, 26%, 18%, 0.582),
     inset 0 0 0 5px hsl(172, 100%, 26%);
 
   /* each set in a script*/
-  --pieceSize: 100%; 
+  --pieceSize: 100%;
   --pieceMoveTouchSize: 100%;
   --fieldLabelFontSize: 1rem;
 }
@@ -48,7 +49,7 @@ body {
   transform: translate(var(--translateX), var(--translateY));
   box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.596);
   aspect-ratio: 1 / 1;
-  width: var(--customWidth);  /* set in script*/
+  width: var(--customWidth); /* set in script*/
 }
 
 .board-container-default-width {
@@ -67,7 +68,8 @@ body {
   grid-template-rows: repeat(8, 1fr);
 }
 
-.board-fields-container, .board-pieces-container {
+.board-fields-container,
+.board-pieces-container {
   position: absolute;
   left: 0;
   top: 0;
@@ -88,7 +90,7 @@ body {
 .buttons-container > button {
   background-color: var(--fieldColor2);
   color: var(--fieldColor1);
-  padding: .75rem 1rem;
+  padding: 0.75rem 1rem;
   font-size: 1rem;
   font-weight: 600;
   border: 1px solid black;
@@ -110,8 +112,9 @@ body {
   aspect-ratio: 1 / 1;
 }
 
-@media (hover: hover) { /* so the button doesn't stay 'hovered' on mobile */
-  .buttons-container > button:hover{
+@media (hover: hover) {
+  /* so the button doesn't stay 'hovered' on mobile */
+  .buttons-container > button:hover {
     background-color: var(--fieldColor2-b);
   }
 }
@@ -168,7 +171,7 @@ body {
   background-position: center;
   transition: all var(--transitionDuration) ease-in; /* --transitionDuration set in script*/
   z-index: 1;
-} 
+}
 
 .piece.grab {
   cursor: grab;
@@ -213,15 +216,22 @@ body {
   height: 80%;
   border-radius: 50%;
   position: absolute;
-  background: rgb(255,0,0);
-  background: radial-gradient(circle, rgba(255,0,0,0.8239670868347339) 0%, rgba(255,0,0,0.7819502801120448) 31%, rgba(0,0,0,0) 100%);
+  background: rgb(255, 0, 0);
+  background: radial-gradient(
+    circle,
+    rgba(255, 0, 0, 0.8239670868347339) 0%,
+    rgba(255, 0, 0, 0.7819502801120448) 31%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 .highlighted-field {
   background-color: hsla(0, 100%, 50%, 0.9);
 }
 
-.poss-move {background-color: unset;} /* used only in spript to delete elements */
+.poss-move {
+  background-color: unset;
+} /* used only in spript to delete elements */
 
 .poss-move-plain {
   position: absolute;
@@ -250,7 +260,7 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: calc(40%*1.41421356237); /* diagonal_length = box_width*sqrt(2) */
+  width: calc(40% * 1.41421356237); /* diagonal_length = box_width*sqrt(2) */
   height: 5px;
   border-radius: 27%;
   background-color: rgb(2, 165, 2);
@@ -267,7 +277,7 @@ body {
 
 .highlight-last-move {
   position: absolute;
-  background-color: #FA9038;
+  background-color: #fa9038;
   /* background-color: hsla(335, 100%, 50%, 0.6); */
   width: 100%;
   height: 100%;
@@ -292,7 +302,6 @@ body {
 .move-classification-blunder {
   --src: url(./images/move-blunder.png);
 }
-
 
 .row-col-highlight {
   width: 100%;
@@ -321,7 +330,7 @@ body {
 }
 
 .arrow-tail {
-  --halfOfFieldSize: ;  /* set in a script*/
+  --halfOfFieldSize: ; /* set in a script*/
   background-color: var(--arrowBgColor);
   position: absolute;
   bottom: 50%;
@@ -346,7 +355,7 @@ body {
   --widthOfFiveFields: ; /* set in a script*/
   --widthOfThreeFields: ; /* set in a script*/
   --quarterOfField: ; /* set in a script*/
-  width: 62.5%;  /* 5/8 */
+  width: 62.5%; /* 5/8 */
   height: 37.5%; /* 3/8 */
   padding-inline: 5%; /* 0.25/8 */
   position: absolute;

@@ -1,4 +1,5 @@
 # chess-game
+
 My chess game created in 2022
 and updated in 2024
 
@@ -20,4 +21,5 @@ and updated in 2024
 ```
 
 ### Hosting by Firebase
-- **adress**: https://chess-game-52e8e.web.app 
+
+- **adress**: https://chess-game-52e8e.web.app

@@ -6,7 +6,10 @@ import Dir from "../Dir";
 export default class Bishop extends Piece {
   public value: number = 3;
   public id: PIECES = PIECES.BISHOP;
-  constructor(readonly team: TEAMS, protected board: Board) {
+  constructor(
+    readonly team: TEAMS,
+    protected board: Board
+  ) {
     super(team, board);
     this.addClassName(this.id);
   }
@@ -14,13 +17,18 @@ export default class Bishop extends Piece {
   public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
     const enemyTeamNum = this.enemyTeamNum;
     let possibleMoves: Pos[] = [];
-    const directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
+    const directions = [
+      new Dir(1, 1),
+      new Dir(-1, -1),
+      new Dir(-1, 1),
+      new Dir(1, -1),
+    ];
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
       while (true) {
         const piece = this.board.el[tempPos.y][tempPos.x].piece;
-        if ( 
-          this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
+        if (
+          this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum &&
           !Piece.isKing(piece)
         ) {
           break;
@@ -35,7 +43,7 @@ export default class Bishop extends Piece {
           break;
         }
       }
-    };
+    }
     return possibleMoves;
   }
 
@@ -44,8 +52,16 @@ export default class Bishop extends Piece {
     const absPins = myKing.createArrOfAbsolutePins();
 
     let possibleMoves = [pos, ...this.createArrOfNormalMoves(pos)];
-    possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
-    possibleMoves = this.removePossMovesIfKingIsInCheck(possibleMoves, myKing, pos);
+    possibleMoves = this.substractAbsPinsFromPossMoves(
+      possibleMoves,
+      absPins,
+      pos
+    );
+    possibleMoves = this.removePossMovesIfKingIsInCheck(
+      possibleMoves,
+      myKing,
+      pos
+    );
 
     return possibleMoves;
   }
@@ -53,7 +69,12 @@ export default class Bishop extends Piece {
   private createArrOfNormalMoves(pos: Pos): Pos[] {
     const enemyTeamNum = this.enemyTeamNum;
     const moves: Pos[] = [];
-    const directions = [new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1)];
+    const directions = [
+      new Dir(1, 1),
+      new Dir(-1, -1),
+      new Dir(-1, 1),
+      new Dir(1, -1),
+    ];
 
     for (const dir of directions) {
       let tempPos = new Pos(pos.y, pos.x);
@@ -63,7 +84,7 @@ export default class Bishop extends Piece {
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if ( 
+        if (
           !Board.isPosIn(tempPos) ||
           this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
         ) {

@@ -3,24 +3,22 @@ import { FIELDS_IN_ONE_ROW } from "./board-components/Board";
 export const POS_OUT_OF_BOARD = -1;
 
 export default class Pos {
-  constructor(public y: number, public x: number) {}
+  constructor(
+    public y: number,
+    public x: number
+  ) {}
 
   public getInvertedProperly(isBoardInverted: boolean): Pos {
-    return (
-      (isBoardInverted) ?
-      new Pos(Pos.invertPosXOrY(this.y), Pos.invertPosXOrY(this.x)) :
-      new Pos(this.y, this.x)
-    );
+    return isBoardInverted
+      ? new Pos(Pos.invertPosXOrY(this.y), Pos.invertPosXOrY(this.x))
+      : new Pos(this.y, this.x);
   }
 
   public isEqualTo(pos: Pos): boolean {
-    return (
-      this.x === pos.x && 
-      this.y === pos.y
-    );
+    return this.x === pos.x && this.y === pos.y;
   }
 
   public static invertPosXOrY(posXOrY: number): number {
-    return FIELDS_IN_ONE_ROW-1-posXOrY;
+    return FIELDS_IN_ONE_ROW - 1 - posXOrY;
   }
 }

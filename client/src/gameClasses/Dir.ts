@@ -1,8 +1,8 @@
 export default class Dir {
   constructor(
-    public y: number, 
-    public x: number, 
-    simplifyXAndY?: boolean 
+    public y: number,
+    public x: number,
+    simplifyXAndY?: boolean
   ) {
     if (simplifyXAndY) {
       this.y = this.simplifyDir(y);
@@ -11,10 +11,7 @@ export default class Dir {
   }
 
   isEqualTo(dir: Dir) {
-    return (
-      this.x === dir.x && 
-      this.y === dir.y
-    );
+    return this.x === dir.x && this.y === dir.y;
   }
 
   simplifyDir(dirValue: number) {
@@ -25,5 +22,5 @@ export default class Dir {
       return -1;
     }
     return 0;
-  }  
+  }
 }

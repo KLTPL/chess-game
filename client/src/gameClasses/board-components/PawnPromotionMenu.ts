@@ -10,7 +10,10 @@ const CLASS_NAMES = {
 export default class PawnPromotionMenu {
   private html: HTMLElement;
   public playerIsChoosing: Promise<number>;
-  constructor(private team: TEAMS, private board: Board) {
+  constructor(
+    private team: TEAMS,
+    private board: Board
+  ) {
     const promotionOptions = this.createArrOfPromoteOptionsHtml();
     this.showOptionClassification(promotionOptions);
     this.html = this.createContainerHtml(promotionOptions);
@@ -18,7 +21,9 @@ export default class PawnPromotionMenu {
     this.playerIsChoosing = this.waitForPlayersDecision(promotionOptions);
   }
 
-  private createContainerHtml(promoteOptions: HTMLDivElement[]): HTMLDivElement {
+  private createContainerHtml(
+    promoteOptions: HTMLDivElement[]
+  ): HTMLDivElement {
     const container = document.createElement("div");
     container.classList.add(CLASS_NAMES.promotePopup);
 
@@ -30,13 +35,13 @@ export default class PawnPromotionMenu {
 
   private createArrOfPromoteOptionsHtml(): HTMLDivElement[] {
     const promoteOptionIds = [
-      PIECES.BISHOP, 
-      PIECES.KNIGHT, 
-      PIECES.ROOK, 
-      PIECES.QUEEN
+      PIECES.BISHOP,
+      PIECES.KNIGHT,
+      PIECES.ROOK,
+      PIECES.QUEEN,
     ];
 
-    return promoteOptionIds.map(id => {
+    return promoteOptionIds.map((id) => {
       const optionContainer = document.createElement("div");
       const optionPiece = this.createPromoteOptionHtml(id, this.team);
       optionPiece.dataset.optId = id.toString();
@@ -57,25 +62,35 @@ export default class PawnPromotionMenu {
   }
 
   private showOptionClassification(promotionOptions: HTMLDivElement[]) {
-    const isBlunder = Math.floor(Math.random()*2) === 0;
+    const isBlunder = Math.floor(Math.random() * 2) === 0;
     const classification = document.createElement("div");
     classification.classList.add(
-      CLASS_NAMES_FIELD.fieldMoveClassification, 
-      (isBlunder) ? CLASS_NAMES_FIELD.fieldBlunder : CLASS_NAMES_FIELD.fieldBrilliant
+      CLASS_NAMES_FIELD.fieldMoveClassification,
+      isBlunder
+        ? CLASS_NAMES_FIELD.fieldBlunder
+        : CLASS_NAMES_FIELD.fieldBrilliant
     );
-    (promotionOptions[Math.floor(Math.random()*promotionOptions.length)]
-      .querySelector(`.${CLASS_NAMES.promoteOption}`) as HTMLDivElement)
-      .append(classification);
+    (
+      promotionOptions[
+        Math.floor(Math.random() * promotionOptions.length)
+      ].querySelector(`.${CLASS_NAMES.promoteOption}`) as HTMLDivElement
+    ).append(classification);
   }
 
-  private waitForPlayersDecision(promoteOptionsHtml: HTMLDivElement[]): Promise<number> {
+  private waitForPlayersDecision(
+    promoteOptionsHtml: HTMLDivElement[]
+  ): Promise<number> {
     return new Promise<number>((resolve) => {
       for (const optHtml of promoteOptionsHtml) {
-        optHtml.addEventListener("click", ev => {
-          const target = ev.target as HTMLDivElement;
-          const chosenPieceNum = parseInt(target.dataset.optId as string)
-          resolve(chosenPieceNum);
-        }, {once: true});
+        optHtml.addEventListener(
+          "click",
+          (ev) => {
+            const target = ev.target as HTMLDivElement;
+            const chosenPieceNum = parseInt(target.dataset.optId as string);
+            resolve(chosenPieceNum);
+          },
+          { once: true }
+        );
       }
     });
   }
