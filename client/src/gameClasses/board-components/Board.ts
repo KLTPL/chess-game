@@ -1,20 +1,20 @@
-import Pos, { POS_OUT_OF_BOARD } from "../Pos.js";
-import Field, { CLASS_NAMES as CLASS_NAMES_FIELD } from "./Field.js";
-import Piece, { AnyPiece, PIECES, TEAMS, SelectedPieceInfo, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "../pieces/Piece.js";
-import Pawn from "../pieces/Pawn.js";
-import King from "../pieces/King.js";
-import Halfmove from "../Halfmove.js";
-import VisualizingSystem from "./VisualizingSystem.js";
-import PawnPromotionMenu from "./PawnPromotionMenu.js";
-import Match from "../Match.js";
-import FENNotation from "./FENNotation.js";
-import Rook from "../pieces/Rook.js";
-import Knight from "../pieces/Knight.js";
-import Bishop from "../pieces/Bishop.js";
-import Queen from "../pieces/Queen.js";
-import MovesSystem from "../MovesSystem.js";
-import AnalisisSystem, { BUTTON_ID_BACK, BUTTON_ID_FORWARD } from "./AnalisisSystem.js";
-import ShowEvetsOnBoard from "./ShowEventsOnBoard.js";
+import Pos, { POS_OUT_OF_BOARD } from "../Pos";
+import Field, { CLASS_NAMES as CLASS_NAMES_FIELD } from "./Field";
+import Piece, { type AnyPiece, PIECES, TEAMS, type SelectedPieceInfo, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE } from "../pieces/Piece";
+import Pawn from "../pieces/Pawn";
+import King from "../pieces/King";
+import Halfmove from "../Halfmove";
+import VisualizingSystem from "./VisualizingSystem";
+import PawnPromotionMenu from "./PawnPromotionMenu";
+import Match from "../Match";
+import FENNotation from "./FENNotation";
+import Rook from "../pieces/Rook";
+import Knight from "../pieces/Knight";
+import Bishop from "../pieces/Bishop";
+import Queen from "../pieces/Queen";
+import MovesSystem from "../MovesSystem";
+import AnalisisSystem, { BUTTON_ID_BACK, BUTTON_ID_FORWARD } from "./AnalisisSystem";
+import ShowEvetsOnBoard from "./ShowEventsOnBoard";
 
 export type ArrOfPieces2d = (AnyPiece|null)[][];
 

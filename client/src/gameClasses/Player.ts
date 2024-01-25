@@ -1,6 +1,6 @@
-import Board from "./board-components/Board.js";
-import Pos from "./Pos.js";
-import { TEAMS } from "./pieces/Piece.js";
+import Board from "./board-components/Board";
+import Pos from "./Pos";
+import { TEAMS } from "./pieces/Piece";
 
 export default class Player {
   public image: null;

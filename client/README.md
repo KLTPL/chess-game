@@ -1,12 +1,13 @@
 # chess-game
 My chess game created in 2022
+and updated in 2024
 
 ## Technologies Used
 
 - **Main Language**: vanila JS
-- **Bundler**: Vite
+- **Bundler**: Astro
 
-### Run the project
+### Run the project (in client directory)
 
 ```bash
   npm run dev

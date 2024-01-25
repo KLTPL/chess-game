@@ -1,6 +1,6 @@
-import { FIELDS_IN_ONE_ROW } from "./Board.js";
-import { AnyPiece } from "../pieces/Piece.js";
-import Pos from "../Pos.js";
+import { FIELDS_IN_ONE_ROW } from "./Board";
+import { type AnyPiece } from "../pieces/Piece";
+import Pos from "../Pos";
 
 export const CLASS_NAMES = {
   field: "field",

@@ -1,7 +1,7 @@
-import Board from "../board-components/Board.js";
-import Piece, { PIECES, TEAMS } from "./Piece.js";
-import Pos from "../Pos.js";
-import Dir from "../Dir.js";
+import Board from "../board-components/Board";
+import Piece, { PIECES, TEAMS } from "./Piece";
+import Pos from "../Pos";
+import Dir from "../Dir";
 
 export default class Queen extends Piece {
   public value: number = 9;

@@ -1,0 +1,13 @@
+---
+import MainLayout from "../../layouts/main-layout.astro";
+---
+
+<MainLayout title="Gra lokalna">
+	<div class="container" data-container></div>
+</MainLayout>
+
+<script>
+  import { startGame } from "../../app";
+  console.log("script")
+  startGame("[data-container]");
+</script>

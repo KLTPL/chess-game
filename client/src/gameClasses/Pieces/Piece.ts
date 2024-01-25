@@ -1,13 +1,13 @@
-import Board, { hold } from "../board-components/Board.js";
-import Pos from "../Pos.js";
-import Dir from "../Dir.js";
-import King from "./King.js";
-import Check from "../Check.js";
-import Pawn from "./Pawn.js";
-import Rook from "./Rook.js";
-import Knight from "./Knight.js";
-import Bishop from "./Bishop.js";
-import Queen from "./Queen.js";
+import Board, { hold } from "../board-components/Board";
+import Pos from "../Pos";
+import Dir from "../Dir";
+import Check from "../Check";
+import type King from "./King";
+import type Pawn from "./Pawn";
+import type Rook from "./Rook";
+import type Knight from "./Knight";
+import type Bishop from "./Bishop";
+import type Queen from "./Queen";
 
 export type AnyPiece = (Pawn|Rook|Knight|Bishop|Queen|King);
 
