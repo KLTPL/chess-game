@@ -7,7 +7,10 @@ export default class Rook extends Piece {
   public value: number = 5;
   public id: PIECES = PIECES.ROOK;
   public isBeforeAnyMove: boolean = true;
-  constructor(readonly team: TEAMS, protected board: Board) {
+  constructor(
+    readonly team: TEAMS,
+    protected board: Board
+  ) {
     super(team, board);
     this.addClassName(this.id);
   }
@@ -15,12 +18,17 @@ export default class Rook extends Piece {
   public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
     const enemyTeamNum = this.enemyTeamNum;
     const possibleMoves: Pos[] = [];
-    const directions = [new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)];
+    const directions = [
+      new Dir(1, 0),
+      new Dir(-1, 0),
+      new Dir(0, 1),
+      new Dir(0, -1),
+    ];
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
       while (true) {
-        if( 
-          this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
+        if (
+          this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum &&
           !Piece.isKing(this.board.el[tempPos.y][tempPos.x].piece)
         ) {
           break;
@@ -44,15 +52,28 @@ export default class Rook extends Piece {
     const absPins = myKing.createArrOfAbsolutePins();
 
     let possibleMoves = [pos, ...this.createArrOfNormalMoves(pos)];
-    possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
-    possibleMoves = this.removePossMovesIfKingIsInCheck(possibleMoves, myKing, pos);
+    possibleMoves = this.substractAbsPinsFromPossMoves(
+      possibleMoves,
+      absPins,
+      pos
+    );
+    possibleMoves = this.removePossMovesIfKingIsInCheck(
+      possibleMoves,
+      myKing,
+      pos
+    );
 
     return possibleMoves;
   }
 
   private createArrOfNormalMoves(pos: Pos): Pos[] {
     const enemyTeamNum = this.enemyTeamNum;
-    const directions = [new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)];
+    const directions = [
+      new Dir(1, 0),
+      new Dir(-1, 0),
+      new Dir(0, 1),
+      new Dir(0, -1),
+    ];
     const moves: Pos[] = [];
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
@@ -62,7 +83,7 @@ export default class Rook extends Piece {
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if( 
+        if (
           !Board.isPosIn(tempPos) ||
           this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
         ) {

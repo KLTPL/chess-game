@@ -6,9 +6,7 @@ import Halfmove from "./Halfmove";
 export default class MovesSystem {
   readonly halfmoves: Halfmove[] = [];
   // private currMoveNum = 0;
-  constructor(/*private board: Board*/) {
-    
-  } 
+  constructor(/*private board: Board*/) {}
 
   public pushNewHalfmove(halfmove: Halfmove): void {
     this.halfmoves.push(halfmove);
@@ -18,9 +16,9 @@ export default class MovesSystem {
   public isThereAtLeastOneHalfMove(): boolean {
     return this.halfmoves.length > 0;
   }
-  
+
   public getLatestHalfmove(): Halfmove {
-    return this.halfmoves[this.halfmoves.length-1];
+    return this.halfmoves[this.halfmoves.length - 1];
   }
 
   // private goBackOneHalfmove() {

@@ -6,7 +6,10 @@ import Dir from "../Dir";
 export default class Queen extends Piece {
   public value: number = 9;
   public id: PIECES = PIECES.QUEEN;
-  constructor(readonly team: TEAMS, protected board: Board) {
+  constructor(
+    readonly team: TEAMS,
+    protected board: Board
+  ) {
     super(team, board);
 
     this.addClassName(this.id);
@@ -16,14 +19,20 @@ export default class Queen extends Piece {
     const enemyTeamNum = this.enemyTeamNum;
     const possibleMoves: Pos[] = [];
     const directions = [
-      new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
-      new Dir(1,0), new Dir(-1,0), new Dir(0,1), new Dir(0,-1)
+      new Dir(1, 1),
+      new Dir(-1, -1),
+      new Dir(-1, 1),
+      new Dir(1, -1),
+      new Dir(1, 0),
+      new Dir(-1, 0),
+      new Dir(0, 1),
+      new Dir(0, -1),
     ];
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
       while (true) {
-        if ( 
-          this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum && 
+        if (
+          this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum &&
           !Piece.isKing(this.board.el[tempPos.y][tempPos.x].piece)
         ) {
           break;
@@ -40,15 +49,22 @@ export default class Queen extends Piece {
       }
     }
     return possibleMoves;
-
   }
   public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
     const myKing = this.board.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
     let possibleMoves = [pos, ...this.createArrOfNormalMoves(pos)];
-    possibleMoves = this.substractAbsPinsFromPossMoves(possibleMoves, absPins, pos);
-    possibleMoves = this.removePossMovesIfKingIsInCheck(possibleMoves, myKing, pos);
+    possibleMoves = this.substractAbsPinsFromPossMoves(
+      possibleMoves,
+      absPins,
+      pos
+    );
+    possibleMoves = this.removePossMovesIfKingIsInCheck(
+      possibleMoves,
+      myKing,
+      pos
+    );
 
     return possibleMoves;
   }
@@ -56,8 +72,14 @@ export default class Queen extends Piece {
   private createArrOfNormalMoves(pos: Pos): Pos[] {
     const enemyTeamNum = this.enemyTeamNum;
     const directions = [
-      new Dir(1,1), new Dir(-1,-1), new Dir(-1,1), new Dir(1,-1),
-      new Dir(1,0), new Dir(-1, 0), new Dir(0, 1), new Dir(0,-1)
+      new Dir(1, 1),
+      new Dir(-1, -1),
+      new Dir(-1, 1),
+      new Dir(1, -1),
+      new Dir(1, 0),
+      new Dir(-1, 0),
+      new Dir(0, 1),
+      new Dir(0, -1),
     ];
     const moves: Pos[] = [];
     for (const dir of directions) {
@@ -68,13 +90,13 @@ export default class Queen extends Piece {
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if( 
+        if (
           !Board.isPosIn(tempPos) ||
           this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
         ) {
           break;
         }
-        moves.push(new Pos(tempPos.y, tempPos.x) );
+        moves.push(new Pos(tempPos.y, tempPos.x));
       }
     }
     return moves;

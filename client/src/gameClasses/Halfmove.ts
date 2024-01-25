@@ -3,25 +3,25 @@ import Rook from "./pieces/Rook";
 import Pos from "./Pos";
 
 export default class Halfmove {
-  private promotedTo: (AnyPiece|null) = null;
+  private promotedTo: AnyPiece | null = null;
   constructor(
-    readonly piece: AnyPiece, 
-    readonly from: Pos, 
-    readonly to: Pos, 
-    readonly capturedPiece: (AnyPiece|null),
-    readonly posOfKingChecked: null|Pos,
-    readonly rookThatCastled: null|Rook,
+    readonly piece: AnyPiece,
+    readonly from: Pos,
+    readonly to: Pos,
+    readonly capturedPiece: AnyPiece | null,
+    readonly posOfKingChecked: null | Pos,
+    readonly rookThatCastled: null | Rook
   ) {}
 
   public isCheck(): boolean {
-    return (this.posOfKingChecked !== null);
+    return this.posOfKingChecked !== null;
   }
 
   public isCastle(): boolean {
-    return (this.rookThatCastled !== null);
+    return this.rookThatCastled !== null;
   }
 
-  public getPromotedTo(): (AnyPiece|null) {
+  public getPromotedTo(): AnyPiece | null {
     return this.promotedTo;
   }
 
