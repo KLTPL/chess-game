@@ -109,7 +109,12 @@ export default class Board {
     new VisualizingSystem(this);
     this.analisisSystem = new AnalisisSystem(this);
 
-    window.addEventListener("resize", this.handleOnResize);
+    window.addEventListener("resize", () => {
+      this.resizeHtml();
+      this.positionHtmlProperly();
+      this.setCssVariables();
+      this.positionAllPiecesHtmlsProperly();
+    });
 
     const kings = this.createKingsObj(pieces);
     const isThereExaclyTwoKingsOfOppositeTeam = kings !== null;
@@ -131,13 +136,6 @@ export default class Board {
     if (this.isDrawByInsufficientMaterial()) {
       setTimeout(() => this.match.end({ cousedBy: null, type: "draw" }));
     }
-  }
-
-  private handleOnResize(): void {
-    this.resizeHtml();
-    this.positionHtmlProperly();
-    this.setCssVariables();
-    this.positionAllPiecesHtmlsProperly();
   }
 
   private createBoardContainer(): HTMLDivElement {
