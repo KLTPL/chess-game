@@ -1,6 +1,5 @@
 import Match, { type PlayerArg, type BoardArg } from "./gameClasses/Match";
 import { TEAMS } from "./gameClasses/pieces/Piece";
-import "./styles.css";
 
 let customStartPos: null | string = null;
 // customStartPos = "4k2r/Pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";

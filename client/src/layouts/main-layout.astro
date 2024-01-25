@@ -1,6 +1,7 @@
 ---
 // import BaseHead from '../components/BaseHead.astro';
 // import Footer from '../components/Footer.astro';
+import "../styles/styles.css";
 const { title } = Astro.props;
 ---
 
@@ -10,10 +11,11 @@ const { title } = Astro.props;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
+		
 		<title>{ title }</title>
 	</head>
 	<body>
-		<div data-page-container>
+		<div data-page-container class="container">
 			<h1 style="position: absolute;">{ title }</h1>
     	<slot />
 		</div>
