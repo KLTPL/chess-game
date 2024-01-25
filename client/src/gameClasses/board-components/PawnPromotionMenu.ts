@@ -1,6 +1,6 @@
-import Board from "./Board.js";
-import Piece, { PIECES, TEAMS } from "../pieces/Piece.js";
-import { CLASS_NAMES as CLASS_NAMES_FIELD } from "./Field.js";
+import Board from "./Board";
+import Piece, { PIECES, TEAMS } from "../pieces/Piece";
+import { CLASS_NAMES as CLASS_NAMES_FIELD } from "./Field";
 
 const CLASS_NAMES = {
   promotePopup: "promote-popup",

@@ -1,9 +1,9 @@
-import Board, { FIELDS_IN_ONE_ROW } from "../board-components/Board.js";
-import Piece, { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT, PIECES, TEAMS, Pin, AnyPiece } from "./Piece.js";
-import Rook from "./Rook.js";
-import Pos, { POS_OUT_OF_BOARD } from "../Pos.js";
-import Dir from "../Dir.js";
-import Check from "../Check.js";
+import Board, { FIELDS_IN_ONE_ROW } from "../board-components/Board";
+import Piece, { CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT, PIECES, TEAMS, type Pin, type AnyPiece } from "./Piece";
+import Rook from "./Rook";
+import Pos, { POS_OUT_OF_BOARD } from "../Pos";
+import Dir from "../Dir";
+import Check from "../Check";
 
 export type CastleRights = {
   isAllowedKingSide: boolean,

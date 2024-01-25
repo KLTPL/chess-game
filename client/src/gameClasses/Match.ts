@@ -1,7 +1,7 @@
-import Board from "./board-components/Board.js";
-import Player from "./Player.js";
-import Halfmove from "./Halfmove.js";
-import { TEAMS } from "./pieces/Piece.js";
+import Board from "./board-components/Board";
+import Player from "./Player";
+import Halfmove from "./Halfmove";
+import { TEAMS } from "./pieces/Piece";
 
 type EndInfo = {
   cousedBy: Player|null;

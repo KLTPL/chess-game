@@ -1,11 +1,11 @@
-import Match, { PlayerArg, BoardArg } from "./gameClasses/Match.js";
-import { TEAMS } from "./gameClasses/pieces/Piece.js";
+import Match, { type PlayerArg, type BoardArg } from "./gameClasses/Match";
+import { TEAMS } from "./gameClasses/pieces/Piece";
 import "./styles.css";
 
 let customStartPos: (null|string) = null;
 // customStartPos = "4k2r/Pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1";
 
-function startGame() {
+export function startGame(htmlPageContainerQSelector: string) {
   const player1Arg: PlayerArg = {
     name: "white",
     image: null,
@@ -21,12 +21,11 @@ function startGame() {
   };
 
   const boardArg: BoardArg = {
-    htmlPageContainerQSelector: "[data-container]",
+    htmlPageContainerQSelector,
     customPositionFEN: customStartPos,
   };
   new Match(player1Arg, player2Arg, boardArg);
 }
-startGame();
 
 // function getRandomColor() {
 //   switch(Math.floor(Math.random()*9)) {

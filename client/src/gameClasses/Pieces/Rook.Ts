@@ -1,7 +1,7 @@
-import Board from "../board-components/Board.js";
-import Piece, { PIECES, TEAMS } from "./Piece.js";
-import Pos from "../Pos.js";
-import Dir from "../Dir.js";
+import Board from "../board-components/Board";
+import Piece, { PIECES, TEAMS } from "./Piece";
+import Pos from "../Pos";
+import Dir from "../Dir";
 
 export default class Rook extends Piece {
   public value: number = 5;
@@ -9,7 +9,6 @@ export default class Rook extends Piece {
   public isBeforeAnyMove: boolean = true;
   constructor(readonly team: TEAMS, protected board: Board) {
     super(team, board);
-
     this.addClassName(this.id);
   }
 

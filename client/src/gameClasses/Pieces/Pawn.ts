@@ -1,7 +1,7 @@
-import Board, { FIELDS_IN_ONE_ROW } from "../board-components/Board.js";
-import Piece, { AnyPiece, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, PIECES, TEAMS } from "./Piece.js";
-import Pos from "../Pos.js";
-import PawnPromotionMenu from "../board-components/PawnPromotionMenu.js";
+import Board, { FIELDS_IN_ONE_ROW } from "../board-components/Board";
+import Piece, { type AnyPiece, CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE, PIECES, TEAMS } from "./Piece";
+import Pos from "../Pos";
+import PawnPromotionMenu from "../board-components/PawnPromotionMenu";
 
 export default class Pawn extends Piece {
   public value: number = 1;
