@@ -1,4 +1,4 @@
-import Board from "../board-components/Board";
+import Board, { FIELDS_IN_ONE_ROW } from "../board-components/Board";
 import Piece, { PIECES, TEAMS } from "./Piece";
 import Pos from "../Pos";
 import Dir from "../Dir";
@@ -6,7 +6,6 @@ import Dir from "../Dir";
 export default class Rook extends Piece {
   public value: number = 5;
   public id: PIECES = PIECES.ROOK;
-  public isBeforeAnyMove: boolean = true;
   constructor(
     readonly team: TEAMS,
     protected board: Board
@@ -95,9 +94,17 @@ export default class Rook extends Piece {
     return moves;
   }
 
-  public sideEffectsOfMove(): void {
-    if (this.isBeforeAnyMove) {
-      this.isBeforeAnyMove = false;
+  public sideEffectsOfMove(to: Pos, from: Pos): void {
+    const castlingRights = this.board.getCastlingRightsByTeam(this.isWhite());
+
+    const posXStartKingSide = FIELDS_IN_ONE_ROW - 1; // it's the same for white and black
+    const posXStartQueenSide = 0; // it's the same for white and black
+
+    if (castlingRights.k && from.x === posXStartKingSide) {
+      castlingRights.k = false;
+    }
+    if (castlingRights.q && from.x === posXStartQueenSide) {
+      castlingRights.q = false;
     }
   }
 }

@@ -33,6 +33,16 @@ type KingsObj = {
   black: King;
 };
 
+type KingCastlingRights = {
+  k: boolean;
+  q: boolean;
+};
+
+export type CastlingRights = {
+  white: KingCastlingRights;
+  black: KingCastlingRights;
+};
+
 export const hold = (
   element: HTMLElement,
   rejectEventType: string,
@@ -65,7 +75,6 @@ const CLASS_NAMES = {
 };
 
 export default class Board {
-  public startFENNotation: FENNotation;
   public currTeam: TEAMS;
   public el: Field[][] = [];
   public html: HTMLDivElement = this.createBoardContainer();
@@ -79,13 +88,15 @@ export default class Board {
   public showEventsOnBoard: ShowEvetsOnBoard = new ShowEvetsOnBoard(this);
   public analisisSystem: AnalisisSystem;
   private kings: KingsObj;
+  private castlingRights: CastlingRights;
   constructor(
     htmlPageContainerQSelector: string,
     customPositionFEN: string | null,
     public match: Match
   ) {
-    this.startFENNotation = new FENNotation(customPositionFEN, this);
-    this.currTeam = this.startFENNotation.activeColorConverted;
+    const startFENNotation = new FENNotation(customPositionFEN, this);
+    this.currTeam = startFENNotation.activeColorConverted;
+    this.castlingRights = startFENNotation.castlingRightsConverted;
     this.isInverted = this.currTeam !== TEAMS.WHITE;
     this.pageContainerHtml = document.querySelector(
       htmlPageContainerQSelector
@@ -100,7 +111,7 @@ export default class Board {
     this.positionHtmlProperly();
 
     this.el = this.createFieldsArr();
-    const pieces = this.startFENNotation.piecePlacementConverted;
+    const pieces = startFENNotation.piecePlacementConverted;
 
     this.placePieces(pieces);
     if (this.isInverted) {
@@ -346,11 +357,7 @@ export default class Board {
     this.el[pos.y][pos.x].setPiece(null);
   }
 
-  public getKingByTeam(team: TEAMS) {
-    return team === TEAMS.WHITE ? this.kings.white : this.kings.black;
-  }
-
-  public createKingsObj(pieces: ArrOfPieces2d): KingsObj | null {
+  private createKingsObj(pieces: ArrOfPieces2d): KingsObj | null {
     let kingWhite: null | King = null;
     let kingBlack: null | King = null;
     for (let r = 0; r < pieces.length; r++) {
@@ -377,11 +384,6 @@ export default class Board {
     return kingWhite === null || kingBlack === null
       ? null
       : { white: kingWhite, black: kingBlack };
-  }
-  public getKingPosByTeam(team: TEAMS): Pos {
-    return (
-      team === TEAMS.WHITE ? this.kings.white.pos : this.kings.black.pos
-    ).getInvertedProperly(this.isInverted);
   }
 
   private invert(): void {
@@ -666,6 +668,18 @@ export default class Board {
       }
     }
     return null;
+  }
+
+  public getKingByTeam(team: TEAMS): King {
+    return team === TEAMS.WHITE ? this.kings.white : this.kings.black;
+  }
+
+  public getKingPosByTeam(team: TEAMS): Pos {
+    return this.getKingByTeam(team).pos.getInvertedProperly(this.isInverted);
+  }
+
+  public getCastlingRightsByTeam(isWhite: boolean): KingCastlingRights {
+    return isWhite ? this.castlingRights.white : this.castlingRights.black;
   }
 
   get startQueenPosWhite(): Pos {

@@ -20,16 +20,11 @@ export default class King extends Piece {
   public value: number = 0;
   public id: PIECES = PIECES.KING;
   public pos = new Pos(POS_OUT_OF_BOARD, POS_OUT_OF_BOARD);
-  private isBeforeAnyMove: boolean = true;
-  private castleRights: CastleRights;
   constructor(
     readonly team: TEAMS,
     protected board: Board
   ) {
     super(team, board);
-    const castleRights = this.board.startFENNotation.castlingRightsConverted;
-    this.castleRights =
-      this.team === TEAMS.WHITE ? castleRights.white : castleRights.black;
 
     this.addClassName(this.id);
   }
@@ -104,14 +99,13 @@ export default class King extends Piece {
   }
 
   private createArrOfPossibleCastleDir(pos: Pos): Dir[] {
-    if (!this.isBeforeAnyMove || !this.isKingInStartPos(pos)) {
+    const castlingRights = this.board.getCastlingRightsByTeam(this.isWhite());
+    if (!castlingRights.k && !castlingRights.q) {
       return [];
     }
 
     return [new Dir(0, 1), new Dir(0, -1)].filter((dir) => {
       const currentRookXPos = dir.x > 0 ? FIELDS_IN_ONE_ROW - 1 : 0;
-      const currentRook = this.board.el[pos.y][currentRookXPos]
-        .piece as Rook | null;
       const move1 = new Pos(pos.y, pos.x + dir.x);
       const move2 = new Pos(pos.y, pos.x + dir.x * 2);
       const moves = [move1, move2];
@@ -122,7 +116,6 @@ export default class King extends Piece {
       ); // sometimes 2 fields, sometimes 3
       return (
         this.isKingRightToCastle(move2.x, pos.x) &&
-        currentRook?.isBeforeAnyMove &&
         fieldsXPos.filter((xPos) => this.board.el[pos.y][xPos].piece === null)
           .length === fieldsXPos.length &&
         this.filterMovesSoKingCantMoveIntoCheck(moves).length === moves.length
@@ -130,29 +123,19 @@ export default class King extends Piece {
     });
   }
 
-  private isKingInStartPos(pos: Pos): boolean {
-    const startPos =
-      this.team === TEAMS.WHITE
-        ? this.board.startKingPosWhite
-        : this.board.startKingPosBlack;
-    return pos.isEqualTo(startPos);
-  }
-
   private isKingRightToCastle(
     castleMoveX: number,
     startKingXPos: number
   ): boolean {
     const b = this.board;
-    const startQueenXPos =
-      this.team === TEAMS.WHITE
-        ? b.startQueenPosWhite.x
-        : b.startQueenPosBlack.x;
+    const castlingRights = b.getCastlingRightsByTeam(this.isWhite());
+    const startQueenXPos = this.isWhite()
+      ? b.startQueenPosWhite.x
+      : b.startQueenPosBlack.x;
     const isCastleKingSide =
       Math.abs(castleMoveX - startQueenXPos) >
       Math.abs(castleMoveX - startKingXPos);
-    return isCastleKingSide
-      ? this.castleRights.isAllowedKingSide
-      : this.castleRights.isAllowedQueenSide;
+    return isCastleKingSide ? castlingRights.k : castlingRights.q;
   }
 
   private createArrOfFieldsXPosBetweenKingAndRook(
@@ -265,11 +248,17 @@ export default class King extends Piece {
   }
 
   public sideEffectsOfMove(to: Pos, from: Pos): void {
-    if (this.isBeforeAnyMove) {
-      this.isBeforeAnyMove = false;
+    const b = this.board;
+    const castlingRights = b.getCastlingRightsByTeam(this.isWhite());
+
+    if (castlingRights.k) {
+      castlingRights.k = false;
+    }
+    if (castlingRights.q) {
+      castlingRights.q = false;
     }
 
-    this.pos = to.getInvertedProperly(this.board.isInverted);
+    this.pos = to.getInvertedProperly(b.isInverted);
     // castle
     const moveIsCastle = Math.abs(from.x - to.x) > 1;
     if (moveIsCastle) {
@@ -278,10 +267,9 @@ export default class King extends Piece {
       const rookXPos = isCastleToRight ? FIELDS_IN_ONE_ROW - 1 : 0;
       const oldRookPos = new Pos(from.y, rookXPos);
       const newRookPos = new Pos(to.y, to.x + castleDir.x * -1);
-      const movingRook = this.board.el[oldRookPos.y][oldRookPos.x]
-        .piece as AnyPiece;
-      this.board.removePieceInPos(oldRookPos, false);
-      this.board.placePieceInPos(
+      const movingRook = b.el[oldRookPos.y][oldRookPos.x].piece as AnyPiece;
+      b.removePieceInPos(oldRookPos, false);
+      b.placePieceInPos(
         newRookPos,
         movingRook,
         CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT * 3.5,

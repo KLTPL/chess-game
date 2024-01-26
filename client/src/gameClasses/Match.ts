@@ -55,7 +55,7 @@ export default class Match {
   }
 
   public checkIfGameShouldEndAfterMove(move: Halfmove): void {
-    const isItWhitesMove = move.piece.team === TEAMS.WHITE;
+    const isItWhitesMove = move.piece.isWhite();
     const playerWhoMadeMove = isItWhitesMove
       ? this.players.white
       : this.players.black;

@@ -397,8 +397,12 @@ export default abstract class Piece {
     return isCapture || isOnTheLine;
   }
 
+  public isWhite(): boolean {
+    return this.team === TEAMS.WHITE;
+  }
+
   public get enemyTeamNum(): TEAMS.BLACK | TEAMS.WHITE {
-    return this.team === TEAMS.WHITE ? TEAMS.BLACK : TEAMS.WHITE;
+    return this.isWhite() ? TEAMS.BLACK : TEAMS.WHITE;
   }
 
   public static getClassNameByPiece(

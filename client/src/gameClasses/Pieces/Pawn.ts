@@ -11,13 +11,13 @@ import PawnPromotionMenu from "../board-components/PawnPromotionMenu";
 export default class Pawn extends Piece {
   public value: number = 1;
   public id: PIECES = PIECES.PAWN;
-  directionY: number;
+  private directionY: number;
   constructor(
     readonly team: TEAMS,
     protected board: Board
   ) {
     super(team, board);
-    this.directionY = this.team === TEAMS.WHITE ? -1 : 1; // direction up or down
+    this.directionY = this.isWhite() ? -1 : 1; // direction up or down
     this.addClassName(this.id);
   }
 
