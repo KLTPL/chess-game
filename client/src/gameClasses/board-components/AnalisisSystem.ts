@@ -16,8 +16,8 @@ const MOVE_0_INDEX = -1;
 export default class AnalisisSystem {
   private currHalfmoveIndex: number | null = null; // null means latest halfmove so user is not analising
   constructor(private board: Board) {
-    this.board.piecesHtml.addEventListener("pointerdown", () => {
-      if (this.isUserAnalising()) {
+    this.board.piecesHtml.addEventListener("pointerdown", (ev) => {
+      if (ev.button === 0 && this.isUserAnalising()) {
         this.goBackToCurrMoveIfUserIsAnalising();
       }
     });
