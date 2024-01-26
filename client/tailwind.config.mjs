@@ -7,6 +7,15 @@ export default {
       fontFamily: {
         poppins: ["Poppins", ...defaultTheme.fontFamily.serif],
       },
+      colors: {
+        primary: "#016779",
+        "primary-b": "#028197",
+        "primary-d": "#015665",
+        "primary-alt": "#008573",
+        secondary: "#ff4400e6",
+        bg1: "#212326",
+        text1: "#ffffff",
+      },
     },
   },
   plugins: [],
