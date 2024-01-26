@@ -1,10 +1,10 @@
 ---
-import MainLayout from "../../layouts/main-layout.astro";
+import MainLayout from "../layouts/main-layout.astro";
 ---
 
 <MainLayout title="Gra lokalna" />
 
 <script>
-  import { startGame } from "../../app";
+  import { startGame } from "../app";
   startGame("[data-page-container]");
 </script>
