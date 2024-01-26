@@ -1,5 +1,9 @@
 import { type AnyPiece, PIECES, TEAMS } from "../pieces/Piece";
-import { type ArrOfPieces2d, FIELDS_IN_ONE_ROW } from "./Board";
+import {
+  type ArrOfPieces2d,
+  type CastlingRights,
+  FIELDS_IN_ONE_ROW,
+} from "./Board";
 import Board from "./Board";
 import { type CastleRights } from "../pieces/King";
 
@@ -94,15 +98,15 @@ export default class FENNotation {
     return this.activeColor === "b" ? TEAMS.BLACK : TEAMS.WHITE;
   }
 
-  get castlingRightsConverted(): { white: CastleRights; black: CastleRights } {
+  get castlingRightsConverted(): CastlingRights {
     return {
       white: {
-        isAllowedKingSide: this.castlingRights.includes("K"),
-        isAllowedQueenSide: this.castlingRights.includes("Q"),
+        k: this.castlingRights.includes("K"),
+        q: this.castlingRights.includes("Q"),
       },
       black: {
-        isAllowedKingSide: this.castlingRights.includes("k"),
-        isAllowedQueenSide: this.castlingRights.includes("q"),
+        k: this.castlingRights.includes("k"),
+        q: this.castlingRights.includes("q"),
       },
     };
   }
