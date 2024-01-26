@@ -88,15 +88,22 @@ export default class VisualizingSystem {
   }
 
   private toggleHighlightOnFieldOnPos(pos: Pos): void {
-    this.board.el[pos.y][pos.x].html.classList.toggle(
-      HIGHLIGHT_FIELD_CLASS_NAME
+    const el = this.board.el[pos.y][pos.x].html.querySelector(
+      `.${HIGHLIGHT_FIELD_CLASS_NAME}`
     );
+    if (el !== null) {
+      el.remove();
+    } else {
+      const div = document.createElement("div");
+      div.classList.add(HIGHLIGHT_FIELD_CLASS_NAME);
+      this.board.el[pos.y][pos.x].html.append(div);
+    }
   }
 
   private removeHighlightFromAllFields(): void {
     const fields = document.getElementsByClassName(HIGHLIGHT_FIELD_CLASS_NAME);
     for (let i = 0; i < fields.length; i++) {
-      fields[i].classList.remove(HIGHLIGHT_FIELD_CLASS_NAME);
+      fields[i]?.remove();
       i--;
     }
   }
