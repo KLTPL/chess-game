@@ -146,17 +146,18 @@ export default class AnalisisSystem {
         true
       );
     }
-    if (moveToReverse.isCastle()) {
+    if (moveToReverse.isCastling) {
       const fromX = from.x;
       const toX = to.x;
       const castleXDir = toX - fromX > 0 ? 1 : -1;
       const currRookPos = new Pos(to.y, toX - castleXDir);
       const rookStartPosX = castleXDir > 0 ? FIELDS_IN_ONE_ROW - 1 : 0;
       const rookStartPos = new Pos(to.y, rookStartPosX);
+      const currRook = board.el[currRookPos.y][currRookPos.x].piece;
       board.removePieceInPos(currRookPos, false);
       board.placePieceInPos(
         rookStartPos,
-        moveToReverse.rookThatCastled,
+        currRook,
         CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT * 3.5,
         false
       );
@@ -229,17 +230,18 @@ export default class AnalisisSystem {
       cssPieceTransitionDelayMs,
       isPiecePromoted
     );
-    if (moveToDo.isCastle()) {
+    if (moveToDo.isCastling) {
       // castle
       const fromX = from.x;
       const toX = to.x;
       const castleXDir = toX - fromX > 0 ? 1 : -1;
       const currRookPosX = castleXDir > 0 ? FIELDS_IN_ONE_ROW - 1 : 0;
       const rookPosXAfter = toX - castleXDir;
+      const currRook = board.el[to.y][currRookPosX].piece;
       board.removePieceInPos(new Pos(to.y, currRookPosX), false);
       board.placePieceInPos(
         new Pos(to.y, rookPosXAfter),
-        moveToDo.rookThatCastled,
+        currRook,
         CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT * 3.5,
         false
       );

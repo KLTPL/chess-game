@@ -10,15 +10,11 @@ export default class Halfmove {
     readonly to: Pos,
     readonly capturedPiece: AnyPiece | null,
     readonly posOfKingChecked: null | Pos,
-    readonly rookThatCastled: null | Rook
+    readonly isCastling: boolean
   ) {}
 
   public isCheck(): boolean {
     return this.posOfKingChecked !== null;
-  }
-
-  public isCastle(): boolean {
-    return this.rookThatCastled !== null;
   }
 
   public getPromotedTo(): AnyPiece | null {

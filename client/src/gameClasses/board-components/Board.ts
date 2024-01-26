@@ -317,7 +317,7 @@ export default class Board {
         to.getInvertedProperly(this.isInverted),
         capturedPiece,
         enemyKing.isInCheck() ? enemyKing.pos : null,
-        this.getRookIfKingCastled(piece, from, to)
+        Piece.isKing(piece) && King.isMoveCastling(from, to)
       )
     );
     const afterMoveIsFinished = () => {
@@ -335,19 +335,6 @@ export default class Board {
     } else {
       afterMoveIsFinished();
     }
-  }
-
-  private getRookIfKingCastled(
-    piece: AnyPiece,
-    from: Pos,
-    to: Pos
-  ): Rook | null {
-    if (!Piece.isKing(piece) || Math.abs(from.x - to.x) < 2) {
-      return null;
-    }
-    const castleXDir = to.x - from.x > 0 ? 1 : -1;
-    const currRookPos = new Pos(to.y, to.x - castleXDir);
-    return this.el[currRookPos.y][currRookPos.x].piece as Rook;
   }
 
   public removePieceInPos(pos: Pos, removeHtml: boolean) {
