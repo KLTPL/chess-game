@@ -1,15 +1,14 @@
 :root {
-  --fieldColor1: hsl(0, 0%, 100%);
-  --fieldColor2: hsl(189, 98%, 24%);
-  --fieldColor2-b: hsla(189, 98%, 30%);
-  --fieldColor2-d: hsla(189, 98%, 20%);
-  --fieldBoxShadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  --arrowBgColor: hsla(16, 100%, 50%, 0.9);
-  --popupColor: hsl(60, 56%, 91%);
-  --popupBoxShadow: 0 5px 15px hsla(0, 0%, 0%, 0.904);
-  --possMovePlainCol: rgba(0, 0, 0, 0.7);
-  --box-shadow-field-under-piece: 0 0 10px 0 hsla(173, 26%, 18%, 0.582),
-    inset 0 0 0 5px hsl(172, 100%, 26%);
+  --fieldColor1: #ffffff;
+  --fieldColor2: #016779;
+  --fieldColor2-b: #028097;
+  --fieldColor2-d: #015665;
+  --fieldBoxShadow: 0 0 10px #00000080;
+  --arrowBgColor: #ff4400e6;
+  --popupColor: #f5f5db;
+  --popupBoxShadow: 0 5px 15px #000000e7;
+  --possMovePlainCol: #000000b3;
+  --box-shadow-field-under-piece: 0 0 10px 0 #223a3794, inset 0 0 0 5px #008573;
 
   /* each set in a script*/
   --pieceSize: 100%;
