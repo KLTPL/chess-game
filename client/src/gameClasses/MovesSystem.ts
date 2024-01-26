@@ -9,6 +9,7 @@ export default class MovesSystem {
   constructor(/*private board: Board*/) {}
 
   public pushNewHalfmove(halfmove: Halfmove): void {
+    console.log(halfmove.isCastling);
     this.halfmoves.push(halfmove);
     // this.currMoveNum = this.halfmoves.length;
   }

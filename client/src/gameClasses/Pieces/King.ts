@@ -260,8 +260,7 @@ export default class King extends Piece {
 
     this.pos = to.getInvertedProperly(b.isInverted);
     // castle
-    const moveIsCastle = Math.abs(from.x - to.x) > 1;
-    if (moveIsCastle) {
+    if (King.isMoveCastling(from, to)) {
       const castleDir = new Dir(0, to.x - from.x, true);
       const isCastleToRight = castleDir.x === 1;
       const rookXPos = isCastleToRight ? FIELDS_IN_ONE_ROW - 1 : 0;
@@ -314,5 +313,9 @@ export default class King extends Piece {
       }
     }
     return checkingPieces;
+  }
+
+  public static isMoveCastling(from: Pos, to: Pos): boolean {
+    return Math.abs(from.x - to.x) > 1;
   }
 }
