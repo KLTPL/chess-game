@@ -3,23 +3,18 @@ import Pos from "./Pos";
 import { TEAMS } from "./pieces/Piece";
 
 export default class Player {
-  public image: null;
-  public points: number = 0;
+  // private image: null;
   constructor(
-    image: ImageBitmap | null,
     readonly name: string,
     readonly team: TEAMS,
-    readonly timeS: number,
+    // readonly timeS: number,
+    // image: ImageBitmap | null,
     private board: Board
-  ) {
-    this.image = this.getImage(image);
-  }
+  ) {}
 
-  private getImage(image: ImageBitmap | null): null {
-    image;
-    // return image == null ?
-    return null;
-  }
+  // public getImage(image: ImageBitmap): ImageBitmap {
+  //   return this.image;
+  // }
 
   // private countPoints(): void {
   //   const boardEl = this.board.el;
