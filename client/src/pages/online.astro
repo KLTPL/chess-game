@@ -2,4 +2,13 @@
 import MainLayout from "../layouts/main-layout.astro";
 ---
 
-<MainLayout title="Gra online" />
+<MainLayout title="Gra online">
+  <div id="games"></div>
+</MainLayout>
+
+<script>
+  const response = await fetch(
+    `http://${import.meta.env.PUBLIC_HOST}:${import.meta.env.PUBLIC_PORT}/api/dynamic.json`
+  ).then((res) => res.json());
+  document.querySelector("#games")?.append(JSON.stringify(response));
+</script>
