@@ -3,7 +3,6 @@ import { type APIRoute } from "astro";
 
 export const GET: APIRoute = async ({ params, request }) => {
   try {
-    
     const displayId = params.display_id as string;
 
     const resGame = await getResGame(displayId);
@@ -16,7 +15,11 @@ export const GET: APIRoute = async ({ params, request }) => {
     const resHalfmoves = await getResHalfmoves(id);
 
     return new Response(
-      JSON.stringify({ game: resGame.rows[0], halfmoves: resHalfmoves.rows, body: request.body }),
+      JSON.stringify({
+        game: resGame.rows[0],
+        halfmoves: resHalfmoves.rows,
+        body: request.body,
+      }),
       {
         status: 200,
         headers: {
@@ -25,7 +28,7 @@ export const GET: APIRoute = async ({ params, request }) => {
       }
     );
   } catch (err: any) {
-    return new Response(JSON.stringify({error: err.message}), {
+    return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
     });
   }
