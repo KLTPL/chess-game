@@ -6,7 +6,6 @@ import Piece, {
   type Pin,
   type AnyPiece,
 } from "./Piece";
-import Rook from "./Rook";
 import Pos, { POS_OUT_OF_BOARD } from "../Pos";
 import Dir from "../Dir";
 import Check from "../Check";

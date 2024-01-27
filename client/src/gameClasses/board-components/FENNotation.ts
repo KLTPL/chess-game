@@ -5,7 +5,6 @@ import {
   FIELDS_IN_ONE_ROW,
 } from "./Board";
 import Board from "./Board";
-import { type CastleRights } from "../pieces/King";
 
 /*FEN (Forsyth-Edwards Notation) parts:
     1. Piece placement.
