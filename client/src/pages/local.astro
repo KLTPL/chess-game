@@ -6,6 +6,6 @@ export const prerender = true;
 <MainLayout title="Gra lokalna" />
 
 <script>
-  import { startGame } from "../app";
-  startGame("[data-page-container]");
+  import { initGameLocal } from "../scripts/local";
+  initGameLocal("[data-page-container]");
 </script>

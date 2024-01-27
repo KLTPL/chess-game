@@ -50,6 +50,7 @@ CREATE TABLE app_user (
 
 CREATE TABLE game (
   id BIGSERIAL PRIMARY KEY,
+  display_id varchar(36) NOT NULL UNIQUE,
   user_id_w BIGINT NOT NULL REFERENCES app_user(id),
   user_id_b BIGINT NOT NULL REFERENCES app_user(id),
   result_id BIGINT REFERENCES dict_game_result(id),
@@ -67,7 +68,6 @@ CREATE TABLE game_halfmove (
   id BIGSERIAL PRIMARY KEY,
   game_id BIGINT NOT NULL REFERENCES game(id),
   piece_id BIGINT NOT NULL REFERENCES dict_piece(id),
-  is_user_w BOOLEAN NOT NULL,
   halfmove_number SMALLINT NOT NULL,
   pos_start_x SMALLINT NOT NULL,
   pos_start_y SMALLINT NOT NULL,
@@ -95,13 +95,16 @@ INSERT INTO app_user
 VALUES ('klt@email.com', 'klt', 'kltpl', '1234');
 
 INSERT INTO game 
-       (user_id_w, user_id_b)
-VALUES (1, 8);
+       (display_id, user_id_w, user_id_b)
+VALUES ('104955a9-0221-471f-be5c-d40acfb252c9', 1, 8);
 
 
 INSERT INTO game_halfmove
-       (game_id, piece_id, is_user_w, halfmove_number, pos_start_x, pos_start_y, pos_end_x, pos_end_y, king_checked_pos_x, king_checked_pos_y, is_castling)
-VALUES (1, 1, true, 1, 4, 6, 4, 4, NULL, NULL, false);
+       (game_id, piece_id, halfmove_number, pos_start_x, pos_start_y, pos_end_x, pos_end_y, king_checked_pos_x, king_checked_pos_y, is_castling)
+VALUES (1, 1, 1, 4, 6, 4, 4, NULL, NULL, false);
+INSERT INTO game_halfmove
+       (game_id, piece_id, halfmove_number, pos_start_x, pos_start_y, pos_end_x, pos_end_y, king_checked_pos_x, king_checked_pos_y, is_castling)
+VALUES (1, 1, 2, 4, 1, 4, 3, NULL, NULL, false);
 */
 
 SELECT * FROM app_user;

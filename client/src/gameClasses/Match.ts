@@ -1,4 +1,4 @@
-import Board from "./board-components/Board";
+import Board, { type CastlingRights } from "./board-components/Board";
 import Player from "./Player";
 import Halfmove from "./Halfmove";
 import { TEAMS } from "./pieces/Piece";
@@ -13,13 +13,14 @@ type Players = {
 };
 export type PlayerArg = {
   name: string;
-  image: ImageBitmap | null;
-  team: TEAMS;
-  timeS: number;
+  // image: ImageBitmap | null;
+  // timeS: number;
 };
 export type BoardArg = {
   htmlPageContainerQSelector: string;
   customPositionFEN: string | null;
+  movesMadePreviously?: Halfmove[];
+  castlingRights?: CastlingRights;
 };
 
 export default class Match {
@@ -29,7 +30,8 @@ export default class Match {
   constructor(
     player1Arg: PlayerArg,
     player2Arg: PlayerArg,
-    boardArg: BoardArg
+    boardArg: BoardArg,
+    isFinished: boolean = false
   ) {
     this.board = new Board(
       boardArg.htmlPageContainerQSelector,
@@ -37,20 +39,8 @@ export default class Match {
       this
     );
     this.players = {
-      white: new Player(
-        player1Arg.image,
-        player1Arg.name,
-        player1Arg.team,
-        player1Arg.timeS,
-        this.board
-      ),
-      black: new Player(
-        player2Arg.image,
-        player2Arg.name,
-        player2Arg.team,
-        player2Arg.timeS,
-        this.board
-      ),
+      white: new Player(player1Arg.name, TEAMS.WHITE, this.board),
+      black: new Player(player2Arg.name, TEAMS.BLACK, this.board),
     };
   }
 
