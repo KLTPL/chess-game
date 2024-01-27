@@ -94,7 +94,7 @@ export default class Rook extends Piece {
     return moves;
   }
 
-  public sideEffectsOfMove(to: Pos, from: Pos): void {
+  public sideEffectsOfMove(_: Pos, from: Pos): void {
     const castlingRights = this.board.getCastlingRightsByTeam(this.isWhite());
 
     const posXStartKingSide = FIELDS_IN_ONE_ROW - 1; // it's the same for white and black

@@ -1,5 +1,4 @@
 import { type AnyPiece } from "./pieces/Piece";
-import Rook from "./pieces/Rook";
 import Pos from "./Pos";
 
 export default class Halfmove {
