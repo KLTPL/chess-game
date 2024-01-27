@@ -1,16 +1,13 @@
 ---
 import MainLayout from "../../layouts/main-layout.astro";
 const displayId = Astro.params.display_id;
-  const gameJSON = await fetch(
-    `${import.meta.env.PUBLIC_PROTOCOL}://${import.meta.env.PUBLIC_HOST}:${import.meta.env.PUBLIC_PORT}/api/online-game/${displayId}.json`
-  ).then((res) => res.json());
-
+const gameJSON = await fetch(
+  `${import.meta.env.PUBLIC_PROTOCOL}://${import.meta.env.PUBLIC_HOST}:${import.meta.env.PUBLIC_PORT}/api/online-game/${displayId}.json`
+).then((res) => res.json());
 ---
 
 <MainLayout title="Online game">
   {gameJSON.error === undefined ? JSON.stringify(gameJSON) : gameJSON.error}
 </MainLayout>
 
-<script>
-
-</script>
+<script></script>
