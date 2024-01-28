@@ -26,6 +26,7 @@ import AnalisisSystem, {
 import ShowEvetsOnBoard from "./ShowEventsOnBoard";
 import "../../../styles/Board.css";
 import type { DBGameData, DBHalfmove } from "../../../db/types";
+import IncludeDBData from "./IncludeDBData";
 
 export type ArrOfPieces2d = (AnyPiece | null)[][];
 
@@ -90,6 +91,7 @@ export default class Board {
   public analisisSystem: AnalisisSystem;
   private kings: KingsObj;
   private castlingRights: CastlingRights;
+  public includeDBData: IncludeDBData = null as never;
   constructor(
     htmlPageContainerQSelector: string,
     customPositionFEN: string | null,
@@ -163,46 +165,8 @@ export default class Board {
     }
 
     setTimeout(() => {
-      if (DBGameData !== undefined) {
-        this.includeDBData(DBGameData);
-      }
+      this.includeDBData = new IncludeDBData(DBGameData, this);
     });
-  }
-
-  private includeDBData(DBGameData: DBGameData) {
-    if (DBGameData.game.is_finished) {
-      this.match.end({
-        cousedBy: null,
-        resultName: DBGameData.game.result_name as string,
-        endReasonName: DBGameData.game.end_reason_name as string,
-      });
-      return;
-    }
-    this.castlingRights.white.k = DBGameData.game.castling_w_k;
-    this.castlingRights.white.q = DBGameData.game.castling_w_q;
-    this.castlingRights.black.k = DBGameData.game.castling_b_k;
-    this.castlingRights.white.q = DBGameData.game.castling_b_q;
-
-    this.insertDBHalfmoves(DBGameData.halfmoves);
-  }
-
-  private insertDBHalfmoves(DBHalfmoves: DBHalfmove[]) {
-    if (DBHalfmoves.length === 0) {
-      return;
-    }
-    for (const DBHalfmove of DBHalfmoves) {
-      const { pos_start_x, pos_start_y, pos_end_x, pos_end_y } = DBHalfmove;
-      const startPos = new Pos(pos_start_y, pos_start_x);
-      const endPos = new Pos(pos_end_y, pos_end_x);
-      const piece = this.getPiece(startPos);
-      this.removePieceInPos(startPos, false);
-      this.movePiece(
-        startPos,
-        endPos,
-        piece as AnyPiece,
-        CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE
-      );
-    }
   }
 
   private createBoardContainer(): HTMLDivElement {
@@ -775,6 +739,10 @@ export default class Board {
 
   public getCastlingRightsByTeam(isWhite: boolean): KingCastlingRights {
     return isWhite ? this.castlingRights.white : this.castlingRights.black;
+  }
+
+  public getCastlingRights(): CastlingRights {
+    return this.castlingRights;
   }
 
   get startQueenPosWhite(): Pos {
