@@ -65,20 +65,22 @@ export default class Pawn extends Piece {
     const board = this.board;
     const enemyTeamNum = this.enemyTeamNum;
     const capturePos = this.createArrOfPossibleMovesFromPosForKing(pos).filter(
-      (move) => board.el[move.y][move.x].piece?.team === enemyTeamNum
+      (move) => board.getPiece(move)?.team === enemyTeamNum
     );
 
     const moves: Pos[] = [];
-    if (board.el[pos.y + this.directionY][pos.x].piece === null) {
+    const newPos = new Pos(pos.y + this.directionY, pos.x);
+    if (board.getPiece(newPos) === null) {
       // forward and double forward
-      moves.push(new Pos(pos.y + this.directionY, pos.x));
+      moves.push(newPos);
       const pawnStartRow = this.directionY === 1 ? 1 : FIELDS_IN_ONE_ROW - 2;
+      const newPos2 = new Pos(pos.y + this.directionY * 2, pos.x);
       if (
         pos.y === pawnStartRow &&
-        Board.isPosIn(new Pos(pos.y + this.directionY * 2, pos.x)) &&
-        board.el[pos.y + this.directionY * 2][pos.x].piece === null
+        Board.isPosIn(newPos2) &&
+        board.getPiece(newPos2) === null
       ) {
-        moves.push(new Pos(pos.y + this.directionY * 2, pos.x));
+        moves.push(newPos2);
       }
     }
 
@@ -99,7 +101,7 @@ export default class Pawn extends Piece {
       const isPawnAfterMoving2SqueresForward =
         Math.abs(lastMove?.from.y - lastMove?.to.y) > 1;
       const piece = Board.isPosIn(pawnToCapturePos)
-        ? board.el[pawnToCapturePos.y][pawnToCapturePos.x].piece
+        ? board.getPiece(pawnToCapturePos)
         : null;
       return (
         Board.isPosIn(newCapture) &&
@@ -170,7 +172,8 @@ export default class Pawn extends Piece {
   ): boolean {
     let tempXPos = startPawnXPos + pinDir;
     for (; tempXPos !== kingPosX; tempXPos += pinDir) {
-      if (this.board.el[yPos][tempXPos].piece !== null) {
+      const pos = new Pos(yPos, tempXPos);
+      if (this.board.getPiece(pos) !== null) {
         return false;
       }
     }
@@ -184,8 +187,13 @@ export default class Pawn extends Piece {
   ): boolean {
     const enemyTeamNum = this.enemyTeamNum;
     let tempXPos = startPawnXPos + pinDir;
-    for (; Board.isPosIn(new Pos(yPos, tempXPos)); tempXPos += pinDir) {
-      const piece = this.board.el[yPos][tempXPos].piece;
+    let currPos = new Pos(yPos, tempXPos);
+    for (
+      ;
+      Board.isPosIn((currPos = new Pos(yPos, tempXPos)));
+      tempXPos += pinDir
+    ) {
+      const piece = this.board.getPiece(currPos);
       if (
         (piece !== null && piece?.team === this.team) ||
         (piece?.team === enemyTeamNum &&
@@ -194,7 +202,7 @@ export default class Pawn extends Piece {
       ) {
         return false;
       }
-      if (this.board.el[yPos][tempXPos].piece?.team === enemyTeamNum) {
+      if (piece?.team === enemyTeamNum) {
         return true;
       }
     }
@@ -209,7 +217,7 @@ export default class Pawn extends Piece {
     // en passant capture
     const board = this.board;
     const enPassantPos = new Pos(to.y - this.directionY, to.x);
-    const enPassanPiece = board.el[enPassantPos.y][enPassantPos.x].piece;
+    const enPassanPiece = board.getPiece(enPassantPos);
     if (
       Board.isPosIn(enPassantPos) &&
       Piece.isPawn(enPassanPiece) &&

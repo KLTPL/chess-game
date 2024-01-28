@@ -57,7 +57,7 @@ export default class VisualizingArrow {
 
     this.html.append(arrowTail);
     this.html.append(arrowHead);
-    this.board.el[this.startPos.y][this.startPos.x].html.append(this.html);
+    this.board.getFieldHtmlEl(this.startPos).append(this.html);
   }
 
   private createArrowContainerHtml(

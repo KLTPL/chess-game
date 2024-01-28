@@ -7,15 +7,21 @@ export default class Player {
   // private image: null;
   constructor(
     readonly team: TEAMS,
-    DBGameData: DBGameData | undefined,
+    DBGameData: DBGameData | undefined
     // image: ImageBitmap | null,
   ) {
     if (DBGameData === undefined) {
       this.name = this.team === TEAMS.WHITE ? "white" : "black";
       this.displayName = this.team === TEAMS.WHITE ? "white" : "black";
     } else {
-      this.name = this.team === TEAMS.WHITE ? DBGameData.game.user_w_name : DBGameData.game.user_b_name;
-      this.displayName = this.team === TEAMS.WHITE ? DBGameData.game.user_w_display_name : DBGameData.game.user_b_display_name;
+      this.name =
+        this.team === TEAMS.WHITE
+          ? DBGameData.game.user_w_name
+          : DBGameData.game.user_b_name;
+      this.displayName =
+        this.team === TEAMS.WHITE
+          ? DBGameData.game.user_w_display_name
+          : DBGameData.game.user_b_display_name;
     }
   }
 

@@ -31,10 +31,8 @@ export default class Queen extends Piece {
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
       while (true) {
-        if (
-          this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum &&
-          !Piece.isKing(this.board.el[tempPos.y][tempPos.x].piece)
-        ) {
+        const piece = this.board.getPiece(tempPos);
+        if (piece?.team === enemyTeamNum && !Piece.isKing(piece)) {
           break;
         }
         tempPos.x += dir.x;
@@ -43,7 +41,7 @@ export default class Queen extends Piece {
           break;
         }
         possibleMoves.push(new Pos(tempPos.y, tempPos.x));
-        if (this.board.el[tempPos.y][tempPos.x].piece?.team === this.team) {
+        if (this.board.getPiece(tempPos)?.team === this.team) {
           break;
         }
       }
@@ -84,21 +82,25 @@ export default class Queen extends Piece {
     const moves: Pos[] = [];
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
+      console.log("STARTING FROM", tempPos);
       while (true) {
-        if (this.board.el[tempPos.y][tempPos.x].piece?.team === enemyTeamNum) {
+        const piece = this.board.getPiece(tempPos);
+        if (piece?.team === enemyTeamNum) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
         if (
           !Board.isPosIn(tempPos) ||
-          this.board.el[tempPos.y][tempPos.x].piece?.team === this.team
+          this.board.getPiece(tempPos)?.team === this.team
         ) {
           break;
         }
         moves.push(new Pos(tempPos.y, tempPos.x));
       }
     }
+
+    console.log(`QUEEN MOVES:`, moves);
     return moves;
   }
 }

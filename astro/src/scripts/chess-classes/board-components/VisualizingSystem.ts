@@ -88,15 +88,15 @@ export default class VisualizingSystem {
   }
 
   private toggleHighlightOnFieldOnPos(pos: Pos): void {
-    const el = this.board.el[pos.y][pos.x].html.querySelector(
-      `.${HIGHLIGHT_FIELD_CLASS_NAME}`
-    );
+    const el = this.board
+      .getFieldHtmlEl(pos)
+      .querySelector(`.${HIGHLIGHT_FIELD_CLASS_NAME}`);
     if (el !== null) {
       el.remove();
     } else {
       const div = document.createElement("div");
       div.classList.add(HIGHLIGHT_FIELD_CLASS_NAME);
-      this.board.el[pos.y][pos.x].html.append(div);
+      this.board.getFieldHtmlEl(pos).append(div);
     }
   }
 

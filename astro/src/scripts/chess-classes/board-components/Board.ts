@@ -77,7 +77,7 @@ const CLASS_NAMES = {
 
 export default class Board {
   public currTeam: TEAMS;
-  public el: Field[][] = [];
+  private el: Field[][] = [];
   public html: HTMLDivElement = this.createBoardContainer();
   private fieldsHtml: HTMLDivElement = this.createContainerForFields();
   public piecesHtml: HTMLDivElement = this.createContainerForPieces();
@@ -164,7 +164,7 @@ export default class Board {
 
     setTimeout(() => {
       if (DBGameData !== undefined) {
-        this.includeDBData(DBGameData)
+        this.includeDBData(DBGameData);
       }
     });
   }
@@ -192,16 +192,19 @@ export default class Board {
     }
     for (const DBHalfmove of DBHalfmoves) {
       const { pos_start_x, pos_start_y, pos_end_x, pos_end_y } = DBHalfmove;
-      const piece = this.el[pos_start_y][pos_start_x].piece;
-      this.removePieceInPos(new Pos(pos_start_y, pos_start_x), false);
+      const startPos = new Pos(pos_start_y, pos_start_x);
+      const endPos = new Pos(pos_end_y, pos_end_x);
+      const piece = this.getPiece(startPos);
+      this.removePieceInPos(startPos, false);
       this.movePiece(
-        new Pos(pos_start_y, pos_start_x),
-        new Pos(pos_end_y, pos_end_x),
+        startPos,
+        endPos,
         piece as AnyPiece,
         CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE
       );
+      console.log(this.getPiece(startPos));
+      console.log(this.getPiece(endPos));
     }
-    console.table(this.el.map(row => row.map(field => field.piece)))
   }
 
   private createBoardContainer(): HTMLDivElement {
@@ -283,13 +286,13 @@ export default class Board {
   }
 
   private placePieces(pieces: ArrOfPieces2d): void {
-    for (let r = 0; r < this.el.length; r++) {
-      for (let c = 0; c < this.el[r].length; c++) {
+    for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
+      for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
         this.placePieceInPos(
           new Pos(r, c),
           pieces[r][c],
           CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
-          Boolean(pieces[r][c]?.html)
+          Boolean(pieces[r][c]?.getHtml())
         );
       }
     }
@@ -321,23 +324,23 @@ export default class Board {
     appendHtml: boolean
   ): void {
     if (piece === null) {
-      this.el[pos.y][pos.x].piece = null;
+      this.setPiece(null, pos);
       return;
     }
     if (appendHtml) {
-      this.piecesHtml.append(piece.html);
+      this.piecesHtml.append(piece.getHtml());
     }
-    this.setPieceCssTransitionDeley(piece.html, cssPieceTransitionDelayMs);
-    this.transformPieceHtmlToPos(piece.html, pos);
+    this.setPieceCssTransitionDeley(piece.getHtml(), cssPieceTransitionDelayMs);
+    this.transformPieceHtmlToPos(piece.getHtml(), pos);
     setTimeout(
       () =>
         this.setPieceCssTransitionDeley(
-          piece.html,
+          piece.getHtml(),
           CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE
         ),
       cssPieceTransitionDelayMs
     );
-    this.el[pos.y][pos.x].setPiece(piece);
+    this.setPiece(piece, pos);
   }
 
   private transformPieceHtmlToPos(pieceHtml: HTMLDivElement, pos: Pos): void {
@@ -357,7 +360,7 @@ export default class Board {
     piece: AnyPiece,
     transitionDelayMs: number
   ): void {
-    const capturedPiece = this.el[to.y][to.x].piece;
+    const capturedPiece = this.getPiece(to);
     if (capturedPiece !== null) {
       this.removePieceInPos(to, true);
     }
@@ -394,9 +397,9 @@ export default class Board {
 
   public removePieceInPos(pos: Pos, removeHtml: boolean) {
     if (removeHtml) {
-      this.el[pos.y][pos.x].piece?.html.remove();
+      this.getPiece(pos)?.removeHtml();
     }
-    this.el[pos.y][pos.x].setPiece(null);
+    this.setPiece(null, pos);
   }
 
   private createKingsObj(pieces: ArrOfPieces2d): KingsObj | null {
@@ -456,7 +459,7 @@ export default class Board {
   private invertFields() {
     for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
       for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
-        this.el[r][c].invertHtml(new Pos(r, c), this.isInverted);
+        this.getField(new Pos(r, c)).invertHtml(new Pos(r, c), this.isInverted);
       }
     }
   }
@@ -479,9 +482,13 @@ export default class Board {
   }
 
   private isPositionKingVsKing(): boolean {
-    for (let r = 0; r < this.el.length; r++) {
-      for (let c = 0; c < this.el[r].length; c++) {
-        if (this.el[r][c].isOccupied() && !Piece.isKing(this.el[r][c].piece)) {
+    for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
+      for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
+        const pos = new Pos(r, c);
+        if (
+          this.getField(pos).isOccupied() &&
+          !Piece.isKing(this.getPiece(pos))
+        ) {
           return false;
         }
       }
@@ -501,16 +508,18 @@ export default class Board {
     pieceId: PIECES.BISHOP | PIECES.KNIGHT
   ): boolean {
     let pieceOccurrencesCounter = 0;
-    for (let r = 0; r < this.el.length; r++) {
-      for (let c = 0; c < this.el[r].length; c++) {
-        if (this.el[r][c].piece?.id === pieceId) {
+    for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
+      for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
+        const pos = new Pos(r, c);
+        const piece = this.getPiece(pos);
+        if (piece?.id === pieceId) {
           if (pieceOccurrencesCounter > 0) {
             return false;
           }
           pieceOccurrencesCounter++;
           continue;
         }
-        if (this.el[r][c].isOccupied() && !Piece.isKing(this.el[r][c].piece)) {
+        if (this.getField(pos).isOccupied() && !Piece.isKing(piece)) {
           return false;
         }
       }
@@ -521,19 +530,20 @@ export default class Board {
   private isPositionKingAndBishopVsKingAndBishop(): boolean {
     // both bishops on squeres of the same color
     const bishops: Pos[] = [];
-    for (let r = 0; r < this.el.length; r++) {
-      for (let c = 0; c < this.el[r].length; c++) {
-        if (!this.el[r][c].isOccupied() || Piece.isKing(this.el[r][c].piece)) {
+    for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
+      for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
+        const pos = new Pos(r, c);
+        const piece = this.getPiece(pos);
+        if (!this.getField(pos).isOccupied() || Piece.isKing(piece)) {
           continue;
         }
-        const piece = this.el[r][c].piece as AnyPiece;
         if (!Piece.isBishop(piece)) {
           return false;
         }
         if (bishops.length >= 2) {
           return false;
         }
-        bishops.push(new Pos(r, c));
+        bishops.push(pos);
       }
     }
     return this.isTwoEnemyBishopsOnTheSameColor(bishops);
@@ -543,8 +553,8 @@ export default class Board {
     if (bishopsPos.length !== 2) {
       return false;
     }
-    const bishop1 = this.el[bishopsPos[0].y][bishopsPos[0].x].piece as Piece;
-    const bishop2 = this.el[bishopsPos[1].y][bishopsPos[1].x].piece as Piece;
+    const bishop1 = this.getPiece(bishopsPos[0]) as Bishop;
+    const bishop2 = this.getPiece(bishopsPos[1]) as Bishop;
 
     return (
       bishop1.team !== bishop2.team &&
@@ -553,10 +563,10 @@ export default class Board {
   }
 
   private isPositionsOnTheSameColor(pos1: Pos, pos2: Pos): boolean {
-    const pos1OnWhiteSquere = this.el[pos1.y][pos1.x].html.className.includes(
+    const pos1OnWhiteSquere = this.getFieldHtmlEl(pos1).className.includes(
       CLASS_NAMES_FIELD.fieldColor1
     );
-    const pos2OnWhiteSquere = this.el[pos2.y][pos2.x].html.className.includes(
+    const pos2OnWhiteSquere = this.getFieldHtmlEl(pos2).className.includes(
       CLASS_NAMES_FIELD.fieldColor1
     );
 
@@ -664,9 +674,9 @@ export default class Board {
   private positionAllPiecesHtmlsProperly(): void {
     for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
       for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
-        if (this.el[r][c].isOccupied()) {
+        if (this.getField(new Pos(r, c)).isOccupied()) {
           this.transformPieceHtmlToPos(
-            (this.el[r][c].piece as AnyPiece).html,
+            (this.getPiece(new Pos(r, c)) as AnyPiece).getHtml(),
             new Pos(r, c)
           );
         }
@@ -704,8 +714,9 @@ export default class Board {
   public findPosOfPiece(piece: AnyPiece | Piece): Pos | null {
     for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
       for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
-        if (this.el[r][c].piece === piece) {
-          return new Pos(r, c);
+        const pos = new Pos(r, c);
+        if (this.getPiece(pos) === piece) {
+          return pos;
         }
       }
     }
@@ -713,18 +724,16 @@ export default class Board {
   }
 
   public isPlayerAbleToMakeMove(team: TEAMS): boolean {
-    const el = this.el;
-    for (let r = 0; r < el.length; r++) {
-      for (let c = 0; c < el[r].length; c++) {
-        const piece = el[r][c].piece;
+    for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
+      for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
+        const pos = new Pos(r, c);
+        const piece = this.getPiece(pos);
         if (piece?.team === team) {
-          const possMoves = piece.createArrOfPossibleMovesFromPos(
-            new Pos(r, c)
-          );
+          const possMoves = piece.createArrOfPossibleMovesFromPos(pos);
           if (
             //possMoves[0]: first pos is where piece is placed
             possMoves.length !== 0 &&
-            (possMoves.length > 1 || !possMoves[0].isEqualTo(new Pos(r, c)))
+            (possMoves.length > 1 || !possMoves[0].isEqualTo(pos))
           ) {
             return true;
           }
@@ -732,6 +741,30 @@ export default class Board {
       }
     }
     return false;
+  }
+
+  public setFieldHtmlEl(html: HTMLDivElement, pos: Pos): void {
+    this.el[pos.y][pos.x].html = html;
+  }
+
+  public getFieldHtmlEl(pos: Pos): HTMLDivElement {
+    return this.el[pos.y][pos.x].html;
+  }
+
+  public getField(pos: Pos): Field {
+    return this.el[pos.y][pos.x];
+  }
+
+  public setField(field: Field, pos: Pos): void {
+    this.el[pos.y][pos.x] = field;
+  }
+
+  public setPiece(piece: AnyPiece | null, pos: Pos): void {
+    this.el[pos.y][pos.x].piece = piece;
+  }
+
+  public getPiece(pos: Pos): AnyPiece | null {
+    return this.el[pos.y][pos.x].piece;
   }
 
   public getKingByTeam(team: TEAMS): King {

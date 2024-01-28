@@ -131,10 +131,6 @@ export default class Field {
     this.addLabelToHtml(pos, isBoardInverted);
   }
 
-  public setPiece(piece: AnyPiece | null) {
-    this.piece = piece;
-  }
-
   public isOccupied(): boolean {
     return this.piece !== null;
   }

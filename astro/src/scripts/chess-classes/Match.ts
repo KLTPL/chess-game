@@ -32,14 +32,8 @@ export default class Match {
       this
     );
     this.players = {
-      white: new Player(
-        TEAMS.WHITE,
-        DBGameData
-      ),
-      black: new Player(
-        TEAMS.BLACK,
-        DBGameData
-      ),
+      white: new Player(TEAMS.WHITE, DBGameData),
+      black: new Player(TEAMS.BLACK, DBGameData),
     };
   }
 

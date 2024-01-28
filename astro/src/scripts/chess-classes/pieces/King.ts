@@ -31,8 +31,9 @@ export default class King extends Piece {
   public updatePosProperty(): void {
     for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
       for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
-        if (this.board.el[r][c].piece === this) {
-          this.pos = new Pos(r, c);
+        const pos = new Pos(r, c);
+        if (this.board.getPiece(pos) === this) {
+          this.pos = pos;
         }
       }
     }
@@ -79,8 +80,7 @@ export default class King extends Piece {
       .map((dir) => new Pos(pos.y + dir.y, pos.x + dir.x))
       .filter((pos) => {
         return (
-          Board.isPosIn(pos) &&
-          this.board.el[pos.y][pos.x].piece?.team !== this.team
+          Board.isPosIn(pos) && this.board.getPiece(pos)?.team !== this.team
         );
       });
   }
@@ -115,7 +115,7 @@ export default class King extends Piece {
       ); // sometimes 2 fields, sometimes 3
       return (
         this.isKingRightToCastle(move2.x, pos.x) &&
-        fieldsXPos.filter((xPos) => this.board.el[pos.y][xPos].piece === null)
+        fieldsXPos.filter((xPos) => this.board.getPiece(pos) === null)
           .length === fieldsXPos.length &&
         this.filterMovesSoKingCantMoveIntoCheck(moves).length === moves.length
       );
@@ -154,19 +154,18 @@ export default class King extends Piece {
 
   private filterMovesSoKingCantMoveIntoCheck(moves: Pos[]): Pos[] {
     const enemyTeamNum = this.enemyTeamNum;
-    const boardEl = this.board.el;
-    for (let r = 0; r < boardEl.length; r++) {
-      for (let c = 0; c < boardEl[r].length; c++) {
-        if (
-          boardEl[r][c].piece === null ||
-          (boardEl[r][c].piece as Piece).team !== enemyTeamNum
-        ) {
+    const b = this.board;
+    for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
+      for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
+        const pos = new Pos(r, c);
+        const piece = b.getPiece(pos);
+        if (piece === null || (piece as AnyPiece).team !== enemyTeamNum) {
           continue;
         }
 
         const enemyPiecePossMoves = (
-          boardEl[r][c].piece as Piece
-        ).createArrOfPossibleMovesFromPosForKing(new Pos(r, c));
+          piece as AnyPiece
+        ).createArrOfPossibleMovesFromPosForKing(pos);
         for (const enemyPossMove of enemyPiecePossMoves) {
           moves = moves.filter((move) => {
             return (
@@ -204,7 +203,7 @@ export default class King extends Piece {
       const tempPos = new Pos(kingPos.y + direction.y, kingPos.x + direction.x);
 
       while (Board.isPosIn(tempPos)) {
-        const piece = this.board.el[tempPos.y][tempPos.x].piece;
+        const piece = this.board.getPiece(tempPos);
         if (piece === null) {
           tempPos.x += direction.x;
           tempPos.y += direction.y;
@@ -265,7 +264,7 @@ export default class King extends Piece {
       const rookXPos = isCastleToRight ? FIELDS_IN_ONE_ROW - 1 : 0;
       const oldRookPos = new Pos(from.y, rookXPos);
       const newRookPos = new Pos(to.y, to.x + castleDir.x * -1);
-      const movingRook = b.el[oldRookPos.y][oldRookPos.x].piece as AnyPiece;
+      const movingRook = b.getPiece(oldRookPos) as AnyPiece;
       b.removePieceInPos(oldRookPos, false);
       b.placePieceInPos(
         newRookPos,
@@ -297,8 +296,8 @@ export default class King extends Piece {
 
     for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
       for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
-        const piece = this.board.el[r][c].piece;
         const pos = new Pos(r, c);
+        const piece = this.board.getPiece(pos);
         if (piece === null || piece.team !== enemyTeam) {
           continue;
         }
