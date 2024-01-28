@@ -215,20 +215,20 @@ export default class Pawn extends Piece {
 
   public sideEffectsOfMove(to: Pos): void {
     // en passant capture
-    const board = this.board;
+    const b = this.board;
     const enPassantPos = new Pos(to.y - this.directionY, to.x);
-    const enPassanPiece = board.getPiece(enPassantPos);
+    const enPassanPiece = b.getPiece(enPassantPos);
     if (
       Board.isPosIn(enPassantPos) &&
       Piece.isPawn(enPassanPiece) &&
-      enPassanPiece === board.movesSystem.getLatestHalfmove().piece
+      enPassanPiece === b.movesSystem.getLatestHalfmove().piece
     ) {
-      board.removePieceInPos(enPassantPos, true);
+      b.removePieceInPos(enPassantPos, true);
     }
 
     // promotion
     const promotionPosY = this.isGoingUp() ? 0 : FIELDS_IN_ONE_ROW - 1;
-    if (to.y === promotionPosY) {
+    if (!b.includeDBData.isIncluding && to.y === promotionPosY) {
       this.promote(to);
     }
   }
