@@ -82,7 +82,6 @@ export default class Queen extends Piece {
     const moves: Pos[] = [];
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
-      console.log("STARTING FROM", tempPos);
       while (true) {
         const piece = this.board.getPiece(tempPos);
         if (piece?.team === enemyTeamNum) {
@@ -100,7 +99,6 @@ export default class Queen extends Piece {
       }
     }
 
-    console.log(`QUEEN MOVES:`, moves);
     return moves;
   }
 }

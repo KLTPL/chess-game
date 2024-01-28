@@ -202,8 +202,6 @@ export default class Board {
         piece as AnyPiece,
         CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE
       );
-      console.log(this.getPiece(startPos));
-      console.log(this.getPiece(endPos));
     }
   }
 
