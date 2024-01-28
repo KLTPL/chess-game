@@ -228,6 +228,7 @@ export default class Pawn extends Piece {
 
     // promotion
     const promotionPosY = this.isGoingUp() ? 0 : FIELDS_IN_ONE_ROW - 1;
+
     if (!b.includeDBData.isIncluding && to.y === promotionPosY) {
       this.promote(to);
     }

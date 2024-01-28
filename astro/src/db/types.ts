@@ -1,4 +1,5 @@
 export type DBGame = {
+  id: string;
   display_id: string;
   is_finished: boolean;
   result_name: null | string;
@@ -13,6 +14,7 @@ export type DBGame = {
   user_b_name: string;
 };
 export type DBHalfmove = {
+  game_id: string;
   piece_symbol_fen: string;
   halfmove_number: number;
   pos_start_x: number;
