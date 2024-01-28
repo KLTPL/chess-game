@@ -172,11 +172,11 @@ export default class FENNotation {
   private convertCharToPieceObj(char: string): AnyPiece {
     const lowerCase = char.toLowerCase();
     const team = char === lowerCase ? TEAMS.BLACK : TEAMS.WHITE;
-    const id = this.convertCharToPieceId(lowerCase);
+    const id = this.convertFENToPieceId(lowerCase);
     return this.board.createNewPieceObj(id, team, this.board) as AnyPiece;
   }
 
-  private convertCharToPieceId(charLowerCase: string): PIECES | null {
+  private convertFENToPieceId(charLowerCase: string): PIECES | null {
     switch (charLowerCase) {
       case "r":
         return PIECES.ROOK;

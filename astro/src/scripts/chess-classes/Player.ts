@@ -1,16 +1,23 @@
-import Board from "./board-components/Board";
-import Pos from "./Pos";
+import type { DBGameData } from "../../db/types";
 import { TEAMS } from "./pieces/Piece";
 
 export default class Player {
+  readonly name: string;
+  readonly displayName: string;
   // private image: null;
   constructor(
-    readonly name: string,
     readonly team: TEAMS,
-    // readonly timeS: number,
+    DBGameData: DBGameData | undefined,
     // image: ImageBitmap | null,
-    private board: Board
-  ) {}
+  ) {
+    if (DBGameData === undefined) {
+      this.name = this.team === TEAMS.WHITE ? "white" : "black";
+      this.displayName = this.team === TEAMS.WHITE ? "white" : "black";
+    } else {
+      this.name = this.team === TEAMS.WHITE ? DBGameData.game.user_w_name : DBGameData.game.user_b_name;
+      this.displayName = this.team === TEAMS.WHITE ? DBGameData.game.user_w_display_name : DBGameData.game.user_b_display_name;
+    }
+  }
 
   // public getImage(image: ImageBitmap): ImageBitmap {
   //   return this.image;
@@ -27,26 +34,4 @@ export default class Player {
   //     }
   //   }
   // }
-
-  public isAbleToMakeMove(): boolean {
-    const boardEl = this.board.el;
-    for (let r = 0; r < boardEl.length; r++) {
-      for (let c = 0; c < boardEl[r].length; c++) {
-        const piece = boardEl[r][c].piece;
-        if (piece?.team === this.team) {
-          const possMoves = piece.createArrOfPossibleMovesFromPos(
-            new Pos(r, c)
-          );
-          if (
-            //possMoves[0]: first pos is where piece is placed
-            possMoves.length !== 0 &&
-            (possMoves.length > 1 || !possMoves[0].isEqualTo(new Pos(r, c)))
-          ) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
 }
