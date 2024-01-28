@@ -12,7 +12,7 @@ export default class Check {
 
   public createArrOfFieldsInBetweenPieceAndKing(): Pos[] {
     const piecePos = this.checkingPiecePos;
-    const piece = this.board.el[piecePos.y][piecePos.x].piece;
+    const piece = this.board.getPiece(piecePos);
     if (Piece.isKnight(piece) || Piece.isPawn(piece)) {
       return [];
     }

@@ -44,9 +44,9 @@ export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT = 30;
 export const CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE = 0;
 
 export default abstract class Piece {
-  public abstract value: number;
-  public abstract id: PIECES;
-  public html: HTMLDivElement;
+  abstract readonly value: number;
+  abstract readonly id: PIECES;
+  private html: HTMLDivElement;
   constructor(
     readonly team: TEAMS,
     protected board: Board
@@ -343,9 +343,7 @@ export default abstract class Piece {
     for (const pin of absPins) {
       if (pin.pinnedPiecePos.isEqualTo(pos)) {
         possMoves = possMoves.filter((move) => {
-          const simplifyXAndY = Piece.isKnight(
-            this.board.el[pos.y][pos.x].piece
-          )
+          const simplifyXAndY = Piece.isKnight(this.board.getPiece(pos))
             ? false
             : true; // simplify means make 1 if >1 and -1 if <-1
           const moveDir = new Dir(
@@ -399,6 +397,14 @@ export default abstract class Piece {
 
   public isWhite(): boolean {
     return this.team === TEAMS.WHITE;
+  }
+
+  public getHtml(): HTMLDivElement {
+    return this.html;
+  }
+
+  public removeHtml(): void {
+    this.html.remove();
   }
 
   public get enemyTeamNum(): TEAMS.BLACK | TEAMS.WHITE {

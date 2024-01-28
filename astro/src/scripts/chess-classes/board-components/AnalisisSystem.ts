@@ -153,7 +153,7 @@ export default class AnalisisSystem {
       const currRookPos = new Pos(to.y, toX - castleXDir);
       const rookStartPosX = castleXDir > 0 ? FIELDS_IN_ONE_ROW - 1 : 0;
       const rookStartPos = new Pos(to.y, rookStartPosX);
-      const currRook = board.el[currRookPos.y][currRookPos.x].piece;
+      const currRook = board.getPiece(currRookPos);
       board.removePieceInPos(currRookPos, false);
       board.placePieceInPos(
         rookStartPos,
@@ -237,7 +237,7 @@ export default class AnalisisSystem {
       const castleXDir = toX - fromX > 0 ? 1 : -1;
       const currRookPosX = castleXDir > 0 ? FIELDS_IN_ONE_ROW - 1 : 0;
       const rookPosXAfter = toX - castleXDir;
-      const currRook = board.el[to.y][currRookPosX].piece;
+      const currRook = board.getPiece(new Pos(to.y, currRookPosX));
       board.removePieceInPos(new Pos(to.y, currRookPosX), false);
       board.placePieceInPos(
         new Pos(to.y, rookPosXAfter),

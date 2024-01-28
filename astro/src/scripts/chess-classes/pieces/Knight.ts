@@ -52,7 +52,7 @@ export default class Knight extends Piece {
 
   private createArrOfNormalMoves(pos: Pos): Pos[] {
     return this.createArrOfPossibleMovesFromPosForKing(pos).filter(
-      (move) => this.board.el[move.y][move.x].piece?.team !== this.team
+      (move) => this.board.getPiece(move)?.team !== this.team
     );
   }
 }
