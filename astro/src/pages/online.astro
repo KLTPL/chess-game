@@ -1,8 +1,18 @@
 ---
+import PlayerGameList from "../components/player-game-list/PlayerGameList";
 import MainLayout from "../layouts/main-layout.astro";
+export const prerender = true;
 ---
 
 <MainLayout title="Gra online">
-  Twoje gry online: ... <br />
-  Nowa gra
+  <div>
+    Twoje gry online: ... <br />
+    Nowa gra
+  </div>
+  <div>
+    <h3>Game list</h3>
+    <PlayerGameList client:only />
+  </div>
 </MainLayout>
+
+../components/player-game-list/PlayerGameList

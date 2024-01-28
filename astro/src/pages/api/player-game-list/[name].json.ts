@@ -1,8 +1,9 @@
 import { type APIRoute } from "astro";
-import getGameData from "../../../db/getGameData";
+import getPlayerGames from "../../../db/getPlayerGames";
 
 export const GET: APIRoute = async ({ params }) => {
-  const data = await getGameData(params.display_id as string);
+  const name = params.name as string;
+  const data = await getPlayerGames(name);
 
   if (data === null) {
     return new Response(null, {
