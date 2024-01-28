@@ -1,4 +1,5 @@
 export type DBGame = {
+  display_id: string;
   is_finished: boolean;
   result_name: null | string;
   end_reason_name: null | string;
