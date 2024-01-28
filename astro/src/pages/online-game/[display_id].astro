@@ -7,9 +7,7 @@ Astro.cookies.set("displayId", displayId);
 ---
 
 <MainLayout title="Online game">
-  <div id="error-log">
-
-  </div>
+  <div id="error-log"></div>
 </MainLayout>
 
 <script>
@@ -22,7 +20,7 @@ Astro.cookies.set("displayId", displayId);
   );
 
   if (response.status !== 200) {
-    document.querySelector("#error-log")?.append("GAME NOT FOUND ERROR: 404")
+    document.querySelector("#error-log")?.append("GAME NOT FOUND ERROR: 404");
   } else {
     const DBGame: DBGameData = await response.json();
     initGameOnline("[data-page-container]", DBGame);

@@ -25,6 +25,7 @@ import AnalisisSystem, {
 } from "./AnalisisSystem";
 import ShowEvetsOnBoard from "./ShowEventsOnBoard";
 import "../../../styles/Board.css";
+import type { DBGameData, DBHalfmove } from "../../../db/types";
 
 export type ArrOfPieces2d = (AnyPiece | null)[][];
 
@@ -92,6 +93,7 @@ export default class Board {
   constructor(
     htmlPageContainerQSelector: string,
     customPositionFEN: string | null,
+    DBGameData: DBGameData | undefined,
     public match: Match
   ) {
     const startFENNotation = new FENNotation(customPositionFEN, this);
@@ -138,15 +140,68 @@ export default class Board {
       this.kings.white.updatePosProperty();
       this.kings.black.updatePosProperty();
     } else {
-      setTimeout(() => this.match.end({ cousedBy: null, type: "Bad kings" }));
+      setTimeout(() =>
+        this.match.end({
+          cousedBy: null,
+          resultName: "Bład wprowadzenia danych",
+          endReasonName: "Złe króle",
+        })
+      );
       //setTimeout so constructor is finished before calling Match.end
       this.kings = null as never;
       //this.kings doesn't matter because the game is already over
     }
 
     if (this.isDrawByInsufficientMaterial()) {
-      setTimeout(() => this.match.end({ cousedBy: null, type: "draw" }));
+      setTimeout(() =>
+        this.match.end({
+          cousedBy: null,
+          resultName: "remis",
+          endReasonName: "niewystarczający materiał",
+        })
+      );
     }
+
+    setTimeout(() => {
+      if (DBGameData !== undefined) {
+        this.includeDBData(DBGameData)
+      }
+    });
+  }
+
+  private includeDBData(DBGameData: DBGameData) {
+    if (DBGameData.game.is_finished) {
+      this.match.end({
+        cousedBy: null,
+        resultName: DBGameData.game.result_name as string,
+        endReasonName: DBGameData.game.end_reason_name as string,
+      });
+      return;
+    }
+    this.castlingRights.white.k = DBGameData.game.castling_w_k;
+    this.castlingRights.white.q = DBGameData.game.castling_w_q;
+    this.castlingRights.black.k = DBGameData.game.castling_b_k;
+    this.castlingRights.white.q = DBGameData.game.castling_b_q;
+
+    this.insertDBHalfmoves(DBGameData.halfmoves);
+  }
+
+  private insertDBHalfmoves(DBHalfmoves: DBHalfmove[]) {
+    if (DBHalfmoves.length === 0) {
+      return;
+    }
+    for (const DBHalfmove of DBHalfmoves) {
+      const { pos_start_x, pos_start_y, pos_end_x, pos_end_y } = DBHalfmove;
+      const piece = this.el[pos_start_y][pos_start_x].piece;
+      this.removePieceInPos(new Pos(pos_start_y, pos_start_x), false);
+      this.movePiece(
+        new Pos(pos_start_y, pos_start_x),
+        new Pos(pos_end_y, pos_end_x),
+        piece as AnyPiece,
+        CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE
+      );
+    }
+    console.table(this.el.map(row => row.map(field => field.piece)))
   }
 
   private createBoardContainer(): HTMLDivElement {
@@ -655,6 +710,28 @@ export default class Board {
       }
     }
     return null;
+  }
+
+  public isPlayerAbleToMakeMove(team: TEAMS): boolean {
+    const el = this.el;
+    for (let r = 0; r < el.length; r++) {
+      for (let c = 0; c < el[r].length; c++) {
+        const piece = el[r][c].piece;
+        if (piece?.team === team) {
+          const possMoves = piece.createArrOfPossibleMovesFromPos(
+            new Pos(r, c)
+          );
+          if (
+            //possMoves[0]: first pos is where piece is placed
+            possMoves.length !== 0 &&
+            (possMoves.length > 1 || !possMoves[0].isEqualTo(new Pos(r, c)))
+          ) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   public getKingByTeam(team: TEAMS): King {

@@ -1,4 +1,4 @@
-type DBGame = {
+export type DBGame = {
   is_finished: boolean;
   result_name: null | string;
   end_reason_name: null | string;
@@ -11,7 +11,7 @@ type DBGame = {
   user_b_display_name: string;
   user_b_name: string;
 };
-type DBHalfmove = {
+export type DBHalfmove = {
   piece_symbol_fen: string;
   halfmove_number: number;
   pos_start_x: number;
