@@ -24,7 +24,7 @@ import AnalisisSystem, {
   BUTTON_ID_FORWARD,
 } from "./AnalisisSystem";
 import ShowEvetsOnBoard from "./ShowEventsOnBoard";
-import "../../styles/Board.css";
+import "../../../styles/Board.css";
 
 export type ArrOfPieces2d = (AnyPiece | null)[][];
 

@@ -1,13 +1,30 @@
 ---
 import MainLayout from "../../layouts/main-layout.astro";
-const displayId = Astro.params.display_id;
-const gameJSON = await fetch(
-  `${import.meta.env.PUBLIC_PROTOCOL}://${import.meta.env.PUBLIC_HOST}:${import.meta.env.PUBLIC_PORT}/api/online-game/${displayId}.json`
-).then((res) => res.json());
+
+const displayId = Astro.params.display_id as string;
+
+Astro.cookies.set("displayId", displayId);
 ---
 
 <MainLayout title="Online game">
-  {gameJSON.error === undefined ? JSON.stringify(gameJSON) : gameJSON.error}
+  <div id="error-log">
+
+  </div>
 </MainLayout>
 
-<script></script>
+<script>
+  import type { DBGameData } from "../../db/types";
+  import { initGameOnline } from "../../scripts/initOnlineGame";
+  import getCookie from "../../scripts/getCookie";
+
+  const response = await fetch(
+    `${import.meta.env.PUBLIC_PROTOCOL}://${import.meta.env.PUBLIC_HOST}:${import.meta.env.PUBLIC_PORT}/api/online-game/${getCookie("displayId")}.json`
+  );
+
+  if (response.status !== 200) {
+    document.querySelector("#error-log")?.append("GAME NOT FOUND ERROR: 404")
+  } else {
+    const DBGame: DBGameData = await response.json();
+    initGameOnline("[data-page-container]", DBGame);
+  }
+</script>

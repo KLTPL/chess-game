@@ -107,6 +107,10 @@ INSERT INTO game_halfmove
 VALUES (1, 1, 2, 4, 1, 4, 3, NULL, NULL, false);
 */
 
+INSERT INTO game 
+       (display_id, user_id_w, user_id_b, is_finished, result_id, end_reason_id, end_date)
+VALUES ('1234', 1, 8, true, 1, 1, NOW());
+
 SELECT * FROM app_user;
 SELECT * FROM game;
 SELECT * FROM game_halfmove;

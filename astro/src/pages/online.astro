@@ -2,14 +2,7 @@
 import MainLayout from "../layouts/main-layout.astro";
 ---
 
-<MainLayout title="Gra online" />
-
-<script>
-  import { initGameOnline } from "../scripts/online";
-  const response = await fetch(
-    `${import.meta.env.PUBLIC_PROTOCOL}://${import.meta.env.PUBLIC_HOST}:${import.meta.env.PUBLIC_PORT}/api/dynamic.json`
-  ).then((res) => res.json());
-  document.querySelector("#games")?.append(JSON.stringify(response));
-
-  initGameOnline("[data-page-container]", "kltpl", "klt");
-</script>
+<MainLayout title="Gra online">
+  Twoje gry online: ... <br />
+  Nowa gra
+</MainLayout>
