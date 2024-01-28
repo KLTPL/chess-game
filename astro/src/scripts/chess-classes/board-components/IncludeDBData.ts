@@ -7,12 +7,13 @@ import {
 import type Board from "./Board";
 
 export default class IncludeDBData {
-  isIncluding = true;
+  public isIncluding = true;
   constructor(
     DBGameData: DBGameData | undefined,
     private board: Board
   ) {
     if (DBGameData === undefined) {
+      this.isIncluding = false;
       return;
     }
     if (DBGameData.game.is_finished) {
@@ -42,7 +43,9 @@ export default class IncludeDBData {
     for (const DBHalfmove of DBHalfmoves) {
       this.movePiece(DBHalfmove);
     }
+    console.log(this.isIncluding);
     this.isIncluding = false;
+    console.log(this.isIncluding);
   }
 
   private movePiece(DBHalfmove: DBHalfmove): void {

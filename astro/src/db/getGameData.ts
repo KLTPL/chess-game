@@ -14,7 +14,6 @@ export default async function getGameData(
 
   const resHalfmoves = await getResHalfmoves(id);
 
-  resGame.rows[0].id = undefined;
   return {
     game: resGame.rows[0],
     halfmoves: resHalfmoves.rows,
@@ -41,7 +40,7 @@ async function getResGame(displayId: string): Promise<QueryResult<any>> {
 
 async function getResHalfmoves(id: string): Promise<QueryResult<any>> {
   const resHalfmoves = await queryDB(
-    `SELECT d.symbol_FEN as piece_symbol_FEN, h.halfmove_number, h.pos_start_x, h.pos_start_y, h.pos_end_x, h.pos_end_y, h.king_checked_pos_x, h.king_checked_pos_y, h.is_castling
+    `SELECT d.symbol_FEN as piece_symbol_FEN, h.game_id, h.halfmove_number, h.pos_start_x, h.pos_start_y, h.pos_end_x, h.pos_end_y, h.king_checked_pos_x, h.king_checked_pos_y, h.is_castling
     FROM (SELECT * FROM game_halfmove WHERE game_id = $1) h
     JOIN dict_piece d
     ON (h.piece_id = d.id)
