@@ -1,8 +1,8 @@
-import Board, { type CastlingRights } from "./board-components/Board";
+import Board from "./board-components/Board";
 import Player from "./Player";
 import Halfmove from "./Halfmove";
 import { TEAMS } from "./pieces/Piece";
-import type { DBGameData } from "../../db/types";
+import type { GetDBGameData } from "../../db/types";
 
 type EndInfo = {
   cousedBy: Player | null;
@@ -16,15 +16,16 @@ type Players = {
 
 export type BoardArg = {
   htmlPageContainerQSelector: string;
-  DBGameData?: DBGameData;
+  DBGameData?: GetDBGameData;
   customPositionFEN: string | null;
 };
 
 export default class Match {
   public isGameRunning: Boolean = true;
   public players: Players;
+  public endInfo: EndInfo | null = null;
   private board: Board;
-  constructor(boardArg: BoardArg, DBGameData?: DBGameData) {
+  constructor(boardArg: BoardArg, DBGameData?: GetDBGameData) {
     this.board = new Board(
       boardArg.htmlPageContainerQSelector,
       boardArg.customPositionFEN,
@@ -79,13 +80,14 @@ export default class Match {
     }
   }
 
-  public end(endType?: EndInfo): void {
+  public end(endInfo: EndInfo): void {
     this.isGameRunning = false;
+    this.endInfo = endInfo;
     this.board.showEventsOnBoard.turnOfCssGrabOnPieces();
     console.log("half moves: ", this.board.movesSystem.halfmoves);
-    if (endType !== undefined) {
+    if (endInfo !== undefined) {
       console.log(
-        `Gra zakończyła się. Gracz: ${endType.cousedBy?.displayName}, wynik: ${endType.resultName}, powód: ${endType.endReasonName}`
+        `Gra zakończyła się. Gracz: ${endInfo.cousedBy?.displayName}, wynik: ${endInfo.resultName}, powód: ${endInfo.endReasonName}`
       );
     } else {
       console.log("Koniec gry");

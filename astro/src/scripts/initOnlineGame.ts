@@ -1,9 +1,9 @@
-import type { DBGameData } from "../db/types";
+import type { GetDBGameData } from "../db/types";
 import Match, { type BoardArg } from "./chess-classes/Match";
 
 export function initGameOnline(
   htmlPageContainerQSelector: string,
-  DBGameData: DBGameData
+  DBGameData: GetDBGameData
 ) {
   const boardArg: BoardArg = {
     htmlPageContainerQSelector,

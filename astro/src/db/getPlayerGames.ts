@@ -1,11 +1,11 @@
 import type { QueryResult } from "pg";
 import { queryDB } from "./connect";
 import getGameData from "./getGameData";
-import type { DBGameData } from "./types";
+import type { GetDBGameData } from "./types";
 
 export default async function getPlayerGames(
   name: string
-): Promise<DBGameData[] | null> {
+): Promise<GetDBGameData[] | null> {
   const resUserId = await getResAppUserId(name);
 
   if (resUserId.rowCount === 0) {
@@ -15,7 +15,7 @@ export default async function getPlayerGames(
 
   const games = [];
   for (const { display_id } of resDisplayIds.rows) {
-    games.push((await getGameData(display_id)) as DBGameData);
+    games.push((await getGameData(display_id)) as GetDBGameData);
   }
 
   return games;

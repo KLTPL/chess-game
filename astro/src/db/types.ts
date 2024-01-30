@@ -1,4 +1,4 @@
-export type DBGame = {
+export type GetDBGame = {
   id: string;
   display_id: string;
   is_finished: boolean;
@@ -13,7 +13,7 @@ export type DBGame = {
   user_b_display_name: string;
   user_b_name: string;
 };
-export type DBHalfmove = {
+export type GetPostDBHalfmove = {
   game_id: string;
   piece_symbol_fen: string;
   halfmove_number: number;
@@ -27,7 +27,7 @@ export type DBHalfmove = {
   promoted_to_piece_symbol_fen: null | string;
 };
 
-export type DBGameData = {
-  game: DBGame;
-  halfmoves: DBHalfmove[];
+export type GetDBGameData = {
+  game: GetDBGame;
+  halfmoves: GetPostDBHalfmove[];
 };

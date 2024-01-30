@@ -1,7 +1,7 @@
-import { type DBGameData } from "../../db/types.ts";
+import { type GetDBGameData } from "../../db/types.ts";
 
 type GameDisplayProps = {
-  DBGameData: DBGameData;
+  DBGameData: GetDBGameData;
 };
 
 export default function GameDisplay({ DBGameData }: GameDisplayProps) {
