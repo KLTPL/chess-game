@@ -1,17 +1,13 @@
-import type { EndGameData } from "./addGameResult";
-import addGameResult from "./addGameResult";
 import { queryDB } from "./connect";
 import { pieceFENToId } from "./toDBConverter";
 import type { DBHalfmove } from "./types";
 
 export type addNewMoveProps = {
   DBHalfmove: DBHalfmove;
-  endGameData?: EndGameData;
 };
 
 export default async function addNewMove({
   DBHalfmove,
-  endGameData,
 }: addNewMoveProps): Promise<void> {
   const d = DBHalfmove;
 
@@ -44,9 +40,5 @@ export default async function addNewMove({
       `,
       [d.king_checked_pos_x, d.king_checked_pos_y]
     );
-  }
-
-  if (endGameData !== undefined) {
-    addGameResult(endGameData, d.game_id);
   }
 }

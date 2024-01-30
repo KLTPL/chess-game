@@ -1,14 +1,16 @@
 import { queryDB } from "./connect";
 
-export type EndGameData = {
+export type updateGameResultProps = {
+  gameId: string;
   resultId: number;
   endReasonId: number;
 };
 
-export default async function addGameResult(
-  endGameData: EndGameData,
-  gameId: string
-) {
+export default async function updateGameResult({
+  endReasonId,
+  resultId,
+  gameId,
+}: updateGameResultProps) {
   await queryDB(
     `
     UPDATE game
@@ -18,6 +20,6 @@ export default async function addGameResult(
       end_reason_id = $2
     WHERE id = $3
     `,
-    [endGameData.resultId, endGameData.endReasonId, gameId]
+    [resultId, endReasonId, gameId]
   );
 }
