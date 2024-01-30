@@ -71,7 +71,9 @@ export default class FENNotation {
             ...Array(amountOfEmptyFields).fill(null)
           );
         } else {
-          pieces[pieces.length - 1].push(this.convertCharToPieceObj(char));
+          pieces[pieces.length - 1].push(
+            FENNotation.convertPieceFENToPieceObj(char, this.board)
+          );
         }
       }
       if (pieces[pieces.length - 1].length > FIELDS_IN_ONE_ROW) {
@@ -169,29 +171,31 @@ export default class FENNotation {
     ];
   }
 
-  private convertCharToPieceObj(char: string): AnyPiece {
-    const lowerCase = char.toLowerCase();
-    const team = char === lowerCase ? TEAMS.BLACK : TEAMS.WHITE;
-    const id = this.convertFENToPieceId(lowerCase);
-    return this.board.createNewPieceObj(id, team, this.board) as AnyPiece;
-  }
+  public static convertPieceFENToPieceObj(
+    pieceFEN: string,
+    board: Board
+  ): AnyPiece {
+    const lowerCase = pieceFEN.toLowerCase();
+    const team = pieceFEN === lowerCase ? TEAMS.BLACK : TEAMS.WHITE;
+    const id = (function () {
+      switch (pieceFEN) {
+        case "r":
+          return PIECES.ROOK;
+        case "n":
+          return PIECES.KNIGHT;
+        case "b":
+          return PIECES.BISHOP;
+        case "q":
+          return PIECES.QUEEN;
+        case "k":
+          return PIECES.KING;
+        case "p":
+          return PIECES.PAWN;
+        default:
+          return null;
+      }
+    })();
 
-  private convertFENToPieceId(charLowerCase: string): PIECES | null {
-    switch (charLowerCase) {
-      case "r":
-        return PIECES.ROOK;
-      case "n":
-        return PIECES.KNIGHT;
-      case "b":
-        return PIECES.BISHOP;
-      case "q":
-        return PIECES.QUEEN;
-      case "k":
-        return PIECES.KING;
-      case "p":
-        return PIECES.PAWN;
-      default:
-        return null;
-    }
+    return board.createNewPieceObj(id, team, board) as AnyPiece;
   }
 }

@@ -5,6 +5,7 @@ import {
   type AnyPiece,
 } from "../pieces/Piece";
 import type Board from "./Board";
+import FENNotation from "./FENNotation";
 
 export default class IncludeDBData {
   public isIncluding = true;
@@ -43,9 +44,7 @@ export default class IncludeDBData {
     for (const DBHalfmove of DBHalfmoves) {
       this.movePiece(DBHalfmove);
     }
-    console.log(this.isIncluding);
     this.isIncluding = false;
-    console.log(this.isIncluding);
   }
 
   private movePiece(DBHalfmove: DBHalfmove): void {
@@ -60,6 +59,25 @@ export default class IncludeDBData {
       endPos,
       piece as AnyPiece,
       CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE
+    );
+    if (DBHalfmove.promoted_to_piece_symbol_fen !== null) {
+      this.placePromotedPieceOnBoard(
+        DBHalfmove.promoted_to_piece_symbol_fen,
+        endPos
+      );
+    }
+  }
+
+  private placePromotedPieceOnBoard(piece_fen: string, promotionPos: Pos) {
+    const b = this.board;
+    const promotedToPiece = FENNotation.convertPieceFENToPieceObj(piece_fen, b);
+    b.movesSystem.getLatestHalfmove().setPromotedTo(promotedToPiece);
+    b.removePieceInPos(promotionPos, true);
+    b.placePieceInPos(
+      promotionPos,
+      promotedToPiece,
+      CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
+      true
     );
   }
 }

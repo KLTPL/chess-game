@@ -40,7 +40,7 @@ async function getResGame(displayId: string): Promise<QueryResult<any>> {
 
 async function getResHalfmoves(id: string): Promise<QueryResult<any>> {
   const resHalfmoves = await queryDB(
-    `SELECT d.symbol_FEN AS piece_symbol_FEN, h.game_id, h.halfmove_number, h.pos_start_x, h.pos_start_y, h.pos_end_x, h.pos_end_y, h.king_checked_pos_x, h.king_checked_pos_y, h.is_castling, d2.symbol_FEN AS promoted_to_piece_symbol_FEN
+    `SELECT d.symbol_FEN AS piece_symbol_fen, h.game_id, h.halfmove_number, h.pos_start_x, h.pos_start_y, h.pos_end_x, h.pos_end_y, h.king_checked_pos_x, h.king_checked_pos_y, h.is_castling, d2.symbol_FEN AS promoted_to_piece_symbol_fen
     FROM (SELECT * FROM game_halfmove WHERE game_id = $1) h
     INNER JOIN dict_piece d
     ON (h.piece_id = d.id)
