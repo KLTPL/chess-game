@@ -5,7 +5,10 @@ export type EndGameData = {
   endReasonId: number;
 };
 
-export default async function addGameResult(endGameData: EndGameData, gameId: string) {
+export default async function addGameResult(
+  endGameData: EndGameData,
+  gameId: string
+) {
   await queryDB(
     `
     UPDATE game
@@ -16,5 +19,5 @@ export default async function addGameResult(endGameData: EndGameData, gameId: st
     WHERE id = $3
     `,
     [endGameData.resultId, endGameData.endReasonId, gameId]
-  )
+  );
 }

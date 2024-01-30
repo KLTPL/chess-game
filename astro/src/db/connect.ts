@@ -12,6 +12,6 @@ const pool = new Pool({
 
 pool.connect();
 
-export async function queryDB(query: string, values?:( number |string)[]) {
+export async function queryDB(query: string, values?: (number | string)[]) {
   return await pool.query(query, values);
 }
