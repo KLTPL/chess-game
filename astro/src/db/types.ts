@@ -24,6 +24,7 @@ export type DBHalfmove = {
   king_checked_pos_x: null | number;
   king_checked_pos_y: null | number;
   is_castling: boolean;
+  promoted_to_piece_id: number;
 };
 
 export type DBGameData = {
