@@ -11,7 +11,7 @@ Astro.cookies.set("displayId", displayId);
 </MainLayout>
 
 <script>
-  import type { DBGameData } from "../../db/types";
+  import type { GetDBGameData } from "../../db/types";
   import { initGameOnline } from "../../scripts/initOnlineGame";
   import getCookie from "../../scripts/getCookie";
 
@@ -22,7 +22,7 @@ Astro.cookies.set("displayId", displayId);
   if (response.status !== 200) {
     document.querySelector("#error-log")?.append("GAME NOT FOUND ERROR: 404");
   } else {
-    const DBGame: DBGameData = await response.json();
+    const DBGame: GetDBGameData = await response.json();
     initGameOnline("[data-page-container]", DBGame);
   }
 </script>

@@ -1,8 +1,9 @@
-import type { DBGameData, DBHalfmove } from "../../../db/types";
+import type { GetDBGameData, GetPostDBHalfmove } from "../../../db/types";
 import Pos from "../Pos";
 import {
   CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
   type AnyPiece,
+  TEAMS,
 } from "../pieces/Piece";
 import type Board from "./Board";
 import FENNotation from "./FENNotation";
@@ -10,10 +11,10 @@ import FENNotation from "./FENNotation";
 export default class IncludeDBData {
   public isIncluding = true;
   constructor(
-    DBGameData: DBGameData | undefined,
+    DBGameData: GetDBGameData | undefined,
     private board: Board
   ) {
-    if (DBGameData === undefined) {
+    if (DBGameData === undefined || DBGameData.halfmoves.length === 0) {
       this.isIncluding = false;
       return;
     }
@@ -30,14 +31,14 @@ export default class IncludeDBData {
     setTimeout(() => this.insertDBHalfmoves(DBGameData.halfmoves)); // setTimeout so the constructor finishes before and Board.IncludeDBData is not null
   }
 
-  public includeCastlingRights(DBGameData: DBGameData): void {
+  public includeCastlingRights(DBGameData: GetDBGameData): void {
     this.board.getCastlingRights().white.k = DBGameData.game.castling_w_k;
     this.board.getCastlingRights().white.q = DBGameData.game.castling_w_q;
     this.board.getCastlingRights().black.k = DBGameData.game.castling_b_k;
     this.board.getCastlingRights().white.q = DBGameData.game.castling_b_q;
   }
 
-  private insertDBHalfmoves(DBHalfmoves: DBHalfmove[]) {
+  private insertDBHalfmoves(DBHalfmoves: GetPostDBHalfmove[]) {
     if (DBHalfmoves.length === 0) {
       return;
     }
@@ -47,7 +48,7 @@ export default class IncludeDBData {
     this.isIncluding = false;
   }
 
-  private movePiece(DBHalfmove: DBHalfmove): void {
+  private movePiece(DBHalfmove: GetPostDBHalfmove): void {
     const b = this.board;
     const { pos_start_x, pos_start_y, pos_end_x, pos_end_y } = DBHalfmove;
     const startPos = new Pos(pos_start_y, pos_start_x);
@@ -58,18 +59,27 @@ export default class IncludeDBData {
       startPos,
       endPos,
       piece as AnyPiece,
-      CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE
+      CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
+      false
     );
     if (DBHalfmove.promoted_to_piece_symbol_fen !== null) {
       this.placePromotedPieceOnBoard(
         DBHalfmove.promoted_to_piece_symbol_fen,
+        piece.team,
         endPos
       );
     }
   }
 
-  private placePromotedPieceOnBoard(piece_fen: string, promotionPos: Pos) {
+  private placePromotedPieceOnBoard(
+    piece_fen: string,
+    team: TEAMS,
+    promotionPos: Pos
+  ) {
     const b = this.board;
+    if (team === TEAMS.WHITE) {
+      piece_fen = piece_fen.toUpperCase();
+    }
     const promotedToPiece = FENNotation.convertPieceFENToPieceObj(piece_fen, b);
     b.movesSystem.getLatestHalfmove().setPromotedTo(promotedToPiece);
     b.removePieceInPos(promotionPos, true);

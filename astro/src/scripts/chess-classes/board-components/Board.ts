@@ -25,8 +25,9 @@ import AnalisisSystem, {
 } from "./AnalisisSystem";
 import ShowEvetsOnBoard from "./ShowEventsOnBoard";
 import "../../../styles/Board.css";
-import type { DBGameData, DBHalfmove } from "../../../db/types";
+import type { GetDBGameData, GetPostDBHalfmove } from "../../../db/types";
 import IncludeDBData from "./IncludeDBData";
+import FetchToDB from "./FetchToDB";
 
 export type ArrOfPieces2d = (AnyPiece | null)[][];
 
@@ -92,10 +93,11 @@ export default class Board {
   private kings: KingsObj;
   private castlingRights: CastlingRights;
   public includeDBData: IncludeDBData = null as never;
+  private fetchToDB: FetchToDB | null;
   constructor(
     htmlPageContainerQSelector: string,
     customPositionFEN: string | null,
-    DBGameData: DBGameData | undefined,
+    DBGameData: GetDBGameData | undefined,
     public match: Match
   ) {
     const startFENNotation = new FENNotation(customPositionFEN, this);
@@ -105,7 +107,8 @@ export default class Board {
     this.pageContainerHtml = document.querySelector(
       htmlPageContainerQSelector
     ) as HTMLDivElement;
-
+    this.fetchToDB =
+      DBGameData === undefined ? null : new FetchToDB(DBGameData.game.id);
     this.html.append(this.fieldsHtml);
     this.html.append(this.piecesHtml);
     this.html.append(this.createContainerForButtons());
@@ -320,7 +323,8 @@ export default class Board {
     from: Pos,
     to: Pos,
     piece: AnyPiece,
-    transitionDelayMs: number
+    transitionDelayMs: number,
+    saveToDBIfPossible: boolean
   ): void {
     const capturedPiece = this.getPiece(to);
     if (capturedPiece !== null) {
@@ -340,20 +344,37 @@ export default class Board {
         Piece.isKing(piece) && King.isMoveCastling(from, to)
       )
     );
+
+    this.finishMovingPiece(
+      this.movesSystem.getLatestHalfmove(),
+      saveToDBIfPossible
+    );
+  }
+
+  private async finishMovingPiece(
+    halfmove: Halfmove,
+    saveToDBIfPossible: boolean
+  ) {
     const afterMoveIsFinished = () => {
       this.match.checkIfGameShouldEndAfterMove(
         this.movesSystem.getLatestHalfmove()
       );
-      this.showEventsOnBoard.showNewMoveClassification(to);
+      this.showEventsOnBoard.showNewMoveClassification(halfmove.to);
       this.showEventsOnBoard.toggleCssGrabOnPieces();
-      this.showEventsOnBoard.showCheckIfKingIsInCheck(piece.enemyTeamNum);
-      this.showEventsOnBoard.showNewLastMove(from, to);
+      this.showEventsOnBoard.showCheckIfKingIsInCheck(
+        halfmove.piece.enemyTeamNum
+      );
+      this.showEventsOnBoard.showNewLastMove(halfmove.from, halfmove.to);
     };
 
     if (this.pawnPromotionMenu !== null) {
-      this.pawnPromotionMenu.playerIsChoosing.then(afterMoveIsFinished);
+      await this.pawnPromotionMenu.playerIsChoosing.then(afterMoveIsFinished);
     } else {
       afterMoveIsFinished();
+    }
+
+    if (saveToDBIfPossible && this.fetchToDB !== null) {
+      this.fetchToDB.postHalfmove(halfmove, this.movesSystem.halfmoves.length);
     }
   }
 

@@ -1,4 +1,4 @@
-import type { DBGameData } from "../../db/types";
+import type { GetDBGameData } from "../../db/types";
 import { TEAMS } from "./pieces/Piece";
 
 export default class Player {
@@ -7,7 +7,7 @@ export default class Player {
   // private image: null;
   constructor(
     readonly team: TEAMS,
-    DBGameData: DBGameData | undefined
+    DBGameData: GetDBGameData | undefined
     // image: ImageBitmap | null,
   ) {
     if (DBGameData === undefined) {

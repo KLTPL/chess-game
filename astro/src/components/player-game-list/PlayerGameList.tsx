@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import type { DBGameData } from "../../db/types";
+import type { GetDBGameData } from "../../db/types";
 import GameDisplay from "./GameDisplay";
 
 export default function PlayerGameList() {
-  const [DBGameDatas, setDBGameDatas] = useState<DBGameData[] | null>(null);
+  const [DBGameDatas, setDBGameDatas] = useState<GetDBGameData[] | null>(null);
   useEffect(function () {
     (async function () {
       const data = await fetch(
-        `${import.meta.env.PUBLIC_URL}/api/player-game-list/${"kltpl"}.json`
+        `${import.meta.env.PUBLIC_URL}/api/player-game-list/${"hubwu"}.json`
       ).then((res) => res.json());
 
       setDBGameDatas(data);

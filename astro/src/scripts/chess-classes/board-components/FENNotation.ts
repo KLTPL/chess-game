@@ -178,7 +178,7 @@ export default class FENNotation {
     const lowerCase = pieceFEN.toLowerCase();
     const team = pieceFEN === lowerCase ? TEAMS.BLACK : TEAMS.WHITE;
     const id = (function () {
-      switch (pieceFEN) {
+      switch (lowerCase) {
         case "r":
           return PIECES.ROOK;
         case "n":
@@ -197,5 +197,22 @@ export default class FENNotation {
     })();
 
     return board.createNewPieceObj(id, team, board) as AnyPiece;
+  }
+
+  public static convertPieceIdToFEN(piece: PIECES) {
+    switch (piece) {
+      case PIECES.ROOK:
+        return "r";
+      case PIECES.KNIGHT:
+        return "n";
+      case PIECES.BISHOP:
+        return "b";
+      case PIECES.QUEEN:
+        return "q";
+      case PIECES.KING:
+        return "k";
+      case PIECES.PAWN:
+        return "p";
+    }
   }
 }

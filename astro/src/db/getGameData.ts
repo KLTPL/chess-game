@@ -1,10 +1,10 @@
 import type { QueryResult } from "pg";
 import { queryDB } from "./connect";
-import type { DBGameData } from "./types";
+import type { GetDBGameData } from "./types";
 
 export default async function getGameData(
   displayId: string
-): Promise<DBGameData | null> {
+): Promise<GetDBGameData | null> {
   const resGame = await getResGame(displayId);
 
   if (resGame.rowCount === 0) {
