@@ -23,11 +23,11 @@ export default async function getGameData(
 async function getResGame(displayId: string): Promise<QueryResult<any>> {
   const resGame = await queryDB(
     `SELECT
-        g.id, g.display_id, g.is_finished, gr.name as result_name, ger.name as end_reason_name, g.castling_w_k, g.castling_w_q, g.castling_b_k, g.castling_b_q, u1.display_name AS user_w_display_name, u1.name AS user_w_name, u2.display_name AS user_b_display_name, u2.name AS user_b_name
+        g.id, g.display_id, g.is_finished, gr.name AS result_name, ger.name AS end_reason_name, g.castling_w_k, g.castling_w_q, g.castling_b_k, g.castling_b_q, u1.display_name AS user_w_display_name, u1.name AS user_w_name, u2.display_name AS user_b_display_name, u2.name AS user_b_name
       FROM (SELECT * FROM game WHERE display_id = $1) g
-      JOIN app_user u1
+      INNER JOIN app_user u1
       ON (u1.id = g.user_id_w)
-      JOIN app_user u2
+      INNER JOIN app_user u2
       ON (u2.id = g.user_id_b)
       LEFT JOIN dict_game_result gr
       ON (g.result_id = gr.id)
@@ -40,9 +40,9 @@ async function getResGame(displayId: string): Promise<QueryResult<any>> {
 
 async function getResHalfmoves(id: string): Promise<QueryResult<any>> {
   const resHalfmoves = await queryDB(
-    `SELECT d.symbol_FEN as piece_symbol_FEN, h.game_id, h.halfmove_number, h.pos_start_x, h.pos_start_y, h.pos_end_x, h.pos_end_y, h.king_checked_pos_x, h.king_checked_pos_y, h.is_castling
+    `SELECT d.symbol_FEN AS piece_symbol_FEN, h.game_id, h.halfmove_number, h.pos_start_x, h.pos_start_y, h.pos_end_x, h.pos_end_y, h.king_checked_pos_x, h.king_checked_pos_y, h.is_castling
     FROM (SELECT * FROM game_halfmove WHERE game_id = $1) h
-    JOIN dict_piece d
+    INNER JOIN dict_piece d
     ON (h.piece_id = d.id)
     ORDER BY halfmove_number;`,
     [id]

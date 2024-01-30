@@ -1,4 +1,4 @@
-/*
+
 CREATE DATABASE chess;
 
 CREATE TABLE dict_game_result (
@@ -78,4 +78,3 @@ CREATE TABLE game_halfmove (
   is_castling BOOLEAN NOT NULL
 );
 
-*/

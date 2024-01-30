@@ -7,11 +7,12 @@ import type { DBHalfmove } from "./types";
 export type addNewMoveProps = {
   DBHalfmove: DBHalfmove;
   endGameData?: EndGameData;
-}
+};
 
-export default async function addNewMove(
-  {DBHalfmove, endGameData}: addNewMoveProps
-): Promise<void> {
+export default async function addNewMove({
+  DBHalfmove,
+  endGameData,
+}: addNewMoveProps): Promise<void> {
   const d = DBHalfmove;
 
   await queryDB(
@@ -41,10 +42,7 @@ export default async function addNewMove(
       VALUES 
         ($1, $2);
       `,
-      [
-        d.king_checked_pos_x,
-        d.king_checked_pos_y,
-      ]
+      [d.king_checked_pos_x, d.king_checked_pos_y]
     );
   }
 

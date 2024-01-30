@@ -25,13 +25,13 @@ export const POST: APIRoute = async ({ request }) => {
     const data: addNewMoveProps = await request.json();
 
     addNewMove(data);
-  
+
     return new Response(null, {
       status: 200,
     });
   } catch (err) {
     return new Response(null, {
-      status: 500
-    })
+      status: 500,
+    });
   }
 };
