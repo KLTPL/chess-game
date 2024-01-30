@@ -7,7 +7,7 @@ export default function PlayerGameList() {
   useEffect(function () {
     (async function () {
       const data = await fetch(
-        `${import.meta.env.PUBLIC_PROTOCOL}://${import.meta.env.PUBLIC_HOST}:${import.meta.env.PUBLIC_PORT}/api/player-game-list/${"kltpl"}.json`
+        `${import.meta.env.PUBLIC_URL}/api/player-game-list/${"kltpl"}.json`
       ).then((res) => res.json());
 
       setDBGameDatas(data);

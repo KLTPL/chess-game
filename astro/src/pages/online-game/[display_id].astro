@@ -16,7 +16,7 @@ Astro.cookies.set("displayId", displayId);
   import getCookie from "../../scripts/getCookie";
 
   const response = await fetch(
-    `${import.meta.env.PUBLIC_PROTOCOL}://${import.meta.env.PUBLIC_HOST}:${import.meta.env.PUBLIC_PORT}/api/online-game/${getCookie("displayId")}.json`
+    `${import.meta.env.PUBLIC_URL}/api/online-game/${getCookie("displayId")}.json`
   );
 
   if (response.status !== 200) {
