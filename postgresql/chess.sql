@@ -1,4 +1,4 @@
-
+/*
 CREATE DATABASE chess;
 
 CREATE TABLE dict_game_result (
@@ -53,8 +53,8 @@ CREATE TABLE game (
   display_id varchar(36) NOT NULL UNIQUE,
   user_id_w BIGINT NOT NULL REFERENCES app_user(id),
   user_id_b BIGINT NOT NULL REFERENCES app_user(id),
-  result_id BIGINT REFERENCES dict_game_result(id),
-  end_reason_id BIGINT REFERENCES dict_game_end_reason(id),
+  result_id SMALLINT REFERENCES dict_game_result(id),
+  end_reason_id SMALLINT REFERENCES dict_game_end_reason(id),
   is_finished BOOLEAN NOT NULL DEFAULT false,
   start_date TIMESTAMP NOT NULL DEFAULT NOW(),
   end_date TIMESTAMP,
@@ -67,7 +67,7 @@ CREATE TABLE game (
 CREATE TABLE game_halfmove (
   id BIGSERIAL PRIMARY KEY,
   game_id BIGINT NOT NULL REFERENCES game(id),
-  piece_id BIGINT NOT NULL REFERENCES dict_piece(id),
+  piece_id SMALLINT NOT NULL REFERENCES dict_piece(id),
   halfmove_number SMALLINT NOT NULL,
   pos_start_x SMALLINT NOT NULL,
   pos_start_y SMALLINT NOT NULL,
@@ -75,6 +75,8 @@ CREATE TABLE game_halfmove (
   pos_end_y SMALLINT NOT NULL,
   king_checked_pos_x SMALLINT,
   king_checked_pos_y SMALLINT,
-  is_castling BOOLEAN NOT NULL
+  is_castling BOOLEAN NOT NULL,
+  promoted_to_piece_id SMALLINT REFERENCES dict_piece(id)
 );
 
+*/
