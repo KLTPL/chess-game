@@ -1,9 +1,8 @@
 import { type APIRoute } from "astro";
 import getGameData from "../../../db/getGameData";
 import addNewMove from "../../../db/addNewMove";
-import type { updateGameResultProps } from "../../../db/updateGameResult";
 import updateGameResult from "../../../db/updateGameResult";
-import type { GetPostDBHalfmove } from "../../../db/types";
+import type { GetPostDBHalfmove, PutDBGame } from "../../../db/types";
 
 export const GET: APIRoute = async ({ params }) => {
   const data = await getGameData(params.display_id as string);
@@ -40,7 +39,7 @@ export const POST: APIRoute = async ({ request }) => {
 
 export const PUT: APIRoute = async ({ request }) => {
   try {
-    const data: updateGameResultProps = await request.json();
+    const data: PutDBGame = await request.json();
 
     updateGameResult(data);
 

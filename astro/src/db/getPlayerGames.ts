@@ -13,7 +13,7 @@ export default async function getPlayerGames(
   }
   const resDisplayIds = await getResDisplayIds(resUserId.rows[0].id);
 
-  const games = [];
+  const games: GetDBGameData[] = [];
   for (const { display_id } of resDisplayIds.rows) {
     games.push((await getGameData(display_id)) as GetDBGameData);
   }

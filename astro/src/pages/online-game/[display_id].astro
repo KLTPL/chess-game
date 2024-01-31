@@ -18,7 +18,6 @@ Astro.cookies.set("displayId", displayId);
   const response = await fetch(
     `${import.meta.env.PUBLIC_URL}/api/online-game/${getCookie("displayId")}.json`
   );
-
   if (response.status !== 200) {
     document.querySelector("#error-log")?.append("GAME NOT FOUND ERROR: 404");
   } else {

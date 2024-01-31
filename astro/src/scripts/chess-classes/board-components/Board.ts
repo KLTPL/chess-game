@@ -25,7 +25,11 @@ import AnalisisSystem, {
 } from "./AnalisisSystem";
 import ShowEvetsOnBoard from "./ShowEventsOnBoard";
 import "../../../styles/Board.css";
-import type { GetDBGameData, GetPostDBHalfmove } from "../../../db/types";
+import {
+  END_REASONS_ID_DB,
+  GAME_RESULTS_ID_DB,
+  type GetDBGameData,
+} from "../../../db/types";
 import IncludeDBData from "./IncludeDBData";
 import FetchToDB from "./FetchToDB";
 
@@ -93,7 +97,7 @@ export default class Board {
   private kings: KingsObj;
   private castlingRights: CastlingRights;
   public includeDBData: IncludeDBData = null as never;
-  private fetchToDB: FetchToDB | null;
+  public fetchToDB: FetchToDB | null;
   constructor(
     htmlPageContainerQSelector: string,
     customPositionFEN: string | null,
@@ -147,9 +151,9 @@ export default class Board {
     } else {
       setTimeout(() =>
         this.match.end({
-          cousedBy: null,
-          resultName: "Bład wprowadzenia danych",
-          endReasonName: "Złe króle",
+          id: this.fetchToDB?.game_id,
+          end_reason_id: END_REASONS_ID_DB.DATA_ERROR,
+          result_id: GAME_RESULTS_ID_DB.DRAW,
         })
       );
       //setTimeout so constructor is finished before calling Match.end
@@ -160,9 +164,9 @@ export default class Board {
     if (this.isDrawByInsufficientMaterial()) {
       setTimeout(() =>
         this.match.end({
-          cousedBy: null,
-          resultName: "remis",
-          endReasonName: "niewystarczający materiał",
+          id: this.fetchToDB?.game_id,
+          end_reason_id: END_REASONS_ID_DB.INSUFFICENT,
+          result_id: GAME_RESULTS_ID_DB.DRAW,
         })
       );
     }
