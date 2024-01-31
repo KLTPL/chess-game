@@ -1,10 +1,14 @@
 import type { GetPostDBHalfmove } from "../../../db/types";
 import type Halfmove from "../Halfmove";
 import FENNotation from "./FENNotation";
+import type { PutDBGame } from "../../../db/types";
+import type { getResultNameProps } from "../../../db/getResultName";
+import type { getEndReasonNameProps } from "../../../db/getEndReasonName";
 
 export default class FetchToDB {
-  constructor(private game_id: string) {}
-  public postHalfmove(halfmove: Halfmove, halfmoveNum: number) {
+  constructor(public game_id: string) {}
+
+  public async postHalfmove(halfmove: Halfmove, halfmoveNum: number) {
     const promotedTo = halfmove.getPromotedTo();
 
     const GetDBHalfmove: GetPostDBHalfmove = {
@@ -25,12 +29,49 @@ export default class FetchToDB {
           ? null
           : FENNotation.convertPieceIdToFEN(promotedTo.id),
     };
-    fetch(
+    await fetch(
       `${import.meta.env.PUBLIC_URL}/api/online-game/${this.game_id}}.json`,
       {
         method: "POST",
         body: JSON.stringify(GetDBHalfmove),
       }
     );
+  }
+
+  public async putGameStatus(putDBGame: PutDBGame) {
+    await fetch(
+      `${import.meta.env.PUBLIC_URL}/api/online-game/${this.game_id}}.json`,
+      {
+        method: "PUT",
+        body: JSON.stringify(putDBGame),
+      }
+    );
+  }
+
+  public static async getResultName(
+    resultId: string | number
+  ): Promise<string | null> {
+    const response: Response = await fetch(
+      `${import.meta.env.PUBLIC_URL}/api/game-result/${resultId}.json`
+    );
+    if (response.status !== 200) {
+      return null;
+    }
+    const resultNameObj: getResultNameProps = await response.json();
+    return resultNameObj.resultName;
+  }
+
+  public static async getEndReasonName(
+    resultId: string | number
+  ): Promise<string | null> {
+    const response: Response = await fetch(
+      `${import.meta.env.PUBLIC_URL}/api/game-end-reason/${resultId}.json`
+    );
+
+    if (response.status !== 200) {
+      return null;
+    }
+    const resultNameObj: getEndReasonNameProps = await response.json();
+    return resultNameObj.endReason;
   }
 }

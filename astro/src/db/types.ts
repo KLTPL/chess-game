@@ -2,7 +2,9 @@ export type GetDBGame = {
   id: string;
   display_id: string;
   is_finished: boolean;
+  result_id: null | string;
   result_name: null | string;
+  end_reason_id: null | string;
   end_reason_name: null | string;
   castling_w_k: boolean;
   castling_w_q: boolean;
@@ -31,3 +33,27 @@ export type GetDBGameData = {
   game: GetDBGame;
   halfmoves: GetPostDBHalfmove[];
 };
+
+export type PutDBGame = {
+  id: string | number;
+  result_id: string | number;
+  end_reason_id: string | number;
+};
+
+export const enum END_REASONS_ID_DB {
+  CHECKMATE = 1,
+  RESIGNATION = 2,
+  TIMEOUT = 3,
+  STALEMATE = 10,
+  INSUFFICENT = 11,
+  MOVE_RULE_50 = 12,
+  REPETITION = 13,
+  AGREEMENT = 14,
+  DATA_ERROR = 20,
+}
+
+export const enum GAME_RESULTS_ID_DB {
+  DRAW = 0,
+  WHITE = 1,
+  BLACK = 2,
+}

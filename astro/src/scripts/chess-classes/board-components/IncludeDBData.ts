@@ -14,24 +14,23 @@ export default class IncludeDBData {
     DBGameData: GetDBGameData | undefined,
     private board: Board
   ) {
-    if (DBGameData === undefined || DBGameData.halfmoves.length === 0) {
+    if (DBGameData === undefined) {
       this.isIncluding = false;
       return;
     }
+    this.includeCastlingRights(DBGameData);
+
     if (DBGameData.game.is_finished) {
       this.board.match.end({
-        cousedBy: null,
-        resultName: DBGameData.game.result_name as string,
-        endReasonName: DBGameData.game.end_reason_name as string,
+        result_id: DBGameData.game.result_id as string,
+        end_reason_id: DBGameData.game.end_reason_id as string,
       });
-      return;
     }
 
-    this.includeCastlingRights(DBGameData);
     setTimeout(() => this.insertDBHalfmoves(DBGameData.halfmoves)); // setTimeout so the constructor finishes before and Board.IncludeDBData is not null
   }
 
-  public includeCastlingRights(DBGameData: GetDBGameData): void {
+  private includeCastlingRights(DBGameData: GetDBGameData): void {
     this.board.getCastlingRights().white.k = DBGameData.game.castling_w_k;
     this.board.getCastlingRights().white.q = DBGameData.game.castling_w_q;
     this.board.getCastlingRights().black.k = DBGameData.game.castling_b_k;
@@ -40,6 +39,7 @@ export default class IncludeDBData {
 
   private insertDBHalfmoves(DBHalfmoves: GetPostDBHalfmove[]) {
     if (DBHalfmoves.length === 0) {
+      this.isIncluding = false;
       return;
     }
     for (const DBHalfmove of DBHalfmoves) {
