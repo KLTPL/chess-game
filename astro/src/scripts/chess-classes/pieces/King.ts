@@ -115,7 +115,7 @@ export default class King extends Piece {
       ); // sometimes 2 fields, sometimes 3
       return (
         this.isKingRightToCastle(move2.x, pos.x) &&
-        fieldsXPos.filter((xPos) => this.board.getPiece(pos) === null)
+        fieldsXPos.filter((xPos) => this.board.getPiece(new Pos(pos.y, xPos)) === null)
           .length === fieldsXPos.length &&
         this.filterMovesSoKingCantMoveIntoCheck(moves).length === moves.length
       );
