@@ -20,15 +20,15 @@ export default class IncludeDBData {
     }
     this.includeCastlingRights(DBGameData);
 
-    if (DBGameData.game.is_finished) {
-      console.log("INCLUDE");
-      this.board.match.end({
-        result_id: DBGameData.game.result_id as string,
-        end_reason_id: DBGameData.game.end_reason_id as string,
-      });
-    }
-
-    setTimeout(() => this.insertDBHalfmoves(DBGameData.halfmoves)); // setTimeout so the constructor finishes before and Board.IncludeDBData is not null
+    setTimeout(() => {
+      this.insertDBHalfmoves(DBGameData.halfmoves);
+      if (DBGameData.game.is_finished) {
+        this.board.match.end({
+          result_id: DBGameData.game.result_id as string,
+          end_reason_id: DBGameData.game.end_reason_id as string,
+        });
+      }
+    }); // setTimeout so the constructor finishes before and Board.IncludeDBData is not null
   }
 
   private includeCastlingRights(DBGameData: GetDBGameData): void {
