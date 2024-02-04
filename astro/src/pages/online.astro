@@ -1,18 +1,20 @@
 ---
 import PlayerGameList from "../components/player-game-list/PlayerGameList";
+import getPlayerGames from "../db/getPlayerGames";
 import MainLayout from "../layouts/main-layout.astro";
 export const prerender = true;
+
+const data = await getPlayerGames("kltpl");
+
+if (data === null) {
+  return new Response(null, { status: 404 });
+}
 ---
 
 <MainLayout title="Gra online">
+  <div>Nowa gra</div>
   <div>
-    Twoje gry online: ... <br />
-    Nowa gra
-  </div>
-  <div>
-    <h3>Game list</h3>
-    <PlayerGameList client:only />
+    <h3>Twoje gry:</h3>
+    <PlayerGameList gamesData={data} />
   </div>
 </MainLayout>
-
-../components/player-game-list/PlayerGameList
