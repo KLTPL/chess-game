@@ -279,7 +279,6 @@ export default abstract class Piece {
           newPos,
           boardGrabbedPieceInfo.piece as AnyPiece,
           CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT,
-          true
         );
         this.board.selectedPieceInfo = null;
         return;
@@ -315,7 +314,6 @@ export default abstract class Piece {
           newPos,
           selectedPieceInfo.piece as AnyPiece,
           CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT,
-          true
         );
         this.board.selectedPieceInfo = null;
         return;
