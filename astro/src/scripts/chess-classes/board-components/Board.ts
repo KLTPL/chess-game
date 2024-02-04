@@ -328,7 +328,7 @@ export default class Board {
     to: Pos,
     piece: AnyPiece,
     transitionDelayMs: number,
-    saveToDBIfPossible: boolean
+    isIncludingFromDB: boolean = false
   ): void {
     const capturedPiece = this.getPiece(to);
     if (capturedPiece !== null) {
@@ -351,18 +351,20 @@ export default class Board {
 
     this.finishMovingPiece(
       this.movesSystem.getLatestHalfmove(),
-      saveToDBIfPossible
+      isIncludingFromDB
     );
   }
 
   private async finishMovingPiece(
     halfmove: Halfmove,
-    saveToDBIfPossible: boolean
+    isIncludingFromDB: boolean
   ) {
     const afterMoveIsFinished = () => {
-      this.match.checkIfGameShouldEndAfterMove(
-        this.movesSystem.getLatestHalfmove()
-      );
+      if (!isIncludingFromDB) {
+        this.match.checkIfGameShouldEndAfterMove(
+          this.movesSystem.getLatestHalfmove()
+        );
+      }
       this.showEventsOnBoard.showNewMoveClassification(halfmove.to);
       this.showEventsOnBoard.toggleCssGrabOnPieces();
       this.showEventsOnBoard.showCheckIfKingIsInCheck(
@@ -377,7 +379,7 @@ export default class Board {
       afterMoveIsFinished();
     }
 
-    if (saveToDBIfPossible && this.fetchToDB !== null) {
+    if (!isIncludingFromDB && this.fetchToDB !== null) {
       this.fetchToDB.postHalfmove(halfmove, this.movesSystem.halfmoves.length);
     }
   }

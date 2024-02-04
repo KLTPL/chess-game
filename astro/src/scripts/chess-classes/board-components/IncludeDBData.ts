@@ -21,6 +21,7 @@ export default class IncludeDBData {
     this.includeCastlingRights(DBGameData);
 
     if (DBGameData.game.is_finished) {
+      console.log("INCLUDE");
       this.board.match.end({
         result_id: DBGameData.game.result_id as string,
         end_reason_id: DBGameData.game.end_reason_id as string,
@@ -60,7 +61,7 @@ export default class IncludeDBData {
       endPos,
       piece as AnyPiece,
       CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
-      false
+      true
     );
     if (DBHalfmove.promoted_to_piece_symbol_fen !== null) {
       this.placePromotedPieceOnBoard(
