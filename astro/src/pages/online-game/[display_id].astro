@@ -6,9 +6,7 @@ const displayId = Astro.params.display_id as string;
 Astro.cookies.set("displayId", displayId);
 ---
 
-<MainLayout title="Online game">
-  <div id="error-log"></div>
-</MainLayout>
+<MainLayout title="Online game" />
 
 <script>
   import type { GetDBGameData } from "../../db/types";
@@ -18,8 +16,8 @@ Astro.cookies.set("displayId", displayId);
   const response = await fetch(
     `${import.meta.env.PUBLIC_URL}/api/online-game/${getCookie("displayId")}.json`
   );
-  if (response.status !== 200) {
-    document.querySelector("#error-log")?.append("GAME NOT FOUND ERROR: 404");
+  if (response.status >= 400) {
+    window.location.replace("/404");
   } else {
     const DBGame: GetDBGameData = await response.json();
     initGameOnline("[data-page-container]", DBGame);
