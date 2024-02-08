@@ -19,3 +19,6 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# private key
+/src/utils/generateKeypair/id_rsa_priv.pem
