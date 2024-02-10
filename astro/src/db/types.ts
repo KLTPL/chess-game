@@ -40,6 +40,17 @@ export type PutDBGame = {
   end_reason_id: string | number;
 };
 
+export type GetDBAppUser = {
+  id: string | number;
+  email: string;
+  name: string;
+  display_name: string;
+  password: string;
+  date_create: string;
+  is_active: boolean;
+  date_last_login: string;
+}
+
 export const enum END_REASONS_ID_DB {
   CHECKMATE = 1,
   RESIGNATION = 2,
