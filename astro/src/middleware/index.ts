@@ -1,5 +1,4 @@
-import { defineMiddleware } from "astro:middleware";
+import { sequence } from "astro:middleware";
+import protect from "./protect";
 
-export const onRequest = defineMiddleware((context, next) => {
-  return next();
-});
+export const onRequest = sequence(protect);
