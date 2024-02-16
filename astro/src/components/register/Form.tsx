@@ -151,7 +151,7 @@ export default function Form() {
         <div className="text-red-700">{usernameErr}</div>
       )}
       <label htmlFor="display-name">
-        Wyświetlana nazwa użytkownika (niewymagane):
+        Wyświetlana nazwa użytkownika (opcjonalne):
       </label>
       <br />
       <input
@@ -165,7 +165,7 @@ export default function Form() {
       {displayNameErr !== null && (
         <div className="text-red-700">{displayNameErr}</div>
       )}
-      <label htmlFor="password">Nazwa użytkownika:</label>
+      <label htmlFor="password">Hasło:</label>
       <br />
       <input
         type="password"
