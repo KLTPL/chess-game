@@ -2,9 +2,12 @@ import type { RegisterBody } from "../components/register/Form";
 import encrpt from "../utils/hash-password/encrypt";
 import { queryDB } from "./connect";
 
-export default async function addNewUser(
-  { email, username, displayName, password }: RegisterBody
-): Promise<void> {
+export default async function addNewUser({
+  email,
+  username,
+  displayName,
+  password,
+}: RegisterBody): Promise<void> {
   const { hash, salt } = encrpt(password);
   if (displayName.length === 0) {
     displayName = username;

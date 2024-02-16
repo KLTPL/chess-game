@@ -21,11 +21,15 @@ export async function getUserById(
   return getUserGeneric("SELECT * FROM app_user WHERE id = $1;", id);
 }
 
-export async function getUserByEmail(email: string): Promise<GetDBAppUser | null> {
+export async function getUserByEmail(
+  email: string
+): Promise<GetDBAppUser | null> {
   return getUserGeneric("SELECT * FROM app_user WHERE email = $1;", email);
 }
 
-export async function getUserByName(name: string): Promise<GetDBAppUser | null> {
+export async function getUserByName(
+  name: string
+): Promise<GetDBAppUser | null> {
   return getUserGeneric("SELECT * FROM app_user WHERE name = $1;", name);
 }
 

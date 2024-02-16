@@ -12,9 +12,9 @@ const protect = defineMiddleware(({ url, cookies, redirect }, next) => {
       if (token === undefined) {
         return redirect("/login");
       }
-  
+
       const isVerified = verify(token);
-      
+
       if (!isVerified) {
         cookies.delete("token", { path: "/" });
         return redirect("/login");
