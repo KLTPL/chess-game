@@ -12,7 +12,6 @@ import sign from "../../../utils/jwt/sign";
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const { usernameOrEmail, password } = (await request.json()) as LoginBody;
-    // Do something with the data
     const user = await getUserByNameOrEmail(usernameOrEmail);
 
     if (user === null) {
@@ -24,7 +23,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         status: 401,
       });
     }
-    // const result = bcrypt.compareSync(password, user.password);
     const result = validate(password, user.password, user.password_salt);
     if (result) {
       const token = sign(user);
