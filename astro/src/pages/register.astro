@@ -1,6 +1,6 @@
 ---
 import MainLayout from "../layouts/main-layout.astro";
-import LoginForm from "../components/login/Form";
+import RegisterForm from "../components/register/Form";
 
 if (Astro.cookies.get("token") !== undefined) {
   return Astro.redirect("/");
@@ -10,7 +10,7 @@ if (Astro.cookies.get("token") !== undefined) {
 <MainLayout title="Logowanie">
   <div class="flex flex-col">
     <h2>Zaloguj się</h2>
-    <LoginForm client:load />
-    <a href="/register">Nie masz konta? Załóż konto</a>
+    <RegisterForm client:load />
+    <a href="/login">Masz już konto? Zaloguj się</a>
   </div>
 </MainLayout>

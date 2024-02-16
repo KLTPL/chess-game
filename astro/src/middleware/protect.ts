@@ -10,7 +10,6 @@ const protect = defineMiddleware(({ url, cookies, redirect }, next) => {
     if (isProtected) {
       const token = cookies.get("token")?.value;
       if (token === undefined) {
-        console.log("no token so redirect");
         return redirect("/login");
       }
   
