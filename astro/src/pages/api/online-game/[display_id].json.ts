@@ -5,21 +5,28 @@ import updateGameResult from "../../../db/updateGameResult";
 import type { GetPostDBHalfmove, PutDBGame } from "../../../db/types";
 
 export const GET: APIRoute = async ({ params }) => {
-  const data = await getGameData(params.display_id as string);
+  try {
+    const data = await getGameData(params.display_id as string);
 
-  if (data === null) {
-    return new Response(null, {
-      status: 404,
-      statusText: "Not found",
+    if (data === null) {
+      return new Response(null, {
+        status: 404,
+        statusText: "Not found",
+      });
+    }
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+    return new Response(null, { status: 500 });
   }
-
-  return new Response(JSON.stringify(data), {
-    status: 200,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
 };
 
 export const POST: APIRoute = async ({ request }) => {
@@ -30,10 +37,11 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(null, {
       status: 200,
     });
-  } catch (err) {
-    return new Response(null, {
-      status: 500,
-    });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+    return new Response(null, { status: 500 });
   }
 };
 
@@ -46,9 +54,10 @@ export const PUT: APIRoute = async ({ request }) => {
     return new Response(null, {
       status: 200,
     });
-  } catch (err) {
-    return new Response(null, {
-      status: 500,
-    });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+    return new Response(null, { status: 500 });
   }
 };
