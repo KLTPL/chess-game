@@ -8,7 +8,7 @@ export async function setUserLastLogin(id: number | string): Promise<void> {
   const now = new Date();
   const year = now.getFullYear();
   const month = format(now.getMonth() + 1);
-  const day = format(now.getDate()) ;
+  const day = format(now.getDate());
   const hour = format(now.getHours());
   const min = format(now.getMinutes());
   const sec = format(now.getSeconds());
@@ -19,5 +19,4 @@ export async function setUserLastLogin(id: number | string): Promise<void> {
       WHERE id = $2`,
     [`${year}/${month}/${day} ${hour}:${min}:${sec}`, id]
   );
-
 }
