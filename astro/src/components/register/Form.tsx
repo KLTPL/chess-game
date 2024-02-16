@@ -36,9 +36,19 @@ export default function Form() {
   const displayNameRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
   const [
-    { password: passwordErr, username: usernameErr, displayName: displayNameErr, email: emailErr },
+    {
+      password: passwordErr,
+      username: usernameErr,
+      displayName: displayNameErr,
+      email: emailErr,
+    },
     setErrors,
-  ] = useState<ErrorsRegisterForm>({ password: null, username: null, displayName: null, email: null });
+  ] = useState<ErrorsRegisterForm>({
+    password: null,
+    username: null,
+    displayName: null,
+    email: null,
+  });
 
   async function fetchForm() {
     const email = emailRef.current?.value;
@@ -60,21 +70,51 @@ export default function Form() {
         displayName,
         password,
       };
-      const response = await fetch(`${import.meta.env.PUBLIC_URL}/api/register`, {
-        method: "POST",
-        body: JSON.stringify(body),
-      });
+      const response = await fetch(
+        `${import.meta.env.PUBLIC_URL}/api/register`,
+        {
+          method: "POST",
+          body: JSON.stringify(body),
+        }
+      );
 
-      const { errorCode, errorMessage }: RegisterResponse = await response.json();
+      const { errorCode, errorMessage }: RegisterResponse =
+        await response.json();
       if (errorCode !== null) {
-        if (errorCode === RegisterErrors.USERNAME_TAKEN || errorCode === RegisterErrors.USERNAME_TO_LONG) {
-          setErrors({ password: null, username: errorMessage, displayName: null, email: null });
-        } else if (errorCode === RegisterErrors.EMAIL_TAKEN || errorCode === RegisterErrors.EMAIL_TO_LONG) {
-          setErrors({ password: null, username: null, displayName: null, email: errorMessage });
+        if (
+          errorCode === RegisterErrors.USERNAME_TAKEN ||
+          errorCode === RegisterErrors.USERNAME_TO_LONG
+        ) {
+          setErrors({
+            password: null,
+            username: errorMessage,
+            displayName: null,
+            email: null,
+          });
+        } else if (
+          errorCode === RegisterErrors.EMAIL_TAKEN ||
+          errorCode === RegisterErrors.EMAIL_TO_LONG
+        ) {
+          setErrors({
+            password: null,
+            username: null,
+            displayName: null,
+            email: errorMessage,
+          });
         } else if (errorCode === RegisterErrors.PASSWORD_TO_LONG) {
-          setErrors({ password: errorMessage, username: null, displayName: null, email: null });
+          setErrors({
+            password: errorMessage,
+            username: null,
+            displayName: null,
+            email: null,
+          });
         } else if (errorCode === RegisterErrors.DISPLAY_NAME_TO_LONG) {
-          setErrors({ password: null, username: null, displayName: errorMessage, email: null });
+          setErrors({
+            password: null,
+            username: null,
+            displayName: errorMessage,
+            email: null,
+          });
         }
       } else {
         window.document.location.href = "/";
@@ -95,9 +135,7 @@ export default function Form() {
         ref={emailRef}
       />
       <br /> <br />
-      {emailErr !== null && (
-        <div className="text-red-700">{emailErr}</div>
-      )}
+      {emailErr !== null && <div className="text-red-700">{emailErr}</div>}
       <label htmlFor="username">Nazwa użytkownika:</label>
       <br />
       <input
@@ -112,7 +150,9 @@ export default function Form() {
       {usernameErr !== null && (
         <div className="text-red-700">{usernameErr}</div>
       )}
-      <label htmlFor="display-name">Wyświetlana nazwa użytkownika (niewymagane):</label>
+      <label htmlFor="display-name">
+        Wyświetlana nazwa użytkownika (niewymagane):
+      </label>
       <br />
       <input
         type="text"

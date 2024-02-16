@@ -7,7 +7,7 @@ export default function verify(token: string) {
       "./src/utils/generate-keypair/id_rsa_pub.pem",
       { encoding: "utf8", flag: "r" }
     );
-  
+
     return jwt.verify(token, pubKey, { algorithms: ["RS256"] });
   } catch (err) {
     console.error(err);
