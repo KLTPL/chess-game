@@ -1,6 +1,7 @@
 ---
 import MainLayout from "../layouts/main-layout.astro";
 import LoginForm from "../components/login/Form";
+export const prerender = true;
 
 if (Astro.cookies.get("token") !== undefined) {
   return Astro.redirect("/");

@@ -1,6 +1,7 @@
 ---
 import MainLayout from "../layouts/main-layout.astro";
 import RegisterForm from "../components/register/Form";
+export const prerender = true;
 
 if (Astro.cookies.get("token") !== undefined) {
   return Astro.redirect("/");
