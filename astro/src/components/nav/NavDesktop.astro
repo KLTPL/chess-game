@@ -1,8 +1,27 @@
+---
+import verify from "../../utils/jwt/verify";
+import AuthButtons from "./AuthButtons.astro";
+
+const token = Astro.cookies.get("token")?.value;
+const isVerified = token !== undefined && verify(token);
+
+---
+
 <div class="flex h-full flex-row items-center justify-between">
   <div><a href="/">Chess Game</a></div>
   <div class="flex gap-3">
-    <div><a href="/">Home</a></div>
     <div><a href="/online">Online</a></div>
     <div><a href="/local">Lokalnie</a></div>
+    {isVerified === false && <AuthButtons />}
+    {isVerified !== false && <button id="logut" class="text-sm">Wyloguj</button>}
   </div>
 </div>
+
+<script>
+  import Cookies from "js-cookie";
+  function logout() {
+    Cookies.remove("token");
+    window.document.location.href = "/"; // refresh
+  }
+  document.getElementById("logut")?.addEventListener("click", logout);
+</script>
