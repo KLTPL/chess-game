@@ -1,7 +1,5 @@
 import type { APIRoute } from "astro";
 import { getUserByNameOrEmail } from "../../../db/getUser";
-import fs from "fs";
-import jwt from "jsonwebtoken";
 import validate from "../../../utils/hash-password/validate";
 import {
   LoginErrors,
@@ -9,6 +7,7 @@ import {
   type LoginResponse,
 } from "../../../components/login/Form";
 import { setUserLastLogin as DBsetUserLastLogin } from "../../../db/setUserLastLogin";
+import sign from "../../../utils/jwt/sign";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
@@ -28,12 +27,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // const result = bcrypt.compareSync(password, user.password);
     const result = validate(password, user.password, user.password_salt);
     if (result) {
-      const privKey = fs.readFileSync(
-        "./src/utils/generateKeypair/id_rsa_priv.pem",
-        { encoding: "utf8", flag: "r" }
-      );
-
-      const token = jwt.sign(user, privKey, { algorithm: "RS256" });
+      const token = sign(user);
       const date = new Date();
       date.setDate(date.getDate() + 14);
       cookies.set("token", token, { expires: date, path: "/" });
