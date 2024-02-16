@@ -46,6 +46,7 @@ export type GetDBAppUser = {
   name: string;
   display_name: string;
   password: string;
+  password_salt: string;
   date_create: string;
   is_active: boolean;
   date_last_login: string;

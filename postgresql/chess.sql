@@ -42,7 +42,8 @@ CREATE TABLE app_user (
   email VARCHAR(50) NOT NULL UNIQUE,
   name VARCHAR(50) NOT NULL UNIQUE,
   display_name VARCHAR(50) NOT NULL,
-  password VARCHAR(100) NOT NULL,
+  password VARCHAR(128) NOT NULL,
+  password_salt VARCHAR(32) NOT NULL,
   date_create TIMESTAMP NOT NULL DEFAULT NOW(),
   is_active BOOLEAN NOT NULL DEFAULT true,
   date_last_login TIMESTAMP

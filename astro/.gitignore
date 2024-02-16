@@ -21,4 +21,4 @@ pnpm-debug.log*
 .DS_Store
 
 # private key
-/src/utils/generateKeypair/id_rsa_priv.pem
+/src/utils/generate-keypair/id_rsa_priv.pem
