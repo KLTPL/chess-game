@@ -50,7 +50,7 @@ export type GetDBAppUser = {
   date_create: string;
   is_active: boolean;
   date_last_login: string;
-}
+};
 
 export const enum END_REASONS_ID_DB {
   CHECKMATE = 1,
