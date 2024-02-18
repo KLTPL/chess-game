@@ -80,4 +80,17 @@ CREATE TABLE game_halfmove (
   promoted_to_piece_id SMALLINT REFERENCES dict_piece(id)
 );
 
+CREATE TABLE friend_connection (
+  id BIGSERIAL PRIMARY KEY,
+  user_1_id BIGINT NOT NULL REFERENCES app_user(id),
+  user_2_id BIGINT NOT NULL REFERENCES app_user(id),
+  create_timestamp TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE friend_invite (
+  id BIGSERIAL PRIMARY KEY,
+  user_from_id BIGINT NOT NULL REFERENCES app_user(id),
+  user_to_id BIGINT NOT NULL REFERENCES app_user(id),
+  create_timestamp TIMESTAMP NOT NULL DEFAULT NOW()
+);
 */
