@@ -14,6 +14,8 @@ export default {
         "primary-alt": "#008573",
         secondary: "#ff4400e6",
         bg1: "#212326",
+        bg2: "#303236",
+        bg3: "#9fa3aa",
         text1: "#ffffff",
       },
     },

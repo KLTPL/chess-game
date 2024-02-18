@@ -35,13 +35,13 @@ export type GetDBGameData = {
 };
 
 export type PutDBGame = {
-  id: string | number;
+  id: string;
   result_id: string | number;
   end_reason_id: string | number;
 };
 
 export type GetDBAppUser = {
-  id: string | number;
+  id: string;
   email: string;
   name: string;
   display_name: string;

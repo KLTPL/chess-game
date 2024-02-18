@@ -79,4 +79,4 @@ VALUES (4, 5, 5, 7, 3, 4, 3, 4, 0, false);
 
 -- SELECT * FROM app_user;
 -- SELECT * FROM game;
-SELECT * FROM game_halfmove;
+-- SELECT * FROM friend_connection;

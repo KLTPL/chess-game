@@ -1,0 +1,11 @@
+---
+import FriendsContainer from "../components/friends/Container";
+import MainLayout from "../layouts/main-layout.astro";
+export const prerender = true;
+---
+
+<MainLayout title="Znajomi">
+  <div class="flex flex-col items-center gap-3">
+    <FriendsContainer client:only />
+  </div>
+</MainLayout>

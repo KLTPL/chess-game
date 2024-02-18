@@ -12,6 +12,7 @@ const isVerified = token !== undefined && verify(token);
   <div class="flex gap-3">
     <div><a href="/online">Online</a></div>
     <div><a href="/local">Lokalnie</a></div>
+    {isVerified !== false && <div><a href="/friends">Znajomi</a></div>}
     {isVerified === false && <AuthButtons />}
     {isVerified !== false && <button id="logut" class="text-sm">Wyloguj</button>}
   </div>

@@ -1,9 +1,9 @@
 import { defineMiddleware } from "astro:middleware";
 import verify from "../utils/jwt/verify";
 
-const PROTECTED_PATHS = ["/online", "/online-game/*"];
+const PROTECTED_PATHS = ["/online", "/friends", "/online-game/*", "/api/friend-invite/*", "/api/friend-connection/*", "/api/friends", "/api/search-name-display-email/*"];
 
-const protect = defineMiddleware(({ url, cookies, redirect }, next) => {
+const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
   try {
     const isProtected = isPathProtected(url.pathname);
 
@@ -13,12 +13,15 @@ const protect = defineMiddleware(({ url, cookies, redirect }, next) => {
         return redirect("/login");
       }
 
-      const isVerified = verify(token);
+      const verified = verify(token);
 
-      if (!isVerified) {
+      if (!verified) {
         cookies.delete("token", { path: "/" });
         return redirect("/login");
       }
+      locals.user = {
+        id: verified.id,
+      };
     }
 
     return next();
