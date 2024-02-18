@@ -179,7 +179,7 @@ export default function Form() {
       {passwordErr !== null && (
         <div className="text-red-700">{passwordErr}</div>
       )}
-      <input type="submit" value="Zaloguj" onClick={fetchForm} />
+      <input type="submit" value="Zarejestruj" onClick={fetchForm} />
     </form>
   );
 }
