@@ -4,8 +4,9 @@ import SearchBar from "./search-users/SearchUsers";
 const queryClient = new QueryClient();
 
 export default function Container() {
-  
-  return <QueryClientProvider client={queryClient}>
+  return (
+    <QueryClientProvider client={queryClient}>
       <SearchBar />
-  </QueryClientProvider>
+    </QueryClientProvider>
+  );
 }

@@ -47,8 +47,8 @@ export const GET: APIRoute = async ({ params, locals }) => {
         allUsers.splice(i, 1);
         i--;
       }
-    }  
-    result.suggestions = allUsers;  
+    }
+    result.suggestions = allUsers;
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: {
