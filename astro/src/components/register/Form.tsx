@@ -117,7 +117,7 @@ export default function Form() {
           });
         }
       } else {
-        window.document.location.href = "/";
+        window.document.location.href = "/login";
       }
     }
   }
