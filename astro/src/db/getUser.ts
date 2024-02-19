@@ -36,7 +36,7 @@ export async function getUserByNameOrEmail(
 ): Promise<GetDBAppUser | null> {
   return getUserGeneric(
     `SELECT * FROM app_user 
-    WHERE (name = $1 OR email = $2);`, 
+    WHERE (name = $1 OR email = $2);`,
     [nameOrEmail, nameOrEmail]
   );
 }
@@ -47,7 +47,7 @@ export async function getUsersByNameOrDisplayNameOrEmail(
   const resUser = await queryDB(
     `SELECT * FROM app_user 
     WHERE (name = $1 OR display_name = $2 OR email = $3)
-    ORDER BY name ASC, display_name ASC;`, 
+    ORDER BY name ASC, display_name ASC;`,
     [nameOrDisplayOrEmail, nameOrDisplayOrEmail, nameOrDisplayOrEmail]
   );
   return resUser.rows as GetDBAppUser[];

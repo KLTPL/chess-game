@@ -1,7 +1,15 @@
 import { defineMiddleware } from "astro:middleware";
 import verify from "../utils/jwt/verify";
 
-const PROTECTED_PATHS = ["/online", "/friends", "/online-game/*", "/api/friend-invite/*", "/api/friend-connection/*", "/api/friends", "/api/search-name-display-email/*"];
+const PROTECTED_PATHS = [
+  "/online",
+  "/friends",
+  "/online-game/*",
+  "/api/friend-invite/*",
+  "/api/friend-connection/*",
+  "/api/friends",
+  "/api/search-name-display-email/*",
+];
 
 const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
   try {
