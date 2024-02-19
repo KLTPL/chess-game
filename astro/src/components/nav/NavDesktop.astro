@@ -1,8 +1,9 @@
 ---
 import verify from "../../utils/jwt/verify";
 import AuthButtons from "./AuthButtons.astro";
+import Cookies from "../../utils/CookiesNames";
 
-const token = Astro.cookies.get("token")?.value;
+const token = Astro.cookies.get(Cookies.TOKEN_JWT)?.value;
 const isVerified = token !== undefined && verify(token);
 ---
 
@@ -31,8 +32,9 @@ const isVerified = token !== undefined && verify(token);
 
 <script>
   import Cookies from "js-cookie";
+  import CookiesNames from "../../utils/CookiesNames";
   function logout() {
-    Cookies.remove("token");
+    Cookies.remove(CookiesNames.TOKEN_JWT);
     window.document.location.href = "/"; // refresh
   }
   document.getElementById("logut")?.addEventListener("click", logout);
