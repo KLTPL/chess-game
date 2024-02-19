@@ -48,8 +48,9 @@ export default function SearchBar() {
         placeholder="Wyszukaj po nazwie użytkownika, wyświetlanej nazwie użytkownika lub email" className="p-2 mx-10 rounded-md text-black text-center"
         onChange={(ev) => setSearch(ev.target.value)}
         ref={searchbardRef}
+        spellCheck={false}
       />
-      <div className="grow flex flex-col items-stretch self-center md:w-[70ch] mt-3 overflow-auto">
+      <div className="grow flex flex-col items-stretch self-center md:w-[70ch] my-3 overflow-auto">
         {searchDataStatus === "loading" && <div className="grow text-xl text-white flex justify-center items-center">Ładowanie</div>}
         {searchDataStatus === "error" && <div className="grow text-xl text-red-700 flex justify-center items-center">Bład</div>}
         {searchDataStatus === "success" && (

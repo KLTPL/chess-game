@@ -12,7 +12,7 @@ type FriendCardProps = {
 }
 
 export default function UserCard({ user, buttons }: FriendCardProps) {
-  return <div className="flex flex-row justify-stretch items-center bg-bg3 text-black p-2 rounded-md">
+  return <div className="flex flex-row justify-stretch items-center bg-bg3 text-black p-2 rounded-md shadow-black shadow-sm">
       {user.name === user.display_name ?
         <div className="w-1/2 text-center font-bold">{user.name}</div> :
         <div className="w-1/2 flex flex-row">
@@ -24,13 +24,17 @@ export default function UserCard({ user, buttons }: FriendCardProps) {
       {buttons.map(({text, onClick}) => (
         <button 
           key={text}
-          className="bg-primary px-4 py-2 rounded-md text-white"
+          className="bg-primary hover:bg-primary-d px-4 py-2 rounded-md text-white"
           onClick={() => onClick(user.id)}
         >
           {text}
         </button>
       ))}
-      
+      <button 
+        className="bg-secondary hover:bg-secondary-d px-4 py-2 rounded-md text-white"
+      >
+        Wyzwij
+      </button>
     </div>
   </div>
 }
