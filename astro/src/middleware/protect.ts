@@ -16,6 +16,16 @@ const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
   try {
     const isProtected = isPathProtected(url.pathname);
 
+    if (
+      url.pathname.slice(0, 4) !== "/api" &&
+      !isProtected &&
+      url.pathname !== "/login" &&
+      url.pathname !== "/register"
+    ) {
+      console.log("delete cookie");
+      cookies.delete(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
+    }
+
     if (isProtected) {
       const token = cookies.get(CookiesNames.TOKEN_JWT)?.value;
       if (token === undefined) {
