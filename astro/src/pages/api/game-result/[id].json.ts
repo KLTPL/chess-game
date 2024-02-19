@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import getResultName from "../../../db/getResultName";
+import getResultName from "../../../db/dict-game-result/getResultName";
 
 export const GET: APIRoute = async ({ params }) => {
   try {

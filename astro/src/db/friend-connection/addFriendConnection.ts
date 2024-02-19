@@ -1,4 +1,4 @@
-import { queryDB } from "./connect";
+import { queryDB } from "../connect";
 
 export default async function addFriendConnection(
   userFromId: string,

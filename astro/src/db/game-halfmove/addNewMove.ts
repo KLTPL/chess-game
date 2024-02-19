@@ -1,5 +1,5 @@
-import { queryDB } from "./connect";
-import type { GetPostDBHalfmove } from "./types";
+import { queryDB } from "../connect";
+import type { GetPostDBHalfmove } from "../types";
 
 export default async function addNewMove(
   DBHalfmove: GetPostDBHalfmove
