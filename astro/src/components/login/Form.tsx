@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import Cookies from "js-cookie";
+import CookiesNames from "../../utils/CookiesNames";
 
 type ErrorsLoginForm = {
   usernameOrEmail: string | null;
@@ -56,7 +58,9 @@ export default function Form() {
           setErrors({ usernameOrEmail: null, password: errorMessage });
         }
       } else {
-        window.document.location.href = "/";
+        const goBack = Cookies.get(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
+        Cookies.remove(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
+        window.document.location.href = goBack === undefined ? "/" : goBack;
       }
     }
   }

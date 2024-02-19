@@ -1,5 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import verify from "../utils/jwt/verify";
+import CookiesNames from "../utils/CookiesNames";
 
 const PROTECTED_PATHS = [
   "/online",
@@ -16,15 +17,17 @@ const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
     const isProtected = isPathProtected(url.pathname);
 
     if (isProtected) {
-      const token = cookies.get("token")?.value;
+      const token = cookies.get(CookiesNames.TOKEN_JWT)?.value;
       if (token === undefined) {
+        cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname);
         return redirect("/login");
       }
 
       const verified = verify(token);
 
-      if (!verified) {
-        cookies.delete("token", { path: "/" });
+      if (verified === false) {
+        cookies.delete(CookiesNames.TOKEN_JWT, { path: "/" });
+        cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname);
         return redirect("/login");
       }
       locals.user = {
