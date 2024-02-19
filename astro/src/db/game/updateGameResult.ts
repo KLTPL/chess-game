@@ -1,5 +1,5 @@
-import { queryDB } from "./connect";
-import type { PutDBGame } from "./types";
+import { queryDB } from "../connect";
+import type { PutDBGame } from "../types";
 
 export default async function updateGameResult({
   end_reason_id,

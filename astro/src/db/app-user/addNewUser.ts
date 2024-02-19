@@ -1,6 +1,6 @@
-import type { RegisterBody } from "../components/register/Form";
-import encrpt from "../utils/hash-password/encrypt";
-import { queryDB } from "./connect";
+import type { RegisterBody } from "../../components/register/Form";
+import encrpt from "../../utils/hash-password/encrypt";
+import { queryDB } from "../connect";
 
 export default async function addNewUser({
   email,

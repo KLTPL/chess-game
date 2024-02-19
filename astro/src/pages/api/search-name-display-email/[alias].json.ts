@@ -1,9 +1,9 @@
 import type { APIRoute } from "astro";
-import { getUsersByNameOrDisplayNameOrEmail } from "../../../db/getUser";
+import { getUsersByNameOrDisplayNameOrEmail } from "../../../db/app-user/getUser";
 import type { GetDBAppUser } from "../../../db/types";
-import isFriend from "../../../db/isFriend";
-import isInvited from "../../../db/isInvited";
-import isWhoInvited from "../../../db/isWhoInvited";
+import isFriend from "../../../db/friend-connection/isFriend";
+import isInvited from "../../../db/friend-invite/isInvited";
+import isWhoInvited from "../../../db/friend-invite/isWhoInvited";
 
 export type SearchGetResult = {
   friends: GetDBAppUser[];

@@ -1,10 +1,9 @@
-import { queryDB } from "./connect";
+import { queryDB } from "../connect";
 
 export default async function removeFriendConnection(
   userFromId: string,
   userToId: string
 ) {
-  console.log("delete friend connection", userFromId, userToId);
   await queryDB(
     `
     DELETE FROM friend_connection 

@@ -1,7 +1,7 @@
 import { type APIRoute } from "astro";
-import getGameData from "../../../db/getGameData";
-import addNewMove from "../../../db/addNewMove";
-import updateGameResult from "../../../db/updateGameResult";
+import getGameData from "../../../db/game/getGameData";
+import addNewMove from "../../../db/game-halfmove/addNewMove";
+import updateGameResult from "../../../db/game/updateGameResult";
 import type { GetPostDBHalfmove, PutDBGame } from "../../../db/types";
 
 export const GET: APIRoute = async ({ params }) => {

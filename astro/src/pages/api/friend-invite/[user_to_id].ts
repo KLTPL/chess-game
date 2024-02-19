@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
-import addFriendInvite from "../../../db/addFriendInvite";
-import removeFriendInvite from "../../../db/removeFriendInvite";
+import addFriendInvite from "../../../db/friend-invite/addFriendInvite";
+import removeFriendInvite from "../../../db/friend-invite/removeFriendInvite";
 
 export const POST: APIRoute = async ({ params, locals }) => {
   try {

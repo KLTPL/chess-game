@@ -1,6 +1,6 @@
 ---
 import PlayerGameList from "../components/player-game-list/PlayerGameList";
-import getPlayerGames from "../db/getPlayerGames";
+import getPlayerGames from "../db/game/getPlayerGames";
 import MainLayout from "../layouts/main-layout.astro";
 export const prerender = true;
 
@@ -18,3 +18,4 @@ if (data === null) {
     <PlayerGameList gamesData={data} />
   </div>
 </MainLayout>
+../db/game/getPlayerGames

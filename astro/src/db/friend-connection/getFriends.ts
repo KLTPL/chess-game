@@ -1,5 +1,5 @@
-import { queryDB } from "./connect";
-import type { GetDBAppUser } from "./types";
+import { queryDB } from "../connect";
+import type { GetDBAppUser } from "../types";
 
 export default async function getFriends(
   userId: string

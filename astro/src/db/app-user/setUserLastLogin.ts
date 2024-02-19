@@ -1,4 +1,4 @@
-import { queryDB } from "./connect";
+import { queryDB } from "../connect";
 
 function format(dateNum: number) {
   return ("0" + dateNum).slice(-2); // slice(-2) - take last 2 digits

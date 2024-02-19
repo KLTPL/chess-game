@@ -1,6 +1,6 @@
 import type { QueryResult } from "pg";
-import { queryDB } from "./connect";
-import type { GetDBGame, GetDBGameData, GetPostDBHalfmove } from "./types";
+import { queryDB } from "../connect";
+import type { GetDBGame, GetDBGameData, GetPostDBHalfmove } from "../types";
 
 export default async function getGameData(
   displayId: string

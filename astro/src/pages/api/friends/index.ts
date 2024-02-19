@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import getFriends from "../../../db/getFriends";
+import getFriends from "../../../db/friend-connection/getFriends";
 
 export const GET: APIRoute = async ({ locals }) => {
   try {

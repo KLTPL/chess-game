@@ -4,8 +4,8 @@ import {
   type RegisterBody,
   type RegisterResponse,
 } from "../../../components/register/Form";
-import { getUserByEmail, getUserByName } from "../../../db/getUser";
-import addNewUser from "../../../db/addNewUser";
+import { getUserByEmail, getUserByName } from "../../../db/app-user/getUser";
+import addNewUser from "../../../db/app-user/addNewUser";
 
 const NAME_AND_EMAIL_MAX = 50;
 const PASSWORD_MAX = 100;
