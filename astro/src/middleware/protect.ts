@@ -22,7 +22,6 @@ const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
       url.pathname !== "/login" &&
       url.pathname !== "/register"
     ) {
-      console.log("delete cookie");
       cookies.delete(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
     }
 
