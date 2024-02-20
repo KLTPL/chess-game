@@ -45,11 +45,19 @@ export type GetDBAppUser = {
   email: string;
   name: string;
   display_name: string;
+  is_active: boolean;
+  date_create: string;
+  date_last_login: string;
+};
+
+export type GetDBAppUserForLogin = GetDBAppUser & {
   password: string;
   password_salt: string;
-  date_create: string;
-  is_active: boolean;
-  date_last_login: string;
+};
+
+export type GetDBGameInvite = {
+  id: string;
+  user_from: GetDBAppUser;
 };
 
 export const enum END_REASONS_ID_DB {

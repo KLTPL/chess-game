@@ -75,6 +75,10 @@ VALUES (4, 1, 4, 6, 1, 6, 2, NULL, NULL, false);
 INSERT INTO game_halfmove
        (game_id, piece_id, halfmove_number, pos_start_x, pos_start_y, pos_end_x, pos_end_y, king_checked_pos_x, king_checked_pos_y, is_castling)
 VALUES (4, 5, 5, 7, 3, 4, 3, 4, 0, false);
+
+INSERT INTO game_invite 
+(user_from_id, user_to_id)
+VALUES (12, 11);
 */
 
 -- SELECT * FROM app_user;

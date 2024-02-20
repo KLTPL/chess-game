@@ -64,7 +64,7 @@ export default function SearchBar() {
       <input
         type="text"
         placeholder="Wyszukaj po nazwie użytkownika, wyświetlanej nazwie użytkownika lub email"
-        className="mx-10 rounded-md p-2 text-center text-black"
+        className="rounded-md p-2 text-center text-black md:w-[97vw]"
         onChange={(ev) => setSearch(ev.target.value)}
         ref={searchbardRef}
         spellCheck={false}

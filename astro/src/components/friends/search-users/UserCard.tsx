@@ -12,6 +12,17 @@ type FriendCardProps = {
 };
 
 export default function UserCard({ user, buttons }: FriendCardProps) {
+  async function postGameInvite() {
+    const res = await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite/`, {
+      method: "POST",
+      body: JSON.stringify({
+        userToId: user.id,
+      }),
+    });
+    if (res.ok) {
+      window.alert("Zaproszenie wysłane");
+    }
+  }
   return (
     <div className="flex flex-row items-center justify-stretch rounded-md bg-bg3 p-2 text-black shadow-sm shadow-black">
       {user.name === user.display_name ? (
@@ -32,8 +43,11 @@ export default function UserCard({ user, buttons }: FriendCardProps) {
             {text}
           </button>
         ))}
-        <button className="rounded-md bg-secondary px-4 py-2 text-white hover:bg-secondary-d">
-          Wyzwij
+        <button
+          className="rounded-md bg-secondary px-4 py-2 text-white hover:bg-secondary-d"
+          onClick={postGameInvite}
+        >
+          Zagraj
         </button>
       </div>
     </div>

@@ -7,6 +7,7 @@ const PROTECTED_PATHS = [
   "/friends",
   "/online-game/*",
   "/api/friend-invite/*",
+  "/api/game-invite/*",
   "/api/friend-connection/*",
   "/api/friends",
   "/api/search-name-display-email/*",
@@ -24,25 +25,30 @@ const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
     ) {
       cookies.delete(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
     }
+    const token = cookies.get(CookiesNames.TOKEN_JWT)?.value;
 
-    if (isProtected) {
-      const token = cookies.get(CookiesNames.TOKEN_JWT)?.value;
-      if (token === undefined) {
+    if (token === undefined) {
+      if (isProtected) {
         cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname);
         return redirect("/login");
       }
+      return next();
+    }
 
-      const verified = verify(token);
+    const verified = verify(token);
 
-      if (verified === false) {
+    if (verified === false) {
+      if (isProtected) {
         cookies.delete(CookiesNames.TOKEN_JWT, { path: "/" });
         cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname);
         return redirect("/login");
       }
-      locals.user = {
-        id: verified.id,
-      };
+      return next();
     }
+
+    locals.user = {
+      id: verified.id,
+    };
 
     return next();
   } catch (err) {
