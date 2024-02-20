@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getUserByNameOrEmail } from "../../../db/app-user/getUser";
+import { getUserByNameOrEmailForLogin } from "../../../db/app-user/getUser";
 import validate from "../../../utils/hash-password/validate";
 import {
   LoginErrors,
@@ -13,7 +13,7 @@ import CookiesNames from "../../../utils/CookiesNames";
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const { usernameOrEmail, password } = (await request.json()) as LoginBody;
-    const user = await getUserByNameOrEmail(usernameOrEmail);
+    const user = await getUserByNameOrEmailForLogin(usernameOrEmail);
 
     if (user === null) {
       const response: LoginResponse = {

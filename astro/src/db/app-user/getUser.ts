@@ -1,54 +1,75 @@
 import { queryDB } from "../connect";
-import type { GetDBAppUser } from "../types";
+import type { GetDBAppUser, GetDBAppUserForLogin } from "../types";
 
-async function getUserGeneric(
-  query: string,
+async function getUsersGeneric(
+  condition: string,
   conditionVals: (number | string)[]
-): Promise<GetDBAppUser | null> {
-  const resUser = await queryDB(query, conditionVals);
-  if (resUser.rowCount === 0) {
-    return null;
-  }
+): Promise<GetDBAppUser[]> {
+  const resUser = await queryDB(
+    `
+    SELECT id, email, name, display_name, is_active, date_create, date_last_login 
+    FROM app_user 
+    WHERE ${condition} 
+    ORDER BY name ASC, display_name ASC;`,
+    conditionVals
+  );
 
-  return resUser.rows[0] as GetDBAppUser;
+  return resUser.rows as GetDBAppUser[];
 }
 
 export async function getUserById(
   id: string | number
 ): Promise<GetDBAppUser | null> {
-  return getUserGeneric("SELECT * FROM app_user WHERE id = $1;", [id]);
+  const users = await getUsersGeneric("id = $1", [id]);
+  if (users.length === 0) {
+    return null;
+  }
+  return users[0];
 }
 
 export async function getUserByEmail(
   email: string
 ): Promise<GetDBAppUser | null> {
-  return getUserGeneric("SELECT * FROM app_user WHERE email = $1;", [email]);
+  const users = await getUsersGeneric("email = $1", [email]);
+  if (users.length === 0) {
+    return null;
+  }
+  return users[0];
 }
 
 export async function getUserByName(
   name: string
 ): Promise<GetDBAppUser | null> {
-  return getUserGeneric("SELECT * FROM app_user WHERE name = $1;", [name]);
+  const users = await getUsersGeneric("name = $1", [name]);
+  if (users.length === 0) {
+    return null;
+  }
+  return users[0];
 }
 
-export async function getUserByNameOrEmail(
+export async function getUserByNameOrEmailForLogin(
   nameOrEmail: string
-): Promise<GetDBAppUser | null> {
-  return getUserGeneric(
-    `SELECT * FROM app_user 
-    WHERE (name = $1 OR email = $2);`,
+): Promise<GetDBAppUserForLogin | null> {
+  const resUsers = await queryDB(
+    `
+    SELECT id, email, name, display_name, is_active, date_create, date_last_login, password, password_salt
+    FROM app_user 
+    WHERE (name = $1 OR email = $2)
+    ORDER BY name ASC, display_name ASC;`,
     [nameOrEmail, nameOrEmail]
   );
+  if (resUsers.rowCount === 0) {
+    return null;
+  }
+  return resUsers.rows[0];
 }
 
 export async function getUsersByNameOrDisplayNameOrEmail(
   nameOrDisplayOrEmail: string
 ): Promise<GetDBAppUser[]> {
-  const resUser = await queryDB(
-    `SELECT * FROM app_user 
-    WHERE (name = $1 OR display_name = $2 OR email = $3)
-    ORDER BY name ASC, display_name ASC;`,
-    [nameOrDisplayOrEmail, nameOrDisplayOrEmail, nameOrDisplayOrEmail]
+  const resUsers = await getUsersGeneric(
+    `(name = $1 OR display_name = $1 OR email = $1)`,
+    [nameOrDisplayOrEmail]
   );
-  return resUser.rows as GetDBAppUser[];
+  return resUsers;
 }

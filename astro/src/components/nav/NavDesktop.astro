@@ -5,31 +5,34 @@ import Cookies from "../../utils/CookiesNames";
 
 const token = Astro.cookies.get(Cookies.TOKEN_JWT)?.value;
 const isVerified = token !== undefined && verify(token);
+
+const heightClass = "h-[60px] lg:h-[100px]";
 ---
 
-<div class="flex h-full flex-row items-center justify-between">
-  <div><a href="/">Chess Game</a></div>
-  <div class="flex gap-3">
-    <div><a href="/online">Online</a></div>
-    <div><a href="/local">Lokalnie</a></div>
-    {
-      isVerified !== false && (
-        <div>
-          <a href="/friends">Znajomi</a>
-        </div>
-      )
-    }
-    {isVerified === false && <AuthButtons />}
-    {
-      isVerified !== false && (
-        <button id="logut" class="text-sm">
-          Wyloguj
-        </button>
-      )
-    }
+<div class={`${heightClass} mb-2 w-[100vw]`}>
+  <div class={`fixed left-0 right-0 top-0 z-50 flex flex-row items-center justify-between border-solid shadow-md bg-bg1 text-white px-10 text-2xl ${heightClass}`}>
+    <div><a href="/">Chess Game</a></div>
+    <div class="flex gap-3">
+      <div><a href="/online">Online</a></div>
+      <div><a href="/local">Lokalnie</a></div>
+      {
+        isVerified !== false && (
+          <div>
+            <a href="/friends">Znajomi</a>
+          </div>
+        )
+      }
+      {isVerified === false && <AuthButtons />}
+      {
+        isVerified !== false && (
+          <button id="logut" class="text-sm">
+            Wyloguj
+          </button>
+        )
+      }
+    </div>
   </div>
 </div>
-
 <script>
   import Cookies from "js-cookie";
   import CookiesNames from "../../utils/CookiesNames";
