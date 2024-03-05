@@ -19,7 +19,7 @@ export default async function addNewGame(
   await queryDB(
     `
     INSERT INTO game 
-       (display_id, user_id_w, user_id_b)
+       (display_id, user_w_id, user_b_id)
     VALUES ($1, $2, $3);`,
     [displayId, userId1, userId2]
   );

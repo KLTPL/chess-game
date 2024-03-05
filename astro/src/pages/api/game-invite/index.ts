@@ -3,8 +3,13 @@ import addGameInvite from "../../../db/game-invite/addGameInvite";
 import removeGameInvite from "../../../db/game-invite/removeGameInvite";
 import addNewGame from "../../../db/game/addNewGame";
 
-export const POST: APIRoute = async ({ locals, request }) => {
+export const POST: APIRoute = async ({ locals, request, url }) => {
   try {
+    if (locals.user === undefined) {
+      throw new Error(
+        `User (locals.user) is not defined in a protected route ${url.pathname}`
+      );
+    }
     const userFromId = locals.user.id;
     const body = await request.json();
     const userToId = body.userToId as string;
@@ -27,9 +32,14 @@ export const POST: APIRoute = async ({ locals, request }) => {
 export type PutGameInviteResponse = {
   newGamePath: string;
 };
-export const PUT: APIRoute = async ({ request, locals, redirect }) => {
+export const PUT: APIRoute = async ({ request, locals, url }) => {
   // accept endpoint (delete this and createa new game)
   try {
+    if (locals.user === undefined) {
+      throw new Error(
+        `User (locals.user) is not defined in a protected route ${url.pathname}`
+      );
+    }
     const userToId = locals.user.id;
     const body = await request.json();
     const inviteId = body.inviteId as string;
@@ -48,7 +58,6 @@ export const PUT: APIRoute = async ({ request, locals, redirect }) => {
       },
     });
   } catch (error) {
-    console.log(error);
     if (error instanceof Error) {
       console.error(error.message);
     }

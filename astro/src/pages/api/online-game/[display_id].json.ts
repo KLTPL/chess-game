@@ -3,6 +3,7 @@ import getGameData from "../../../db/game/getGameData";
 import addNewMove from "../../../db/game-halfmove/addNewMove";
 import updateGameResult from "../../../db/game/updateGameResult";
 import type { GetPostDBHalfmove, PutDBGame } from "../../../db/types";
+import isUserAllowedToMove from "../../../db/game/isUserAllowedToMove";
 
 export const GET: APIRoute = async ({ params }) => {
   try {
@@ -29,13 +30,20 @@ export const GET: APIRoute = async ({ params }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const data: GetPostDBHalfmove = await request.json();
-    addNewMove(data);
+    const { user } = locals;
+    const isAllowedOrStatusCode = await isUserAllowedToMove(user, data.game_id);
+    if (isAllowedOrStatusCode === true) {
+      await addNewMove(data);
+      return new Response(null, {
+        status: 200,
+      });
+    }
 
     return new Response(null, {
-      status: 200,
+      status: isAllowedOrStatusCode,
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -45,14 +53,20 @@ export const POST: APIRoute = async ({ request }) => {
   }
 };
 
-export const PUT: APIRoute = async ({ request }) => {
+export const PUT: APIRoute = async ({ request, locals }) => {
   try {
     const data: PutDBGame = await request.json();
-
-    updateGameResult(data);
+    const { user } = locals;
+    const isAllowedOrStatusCode = await isUserAllowedToMove(user, data.id);
+    if (isAllowedOrStatusCode === true) {
+      updateGameResult(data);
+      return new Response(null, {
+        status: 200,
+      });
+    }
 
     return new Response(null, {
-      status: 200,
+      status: isAllowedOrStatusCode,
     });
   } catch (error) {
     if (error instanceof Error) {

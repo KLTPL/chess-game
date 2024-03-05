@@ -5,7 +5,6 @@ import CookiesNames from "../utils/CookiesNames";
 const PROTECTED_PATHS = [
   "/online",
   "/friends",
-  "/online-game/*",
   "/api/friend-invite/*",
   "/api/game-invite/*",
   "/api/friend-connection/*",

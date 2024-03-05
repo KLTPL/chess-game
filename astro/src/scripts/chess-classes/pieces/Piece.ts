@@ -248,10 +248,10 @@ export default abstract class Piece {
     );
   }
 
-  private stopFollowingCursorMouse = (
+  private stopFollowingCursorMouse = async (
     ev: MouseEvent,
     possMoves: Pos[]
-  ): void => {
+  ): Promise<void> => {
     const type = ev.type as "mouseup" | "mousedown";
     if (ev.button !== 0) {
       // 0 = left click
@@ -274,7 +274,7 @@ export default abstract class Piece {
     const oldPos = boardGrabbedPieceInfo.grabbedFrom;
     for (const possMove of possMoves) {
       if (possMove.isEqualTo(newPos) && !newPos.isEqualTo(oldPos)) {
-        this.board.movePiece(
+        await this.board.movePiece(
           oldPos,
           newPos,
           boardGrabbedPieceInfo.piece as AnyPiece,
@@ -293,10 +293,10 @@ export default abstract class Piece {
     this.board.selectedPieceInfo = null;
   };
 
-  private stopFollowingCursorTouch = (
+  private stopFollowingCursorTouch = async (
     ev: TouchEvent,
     possMoves: Pos[]
-  ): void => {
+  ): Promise<void> => {
     const touch = ev.changedTouches[0];
     const selectedPieceInfo = this.board.selectedPieceInfo as SelectedPieceInfo; // .piece is equal to this
     this.html.id = ""; // remove the ID_SELECTED_PIECE_TOUCH
@@ -309,7 +309,7 @@ export default abstract class Piece {
     const oldPos = selectedPieceInfo.grabbedFrom;
     for (const possMove of possMoves) {
       if (possMove.isEqualTo(newPos) && !newPos.isEqualTo(oldPos)) {
-        this.board.movePiece(
+        await this.board.movePiece(
           oldPos,
           newPos,
           selectedPieceInfo.piece as AnyPiece,

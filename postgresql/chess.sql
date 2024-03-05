@@ -52,8 +52,8 @@ CREATE TABLE app_user (
 CREATE TABLE game (
   id BIGSERIAL PRIMARY KEY,
   display_id varchar(36) NOT NULL UNIQUE,
-  user_id_w BIGINT NOT NULL REFERENCES app_user(id),
-  user_id_b BIGINT NOT NULL REFERENCES app_user(id),
+  user_w_id BIGINT NOT NULL REFERENCES app_user(id),
+  user_b_id BIGINT NOT NULL REFERENCES app_user(id),
   result_id SMALLINT REFERENCES dict_game_result(id),
   end_reason_id SMALLINT REFERENCES dict_game_end_reason(id),
   is_finished BOOLEAN NOT NULL DEFAULT false,

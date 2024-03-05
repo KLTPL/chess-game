@@ -1,8 +1,13 @@
 import type { APIRoute } from "astro";
 import getFriends from "../../../db/friend-connection/getFriends";
 
-export const GET: APIRoute = async ({ locals }) => {
+export const GET: APIRoute = async ({ locals, url }) => {
   try {
+    if (locals.user === undefined) {
+      throw new Error(
+        `User (locals.user) is not defined in a protected route ${url.pathname}`
+      );
+    }
     const selfId = locals.user.id;
 
     const res = await getFriends(selfId);
