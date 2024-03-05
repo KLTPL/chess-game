@@ -20,8 +20,8 @@ export default class IncludeDBData {
     }
     this.includeCastlingRights(DBGameData);
 
-    setTimeout(() => {
-      this.insertDBHalfmoves(DBGameData.halfmoves);
+    setTimeout(async () => {
+      await this.insertDBHalfmoves(DBGameData.halfmoves);
       if (DBGameData.game.is_finished) {
         this.board.match.end({
           result_id: DBGameData.game.result_id as string,
@@ -38,25 +38,25 @@ export default class IncludeDBData {
     this.board.getCastlingRights().white.q = DBGameData.game.castling_b_q;
   }
 
-  private insertDBHalfmoves(DBHalfmoves: GetPostDBHalfmove[]) {
+  private async insertDBHalfmoves(DBHalfmoves: GetPostDBHalfmove[]) {
     if (DBHalfmoves.length === 0) {
       this.isIncluding = false;
       return;
     }
     for (const DBHalfmove of DBHalfmoves) {
-      this.movePiece(DBHalfmove);
+      await this.movePiece(DBHalfmove);
     }
     this.isIncluding = false;
   }
 
-  private movePiece(DBHalfmove: GetPostDBHalfmove): void {
+  private async movePiece(DBHalfmove: GetPostDBHalfmove): Promise<void> {
     const b = this.board;
     const { pos_start_x, pos_start_y, pos_end_x, pos_end_y } = DBHalfmove;
     const startPos = new Pos(pos_start_y, pos_start_x);
     const endPos = new Pos(pos_end_y, pos_end_x);
     const piece = b.getPiece(startPos) as AnyPiece;
     b.removePieceInPos(startPos, false);
-    b.movePiece(
+    await b.movePiece(
       startPos,
       endPos,
       piece as AnyPiece,

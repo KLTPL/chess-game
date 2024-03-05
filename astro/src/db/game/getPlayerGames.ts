@@ -31,7 +31,7 @@ async function getResDisplayIds(id: string): Promise<QueryResult<any>> {
     SELECT DISTINCT g.display_id
     FROM (SELECT * FROM app_user WHERE id = $1) a
     JOIN game g
-    ON (a.id = g.user_id_w or a.id = g.user_id_b)
+    ON (a.id = g.user_w_id or a.id = g.user_b_id)
     GROUP BY g.display_id
     `,
     [id]

@@ -10,8 +10,10 @@ export type GetDBGame = {
   castling_w_q: boolean;
   castling_b_k: boolean;
   castling_b_q: boolean;
+  user_w_id: string;
   user_w_display_name: string;
   user_w_name: string;
+  user_b_id: string;
   user_b_display_name: string;
   user_b_name: string;
 };

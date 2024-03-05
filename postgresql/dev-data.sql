@@ -16,7 +16,7 @@ INSERT INTO app_user
 VALUES ('klt@email.com', 'klt', 'kltpl', '1234');
 
 INSERT INTO game 
-       (display_id, user_id_w, user_id_b)
+       (display_id, user_w_id, user_b_id)
 VALUES ('104955a9-0221-471f-be5c-d40acfb252c9', 1, 8);
 
 INSERT INTO game_halfmove
@@ -27,7 +27,7 @@ INSERT INTO game_halfmove
 VALUES (1, 1, 2, 4, 1, 4, 3, NULL, NULL, false);
 
 INSERT INTO game 
-       (display_id, user_id_w, user_id_b, is_finished, result_id, end_reason_id, end_date)
+       (display_id, user_w_id, user_b_id, is_finished, result_id, end_reason_id, end_date)
 VALUES ('1234', 1, 8, true, 1, 1, NOW());
 
 INSERT INTO app_user
@@ -39,15 +39,15 @@ INSERT INTO app_user
 VALUES ('xMajkel@email.com', 'XDDPLAYERXDD', 'xMajkel', 'WOMEN-HEHEHE');
 
 INSERT INTO game 
-       (display_id, user_id_w, user_id_b)
+       (display_id, user_w_id, user_b_id)
 VALUES ('1', 10, 9);
 
 INSERT INTO game 
-       (display_id, user_id_w, user_id_b)
+       (display_id, user_w_id, user_b_id)
 VALUES ('2', 9, 10);
 
 INSERT INTO game 
-       (display_id, user_id_w, user_id_b)
+       (display_id, user_w_id, user_b_id)
 VALUES ('3', 1, 10);
 
 INSERT INTO game_halfmove

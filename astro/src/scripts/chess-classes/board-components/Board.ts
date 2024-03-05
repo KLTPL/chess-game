@@ -323,31 +323,40 @@ export default class Board {
     this.currTeam = this.currTeam === TEAMS.WHITE ? TEAMS.BLACK : TEAMS.WHITE;
   }
 
-  public movePiece(
+  public async movePiece(
     from: Pos,
     to: Pos,
     piece: AnyPiece,
     transitionDelayMs: number,
     isIncludingFromDB: boolean = false
-  ): void {
+  ): Promise<void> {
     const capturedPiece = this.getPiece(to);
+    const enemyKing = this.getKingByTeam(piece.enemyTeamNum);
+    const newHalfmove = new Halfmove(
+      piece,
+      from.getInvertedProperly(this.isInverted),
+      to.getInvertedProperly(this.isInverted),
+      capturedPiece,
+      enemyKing.isInCheck() ? enemyKing.pos : null,
+      Piece.isKing(piece) && King.isMoveCastling(from, to)
+    );
+    if (!isIncludingFromDB && this.fetchToDB !== null) {
+      const ok = await this.fetchToDB.postHalfmove(
+        newHalfmove,
+        this.movesSystem.halfmoves.length + 1
+      );
+      if (!ok) {
+        this.placePieceInPos(from, piece, transitionDelayMs, false);
+        return;
+      }
+    }
     if (capturedPiece !== null) {
       this.removePieceInPos(to, true);
     }
     this.switchCurrTeam();
     this.placePieceInPos(to, piece, transitionDelayMs, false);
     piece.sideEffectsOfMove(to, from);
-    const enemyKing = this.getKingByTeam(piece.enemyTeamNum);
-    this.movesSystem.pushNewHalfmove(
-      new Halfmove(
-        piece,
-        from.getInvertedProperly(this.isInverted),
-        to.getInvertedProperly(this.isInverted),
-        capturedPiece,
-        enemyKing.isInCheck() ? enemyKing.pos : null,
-        Piece.isKing(piece) && King.isMoveCastling(from, to)
-      )
-    );
+    this.movesSystem.pushNewHalfmove(newHalfmove);
 
     this.finishMovingPiece(
       this.movesSystem.getLatestHalfmove(),
@@ -377,10 +386,6 @@ export default class Board {
       await this.pawnPromotionMenu.playerIsChoosing.then(afterMoveIsFinished);
     } else {
       afterMoveIsFinished();
-    }
-
-    if (!isIncludingFromDB && this.fetchToDB !== null) {
-      this.fetchToDB.postHalfmove(halfmove, this.movesSystem.halfmoves.length);
     }
   }
 

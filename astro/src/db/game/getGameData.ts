@@ -23,12 +23,12 @@ export default async function getGameData(
 async function getResGame(displayId: string): Promise<QueryResult<GetDBGame>> {
   const resGame = await queryDB(
     `SELECT
-        g.id, g.display_id, g.is_finished, gr.id AS result_id, gr.name AS result_name, ger.id AS end_reason_id, ger.name AS end_reason_name, g.castling_w_k, g.castling_w_q, g.castling_b_k, g.castling_b_q, u1.display_name AS user_w_display_name, u1.name AS user_w_name, u2.display_name AS user_b_display_name, u2.name AS user_b_name
+        g.id, g.display_id, g.is_finished, gr.id AS result_id, gr.name AS result_name, ger.id AS end_reason_id, ger.name AS end_reason_name, g.castling_w_k, g.castling_w_q, g.castling_b_k, g.castling_b_q, g.user_w_id, u1.display_name AS user_w_display_name, u1.name AS user_w_name, g.user_b_id, u2.display_name AS user_b_display_name, u2.name AS user_b_name
       FROM (SELECT * FROM game WHERE display_id = $1) g
       INNER JOIN app_user u1
-      ON (u1.id = g.user_id_w)
+      ON (u1.id = g.user_w_id)
       INNER JOIN app_user u2
-      ON (u2.id = g.user_id_b)
+      ON (u2.id = g.user_b_id)
       LEFT JOIN dict_game_result gr
       ON (g.result_id = gr.id)
       LEFT JOIN dict_game_end_reason ger

@@ -2,8 +2,13 @@ import type { APIRoute } from "astro";
 import addFriendConnection from "../../../db/friend-connection/addFriendConnection";
 import removeFriendConnection from "../../../db/friend-connection/removeFriendConnection";
 
-export const POST: APIRoute = async ({ params, locals }) => {
+export const POST: APIRoute = async ({ params, locals, url }) => {
   try {
+    if (locals.user === undefined) {
+      throw new Error(
+        `User (locals.user) is not defined in a protected route ${url.pathname}`
+      );
+    }
     const userFromId = locals.user.id;
     const userToId = params.other_user_id as string;
 
@@ -23,8 +28,13 @@ export const POST: APIRoute = async ({ params, locals }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ params, locals }) => {
+export const DELETE: APIRoute = async ({ params, locals, url }) => {
   try {
+    if (locals.user === undefined) {
+      throw new Error(
+        `User (locals.user) is not defined in a protected route ${url.pathname}`
+      );
+    }
     const userFromId = locals.user.id;
     const userToId = params.other_user_id as string;
 

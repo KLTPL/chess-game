@@ -8,7 +8,10 @@ import type { getEndReasonNameProps } from "../../../db/dict-game-end-reason/get
 export default class FetchToDB {
   constructor(public game_id: string) {}
 
-  public async postHalfmove(halfmove: Halfmove, halfmoveNum: number) {
+  public async postHalfmove(
+    halfmove: Halfmove,
+    halfmoveNum: number
+  ): Promise<boolean> {
     const promotedTo = halfmove.getPromotedTo();
 
     const GetDBHalfmove: GetPostDBHalfmove = {
@@ -29,23 +32,25 @@ export default class FetchToDB {
           ? null
           : FENNotation.convertPieceIdToFEN(promotedTo.id),
     };
-    await fetch(
-      `${import.meta.env.PUBLIC_URL}/api/online-game/${this.game_id}}.json`,
+    const res = await fetch(
+      `${import.meta.env.PUBLIC_URL}/api/online-game/${this.game_id}.json`,
       {
         method: "POST",
         body: JSON.stringify(GetDBHalfmove),
       }
     );
+    return res.ok;
   }
 
-  public async putGameStatus(putDBGame: PutDBGame) {
-    await fetch(
+  public async putGameStatus(putDBGame: PutDBGame): Promise<boolean> {
+    const res = await fetch(
       `${import.meta.env.PUBLIC_URL}/api/online-game/${this.game_id}}.json`,
       {
         method: "PUT",
         body: JSON.stringify(putDBGame),
       }
     );
+    return res.ok;
   }
 
   public static async getResultName(
