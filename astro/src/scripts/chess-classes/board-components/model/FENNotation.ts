@@ -1,10 +1,14 @@
-import { type AnyPiece, PIECES, TEAMS } from "../pieces/Piece";
+import {
+  type AnyPieceModel,
+  PIECES,
+  TEAMS,
+} from "../../pieces/model/PieceModel";
 import {
   type ArrOfPieces2d,
   type CastlingRights,
   FIELDS_IN_ONE_ROW,
-} from "./Board";
-import Board from "./Board";
+} from "./BoardModel";
+import type BoardModel from "./BoardModel";
 
 /*FEN (Forsyth-Edwards Notation) parts:
     1. Piece placement.
@@ -26,14 +30,14 @@ const DEFAULT_VALUES = [
 ];
 
 export default class FENNotation {
-  private board: Board;
+  private board: BoardModel;
   private piecePlacement: string;
   private activeColor: string;
   private castlingRights: string;
   private enPassantTargets: string;
   private halfmoveClock: string;
   private fullmoveClock: string;
-  constructor(FEN: string | null, board: Board) {
+  constructor(FEN: string | null, board: BoardModel) {
     this.board = board;
     const parsts = this.createArrOfIndividualPartsOfFenNotation(FEN);
     this.piecePlacement = parsts[0] === null ? DEFAULT_VALUES[0] : parsts[0];
@@ -153,15 +157,16 @@ export default class FENNotation {
       PIECES.KNIGHT,
       PIECES.ROOK,
     ];
-
-    return [
+    const pieces = [
       firstAndLastRowNums.map((pieceNum) =>
         this.board.createNewPieceObj(pieceNum, TEAMS.BLACK, this.board)
       ),
       [...Array(FIELDS_IN_ONE_ROW)].map(() =>
         this.board.createNewPieceObj(PIECES.PAWN, TEAMS.BLACK, this.board)
       ),
-      ...Array(FIELDS_IN_ONE_ROW / 2).fill(Array(FIELDS_IN_ONE_ROW).fill(null)),
+      ...Array(FIELDS_IN_ONE_ROW / 2)
+        .fill(null)
+        .map(() => Array(FIELDS_IN_ONE_ROW).fill(null)),
       [...Array(FIELDS_IN_ONE_ROW)].map(() =>
         this.board.createNewPieceObj(PIECES.PAWN, TEAMS.WHITE, this.board)
       ),
@@ -169,34 +174,40 @@ export default class FENNotation {
         this.board.createNewPieceObj(pieceNum, TEAMS.WHITE, this.board)
       ),
     ];
+
+    return pieces;
+  }
+
+  public static convertPieceFENToId(pieceFEN: string): PIECES {
+    switch (pieceFEN) {
+      case "r":
+        return PIECES.ROOK;
+      case "n":
+        return PIECES.KNIGHT;
+      case "b":
+        return PIECES.BISHOP;
+      case "q":
+        return PIECES.QUEEN;
+      case "k":
+        return PIECES.KING;
+      case "p":
+        return PIECES.PAWN;
+      default:
+        throw new Error(
+          `piece symbol '${pieceFEN}' is not recognized as any of the allowed FEN symbols`
+        );
+    }
   }
 
   public static convertPieceFENToPieceObj(
     pieceFEN: string,
-    board: Board
-  ): AnyPiece {
+    board: BoardModel
+  ): AnyPieceModel {
     const lowerCase = pieceFEN.toLowerCase();
     const team = pieceFEN === lowerCase ? TEAMS.BLACK : TEAMS.WHITE;
-    const id = (function () {
-      switch (lowerCase) {
-        case "r":
-          return PIECES.ROOK;
-        case "n":
-          return PIECES.KNIGHT;
-        case "b":
-          return PIECES.BISHOP;
-        case "q":
-          return PIECES.QUEEN;
-        case "k":
-          return PIECES.KING;
-        case "p":
-          return PIECES.PAWN;
-        default:
-          return null;
-      }
-    })();
+    const id = FENNotation.convertPieceFENToId(lowerCase);
 
-    return board.createNewPieceObj(id, team, board) as AnyPiece;
+    return board.createNewPieceObj(id, team, board) as AnyPieceModel;
   }
 
   public static convertPieceIdToFEN(piece: PIECES) {

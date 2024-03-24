@@ -1,16 +1,14 @@
-import Board, { hold } from "./Board";
-import { HOLD_MOUSE_TIME_MS } from "../pieces/Piece";
-import Pos from "../Pos";
+import Pos from "../model/Pos";
+import type BoardView from "./BoardView";
+import { HOLD_MOUSE_TIME_MS, hold } from "./DragAndDropPieces";
 import VisualizingArrow from "./VisualizingArrow";
 
 const HIGHLIGHT_FIELD_CLASS_NAME = "highlighted-field";
 
 export default class VisualizingSystem {
   private arrows: VisualizingArrow[] = [];
-  constructor(private board: Board) {
-    this.board.html.addEventListener("mousedown", (ev) =>
-      this.handleMouseDown(ev)
-    );
+  constructor(private boardView: BoardView) {
+    this.boardView.onMouseDown((ev) => this.handleMouseDown(ev));
     window.addEventListener("resize", () => this.resizeArrowsHtmls());
   }
 
@@ -29,18 +27,21 @@ export default class VisualizingSystem {
       this.removeHighlightFromAllFields();
       return;
     }
-    if (ev.button !== rightMouse || this.board.selectedPieceInfo !== null) {
+    if (
+      ev.button !== rightMouse ||
+      this.boardView.getSelectedPieceData() !== null
+    ) {
       // mouse right click
       return;
     }
 
-    const startPos = this.board.calcFieldPosByPx(ev.clientX, ev.clientY);
-    hold(this.board.html, "mouseup", HOLD_MOUSE_TIME_MS)
+    const startPos = this.boardView.calcFieldPosByPx(ev.clientX, ev.clientY);
+    hold(this.boardView.html, "mouseup", HOLD_MOUSE_TIME_MS)
       .then(() => {
-        this.board.html.addEventListener(
+        this.boardView.html.addEventListener(
           "mouseup",
           (endEv) => {
-            const endPos = this.board.calcFieldPosByPx(
+            const endPos = this.boardView.calcFieldPosByPx(
               endEv.clientX,
               endEv.clientY
             );
@@ -54,7 +55,7 @@ export default class VisualizingSystem {
               return;
             }
             this.arrows.push(
-              new VisualizingArrow(this.board, startPos, endPos)
+              new VisualizingArrow(this.boardView, startPos, endPos)
             );
           },
           { once: true }
@@ -88,15 +89,15 @@ export default class VisualizingSystem {
   }
 
   private toggleHighlightOnFieldOnPos(pos: Pos): void {
-    const el = this.board
-      .getFieldHtmlEl(pos)
+    const el = this.boardView
+      .getField(pos)
       .querySelector(`.${HIGHLIGHT_FIELD_CLASS_NAME}`);
-    if (el !== null) {
+    if (el !== null && el !== undefined) {
       el.remove();
     } else {
       const div = document.createElement("div");
       div.classList.add(HIGHLIGHT_FIELD_CLASS_NAME);
-      this.board.getFieldHtmlEl(pos).append(div);
+      this.boardView.getField(pos).appendToHtml(div);
     }
   }
 

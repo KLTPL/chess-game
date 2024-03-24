@@ -1,17 +1,17 @@
-import Board from "../board-components/Board";
-import Piece, { PIECES, TEAMS } from "./Piece";
-import Pos from "../Pos";
-import Dir from "../Dir";
+import BoardModel from "../../board-components/model/BoardModel";
+import { PIECES, TEAMS } from "./PieceModel";
+import Pos from "../../board-components/model/Pos";
+import Dir from "../../board-components/model/Dir";
+import PieceModel from "./PieceModel";
 
-export default class Knight extends Piece {
-  public value: number = 3;
-  public id: PIECES = PIECES.KNIGHT;
+export default class KnightModel extends PieceModel {
+  readonly value: number = 3;
+  readonly id: PIECES = PIECES.KNIGHT;
   constructor(
     readonly team: TEAMS,
-    protected board: Board
+    protected boardModel: BoardModel
   ) {
-    super(team, board);
-    this.addClassName(this.id);
+    super(team, boardModel);
   }
 
   public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
@@ -28,11 +28,11 @@ export default class Knight extends Piece {
 
     return directions
       .map((dir) => new Pos(pos.y + dir.y, pos.x + dir.x))
-      .filter((pos) => Board.isPosIn(pos));
+      .filter((pos) => BoardModel.isPosInBounds(pos));
   }
 
   public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
-    const myKing = this.board.getKingByTeam(this.team);
+    const myKing = this.boardModel.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
     let possibleMoves = [pos, ...this.createArrOfNormalMoves(pos)];
@@ -52,7 +52,7 @@ export default class Knight extends Piece {
 
   private createArrOfNormalMoves(pos: Pos): Pos[] {
     return this.createArrOfPossibleMovesFromPosForKing(pos).filter(
-      (move) => this.board.getPiece(move)?.team !== this.team
+      (move) => this.boardModel.getPiece(move)?.team !== this.team
     );
   }
 }

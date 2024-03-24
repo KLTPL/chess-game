@@ -1,6 +1,7 @@
-import { FIELDS_IN_ONE_ROW } from "./Board";
-import { type AnyPiece } from "../pieces/Piece";
-import Pos from "../Pos";
+import Pos from "../model/Pos";
+import { FIELDS_IN_ONE_ROW } from "../model/BoardModel";
+import PieceView from "../../pieces/view/PieceView";
+import type { PIECES, TEAMS } from "../../pieces/model/PieceModel";
 
 export const CLASS_NAMES = {
   field: "field",
@@ -30,13 +31,27 @@ type FieldLabelInfo = {
   isNumber: boolean; // for css styling
 };
 
+export type PieceViewData = null | { id: PIECES; team: TEAMS };
+
 export default class Field {
-  public html: HTMLDivElement;
-  public piece: AnyPiece | null;
-  constructor(pos: Pos, isBoardInverted: boolean) {
+  private html: HTMLDivElement;
+  private pieceView: null | PieceView = null;
+  constructor(
+    pos: Pos,
+    isBoardInverted: boolean,
+    pieceData: PieceViewData,
+    boardPiecesHTML: HTMLDivElement
+  ) {
     this.html = this.createFieldHtml(pos, isBoardInverted);
     this.addLabelToHtml(pos, isBoardInverted); // numbers 1 to 8 and letters A to H
-    this.piece = null;
+    if (pieceData != null) {
+      this.pieceView = new PieceView(
+        pieceData.id,
+        pieceData.team,
+        pos,
+        boardPiecesHTML
+      );
+    }
   }
 
   private createFieldHtml(pos: Pos, isBoardInverted: boolean): HTMLDivElement {
@@ -71,7 +86,7 @@ export default class Field {
           ? CLASS_NAMES.fieldLabelNumber
           : CLASS_NAMES.fieldLabelLetter
       );
-      this.html.append(div);
+      this.appendToHtml(div);
     });
   }
 
@@ -124,6 +139,27 @@ export default class Field {
     }
   }
 
+  public placePiece(
+    pieceData: PieceViewData,
+    pos: Pos,
+    boardPiecesHTML: HTMLDivElement
+  ): void {
+    this.pieceView =
+      pieceData === null
+        ? null
+        : new PieceView(pieceData.id, pieceData.team, pos, boardPiecesHTML);
+  }
+  public appendToHtml(element: HTMLElement) {
+    this.html.append(element);
+  }
+
+  public appendSelfToEl(element: HTMLElement) {
+    element.append(this.html);
+  }
+  public querySelector(selector: string) {
+    return this.html.querySelector(selector);
+  }
+
   public invertHtml(pos: Pos, isBoardInverted: boolean) {
     this.html
       .querySelectorAll(`.${CLASS_NAMES.fieldLabel}`)
@@ -132,6 +168,14 @@ export default class Field {
   }
 
   public isOccupied(): boolean {
-    return this.piece !== null;
+    return this.pieceView !== null;
+  }
+
+  public setPiece(pieceV: PieceView | null): void {
+    this.pieceView = pieceV;
+  }
+
+  public getPiece(): PieceView | null {
+    return this.pieceView;
   }
 }

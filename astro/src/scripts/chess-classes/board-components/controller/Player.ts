@@ -1,5 +1,5 @@
-import type { GetDBGameData } from "../../db/types";
-import { TEAMS } from "./pieces/Piece";
+import type { GetDBGameData } from "../../../../db/types";
+import { TEAMS } from "../../pieces/model/PieceModel";
 
 export default class Player {
   readonly name: string;
@@ -7,10 +7,10 @@ export default class Player {
   // private image: null;
   constructor(
     readonly team: TEAMS,
-    DBGameData: GetDBGameData | undefined
+    DBGameData: GetDBGameData | null
     // image: ImageBitmap | null,
   ) {
-    if (DBGameData === undefined) {
+    if (DBGameData === null) {
       this.name = this.team === TEAMS.WHITE ? "white" : "black";
       this.displayName = this.team === TEAMS.WHITE ? "white" : "black";
     } else {
