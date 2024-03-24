@@ -12,20 +12,28 @@ export default class ShowEvetsOnBoard {
     private match: MatchController
   ) {}
 
+  public showLastMoveAndCheck() {
+    const mSys = this.match.boardModel.movesSystem;
+    if (mSys.isThereAtLeastOneHalfMove()) {
+      const halfmove = mSys.getLatestHalfmove();
+      this.showNewLastMove(halfmove.from, halfmove.to);
+      if (halfmove.posOfKingChecked !== null) {
+        this.showCheck(halfmove.posOfKingChecked);
+      }
+    }
+  }
+
   public turnOnCssGrabOnPieces(team?: TEAMS): void {
-    console.log(team);
     for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
       for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
-        const pos = new Pos(r, c);
+        const pos = new Pos(r, c).getInvProp(this.boardView.isInverted);
         const pieceV = this.boardView.getField(pos).getPiece();
         const pieceM = this.match.boardModel.getPiece(pos);
-        console.log("r =", r, "c =", c, pieceM);
         if (
           pieceV !== null &&
           pieceM !== null &&
           (pieceM.team === team || team === undefined)
         ) {
-          console.log("YES");
           pieceV.addCssGrab();
         }
       }
@@ -36,7 +44,9 @@ export default class ShowEvetsOnBoard {
       for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
         const pos = new Pos(r, c);
         const pieceV = this.boardView.getField(pos).getPiece();
-        const pieceM = this.match.boardModel.getPiece(pos);
+        const pieceM = this.match.boardModel.getPiece(
+          pos.getInvProp(this.boardView.isInverted)
+        );
         if (
           pieceV !== null &&
           pieceM !== null &&
@@ -226,13 +236,13 @@ export default class ShowEvetsOnBoard {
   }
 
   private invertCheck(posOfKing: Pos): void {
-    this.showCheck(posOfKing.getInvertedProperly(this.boardView.isInverted));
+    this.showCheck(posOfKing.getInvProp(this.boardView.isInverted));
   }
 
   private invertLastMove(from: Pos, to: Pos): void {
     this.showNewLastMove(
-      from.getInvertedProperly(this.boardView.isInverted),
-      to.getInvertedProperly(this.boardView.isInverted)
+      from.getInvProp(this.boardView.isInverted),
+      to.getInvProp(this.boardView.isInverted)
     );
   }
   private invertMoveClassification(): void {
@@ -240,7 +250,7 @@ export default class ShowEvetsOnBoard {
       `.${CLASS_NAMES_FIELD.fieldMoveClassification}`
     ) as HTMLDivElement;
     div.remove();
-    const pos = (this.moveClassification as Pos).getInvertedProperly(
+    const pos = (this.moveClassification as Pos).getInvProp(
       this.boardView.isInverted
     );
     this.boardView.getField(pos).getPiece()?.appendToHtml(div);

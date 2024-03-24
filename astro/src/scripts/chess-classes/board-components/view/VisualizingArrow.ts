@@ -11,11 +11,15 @@ const CLASS_NAMES = {
 
 export default class VisualizingArrow {
   private html: HTMLDivElement = document.createElement("div");
+  private startPos: Pos;
+  private endPos: Pos;
   constructor(
     private board: BoardView,
-    private startPos: Pos,
-    private endPos: Pos
+    startPos: Pos,
+    endPos: Pos
   ) {
+    this.startPos = startPos.getInvProp(this.board.isInverted);
+    this.endPos = endPos.getInvProp(this.board.isInverted);
     this.drawArrowOnBoard();
   }
 
@@ -37,10 +41,9 @@ export default class VisualizingArrow {
   }
 
   private drawArrowOnBoard(): void {
-    const arrDir = new Dir(
-      this.endPos.y - this.startPos.y,
-      this.endPos.x - this.startPos.x
-    );
+    const start = this.startPos.getInvProp(this.board.isInverted);
+    const end = this.endPos.getInvProp(this.board.isInverted);
+    const arrDir = new Dir(end.y - start.y, end.x - start.x);
     const arrLengthFields = Math.sqrt(
       Math.abs(
         Math.pow(Math.abs(arrDir.x), 2) + Math.pow(Math.abs(arrDir.y), 2)

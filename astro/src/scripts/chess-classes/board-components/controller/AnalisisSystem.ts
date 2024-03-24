@@ -63,7 +63,7 @@ export default class AnalisisSystem {
     return this.currHalfmoveIndex === MOVE_0_INDEX;
   }
 
-  private goBackToCurrMoveIfUserIsAnalising(): void {
+  public goBackToCurrMoveIfUserIsAnalising(): void {
     let tempAmount = 1;
     while (this.currHalfmoveIndex !== null) {
       tempAmount++;
@@ -102,8 +102,8 @@ export default class AnalisisSystem {
     const halfmoves = this.match.getHalfmoves();
     const currHalfmoveIndex = this.currHalfmoveIndex as number;
     const moveToReverse = halfmoves[currHalfmoveIndex + 1];
-    const to = moveToReverse.to.getInvertedProperly(b.isInverted);
-    const from = moveToReverse.from.getInvertedProperly(b.isInverted);
+    const to = moveToReverse.to;
+    const from = moveToReverse.from;
     const isPiecePromoted = moveToReverse.getPromotedTo() !== null;
     const piece = b.getField(to).getPiece();
 
@@ -113,7 +113,8 @@ export default class AnalisisSystem {
         moveToReverse.piece.id,
         moveToReverse.piece.team,
         from,
-        b.html
+        b.html,
+        b.isInverted
       );
       b.removePieceInPos(to, true);
       b.placePieceInPos(
@@ -146,7 +147,8 @@ export default class AnalisisSystem {
       b.getField(to).placePiece(
         { id, team },
         to,
-        this.match.boardView.piecesHtml
+        this.match.boardView.piecesHtml,
+        b.isInverted
       );
     }
     if (moveToReverse.isCastling) {
@@ -178,7 +180,8 @@ export default class AnalisisSystem {
           PIECES.PAWN,
           moveToReverse.piece.enemyTeamNum,
           enPassantPos,
-          b.html
+          b.html,
+          b.isInverted
         ),
         CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT,
         true
@@ -191,14 +194,9 @@ export default class AnalisisSystem {
       const currHalfmove = halfmoves[currHalfmoveIndex];
       b.showEventsOnBoard.stopShowingCheck();
       if (currHalfmove.posOfKingChecked !== null) {
-        b.showEventsOnBoard.showCheck(
-          currHalfmove.posOfKingChecked.getInvertedProperly(b.isInverted)
-        );
+        b.showEventsOnBoard.showCheck(currHalfmove.posOfKingChecked);
       }
-      b.showEventsOnBoard.showNewLastMove(
-        currHalfmove.from.getInvertedProperly(b.isInverted),
-        currHalfmove.to.getInvertedProperly(b.isInverted)
-      );
+      b.showEventsOnBoard.showNewLastMove(currHalfmove.from, currHalfmove.to);
     }
   }
 
@@ -224,18 +222,18 @@ export default class AnalisisSystem {
   private goOneHalfMoveOnBoardHtmlForward(
     cssPieceTransitionDelayMs: number
   ): void {
-    const board = this.match.boardView;
+    const b = this.match.boardView;
     const halfmoves = this.match.getHalfmoves();
     const currHalfmoveIndex =
       this.currHalfmoveIndex === null
         ? halfmoves.length - 1
         : this.currHalfmoveIndex;
     const moveToDo = halfmoves[currHalfmoveIndex];
-    const to = moveToDo.to.getInvertedProperly(board.isInverted);
-    const from = moveToDo.from.getInvertedProperly(board.isInverted);
+    const to = moveToDo.to;
+    const from = moveToDo.from;
 
     if (moveToDo.capturedPiece !== null) {
-      board.removePieceInPos(to, true);
+      b.removePieceInPos(to, true);
     }
 
     const promotedTo = moveToDo.getPromotedTo();
@@ -245,11 +243,12 @@ export default class AnalisisSystem {
           promotedTo.id,
           promotedTo.team,
           to,
-          this.match.boardView.piecesHtml
+          this.match.boardView.piecesHtml,
+          b.isInverted
         )
-      : board.getField(from).getPiece();
-    board.removePieceInPos(from, isPiecePromoted);
-    board.placePieceInPos(
+      : b.getField(from).getPiece();
+    b.removePieceInPos(from, isPiecePromoted);
+    b.placePieceInPos(
       to,
       pieceToPlace,
       cssPieceTransitionDelayMs,
@@ -262,9 +261,9 @@ export default class AnalisisSystem {
       const castleXDir = toX - fromX > 0 ? 1 : -1;
       const currRookPosX = castleXDir > 0 ? FIELDS_IN_ONE_ROW - 1 : 0;
       const rookPosXAfter = toX - castleXDir;
-      const currRook = board.getField(new Pos(to.y, currRookPosX)).getPiece();
-      board.removePieceInPos(new Pos(to.y, currRookPosX), false);
-      board.placePieceInPos(
+      const currRook = b.getField(new Pos(to.y, currRookPosX)).getPiece();
+      b.removePieceInPos(new Pos(to.y, currRookPosX), false);
+      b.placePieceInPos(
         new Pos(to.y, rookPosXAfter),
         currRook,
         CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT * 3.5,
@@ -275,16 +274,14 @@ export default class AnalisisSystem {
       const enPassantPos = moveToDo.piece.getPosOfPieceCapturedByEnPassant(
         moveToDo.to
       );
-      board.removePieceInPos(enPassantPos, true);
+      b.removePieceInPos(enPassantPos, true);
     }
 
-    board.showEventsOnBoard.showNewLastMove(from, to);
-    board.showEventsOnBoard.showNewMoveClassification(to);
-    board.showEventsOnBoard.stopShowingCheck();
+    b.showEventsOnBoard.showNewLastMove(from, to);
+    b.showEventsOnBoard.showNewMoveClassification(to);
+    b.showEventsOnBoard.stopShowingCheck();
     if (moveToDo.posOfKingChecked !== null) {
-      board.showEventsOnBoard.showCheck(
-        moveToDo.posOfKingChecked.getInvertedProperly(board.isInverted)
-      );
+      b.showEventsOnBoard.showCheck(moveToDo.posOfKingChecked);
     }
   }
 }

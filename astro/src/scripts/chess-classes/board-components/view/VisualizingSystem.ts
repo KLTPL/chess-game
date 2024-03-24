@@ -89,6 +89,7 @@ export default class VisualizingSystem {
   }
 
   private toggleHighlightOnFieldOnPos(pos: Pos): void {
+    pos = pos.getInvProp(this.boardView.isInverted);
     const el = this.boardView
       .getField(pos)
       .querySelector(`.${HIGHLIGHT_FIELD_CLASS_NAME}`);
