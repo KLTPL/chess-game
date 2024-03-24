@@ -49,7 +49,8 @@ export default class Field {
         pieceData.id,
         pieceData.team,
         pos,
-        boardPiecesHTML
+        boardPiecesHTML,
+        isBoardInverted
       );
     }
   }
@@ -142,12 +143,19 @@ export default class Field {
   public placePiece(
     pieceData: PieceViewData,
     pos: Pos,
-    boardPiecesHTML: HTMLDivElement
+    boardPiecesHTML: HTMLDivElement,
+    isBoardInverted: boolean
   ): void {
     this.pieceView =
       pieceData === null
         ? null
-        : new PieceView(pieceData.id, pieceData.team, pos, boardPiecesHTML);
+        : new PieceView(
+            pieceData.id,
+            pieceData.team,
+            pos,
+            boardPiecesHTML,
+            isBoardInverted
+          );
   }
   public appendToHtml(element: HTMLElement) {
     this.html.append(element);

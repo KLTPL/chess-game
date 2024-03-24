@@ -11,18 +11,20 @@ export default class PieceView {
     id: PIECES,
     team: TEAMS,
     pos: Pos,
-    boardPiecesHTML: HTMLDivElement
+    boardPiecesHTML: HTMLDivElement,
+    isBoardInverted: boolean
   ) {
     this.html = this.createNewHtmlPiece();
     this.addClassName(id, team);
-    this.transformHtmlToPos(pos);
+    this.transformHtmlToPos(pos, isBoardInverted);
     // if (this.board.currTeam === this.team) {
     //   this.html.classList.add(PIECE_GRAB_CLASS_NAME);
     // }
     this.appendSelfToEl(boardPiecesHTML);
   }
 
-  public transformHtmlToPos(pos: Pos): void {
+  public transformHtmlToPos(pos: Pos, isBoardInverted: boolean): void {
+    pos = pos.getInvProp(isBoardInverted);
     this.html.style.transform = `translate(
         ${pos.x * 100}%,
         ${pos.y * 100}%
@@ -74,7 +76,9 @@ export default class PieceView {
     clientY: number,
     boardView: BoardView
   ): void {
-    const coor = boardView.calcFieldPosByPx(clientX, clientY);
+    const coor = boardView
+      .calcFieldPosByPx(clientX, clientY)
+      .getInvProp(boardView.isInverted);
     boardView.showEventsOnBoard.showFieldUnderMovingPiece(coor);
 
     const trans = this.html.style.transform; // format: 'transform(Xpx, Ypx)'

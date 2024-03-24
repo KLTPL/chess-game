@@ -78,8 +78,8 @@ export default class DragAndDropPieces {
   private handleEventStart(ev: MouseEvent | TouchEvent) {
     const c = this.boardView.match;
     const isMouse = DragAndDropPieces.isEventMouseEvent(ev);
-    const pos = this.getPosByEv(ev);
-    if (!this.isEventValid(ev, pos)) {
+    const posFixed = this.getPosByEv(ev).getInvProp(this.boardView.isInverted);
+    if (!this.isEventValid(ev, posFixed)) {
       if (this.selectedPieceData !== null) {
         this.stopFollowing(ev);
       }
@@ -90,29 +90,29 @@ export default class DragAndDropPieces {
       return;
     }
     if (
-      !c.boardModel.isPosOccupied(pos) ||
+      !c.boardModel.isPosOccupied(posFixed) ||
       c.getTeamOfUserToMove(c.getCurrTeam()) !==
-        c.boardModel.getPiece(pos)?.team
+        c.boardModel.getPiece(posFixed)?.team
     ) {
       return;
     }
-    const possMoves = c.getPossMovesFromPos(pos);
-    const team = c.getPieceTeamAtPos(pos);
-    const pieceView = this.boardView.getField(pos).getPiece();
+    const possMoves = c.getPossMovesFromPos(posFixed);
+    const team = c.getPieceTeamAtPos(posFixed);
+    const pieceView = this.boardView.getField(posFixed).getPiece();
     if (pieceView === null) {
       throw new Error(
-        `There is no piece (PieceView) at provided position (x = ${pos.x}, y = ${pos.y})`
+        `There is no piece (PieceView) at provided position (x = ${posFixed.x}, y = ${posFixed.y})`
       );
     }
-    this.boardView.showEventsOnBoard.showFieldPieceWasSelectedFrom(pos);
+    this.boardView.showEventsOnBoard.showFieldPieceWasSelectedFrom(posFixed);
     this.boardView.showEventsOnBoard.showPossibleMoves(
-      possMoves.filter((move) => !move.isEqualTo(pos)),
+      possMoves.filter((move) => !move.isEqualTo(posFixed)),
       PieceModel.getEnemyTeam(team),
-      pos
+      posFixed
     );
     this.selectedPieceData = {
       piece: pieceView,
-      grabbedFrom: pos,
+      grabbedFrom: posFixed,
       possMoves,
       isHold: null,
     };
@@ -173,19 +173,21 @@ export default class DragAndDropPieces {
     this.boardView.showEventsOnBoard.stopShowingFieldPieceWasSelectedFrom();
     this.boardView.showEventsOnBoard.stopShowingFieldUnderMovingPiece();
     this.boardView.showEventsOnBoard.stopShowingPossibleMoves();
-    const newPos = this.getPosByEv(ev);
+    const newPosFixed = this.getPosByEv(ev).getInvProp(
+      this.boardView.isInverted
+    );
     const oldPos = s.grabbedFrom;
     for (const possMove of s.possMoves) {
-      if (possMove.isEqualTo(newPos) && !newPos.isEqualTo(oldPos)) {
+      if (possMove.isEqualTo(newPosFixed) && !newPosFixed.isEqualTo(oldPos)) {
         this.selectedPieceData = null;
-        await this.boardView.match.movePiece(oldPos, newPos);
+        await this.boardView.match.movePiece(oldPos, newPosFixed);
         return;
       }
     }
     this.boardView.placePieceInPos(
       oldPos,
       s.piece,
-      this.calcTransitionDelay(oldPos, newPos),
+      this.calcTransitionDelay(oldPos, newPosFixed),
       false
     );
     this.selectedPieceData = null;
@@ -195,7 +197,9 @@ export default class DragAndDropPieces {
     if (this.selectedPieceData === null) {
       return;
     }
-    const pos = this.boardView.calcFieldPosByPx(ev.clientX, ev.clientY);
+    const pos = this.boardView
+      .calcFieldPosByPx(ev.clientX, ev.clientY)
+      .getInvProp(this.boardView.isInverted);
     this.boardView.showEventsOnBoard.showFieldUnderMovingPiece(pos);
     this.selectedPieceData.piece.moveHTMLToPointer(
       ev.clientX,
@@ -208,10 +212,12 @@ export default class DragAndDropPieces {
     if (this.selectedPieceData === null) {
       return;
     }
-    const pos = this.boardView.calcFieldPosByPx(
-      ev.changedTouches[0].clientX,
-      ev.changedTouches[0].clientY
-    );
+    const pos = this.boardView
+      .calcFieldPosByPx(
+        ev.changedTouches[0].clientX,
+        ev.changedTouches[0].clientY
+      )
+      .getInvProp(this.boardView.isInverted);
     this.boardView.showEventsOnBoard.showFieldUnderMovingPiece(pos);
     // this.boardView.showEventsOnBoard.showNewRowAndColUserIsTouching(
     //   this.boardView.calcFieldPosByPx(

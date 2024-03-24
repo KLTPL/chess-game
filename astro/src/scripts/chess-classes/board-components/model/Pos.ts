@@ -8,7 +8,8 @@ export default class Pos {
     public x: number
   ) {}
 
-  public getInvertedProperly(isBoardInverted: boolean): Pos {
+  public getInvProp(isBoardInverted: boolean): Pos {
+    // is inverted properly
     return isBoardInverted
       ? new Pos(Pos.invertPosXOrY(this.y), Pos.invertPosXOrY(this.x))
       : new Pos(this.y, this.x);

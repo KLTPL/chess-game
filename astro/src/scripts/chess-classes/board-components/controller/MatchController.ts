@@ -276,13 +276,10 @@ export default class MatchController {
   public getTeamOfUserToMove(currTeam: TEAMS) {
     const userTeam = this.userTeam;
     if (this.isConnectedToDB) {
-      console.log("isConnectedToDB", true);
       if (userTeam === currTeam) {
-        console.log("user is the current user");
         return userTeam;
       }
     } else {
-      console.log("isConnectedToDB", false);
       return currTeam;
     }
     return null;

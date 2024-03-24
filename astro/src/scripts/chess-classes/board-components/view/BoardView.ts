@@ -11,7 +11,7 @@ import DragAndDropPieces, {
   CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
 } from "./DragAndDropPieces";
 import PieceView from "../../pieces/view/PieceView";
-import type { PIECES, TEAMS } from "../../pieces/model/PieceModel";
+import { TEAMS, type PIECES } from "../../pieces/model/PieceModel";
 import type Halfmove from "../model/Halfmove";
 import PieceModel from "../../pieces/model/PieceModel";
 import KingModel from "../../pieces/model/KingModel";
@@ -57,9 +57,12 @@ export default class BoardView {
     this.positionHtmlProperly();
 
     this.fields = this.createFieldsArr(isInverted);
-    this.setPosition(pieces, isInverted);
+    this.setPosition(pieces);
 
-    this.setCssGrabOnPiececCorrectly(this.match.getCurrTeam());
+    if (this.match.userTeam === TEAMS.BLACK) {
+      this.invert();
+    }
+
     new VisualizingSystem(this);
 
     window.addEventListener("resize", () => {
@@ -75,7 +78,6 @@ export default class BoardView {
     const team = this.match.getTeamOfUserToMove(currTeam);
     s.turnOfCssGrabOnPieces();
     if (team !== null) {
-      console.log("TURN ON TEAM", team);
       s.turnOnCssGrabOnPieces(team);
     }
   }
@@ -142,22 +144,26 @@ export default class BoardView {
     return buttonInvert;
   }
 
-  public setPosition(pieces: PieceViewData[][], isInverted: boolean) {
-    this.isInverted = isInverted;
-    let begin = 0;
-    let end = FIELDS_IN_ONE_ROW;
-    if (isInverted) {
-      const temp = begin;
-      begin = end;
-      end = temp;
-    }
-    for (let r = begin; r < end; r++) {
-      for (let c = begin; c < end; c++) {
+  public setPosition(pieces: PieceViewData[][]) {
+    const place = (pos: Pos, piece: PieceViewData) => {
+      this.getField(pos).placePiece(
+        piece,
+        pos,
+        this.piecesHtml,
+        this.isInverted
+      );
+    };
+
+    for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
+      for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
         const pos = new Pos(r, c);
-        this.getField(pos).placePiece(pieces[r][c], pos, this.piecesHtml);
+        this.removePieceInPos(pos, true);
+        place(pos, pieces[r][c]);
       }
     }
+
     this.positionAllPiecesHtmlsProperly();
+    this.setCssGrabOnPiececCorrectly(this.match.getCurrTeam());
   }
 
   private createFieldsArr(isInverted: boolean): Field[][] {
@@ -205,7 +211,7 @@ export default class BoardView {
       piece.appendSelfToEl(this.piecesHtml);
     }
     piece.setCssTransitionDeley(cssPieceTransitionDelayMs);
-    piece.transformHtmlToPos(pos);
+    piece.transformHtmlToPos(pos, this.isInverted);
     setTimeout(
       () =>
         piece.setCssTransitionDeley(CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE),
@@ -253,11 +259,16 @@ export default class BoardView {
   ): Promise<PIECES | null> {
     const afterMoveIsFinished = (piecePromotedTo: PIECES | null = null) => {
       if (piecePromotedTo !== null) {
-        console.log("place promoted piece");
         this.removePieceInPos(to, true);
         this.placePieceInPos(
           to,
-          new PieceView(piecePromotedTo, team, to, this.piecesHtml),
+          new PieceView(
+            piecePromotedTo,
+            team,
+            to,
+            this.piecesHtml,
+            this.isInverted
+          ),
           CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT,
           false
         );
@@ -311,9 +322,24 @@ export default class BoardView {
     }
   }
 
-  private invert() {
-    // TODO;
-    // ghagioea;
+  public invert() {
+    this.isInverted = !this.isInverted;
+    this.match.analisisSystem.goBackToCurrMoveIfUserIsAnalising();
+    const pieces: PieceViewData[][] = this.match.boardModel
+      .getPiecesCopy()
+      .map((row) =>
+        row.map((piece) => {
+          return piece === null
+            ? null
+            : {
+                id: piece.id,
+                team: piece.team,
+              };
+        })
+      );
+
+    this.setPosition(pieces);
+    this.showEventsOnBoard.showLastMoveAndCheck();
   }
 
   private positionHtmlProperly(): void {
@@ -366,7 +392,7 @@ export default class BoardView {
         const pos = new Pos(r, c);
         const field = this.getField(pos);
         if (field.isOccupied()) {
-          field.getPiece()?.transformHtmlToPos(pos);
+          field.getPiece()?.transformHtmlToPos(pos, this.isInverted);
         }
       }
     }
@@ -393,6 +419,7 @@ export default class BoardView {
   }
 
   public getField(pos: Pos): Field {
+    pos = pos.getInvProp(this.isInverted);
     return this.fields[pos.y][pos.x];
   }
   public getSelectedPieceData() {
@@ -400,6 +427,7 @@ export default class BoardView {
   }
 
   public setField(field: Field, pos: Pos): void {
+    pos = pos.getInvProp(this.isInverted);
     this.fields[pos.y][pos.x] = field;
   }
 }
