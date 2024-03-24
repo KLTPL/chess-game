@@ -1,6 +1,6 @@
-import { queryDB } from "../connect";
 import type { GetDBGameData } from "../types";
 import getGameData from "./getGameData";
+import { getGameDisplayId } from "./getGameDisplayId";
 
 export default async function isUserAllowedToMove(
   user: { id: string } | undefined,
@@ -14,13 +14,15 @@ export default async function isUserAllowedToMove(
 
     const gameDisplayId = await getGameDisplayId(gameId);
     if (gameDisplayId === null) {
-      throw `Game id not corresponding to any game in the database`;
+      throw new Error(`Game id not corresponding to any game in the database`);
     }
 
     const gameData = await getGameData(gameDisplayId);
 
     if (gameData === null) {
-      throw `Found game display_id by game id, but did not managed, to get game data by game display_id. Something weird just happend`;
+      throw new Error(
+        `Found game display_id by game id, but did not managed, to get game data by game display_id. Something weird just happend`
+      );
     }
 
     const moveUserId = getUserIdWhomMoveItIs(gameData);
@@ -36,19 +38,6 @@ export default async function isUserAllowedToMove(
     }
     return 400;
   }
-}
-
-async function getGameDisplayId(gameId: string): Promise<string | null> {
-  const res = await queryDB(
-    `
-    SELECT display_id FROM game
-    WHERE id = $1`,
-    [gameId]
-  );
-  if (res.rows.length === 0) {
-    return null;
-  }
-  return res.rows[0].display_id as string;
 }
 
 function getUserIdWhomMoveItIs(gameData: GetDBGameData) {

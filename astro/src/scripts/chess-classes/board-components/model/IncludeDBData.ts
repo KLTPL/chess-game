@@ -10,7 +10,7 @@ export default class IncludeDBData {
   constructor(
     DBGameData: GetDBGameData | null,
     private boardModel: BoardModel,
-    match?: MatchController
+    match: MatchController | null
   ) {
     if (DBGameData === null) {
       this.isIncluding = false;
@@ -21,7 +21,7 @@ export default class IncludeDBData {
     this.isIncluding = new Promise<void>((resolve) => {
       setTimeout(async () => {
         await this.insertDBHalfmoves(DBGameData.halfmoves);
-        if (DBGameData.game.is_finished && match !== undefined) {
+        if (DBGameData.game.is_finished && match !== null) {
           match.end({
             result_id: DBGameData.game.result_id as string,
             end_reason_id: DBGameData.game.end_reason_id as string,
@@ -84,7 +84,9 @@ export default class IncludeDBData {
     m.placePieceInPos(promotionPos, promotedToPiece);
   }
 
-  public getIsIncluding() {
-    return this.isIncluding;
+  public async waitUntilIncludesDBData() {
+    if (this.isIncluding !== false) {
+      await this.isIncluding;
+    }
   }
 }

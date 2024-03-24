@@ -21,6 +21,13 @@ export default class MovesSystem {
     return this.halfmoves[this.halfmoves.length - 1];
   }
 
+  public getHalfmovesAmount() {
+    return this.halfmoves.length;
+  }
+
+  public getHalfmoveAt(idx: number) {
+    return this.halfmoves[idx];
+  }
   // private goBackOneHalfmove() {
   //   this.currMoveNum--;
   // }

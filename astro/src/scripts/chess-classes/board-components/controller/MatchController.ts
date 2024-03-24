@@ -41,6 +41,7 @@ export default class MatchController {
   readonly boardModel: BoardModel;
   readonly boardView: BoardView;
   public analisisSystem: AnalisisSystem = null as never;
+  public isAnalisisSystemCreated: Promise<void> | true;
   readonly userTeam: TEAMS | null;
   readonly isConnectedToDB: boolean;
   constructor(boardArg: BoardArg, getOnlineGame: GetOnlineGame | null) {
@@ -70,14 +71,27 @@ export default class MatchController {
       black: new Player(TEAMS.BLACK, DBGameData),
     };
     if (this.boardModel.fetchToDB !== null) {
-      const isIncluding = this.boardModel.includeDBData.getIsIncluding();
-      if (isIncluding !== false) {
-        isIncluding.then(() => this.includeDBDataToView());
-      } else {
-        this.includeDBDataToView();
-      }
+      this.boardModel.includeDBData
+        .waitUntilIncludesDBData()
+        .then(() => this.includeDBDataToView());
     }
-    setTimeout(() => (this.analisisSystem = new AnalisisSystem(this))); // setTimeout so the constructor is finished and the class can use it (passing 'this' as argument)
+    this.isAnalisisSystemCreated = new Promise<void>((resolve) => {
+      setTimeout(() => {
+        this.analisisSystem = new AnalisisSystem(this);
+        resolve();
+      }); // setTimeout so the constructor is finished and the class can use it (passing 'this' as argument)
+    });
+    this.isAnalisisSystemCreated.then(
+      () => (this.isAnalisisSystemCreated = true)
+    );
+  }
+  public async waitForAnalisisSystemCreation() {
+    if (this.isAnalisisSystemCreated !== true) {
+      await this.isAnalisisSystemCreated;
+      await new Promise((resolve) => {
+        setTimeout(resolve);
+      });
+    }
   }
   private getUserTeam(getOnlineGame: GetOnlineGame | null) {
     if (getOnlineGame !== null) {
@@ -96,17 +110,38 @@ export default class MatchController {
   }
 
   private async includeDBDataToView() {
-    for (const halfmove of this.boardModel.movesSystem.halfmoves) {
-      await this.boardView.movePiece(
-        halfmove.from,
-        halfmove.to,
-        halfmove.piece.team,
-        true,
-        CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT
+    // for (const halfmove of this.boardModel.movesSystem.halfmoves) {
+    //   await this.boardView.movePiece(
+    //     halfmove.from,
+    //     halfmove.to,
+    //     halfmove.piece.team,
+    //     true,
+    //     CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT
+    //   );
+    //   const promotedTo = halfmove.getPromotedTo();
+    //   if (promotedTo !== null) {
+    //     console.log("yes");
+    //     this.boardView.removePieceInPos(halfmove.to, true);
+    //     this.boardView
+    //       .getField(halfmove.to)
+    //       .placePiece(
+    //         { id: halfmove.piece.id, team: halfmove.piece.team },
+    //         halfmove.to,
+    //         this.boardView.piecesHtml,
+    //         this.boardView.isInverted
+    //       );
+    //   }
+    // this.boardView.changeBasedOnHalfmove(halfmove);
+    // this.boardView.setCssGrabOnPiececCorrectly(this.getCurrTeam());
+    // }
+    const pieceVD: PieceViewData[][] = this.boardModel
+      .getPiecesCopy()
+      .map((row) =>
+        row.map((piece) => {
+          return piece === null ? null : { id: piece.id, team: piece.team };
+        })
       );
-      this.boardView.changeBasedOnHalfmove(halfmove);
-      this.boardView.setCssGrabOnPiececCorrectly(this.getCurrTeam());
-    }
+    this.boardView.setPosition(pieceVD);
   }
 
   public async movePiece(from: Pos, to: Pos) {
@@ -287,6 +322,15 @@ export default class MatchController {
 
   public getHalfmoves(): Halfmove[] {
     return this.boardModel.movesSystem.halfmoves;
+  }
+  public getHalfmovesAmount() {
+    return this.boardModel.movesSystem.getHalfmovesAmount();
+  }
+  public getLatestHalfmove() {
+    return this.boardModel.movesSystem.getLatestHalfmove();
+  }
+  public getHalfmoveAt(idx: number) {
+    return this.boardModel.movesSystem.getHalfmoveAt(idx);
   }
   public getCurrTeam(): TEAMS {
     return this.boardModel.getCurrTeam();
