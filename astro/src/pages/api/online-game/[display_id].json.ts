@@ -8,6 +8,7 @@ import type {
   PutDBGame,
 } from "../../../db/types";
 import isUserAllowedToMove from "../../../db/game/isUserAllowedToMove";
+import isMoveValid from "../../../db/game/isMoveValid";
 
 export type GetOnlineGame = {
   getDBGameData: GetDBGameData;
@@ -47,15 +48,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const data: GetPostDBHalfmove = await request.json();
     const { user } = locals;
     const isAllowedOrStatusCode = await isUserAllowedToMove(user, data.game_id);
-    if (isAllowedOrStatusCode === true) {
-      await addNewMove(data);
+    if (isAllowedOrStatusCode !== true) {
       return new Response(null, {
-        status: 200,
+        status: isAllowedOrStatusCode,
       });
     }
-
+    const isMoveValidOrStatusCode = await isMoveValid(data);
+    if (isMoveValidOrStatusCode !== true) {
+      return new Response(null, {
+        status: isMoveValidOrStatusCode,
+      });
+    }
+    await addNewMove(data);
     return new Response(null, {
-      status: isAllowedOrStatusCode,
+      status: 200,
     });
   } catch (error) {
     if (error instanceof Error) {

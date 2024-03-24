@@ -21,20 +21,20 @@ export default class AnalisisSystem {
         this.goBackToCurrMoveIfUserIsAnalising();
       }
     });
-    const halfmoves = match.getHalfmoves();
+    const halfmovesLength = match.getHalfmovesAmount();
     this.match.boardView.onButtonBack(() => {
-      if (halfmoves.length > 0) {
+      if (halfmovesLength > 0) {
         this.goOneHalfmoveBack();
       }
     });
     this.match.boardView.onButtonForward(() => {
-      if (halfmoves.length > 0) {
+      if (halfmovesLength > 0) {
         this.goOneHalfmoveForward(CSS_PIECE_TRANSITION_DELAY_MS_DEFAULT);
       }
     });
 
     this.match.boardView.onKeyDown((ev) => {
-      if (halfmoves.length === 0) {
+      if (halfmovesLength === 0) {
         return;
       }
 
@@ -55,7 +55,7 @@ export default class AnalisisSystem {
 
   public getIndexOfHalfmoveUserIsOn(): number {
     return this.currHalfmoveIndex === null
-      ? this.match.getHalfmoves().length - 1
+      ? this.match.getHalfmovesAmount() - 1
       : this.currHalfmoveIndex;
   }
 
@@ -90,7 +90,7 @@ export default class AnalisisSystem {
       return false;
     }
     if (this.currHalfmoveIndex === null) {
-      this.currHalfmoveIndex = this.match.getHalfmoves().length - 2;
+      this.currHalfmoveIndex = this.match.getHalfmovesAmount() - 2;
       return true;
     }
     this.currHalfmoveIndex--;
@@ -213,7 +213,7 @@ export default class AnalisisSystem {
       return false;
     }
     this.currHalfmoveIndex++;
-    if (this.currHalfmoveIndex === this.match.getHalfmoves().length - 1) {
+    if (this.currHalfmoveIndex === this.match.getHalfmovesAmount() - 1) {
       this.currHalfmoveIndex = null;
     }
     return true;

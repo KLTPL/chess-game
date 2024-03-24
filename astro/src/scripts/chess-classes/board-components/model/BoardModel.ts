@@ -52,7 +52,7 @@ export default class BoardModel {
   constructor(
     customPositionFEN: string | null,
     DBGameData: GetDBGameData | null,
-    public match: MatchController
+    public match: MatchController | null
   ) {
     const startFENNotation = new FENNotation(customPositionFEN, this);
     this.currTeam = startFENNotation.activeColorConverted;
@@ -73,7 +73,7 @@ export default class BoardModel {
       this.kings.black.updatePosProperty();
     } else {
       setTimeout(() =>
-        this.match.end({
+        this.match?.end({
           id: this.fetchToDB?.game_id,
           end_reason_id: END_REASONS_ID_DB.DATA_ERROR,
           result_id: GAME_RESULTS_ID_DB.DRAW,
@@ -86,7 +86,7 @@ export default class BoardModel {
 
     if (this.isDrawByInsufficientMaterial()) {
       setTimeout(() =>
-        this.match.end({
+        this.match?.end({
           id: this.fetchToDB?.game_id,
           end_reason_id: END_REASONS_ID_DB.INSUFFICENT,
           result_id: GAME_RESULTS_ID_DB.DRAW,
@@ -143,7 +143,7 @@ export default class BoardModel {
     if (!isIncludingFromDB && this.fetchToDB !== null) {
       const ok = await this.fetchToDB.postHalfmove(
         newHalfmove,
-        this.movesSystem.halfmoves.length + 1
+        this.movesSystem.getHalfmovesAmount() + 1
       );
       if (!ok) {
         this.switchCurrTeam();
@@ -155,7 +155,7 @@ export default class BoardModel {
     this.movesSystem.pushNewHalfmove(newHalfmove);
     piece.sideEffectsOfMove(to, from);
     if (!isIncludingFromDB) {
-      this.match.checkIfGameShouldEndAfterMove(newHalfmove);
+      this.match?.checkIfGameShouldEndAfterMove(newHalfmove);
     }
     return true;
   }

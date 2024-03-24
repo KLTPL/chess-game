@@ -12,14 +12,22 @@ export default class ShowEvetsOnBoard {
     private match: MatchController
   ) {}
 
-  public showLastMoveAndCheck() {
-    const mSys = this.match.boardModel.movesSystem;
-    if (mSys.isThereAtLeastOneHalfMove()) {
-      const halfmove = mSys.getLatestHalfmove();
-      this.showNewLastMove(halfmove.from, halfmove.to);
-      if (halfmove.posOfKingChecked !== null) {
-        this.showCheck(halfmove.posOfKingChecked);
+  public async showLastMoveAndCheck(): Promise<void> {
+    await this.match.waitForAnalisisSystemCreation();
+    const halfmovesAmount = this.match.getHalfmovesAmount();
+    const analisingSystem = this.match.analisisSystem;
+    if (halfmovesAmount > 0 && !analisingSystem.isUserAnalisingMove0()) {
+      const currHalfMove = this.match.getHalfmoveAt(
+        analisingSystem.getIndexOfHalfmoveUserIsOn()
+      );
+      this.showNewLastMove(currHalfMove.from, currHalfMove.to);
+      if (currHalfMove.isCheck()) {
+        this.showCheck(currHalfMove.posOfKingChecked);
       }
+    }
+
+    if (this.moveClassification !== null) {
+      this.invertMoveClassification();
     }
   }
 
@@ -218,33 +226,6 @@ export default class ShowEvetsOnBoard {
     });
   }
 
-  public invertEvents(): void {
-    const halfmoves = this.match.getHalfmoves();
-    const analisingSystem = this.match.analisisSystem;
-    if (halfmoves.length > 0 && !analisingSystem.isUserAnalisingMove0()) {
-      const currHalfMove =
-        halfmoves[analisingSystem.getIndexOfHalfmoveUserIsOn()];
-      if (currHalfMove.isCheck()) {
-        this.invertCheck(currHalfMove.posOfKingChecked as Pos);
-      }
-      this.invertLastMove(currHalfMove.from, currHalfMove.to);
-    }
-
-    if (this.moveClassification !== null) {
-      this.invertMoveClassification();
-    }
-  }
-
-  private invertCheck(posOfKing: Pos): void {
-    this.showCheck(posOfKing.getInvProp(this.boardView.isInverted));
-  }
-
-  private invertLastMove(from: Pos, to: Pos): void {
-    this.showNewLastMove(
-      from.getInvProp(this.boardView.isInverted),
-      to.getInvProp(this.boardView.isInverted)
-    );
-  }
   private invertMoveClassification(): void {
     const div = document.querySelector(
       `.${CLASS_NAMES_FIELD.fieldMoveClassification}`

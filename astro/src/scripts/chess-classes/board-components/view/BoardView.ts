@@ -162,6 +162,7 @@ export default class BoardView {
       }
     }
 
+    this.showEventsOnBoard.showLastMoveAndCheck();
     this.positionAllPiecesHtmlsProperly();
     this.setCssGrabOnPiececCorrectly(this.match.getCurrTeam());
   }
@@ -322,8 +323,9 @@ export default class BoardView {
     }
   }
 
-  public invert() {
+  public async invert() {
     this.isInverted = !this.isInverted;
+    await this.match.waitForAnalisisSystemCreation();
     this.match.analisisSystem.goBackToCurrMoveIfUserIsAnalising();
     const pieces: PieceViewData[][] = this.match.boardModel
       .getPiecesCopy()
@@ -337,9 +339,7 @@ export default class BoardView {
               };
         })
       );
-
     this.setPosition(pieces);
-    this.showEventsOnBoard.showLastMoveAndCheck();
   }
 
   private positionHtmlProperly(): void {
