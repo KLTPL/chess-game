@@ -1,9 +1,9 @@
-import type { GetPostDBHalfmove } from "../../../db/types";
-import type Halfmove from "../Halfmove";
+import type { GetPostDBHalfmove } from "../../../../db/types";
+import type Halfmove from "./Halfmove";
 import FENNotation from "./FENNotation";
-import type { PutDBGame } from "../../../db/types";
-import type { getResultNameProps } from "../../../db/dict-game-result/getResultName";
-import type { getEndReasonNameProps } from "../../../db/dict-game-end-reason/getEndReasonName";
+import type { PutDBGame } from "../../../../db/types";
+import type { getResultNameProps } from "../../../../db/dict-game-result/getResultName";
+import type { getEndReasonNameProps } from "../../../../db/dict-game-end-reason/getEndReasonName";
 
 export default class FetchToDB {
   constructor(public game_id: string) {}

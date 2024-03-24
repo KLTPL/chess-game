@@ -1,6 +1,7 @@
-import Board, { FIELDS_IN_ONE_ROW } from "./Board";
-import Pos from "../Pos";
-import Dir from "../Dir";
+import BoardView from "./BoardView";
+import Pos from "../model/Pos";
+import Dir from "../model/Dir";
+import { FIELDS_IN_ONE_ROW } from "../model/BoardModel";
 
 const CLASS_NAMES = {
   arrowContainer: "arrow-container",
@@ -11,7 +12,7 @@ const CLASS_NAMES = {
 export default class VisualizingArrow {
   private html: HTMLDivElement = document.createElement("div");
   constructor(
-    private board: Board,
+    private board: BoardView,
     private startPos: Pos,
     private endPos: Pos
   ) {
@@ -57,7 +58,7 @@ export default class VisualizingArrow {
 
     this.html.append(arrowTail);
     this.html.append(arrowHead);
-    this.board.getFieldHtmlEl(this.startPos).append(this.html);
+    this.board.getField(this.startPos).appendToHtml(this.html);
   }
 
   private createArrowContainerHtml(

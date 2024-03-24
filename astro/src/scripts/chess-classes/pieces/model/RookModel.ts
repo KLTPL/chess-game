@@ -1,28 +1,24 @@
-import Board from "../board-components/Board";
-import Piece, { PIECES, TEAMS } from "./Piece";
-import Pos from "../Pos";
-import Dir from "../Dir";
+import Dir from "../../board-components/model/Dir";
+import Pos from "../../board-components/model/Pos";
+import BoardModel, {
+  FIELDS_IN_ONE_ROW,
+} from "../../board-components/model/BoardModel";
+import PieceModel, { PIECES, TEAMS } from "./PieceModel";
 
-export default class Queen extends Piece {
-  public value: number = 9;
-  public id: PIECES = PIECES.QUEEN;
+export default class RookModel extends PieceModel {
+  readonly value: number = 5;
+  readonly id: PIECES = PIECES.ROOK;
   constructor(
     readonly team: TEAMS,
-    protected board: Board
+    protected boardModel: BoardModel
   ) {
-    super(team, board);
-
-    this.addClassName(this.id);
+    super(team, boardModel);
   }
 
   public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
     const enemyTeamNum = this.enemyTeamNum;
     const possibleMoves: Pos[] = [];
     const directions = [
-      new Dir(1, 1),
-      new Dir(-1, -1),
-      new Dir(-1, 1),
-      new Dir(1, -1),
       new Dir(1, 0),
       new Dir(-1, 0),
       new Dir(0, 1),
@@ -31,25 +27,26 @@ export default class Queen extends Piece {
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
       while (true) {
-        const piece = this.board.getPiece(tempPos);
-        if (piece?.team === enemyTeamNum && !Piece.isKing(piece)) {
+        const piece = this.boardModel.getPiece(tempPos);
+        if (piece?.team === enemyTeamNum && !PieceModel.isKing(piece)) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if (!Board.isPosIn(tempPos)) {
+        if (!BoardModel.isPosInBounds(tempPos)) {
           break;
         }
         possibleMoves.push(new Pos(tempPos.y, tempPos.x));
-        if (this.board.getPiece(tempPos)?.team === this.team) {
+        if (this.boardModel.getPiece(tempPos)?.team === this.team) {
           break;
         }
       }
     }
     return possibleMoves;
   }
+
   public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
-    const myKing = this.board.getKingByTeam(this.team);
+    const myKing = this.boardModel.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
     let possibleMoves = [pos, ...this.createArrOfNormalMoves(pos)];
@@ -70,10 +67,6 @@ export default class Queen extends Piece {
   private createArrOfNormalMoves(pos: Pos): Pos[] {
     const enemyTeamNum = this.enemyTeamNum;
     const directions = [
-      new Dir(1, 1),
-      new Dir(-1, -1),
-      new Dir(-1, 1),
-      new Dir(1, -1),
       new Dir(1, 0),
       new Dir(-1, 0),
       new Dir(0, 1),
@@ -83,22 +76,37 @@ export default class Queen extends Piece {
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
       while (true) {
-        const piece = this.board.getPiece(tempPos);
+        const piece = this.boardModel.getPiece(tempPos);
         if (piece?.team === enemyTeamNum) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
         if (
-          !Board.isPosIn(tempPos) ||
-          this.board.getPiece(tempPos)?.team === this.team
+          !BoardModel.isPosInBounds(tempPos) ||
+          this.boardModel.getPiece(tempPos)?.team === this.team
         ) {
           break;
         }
         moves.push(new Pos(tempPos.y, tempPos.x));
       }
     }
-
     return moves;
+  }
+
+  public sideEffectsOfMove(_: Pos, from: Pos): void {
+    const castlingRights = this.boardModel.getCastlingRightsByTeam(
+      this.isWhite()
+    );
+
+    const posXStartKingSide = FIELDS_IN_ONE_ROW - 1; // it's the same for white and black
+    const posXStartQueenSide = 0; // it's the same for white and black
+
+    if (castlingRights.k && from.x === posXStartKingSide) {
+      castlingRights.k = false;
+    }
+    if (castlingRights.q && from.x === posXStartQueenSide) {
+      castlingRights.q = false;
+    }
   }
 }

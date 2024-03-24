@@ -1,40 +1,31 @@
-import Board, { FIELDS_IN_ONE_ROW } from "../board-components/Board";
-import Piece, {
-  type AnyPiece,
-  CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
-  PIECES,
-  TEAMS,
-} from "./Piece";
-import Pos from "../Pos";
-import PawnPromotionMenu from "../board-components/PawnPromotionMenu";
+import BoardModel, {
+  FIELDS_IN_ONE_ROW,
+} from "../../board-components/model/BoardModel";
+import PieceModel, { type AnyPieceModel, PIECES, TEAMS } from "./PieceModel";
+import Pos from "../../board-components/model/Pos";
 
-export default class Pawn extends Piece {
-  public value: number = 1;
-  public id: PIECES = PIECES.PAWN;
+export default class PawnModel extends PieceModel {
+  readonly value: number = 1;
+  readonly id: PIECES = PIECES.PAWN;
   private directionY: number;
   constructor(
     readonly team: TEAMS,
-    protected board: Board
+    protected boardModel: BoardModel
   ) {
-    super(team, board);
+    super(team, boardModel);
     this.directionY = this.isWhite() ? -1 : 1; // direction up or down
-    this.addClassName(this.id);
-  }
-
-  public invert() {
-    this.directionY *= -1;
   }
 
   public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
     const capturePos = [
       new Pos(pos.y + this.directionY, pos.x + 1),
       new Pos(pos.y + this.directionY, pos.x - 1),
-    ].filter((capture) => Board.isPosIn(capture));
+    ].filter((capture) => BoardModel.isPosInBounds(capture));
     return capturePos;
   }
 
   public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
-    const myKing = this.board.getKingByTeam(this.team);
+    const myKing = this.boardModel.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
     const enPassantPawns =
@@ -62,7 +53,7 @@ export default class Pawn extends Piece {
   }
 
   private createArrOfNormalMoves(pos: Pos): Pos[] {
-    const board = this.board;
+    const board = this.boardModel;
     const enemyTeamNum = this.enemyTeamNum;
     const capturePos = this.createArrOfPossibleMovesFromPosForKing(pos).filter(
       (move) => board.getPiece(move)?.team === enemyTeamNum
@@ -77,7 +68,7 @@ export default class Pawn extends Piece {
       const newPos2 = new Pos(pos.y + this.directionY * 2, pos.x);
       if (
         pos.y === pawnStartRow &&
-        Board.isPosIn(newPos2) &&
+        BoardModel.isPosInBounds(newPos2) &&
         board.getPiece(newPos2) === null
       ) {
         moves.push(newPos2);
@@ -88,7 +79,7 @@ export default class Pawn extends Piece {
   }
 
   private createArrOfPosOfPawnsThatCanBeCapturedByEnPassant(pos: Pos): Pos[] {
-    const board = this.board;
+    const board = this.boardModel;
     const enemyTeamNum = this.enemyTeamNum;
     const pawnsToCapturePos = [
       new Pos(pos.y, pos.x + 1),
@@ -100,12 +91,12 @@ export default class Pawn extends Piece {
       const lastMove = board.movesSystem.getLatestHalfmove();
       const isPawnAfterMoving2SqueresForward =
         Math.abs(lastMove?.from.y - lastMove?.to.y) > 1;
-      const piece = Board.isPosIn(pawnToCapturePos)
+      const piece = BoardModel.isPosInBounds(pawnToCapturePos)
         ? board.getPiece(pawnToCapturePos)
         : null;
       return (
-        Board.isPosIn(newCapture) &&
-        Piece.isPawn(piece) &&
+        BoardModel.isPosInBounds(newCapture) &&
+        PieceModel.isPawn(piece) &&
         piece?.team === enemyTeamNum &&
         isAtLestOneMove &&
         piece === lastMove.piece &&
@@ -119,7 +110,7 @@ export default class Pawn extends Piece {
     pawn: Pos,
     pawnToBeCapturedPosX: number
   ): boolean {
-    const kingPos = this.board.getKingPosByTeam(this.team);
+    const kingPos = this.boardModel.getKingPosByTeam(this.team);
     const isPawnInlineWithKingHoryzontally = pawn.y - kingPos.y === 0;
     return (
       isPawnInlineWithKingHoryzontally &&
@@ -173,7 +164,7 @@ export default class Pawn extends Piece {
     let tempXPos = startPawnXPos + pinDir;
     for (; tempXPos !== kingPosX; tempXPos += pinDir) {
       const pos = new Pos(yPos, tempXPos);
-      if (this.board.getPiece(pos) !== null) {
+      if (this.boardModel.getPiece(pos) !== null) {
         return false;
       }
     }
@@ -190,15 +181,15 @@ export default class Pawn extends Piece {
     let currPos = new Pos(yPos, tempXPos);
     for (
       ;
-      Board.isPosIn((currPos = new Pos(yPos, tempXPos)));
+      BoardModel.isPosInBounds((currPos = new Pos(yPos, tempXPos)));
       tempXPos += pinDir
     ) {
-      const piece = this.board.getPiece(currPos);
+      const piece = this.boardModel.getPiece(currPos);
       if (
         (piece !== null && piece?.team === this.team) ||
         (piece?.team === enemyTeamNum &&
-          !Piece.isQueen(piece) &&
-          !Piece.isRook(piece))
+          !PieceModel.isQueen(piece) &&
+          !PieceModel.isRook(piece))
       ) {
         return false;
       }
@@ -209,53 +200,21 @@ export default class Pawn extends Piece {
     return false;
   }
 
-  private isGoingUp(): boolean {
-    return this.directionY === -1;
-  }
-
   public sideEffectsOfMove(to: Pos): void {
     // en passant capture
-    const b = this.board;
-    const enPassantPos = new Pos(to.y - this.directionY, to.x);
-    const enPassanPiece = b.getPiece(enPassantPos);
-    if (
-      Board.isPosIn(enPassantPos) &&
-      Piece.isPawn(enPassanPiece) &&
-      enPassanPiece === b.movesSystem.getLatestHalfmove().piece
-    ) {
-      b.removePieceInPos(enPassantPos, true);
-    }
-
-    // promotion
-    const promotionPosY = this.isGoingUp() ? 0 : FIELDS_IN_ONE_ROW - 1;
-
-    if (!b.includeDBData.isIncluding && to.y === promotionPosY) {
-      this.promote(to);
+    const b = this.boardModel;
+    const enPassantPos = this.getPosOfPieceCapturedByEnPassant(to);
+    if (b.movesSystem.getLatestHalfmove().isEnPassantCapture()) {
+      b.removePieceInPos(enPassantPos);
     }
   }
 
-  private promote(pos: Pos): void {
-    this.board.pawnPromotionMenu = new PawnPromotionMenu(this.team, this.board);
-    this.board.pawnPromotionMenu.playerIsChoosing.then(
-      (newPieceNum: number) => {
-        const pawnGotPromotedTo = this.board.createNewPieceObj(
-          newPieceNum,
-          this.team,
-          this.board
-        );
-        this.board.removePieceInPos(pos, true);
-        this.board.placePieceInPos(
-          pos,
-          pawnGotPromotedTo,
-          CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
-          true
-        );
-        (this.board.pawnPromotionMenu as PawnPromotionMenu).removeMenu();
-        this.board.pawnPromotionMenu = null;
-        this.board.movesSystem
-          .getLatestHalfmove()
-          .setPromotedTo(pawnGotPromotedTo as AnyPiece);
-      }
-    );
+  public isPosOfPromotion(pos: Pos) {
+    const yPromotion = this.directionY === -1 ? 0 : FIELDS_IN_ONE_ROW - 1;
+    return yPromotion === pos.y && BoardModel.isPosInBounds(pos);
+  }
+
+  public getPosOfPieceCapturedByEnPassant(moveTo: Pos) {
+    return new Pos(moveTo.y - this.directionY, moveTo.x);
   }
 }

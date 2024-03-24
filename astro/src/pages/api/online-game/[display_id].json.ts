@@ -2,10 +2,19 @@ import { type APIRoute } from "astro";
 import getGameData from "../../../db/game/getGameData";
 import addNewMove from "../../../db/game-halfmove/addNewMove";
 import updateGameResult from "../../../db/game/updateGameResult";
-import type { GetPostDBHalfmove, PutDBGame } from "../../../db/types";
+import type {
+  GetDBGameData,
+  GetPostDBHalfmove,
+  PutDBGame,
+} from "../../../db/types";
 import isUserAllowedToMove from "../../../db/game/isUserAllowedToMove";
 
-export const GET: APIRoute = async ({ params }) => {
+export type GetOnlineGame = {
+  getDBGameData: GetDBGameData;
+  userId: string | undefined;
+};
+
+export const GET: APIRoute<GetOnlineGame> = async ({ params, locals }) => {
   try {
     const data = await getGameData(params.display_id as string);
 
@@ -16,12 +25,15 @@ export const GET: APIRoute = async ({ params }) => {
       });
     }
 
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return new Response(
+      JSON.stringify({ getDBGameData: data, userId: locals.user?.id }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);

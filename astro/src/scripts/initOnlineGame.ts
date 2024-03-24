@@ -1,14 +1,16 @@
-import type { GetDBGameData } from "../db/types";
-import Match, { type BoardArg } from "./chess-classes/Match";
+import type { GetOnlineGame } from "../pages/api/online-game/[display_id].json";
+import MatchController, {
+  type BoardArg,
+} from "./chess-classes/board-components/controller/MatchController";
 
 export function initGameOnline(
   htmlPageContainerQSelector: string,
-  DBGameData: GetDBGameData
+  getOnlineGame: GetOnlineGame
 ) {
   const boardArg: BoardArg = {
     htmlPageContainerQSelector,
     customPositionFEN: null,
   };
 
-  new Match(boardArg, DBGameData);
+  new MatchController(boardArg, getOnlineGame);
 }

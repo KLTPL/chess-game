@@ -1,38 +1,61 @@
-import Piece, { TEAMS } from "../pieces/Piece";
-import Pos from "../Pos";
-import Board, { FIELDS_IN_ONE_ROW } from "./Board";
+import PieceModel, { TEAMS } from "../../pieces/model/PieceModel";
+import type MatchController from "../controller/MatchController";
+import BoardModel, { FIELDS_IN_ONE_ROW } from "../model/BoardModel";
+import Pos from "../model/Pos";
+import type BoardView from "./BoardView";
 import { CLASS_NAMES as CLASS_NAMES_FIELD } from "./Field";
 
 export default class ShowEvetsOnBoard {
   public moveClassification: Pos | null = null;
-  constructor(private board: Board) {}
+  constructor(
+    private boardView: BoardView,
+    private match: MatchController
+  ) {}
 
-  public toggleCssGrabOnPieces(): void {
+  public turnOnCssGrabOnPieces(team?: TEAMS): void {
+    console.log(team);
     for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
       for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
         const pos = new Pos(r, c);
-        this.board.getPiece(pos)?.toggleCssGrab();
+        const pieceV = this.boardView.getField(pos).getPiece();
+        const pieceM = this.match.boardModel.getPiece(pos);
+        console.log("r =", r, "c =", c, pieceM);
+        if (
+          pieceV !== null &&
+          pieceM !== null &&
+          (pieceM.team === team || team === undefined)
+        ) {
+          console.log("YES");
+          pieceV.addCssGrab();
+        }
       }
     }
   }
-
-  public turnOfCssGrabOnPieces(): void {
+  public turnOfCssGrabOnPieces(team?: TEAMS): void {
     for (let r = 0; r < FIELDS_IN_ONE_ROW; r++) {
       for (let c = 0; c < FIELDS_IN_ONE_ROW; c++) {
         const pos = new Pos(r, c);
-        this.board.getPiece(pos)?.removeCssGrab();
+        const pieceV = this.boardView.getField(pos).getPiece();
+        const pieceM = this.match.boardModel.getPiece(pos);
+        if (
+          pieceV !== null &&
+          pieceM !== null &&
+          (pieceM.team === team || team === undefined)
+        ) {
+          pieceV.removeCssGrab();
+        }
       }
     }
   }
 
   public showFieldUnderMovingPiece(pos: Pos): void {
     this.stopShowingFieldUnderMovingPiece();
-    if (!Board.isPosIn(pos)) {
+    if (!BoardModel.isPosInBounds(pos)) {
       return;
     }
     const div = document.createElement("div");
     div.classList.add(CLASS_NAMES_FIELD.fieldUnderMovingPiece);
-    this.board.getFieldHtmlEl(pos).append(div);
+    this.boardView.getField(pos).appendToHtml(div);
   }
 
   public stopShowingFieldUnderMovingPiece() {
@@ -43,7 +66,7 @@ export default class ShowEvetsOnBoard {
     this.stopShowingFieldPieceWasSelectedFrom();
     const div = document.createElement("div");
     div.classList.add(CLASS_NAMES_FIELD.fieldPieceWasSelectedFrom);
-    this.board.getFieldHtmlEl(pos).append(div);
+    this.boardView.getField(pos).appendToHtml(div);
   }
 
   public stopShowingFieldPieceWasSelectedFrom() {
@@ -60,8 +83,8 @@ export default class ShowEvetsOnBoard {
     for (const possMove of possMovesToShow) {
       const div = document.createElement("div");
       const isMoveCapture =
-        this.board.getPiece(possMove)?.team === enemyTeamNum ||
-        (Piece.isPawn(this.board.getPiece(from)) && // en passant
+        this.match.boardModel.getPiece(possMove)?.team === enemyTeamNum ||
+        (PieceModel.isPawn(this.match.boardModel.getPiece(from)) && // en passant
           from.x !== possMove.x);
       div.classList.add(
         CLASS_NAMES_FIELD.possMove,
@@ -70,7 +93,7 @@ export default class ShowEvetsOnBoard {
           : CLASS_NAMES_FIELD.possMovePlain
       );
 
-      this.board.getFieldHtmlEl(possMove).append(div);
+      this.boardView.getField(possMove).appendToHtml(div);
     }
   }
 
@@ -82,20 +105,12 @@ export default class ShowEvetsOnBoard {
     this.stopShowingHighlight(`.${CLASS_NAMES_FIELD.fieldInCheck}`);
   }
 
-  public showCheck(kingPos: Pos): void {
-    // king pos as argument instead of this.pos because of the ability to go back in time and temporarly see what happened
-    this.stopShowingCheck();
-    const div = document.createElement("div");
-    div.classList.add(CLASS_NAMES_FIELD.fieldInCheck);
-    this.board.getFieldHtmlEl(kingPos).append(div);
-  }
-
-  public showCheckIfKingIsInCheck(kingTeam: TEAMS): void {
-    // field becomes red if in check
-    const king = this.board.getKingByTeam(kingTeam);
-    this.stopShowingCheck();
-    if (king.isInCheck()) {
-      this.showCheck(king.pos.getInvertedProperly(this.board.isInverted));
+  public showCheck(kingPos: Pos | null): void {
+    if (kingPos != null) {
+      this.stopShowingCheck();
+      const div = document.createElement("div");
+      div.classList.add(CLASS_NAMES_FIELD.fieldInCheck);
+      this.boardView.getField(kingPos).appendToHtml(div);
     }
   }
 
@@ -120,7 +135,7 @@ export default class ShowEvetsOnBoard {
       CLASS_NAMES_FIELD.fieldMoveClassification,
       CLASS_NAMES_FIELD.fieldBrilliant
     );
-    this.board.getFieldHtmlEl(pos).append(div);
+    this.boardView.getField(pos).getPiece()?.appendToHtml(div);
     this.moveClassification = new Pos(pos.y, pos.x);
   }
 
@@ -130,7 +145,7 @@ export default class ShowEvetsOnBoard {
       CLASS_NAMES_FIELD.fieldMoveClassification,
       CLASS_NAMES_FIELD.fieldBlunder
     );
-    this.board.getFieldHtmlEl(pos).append(div);
+    this.boardView.getField(pos).getPiece()?.appendToHtml(div);
     this.moveClassification = new Pos(pos.y, pos.x);
   }
 
@@ -142,7 +157,7 @@ export default class ShowEvetsOnBoard {
 
   public showNewRowAndColUserIsTouching(touch: Pos): void {
     this.stopShowingRowAndColUserIsTouching();
-    if (Board.isPosIn(touch)) {
+    if (BoardModel.isPosInBounds(touch)) {
       this.showRowAndColUserIsTouching(touch);
     }
   }
@@ -154,8 +169,14 @@ export default class ShowEvetsOnBoard {
       return highlight;
     };
     for (let i = 0; i < FIELDS_IN_ONE_ROW; i++) {
-      this.board.getFieldHtmlEl(new Pos(i, touch.x)).append(createHighlight());
-      this.board.getFieldHtmlEl(new Pos(touch.y, i)).append(createHighlight());
+      this.boardView
+        .getField(new Pos(i, touch.x))
+        .getPiece()
+        ?.appendToHtml(createHighlight());
+      this.boardView
+        .getField(new Pos(touch.y, i))
+        .getPiece()
+        ?.appendToHtml(createHighlight());
     }
   }
 
@@ -173,7 +194,7 @@ export default class ShowEvetsOnBoard {
     for (const pos of toShow) {
       const lastMove = document.createElement("div");
       lastMove.classList.add(CLASS_NAMES_FIELD.fieldLastMove);
-      this.board.getFieldHtmlEl(pos).append(lastMove);
+      this.boardView.getField(pos).appendToHtml(lastMove);
     }
   }
 
@@ -182,21 +203,17 @@ export default class ShowEvetsOnBoard {
   }
 
   private stopShowingHighlight(querySelectorAll: string): void {
-    this.board.html.querySelectorAll(querySelectorAll).forEach((el) => {
+    this.boardView.html.querySelectorAll(querySelectorAll).forEach((el) => {
       el.remove();
     });
   }
 
   public invertEvents(): void {
-    const board = this.board;
-    if (
-      board.movesSystem.isThereAtLeastOneHalfMove() &&
-      !board.analisisSystem.isUserAnalisingMove0()
-    ) {
+    const halfmoves = this.match.getHalfmoves();
+    const analisingSystem = this.match.analisisSystem;
+    if (halfmoves.length > 0 && !analisingSystem.isUserAnalisingMove0()) {
       const currHalfMove =
-        board.movesSystem.halfmoves[
-          board.analisisSystem.getIndexOfHalfmoveUserIsOn()
-        ];
+        halfmoves[analisingSystem.getIndexOfHalfmoveUserIsOn()];
       if (currHalfMove.isCheck()) {
         this.invertCheck(currHalfMove.posOfKingChecked as Pos);
       }
@@ -209,13 +226,13 @@ export default class ShowEvetsOnBoard {
   }
 
   private invertCheck(posOfKing: Pos): void {
-    this.showCheck(posOfKing.getInvertedProperly(this.board.isInverted));
+    this.showCheck(posOfKing.getInvertedProperly(this.boardView.isInverted));
   }
 
   private invertLastMove(from: Pos, to: Pos): void {
     this.showNewLastMove(
-      from.getInvertedProperly(this.board.isInverted),
-      to.getInvertedProperly(this.board.isInverted)
+      from.getInvertedProperly(this.boardView.isInverted),
+      to.getInvertedProperly(this.boardView.isInverted)
     );
   }
   private invertMoveClassification(): void {
@@ -224,8 +241,8 @@ export default class ShowEvetsOnBoard {
     ) as HTMLDivElement;
     div.remove();
     const pos = (this.moveClassification as Pos).getInvertedProperly(
-      this.board.isInverted
+      this.boardView.isInverted
     );
-    this.board.getFieldHtmlEl(pos).append(div);
+    this.boardView.getField(pos).getPiece()?.appendToHtml(div);
   }
 }

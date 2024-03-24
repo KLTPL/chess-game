@@ -1,5 +1,6 @@
-import Board from "./Board";
-import Piece, { PIECES, TEAMS } from "../pieces/Piece";
+import { PIECES, type TEAMS } from "../../pieces/model/PieceModel";
+import PieceView from "../../pieces/view/PieceView";
+import BoardView from "./BoardView";
 import { CLASS_NAMES as CLASS_NAMES_FIELD } from "./Field";
 
 const CLASS_NAMES = {
@@ -9,16 +10,16 @@ const CLASS_NAMES = {
 
 export default class PawnPromotionMenu {
   private html: HTMLElement;
-  public playerIsChoosing: Promise<number>;
-  constructor(
-    private team: TEAMS,
-    private board: Board
-  ) {
-    const promotionOptions = this.createArrOfPromoteOptionsHtml();
+  readonly playerIsChoosing: Promise<number>;
+  constructor(team: TEAMS, board: BoardView) {
+    const promotionOptions = this.createArrOfPromoteOptionsHtml(team);
     this.showOptionClassification(promotionOptions);
     this.html = this.createContainerHtml(promotionOptions);
-    this.board.html.append(this.html);
+    board.html.append(this.html);
     this.playerIsChoosing = this.waitForPlayersDecision(promotionOptions);
+    this.playerIsChoosing.then(() => {
+      this.removeMenu();
+    });
   }
 
   private createContainerHtml(
@@ -33,7 +34,7 @@ export default class PawnPromotionMenu {
     return container;
   }
 
-  private createArrOfPromoteOptionsHtml(): HTMLDivElement[] {
+  private createArrOfPromoteOptionsHtml(team: TEAMS): HTMLDivElement[] {
     const promoteOptionIds = [
       PIECES.BISHOP,
       PIECES.KNIGHT,
@@ -43,7 +44,7 @@ export default class PawnPromotionMenu {
 
     return promoteOptionIds.map((id) => {
       const optionContainer = document.createElement("div");
-      const optionPiece = this.createPromoteOptionHtml(id, this.team);
+      const optionPiece = this.createPromoteOptionHtml(id, team);
       optionPiece.dataset.optId = id.toString();
       optionContainer.append(optionPiece);
       return optionContainer;
@@ -54,7 +55,7 @@ export default class PawnPromotionMenu {
     const option = document.createElement("div");
     option.classList.add(CLASS_NAMES.promoteOption);
 
-    const specificClassName = Piece.getClassNameByPiece(piece, team);
+    const specificClassName = PieceView.getClassNameByPiece(piece, team);
     if (specificClassName !== null) {
       option.classList.add(specificClassName);
     }
@@ -79,8 +80,8 @@ export default class PawnPromotionMenu {
 
   private waitForPlayersDecision(
     promoteOptionsHtml: HTMLDivElement[]
-  ): Promise<number> {
-    return new Promise<number>((resolve) => {
+  ): Promise<PIECES> {
+    return new Promise<PIECES>((resolve) => {
       for (const optHtml of promoteOptionsHtml) {
         optHtml.addEventListener(
           "click",
@@ -95,7 +96,7 @@ export default class PawnPromotionMenu {
     });
   }
 
-  public removeMenu(): void {
+  private removeMenu(): void {
     this.html.remove();
   }
 }

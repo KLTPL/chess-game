@@ -1,17 +1,16 @@
-import Board from "../board-components/Board";
-import Piece, { PIECES, TEAMS } from "./Piece";
-import Pos from "../Pos";
-import Dir from "../Dir";
+import PieceModel, { PIECES, TEAMS } from "./PieceModel";
+import Pos from "../../board-components/model/Pos";
+import Dir from "../../board-components/model/Dir";
+import BoardModel from "../../board-components/model/BoardModel";
 
-export default class Bishop extends Piece {
-  public value: number = 3;
-  public id: PIECES = PIECES.BISHOP;
+export default class BishopModel extends PieceModel {
+  readonly value: number = 3;
+  readonly id: PIECES = PIECES.BISHOP;
   constructor(
     readonly team: TEAMS,
-    protected board: Board
+    protected boardModel: BoardModel
   ) {
-    super(team, board);
-    this.addClassName(this.id);
+    super(team, boardModel);
   }
 
   public createArrOfPossibleMovesFromPosForKing(pos: Pos): Pos[] {
@@ -26,17 +25,17 @@ export default class Bishop extends Piece {
     for (const dir of directions) {
       const tempPos = new Pos(pos.y, pos.x);
       while (true) {
-        const piece = this.board.getPiece(tempPos);
-        if (piece?.team === enemyTeamNum && !Piece.isKing(piece)) {
+        const piece = this.boardModel.getPiece(tempPos);
+        if (piece?.team === enemyTeamNum && !PieceModel.isKing(piece)) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
-        if (!Board.isPosIn(tempPos)) {
+        if (!BoardModel.isPosInBounds(tempPos)) {
           break;
         }
         possibleMoves.push(new Pos(tempPos.y, tempPos.x));
-        if (this.board.getPiece(tempPos)?.team === this.team) {
+        if (this.boardModel.getPiece(tempPos)?.team === this.team) {
           break;
         }
       }
@@ -45,7 +44,7 @@ export default class Bishop extends Piece {
   }
 
   public createArrOfPossibleMovesFromPos(pos: Pos): Pos[] {
-    const myKing = this.board.getKingByTeam(this.team);
+    const myKing = this.boardModel.getKingByTeam(this.team);
     const absPins = myKing.createArrOfAbsolutePins();
 
     let possibleMoves = [pos, ...this.createArrOfNormalMoves(pos)];
@@ -76,15 +75,15 @@ export default class Bishop extends Piece {
     for (const dir of directions) {
       let tempPos = new Pos(pos.y, pos.x);
       while (true) {
-        const piece = this.board.getPiece(tempPos);
+        const piece = this.boardModel.getPiece(tempPos);
         if (piece?.team === enemyTeamNum) {
           break;
         }
         tempPos.x += dir.x;
         tempPos.y += dir.y;
         if (
-          !Board.isPosIn(tempPos) ||
-          this.board.getPiece(tempPos)?.team === this.team
+          !BoardModel.isPosInBounds(tempPos) ||
+          this.boardModel.getPiece(tempPos)?.team === this.team
         ) {
           break;
         }

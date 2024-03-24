@@ -1,19 +1,19 @@
 import Pos from "./Pos";
-import Board from "./board-components/Board";
 import Dir from "./Dir";
-import Piece from "./pieces/Piece";
+import PieceModel from "../../pieces/model/PieceModel";
+import type BoardModel from "./BoardModel";
 
 export default class Check {
   constructor(
     public checkingPiecePos: Pos,
     public checkedKingPos: Pos,
-    private board: Board
+    private boardBackend: BoardModel
   ) {}
 
   public createArrOfFieldsInBetweenPieceAndKing(): Pos[] {
     const piecePos = this.checkingPiecePos;
-    const piece = this.board.getPiece(piecePos);
-    if (Piece.isKnight(piece) || Piece.isPawn(piece)) {
+    const piece = this.boardBackend.getPiece(piecePos);
+    if (PieceModel.isKnight(piece) || PieceModel.isPawn(piece)) {
       return [];
     }
     const checkDir = new Dir(
