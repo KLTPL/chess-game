@@ -1,5 +1,5 @@
 ---
-import MainLayout from "../../layouts/main-layout.astro";
+import GameLayout from "../../layouts/game-layout.astro";
 import CookiesNames from "../../utils/CookiesNames";
 
 const displayId = Astro.params.display_id as string;
@@ -7,7 +7,7 @@ const displayId = Astro.params.display_id as string;
 Astro.cookies.set(CookiesNames.GAME_DISPLAY_ID, displayId);
 ---
 
-<MainLayout title="Online game" />
+<GameLayout title="Online game" />
 
 <script>
   import { initGameOnline } from "../../scripts/initOnlineGame";
