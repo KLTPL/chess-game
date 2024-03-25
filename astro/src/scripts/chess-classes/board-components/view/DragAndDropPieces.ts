@@ -45,7 +45,23 @@ export default class DragAndDropPieces {
   private startListeningForClicks(): void {
     window.addEventListener("mousedown", (ev) => this.handleEventStart(ev));
     window.addEventListener("mouseup", (ev) => this.handleEventEnd(ev));
-    window.addEventListener("touchstart", (ev) => this.handleEventStart(ev));
+    window.addEventListener(
+      "touchstart",
+      (ev) => {
+        this.handleEventStart(ev);
+        if (
+          BoardModel.isPosInBounds(
+            this.boardView.calcFieldPosByPx(
+              ev.changedTouches[0].clientX,
+              ev.changedTouches[0].clientY
+            )
+          )
+        ) {
+          ev.preventDefault(); // so the mouse events are canceled (mousedown)
+        }
+      },
+      { passive: false } // passive so the ev.preventDefault() function works
+    );
     window.addEventListener("touchend", (ev) => this.handleEventEnd(ev));
     window.addEventListener("mousemove", (ev) => this.handleMouseMove(ev));
     window.addEventListener("touchmove", (ev) => this.hanldeTouchMove(ev));
@@ -116,7 +132,6 @@ export default class DragAndDropPieces {
       possMoves,
       isHold: null,
     };
-
     if (isMouse) {
       this.startFollowingMouse(ev, pieceView);
     } else {
@@ -151,6 +166,12 @@ export default class DragAndDropPieces {
       .catch(() => {
         if (this.selectedPieceData !== null) {
           this.selectedPieceData.isHold = false;
+          this.boardView.showEventsOnBoard.showFieldUnderMovingPiece(
+            this.boardView.calcFieldPosByPx(
+              ev.changedTouches[0].clientX,
+              ev.changedTouches[0].clientY
+            )
+          );
         }
       });
   }
@@ -159,6 +180,7 @@ export default class DragAndDropPieces {
       this.selectedPieceData !== null &&
       this.selectedPieceData.isHold === true
     ) {
+      this.boardView.showEventsOnBoard.stopShowingRowAndColUserIsTouching();
       this.stopFollowing(ev);
     }
   }
@@ -219,12 +241,14 @@ export default class DragAndDropPieces {
       )
       .getInvProp(this.boardView.isInverted);
     this.boardView.showEventsOnBoard.showFieldUnderMovingPiece(pos);
-    // this.boardView.showEventsOnBoard.showNewRowAndColUserIsTouching(
-    //   this.boardView.calcFieldPosByPx(
-    //     ev.changedTouches[0].clientX,
-    //     ev.changedTouches[0].clientY
-    //   )
-    // );
+    if (this.selectedPieceData.isHold === true) {
+      this.boardView.showEventsOnBoard.showNewRowAndColUserIsTouching(
+        this.boardView.calcFieldPosByPx(
+          ev.changedTouches[0].clientX,
+          ev.changedTouches[0].clientY
+        )
+      );
+    }
     this.selectedPieceData.piece.moveHTMLToPointer(
       ev.changedTouches[0].clientX,
       ev.changedTouches[0].clientY,
@@ -259,178 +283,4 @@ export default class DragAndDropPieces {
   ): ev is MouseEvent {
     return ev.type.includes("mouse");
   }
-
-  /*
-
-
-  public stopListeningForClicks(): void {
-    this.html.removeEventListener("mousedown", this.startFollowingCursorMouse);
-  }
-
-  private stopFollowingCursorMouse = async (
-    ev: MouseEvent,
-    possMoves: Pos[]
-  ): Promise<void> => {
-    const type = ev.type as "mouseup" | "mousedown";
-    if (ev.button !== 0) {
-      // 0 = left click
-      document.addEventListener(
-        type,
-        (newEv) => this.stopFollowingCursorMouse(newEv, possMoves),
-        { once: true }
-      );
-      return;
-    }
-
-    const boardGrabbedPieceInfo = this.boardView
-      .selectedPieceInfo as SelectedPieceInfo; // .piece is equal to this
-    document.removeEventListener("mousemove", this.handleMouseMove);
-    this.html.id = ""; // remove the ID_SELECTED_PIECE_MOUSE
-    this.boardView.showEventsOnBoard.stopShowingFieldPieceWasSelectedFrom();
-    this.boardView.showEventsOnBoard.stopShowingFieldUnderMovingPiece();
-    this.boardView.showEventsOnBoard.stopShowingPossibleMoves();
-    const newPos = this.boardView.calcFieldPosByPx(ev.clientX, ev.clientY);
-    const oldPos = boardGrabbedPieceInfo.grabbedFrom;
-    for (const possMove of possMoves) {
-      if (possMove.isEqualTo(newPos) && !newPos.isEqualTo(oldPos)) {
-        await this.boardView.movePiece(
-          oldPos,
-          newPos,
-          boardGrabbedPieceInfo.piece as AnyPiece,
-          CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT
-        );
-        this.boardView.selectedPieceInfo = null;
-        return;
-      }
-    }
-    this.boardView.placePieceInPos(
-      oldPos,
-      boardGrabbedPieceInfo.piece as AnyPiece,
-      this.calcTransitionDelay(oldPos, newPos),
-      false
-    );
-    this.boardView.selectedPieceInfo = null;
-  };
-
-  private stopFollowingCursorTouch = async (
-    ev: TouchEvent,
-    possMoves: Pos[]
-  ): Promise<void> => {
-    const touch = ev.changedTouches[0];
-    const selectedPieceInfo = this.boardView
-      .selectedPieceInfo as SelectedPieceInfo; // .piece is equal to this
-    this.html.id = ""; // remove the ID_SELECTED_PIECE_TOUCH
-    this.html.removeEventListener("touchmove", this.hanldeTouchMove);
-    this.boardView.showEventsOnBoard.stopShowingFieldPieceWasSelectedFrom();
-    this.boardView.showEventsOnBoard.stopShowingFieldUnderMovingPiece();
-    this.boardView.showEventsOnBoard.stopShowingPossibleMoves();
-    this.boardView.showEventsOnBoard.stopShowingRowAndColUserIsTouching();
-    const newPos = this.boardView.calcFieldPosByPx(
-      touch.clientX,
-      touch.clientY
-    );
-    const oldPos = selectedPieceInfo.grabbedFrom;
-    for (const possMove of possMoves) {
-      if (possMove.isEqualTo(newPos) && !newPos.isEqualTo(oldPos)) {
-        await this.boardView.movePiece(
-          oldPos,
-          newPos,
-          selectedPieceInfo.piece as AnyPiece,
-          CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT
-        );
-        this.boardView.selectedPieceInfo = null;
-        return;
-      }
-    }
-    this.boardView.placePieceInPos(
-      oldPos,
-      selectedPieceInfo.piece as AnyPiece,
-      this.calcTransitionDelay(oldPos, newPos),
-      false
-    );
-    this.boardView.selectedPieceInfo = null;
-  };
-
-    private startFollowingCursorMouse = (ev: MouseEvent): void => {
-    // TODO
-    const leftClickNum = 0;
-    const fieldCoor = this.boardModel.findPosOfPiece(this);
-    const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
-    this.boardView.showEventsOnBoard.showFieldPieceWasSelectedFrom(fieldCoor);
-    this.boardView.showEventsOnBoard.showPossibleMoves(
-      possMoves.filter((move) => !move.isEqualTo(fieldCoor)),
-      this.enemyTeamNum,
-      fieldCoor
-    );
-    this.boardView.selectedPieceInfo = { piece: this, grabbedFrom: fieldCoor }; // TODO this Piece | AnyPiece
-    this.boardView.removePieceInPos(fieldCoor, false);
-    this.html.id = ID_SELECTED_PIECE_MOUSE;
-    this.moveToPointer(ev.clientX, ev.clientY);
-    document.addEventListener("mousemove", this.handleMouseMove);
-
-    hold(this.html, "mouseup", HOLD_MOUSE_TIME_MS)
-      .then(() => {
-        document.addEventListener(
-          "mouseup",
-          (newEv) => this.stopFollowingCursorMouse(newEv, possMoves),
-          { once: true }
-        );
-      })
-      .catch(() => {
-        document.addEventListener(
-          "mousedown",
-          (newEv) => this.stopFollowingCursorMouse(newEv, possMoves),
-          { once: true }
-        );
-      });
-  };
-
-  private startFollowingCursorTouch = (ev: TouchEvent): void => {
-    ev.preventDefault(); // prevents this.startFollowingCursorMouse from executing
-    const touch = ev.changedTouches[0];
-    const fieldCoor = this.boardView.findPosOfPiece(this);
-    if (
-      !this.boardView.match.isGameRunning ||
-      this.boardView.currTeam !== this.team ||
-      this.boardView.pawnPromotionMenu !== null ||
-      this.boardView.selectedPieceInfo !== null ||
-      this.boardView.analisisSystem.isUserAnalising() ||
-      touch.identifier > 0 ||
-      fieldCoor === null
-    ) {
-      return;
-    }
-    const possMoves = this.createArrOfPossibleMovesFromPos(fieldCoor);
-    this.boardView.removePieceInPos(fieldCoor, false);
-    this.boardView.selectedPieceInfo = { piece: this, grabbedFrom: fieldCoor }; // TODO this Piece | AnyPiece
-    this.boardView.showEventsOnBoard.showFieldPieceWasSelectedFrom(fieldCoor);
-    this.boardView.showEventsOnBoard.showPossibleMoves(
-      possMoves.filter((move) => !move.isEqualTo(fieldCoor)),
-      this.enemyTeamNum,
-      fieldCoor
-    );
-
-    hold(this.html, "touchend", HOLD_TOUCH_TIME_MS)
-      .then(() => {
-        this.boardView.removePieceInPos(fieldCoor, false);
-        this.html.id = ID_SELECTED_PIECE_TOUCH;
-        this.boardView.showEventsOnBoard.showRowAndColUserIsTouching(fieldCoor);
-
-        this.moveToPointer(touch.clientX, touch.clientY);
-        this.html.addEventListener("touchmove", this.hanldeTouchMove);
-        document.addEventListener(
-          "touchend",
-          (newEv) => this.stopFollowingCursorTouch(newEv, possMoves),
-          { once: true }
-        );
-      })
-      .catch(() => {
-        document.addEventListener(
-          "touchstart",
-          (newEv) => this.stopFollowingCursorTouch(newEv, possMoves),
-          { once: true }
-        );
-      });
-  };
-  */
 }

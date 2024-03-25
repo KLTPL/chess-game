@@ -189,11 +189,9 @@ export default class ShowEvetsOnBoard {
     for (let i = 0; i < FIELDS_IN_ONE_ROW; i++) {
       this.boardView
         .getField(new Pos(i, touch.x))
-        .getPiece()
         ?.appendToHtml(createHighlight());
       this.boardView
         .getField(new Pos(touch.y, i))
-        .getPiece()
         ?.appendToHtml(createHighlight());
     }
   }
