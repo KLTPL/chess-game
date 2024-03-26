@@ -1,6 +1,9 @@
 import { useRef } from "react";
 import type { GetDBGameInvite } from "../../db/types";
 import type { PutGameInviteResponse } from "../../pages/api/game-invite";
+import bothColorsKing from "../../images/both-colors-king.png";
+import whiteKing from "../../images/w-king.png";
+import blackKing from "../../images/b-king.png";
 
 type GameInviteProps = {
   gameInvite: GetDBGameInvite;
@@ -8,7 +11,19 @@ type GameInviteProps = {
 
 export default function GameInvite({ gameInvite }: GameInviteProps) {
   const inviteRef = useRef<HTMLDivElement>(null);
-  const { id, user_from } = gameInvite;
+  const { id, user_from, is_user_from_white } = gameInvite;
+  let teamSrc: string;
+  let alt: string;
+  if (is_user_from_white === null) {
+    teamSrc = bothColorsKing.src;
+    alt = "random team image";
+  } else if (is_user_from_white === true) {
+    teamSrc = blackKing.src;
+    alt = "black team image";
+  } else {
+    teamSrc = whiteKing.src;
+    alt = "white team image";
+  }
 
   async function acceptGameInvite() {
     const res = await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite/`, {
@@ -33,42 +48,59 @@ export default function GameInvite({ gameInvite }: GameInviteProps) {
 
   return (
     <div
-      className="grid aspect-square h-full grid-cols-1 grid-rows-3 content-center rounded-md bg-primary p-1 sm:p-3"
+      className="flex aspect-square h-full flex-col  content-center rounded-md bg-primary p-1 sm:p-3"
       ref={inviteRef}
     >
-      <div className="flex flex-row items-center justify-center">
-        {user_from.name === user_from.display_name ? (
-          <div className="w-full text-center font-semibold">
-            {user_from.name}
-          </div>
-        ) : (
-          <>
-            <div className="w-1/2 font-semibold">{user_from.name}</div>
-            <div className="w-1/2">{user_from.display_name}</div>
-          </>
-        )}
-      </div>
-      <div className="text-center">
-        Zaprasza cię do gry: <br /> Gra online
-      </div>
-      <div className="gird-rows-1 grid grid-cols-2">
-        <div className="flex items-center justify-center">
-          <Button
-            key={"1"}
-            text="Akceptuj"
-            bgClassName="bg-green-600"
-            onClick={acceptGameInvite}
-            inviteRef={inviteRef}
-          />
+      <div className="grid grid-cols-1 grid-rows-2">
+        <div className="grid place-content-center">
+          <h5 className="font-bold">Zaproszenie:</h5>
         </div>
-        <div className="flex items-center justify-center">
-          <Button
-            key={"2"}
-            text="Odrzuć"
-            bgClassName="bg-red-600"
-            onClick={declineGameInvite}
-            inviteRef={inviteRef}
-          />
+        <div className="flex flex-row items-center justify-center">
+          {user_from.name === user_from.display_name ? (
+            <div className="w-full text-center font-semibold">
+              {user_from.name}
+            </div>
+          ) : (
+            <>
+              <div className="w-1/2 font-semibold">{user_from.name}</div>
+              <div className="w-1/2">{user_from.display_name}</div>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="grid grid-cols-1 grid-rows-2">
+        <div className="flex flex-col items-center">
+          <div className="flex flex-row justify-center gap-1">
+            {/* flex flex-row justify-center gap-1 */}
+            <div>Typ gry:</div>
+            <div>Gra online</div>
+          </div>
+          <div className="flex flex-row justify-center gap-1">
+            <div className="flex items-center justify-center">Twój team:</div>
+            <div className="flex h-[40px] items-center justify-center">
+              <img src={teamSrc} alt={alt} className="aspect-square h-full" />
+            </div>
+          </div>
+        </div>
+        <div className="gird-rows-1 grid grid-cols-2">
+          <div className="flex items-center justify-center">
+            <Button
+              key={"1"}
+              text="Akceptuj"
+              bgClassName="bg-green-600"
+              onClick={acceptGameInvite}
+              inviteRef={inviteRef}
+            />
+          </div>
+          <div className="flex items-center justify-center">
+            <Button
+              key={"2"}
+              text="Odrzuć"
+              bgClassName="bg-red-600"
+              onClick={declineGameInvite}
+              inviteRef={inviteRef}
+            />
+          </div>
         </div>
       </div>
     </div>

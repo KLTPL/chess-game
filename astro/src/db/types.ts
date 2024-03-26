@@ -60,6 +60,12 @@ export type GetDBAppUserForLogin = GetDBAppUser & {
 export type GetDBGameInvite = {
   id: string;
   user_from: GetDBAppUser;
+  is_user_from_white: boolean | null;
+};
+
+export type PosGameInvite = {
+  userToId: string;
+  isUserFromWhite: boolean | null;
 };
 
 export const enum END_REASONS_ID_DB {

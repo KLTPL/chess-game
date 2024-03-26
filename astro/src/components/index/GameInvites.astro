@@ -3,16 +3,20 @@ import { type GetDBGameInvite } from "../../db/types";
 import GameInvite from "./GameInvite";
 
 interface Props {
-  gameInvites: GetDBGameInvite[]
+  gameInvites: GetDBGameInvite[];
 }
 const { gameInvites } = Astro.props;
 ---
 
 <div>
-  <h3 class="text-xl mb-3">Zaproszenia do gier</h2>
-  <div class="flex flex-row overflow-x-auto overflow-y-hidden h-[250px]">
-    {gameInvites.map(invite => (
-      <GameInvite client:only gameInvite={invite} />
-    ))}
+  <h3 class="mb-3 text-xl">Zaproszenia do gier</h3>
+  <div
+    class="flex h-[200px] flex-row gap-2 overflow-x-auto overflow-y-hidden sm:h-[250px]"
+  >
+    {
+      gameInvites.map((invite) => (
+        <GameInvite client:only gameInvite={invite} />
+      ))
+    }
   </div>
 </div>

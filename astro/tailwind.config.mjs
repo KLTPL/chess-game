@@ -23,6 +23,7 @@ export default {
         "primary-alt": "#008573",
         secondary: "#229a49",
         "secondary-d": "#1b7b3a",
+        "secondary-b": "#25af52",
         bg1: "#212326",
         bg2: "#303236",
         bg3: "#9fa3aa",

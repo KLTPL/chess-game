@@ -13,8 +13,9 @@ export const POST: APIRoute = async ({ locals, request, url }) => {
     const userFromId = locals.user.id;
     const body = await request.json();
     const userToId = body.userToId as string;
-
-    await addGameInvite(userFromId, userToId);
+    const isUserFromWhite = body.isUserFromWhite as null | boolean;
+    console.log(isUserFromWhite);
+    await addGameInvite(userFromId, userToId, isUserFromWhite);
 
     return new Response(null, {
       status: 200,
