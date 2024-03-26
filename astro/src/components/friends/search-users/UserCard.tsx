@@ -1,5 +1,7 @@
 import type { UseMutateFunction } from "react-query";
-import type { GetDBAppUser } from "../../../db/types";
+import type { GetDBAppUser, PosGameInvite } from "../../../db/types";
+import { useRef, useState } from "react";
+import GameInviteModal from "./GameInviteModal";
 
 export type ButtonInfo = {
   onClick: UseMutateFunction<void, unknown, string, unknown>;
@@ -12,16 +14,12 @@ type FriendCardProps = {
 };
 
 export default function UserCard({ user, buttons }: FriendCardProps) {
-  async function postGameInvite() {
-    const res = await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite/`, {
-      method: "POST",
-      body: JSON.stringify({
-        userToId: user.id,
-      }),
-    });
-    if (res.ok) {
-      window.alert("Zaproszenie wysłane");
-    }
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  function showGameInviteModal() {
+    dialogRef.current?.showModal();
+  }
+  function closeGameInviteModal() {
+    dialogRef.current?.close();
   }
   return (
     <div className="flex flex-row items-center justify-stretch rounded-md bg-bg3 p-2 text-black shadow-sm shadow-black">
@@ -45,11 +43,20 @@ export default function UserCard({ user, buttons }: FriendCardProps) {
         ))}
         <button
           className="rounded-md bg-secondary px-4 py-2 text-white hover:bg-secondary-d"
-          onClick={postGameInvite}
+          onClick={showGameInviteModal}
         >
           Zagraj
         </button>
       </div>
+      <dialog
+        ref={dialogRef}
+        className="w-[98vw] rounded-md bg-bg2 py-3 text-white backdrop:bg-zinc-900 backdrop:bg-opacity-35 sm:w-[45ch] sm:p-3"
+      >
+        <GameInviteModal
+          user={user}
+          closeGameInviteModal={closeGameInviteModal}
+        />
+      </dialog>
     </div>
   );
 }

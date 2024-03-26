@@ -6,7 +6,7 @@ export default async function getGameInvites(
 ): Promise<GetDBGameInvite[]> {
   const queryRes = await queryDB(
     `
-    SELECT gi.id as game_invite_id, u.* FROM 
+    SELECT gi.id as game_invite_id, gi.is_user_from_white, u.* FROM 
     (SELECT * FROM game_invite WHERE user_to_id = $1) gi
     INNER JOIN app_user u
     ON gi.user_from_id = u.id;
@@ -25,6 +25,7 @@ export default async function getGameInvites(
         date_create: res.date_create,
         date_last_login: res.date_last_login,
       },
+      is_user_from_white: res.is_user_from_white,
     };
     return gameInvite;
   });
