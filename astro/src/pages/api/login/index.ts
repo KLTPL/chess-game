@@ -29,8 +29,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       const token = sign(user);
       const date = new Date();
       date.setDate(date.getDate() + 14);
-      cookies.set(CookiesNames.TOKEN_JWT, token, { expires: date, path: "/" });
-      DBsetUserLastLogin(user.id);
+      cookies.set(CookiesNames.TOKEN_JWT, token, {
+        expires: date,
+        secure: true,
+        path: "/",
+      });
+      await DBsetUserLastLogin(user.id);
       const response: LoginResponse = { errorCode: null, errorMessage: "" };
       return new Response(JSON.stringify(response), {
         status: 200,

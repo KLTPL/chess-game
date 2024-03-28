@@ -1,12 +1,12 @@
 import { queryDB } from "../connect";
-import { v4 as uuidv4 } from "uuid";
+import generateUniqueDisplayId from "../generateDisplayId";
 
 export default async function addNewGame(
   userId1: string,
   userId2: string,
   isUser1White: boolean | null // is null then it is not set so it will be randomized
 ): Promise<string> {
-  const displayId = await generateUniqueDisplayId();
+  const displayId = await generateUniqueDisplayId(isDisplayIdUnique);
 
   if (
     isUser1White === false ||
@@ -23,14 +23,6 @@ export default async function addNewGame(
     VALUES ($1, $2, $3);`,
     [displayId, userId1, userId2]
   );
-  return displayId;
-}
-
-async function generateUniqueDisplayId(): Promise<string> {
-  let displayId = uuidv4();
-  while (!(await isDisplayIdUnique(displayId))) {
-    displayId = uuidv4();
-  }
   return displayId;
 }
 

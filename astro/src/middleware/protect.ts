@@ -7,6 +7,8 @@ const PROTECTED_PATHS = [
   "/friends",
   "/api/friend-invite/*",
   "/api/game-invite/*",
+  "/api/game-invite-link/*",
+  "/game-invite/*",
   "/api/friend-connection/*",
   "/api/friends",
   "/api/search-name-display-email/*",
@@ -15,7 +17,6 @@ const PROTECTED_PATHS = [
 const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
   try {
     const isProtected = isPathProtected(url.pathname);
-
     if (
       url.pathname.slice(0, 4) !== "/api" &&
       !isProtected &&
@@ -28,7 +29,10 @@ const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
 
     if (token === undefined) {
       if (isProtected) {
-        cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname);
+        cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname, {
+          path: "/",
+          secure: true,
+        });
         return redirect("/login");
       }
       return next();
@@ -39,7 +43,10 @@ const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
     if (verified === false) {
       if (isProtected) {
         cookies.delete(CookiesNames.TOKEN_JWT, { path: "/" });
-        cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname);
+        cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname, {
+          path: "/",
+          secure: true,
+        });
         return redirect("/login");
       }
       return next();

@@ -10,5 +10,5 @@ export function initGameLocal(htmlPageContainerQSelector: string) {
     htmlPageContainerQSelector,
     customPositionFEN: customStartPos,
   };
-  new MatchController(boardArg, null);
+  return new MatchController(boardArg, null);
 }

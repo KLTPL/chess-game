@@ -1,6 +1,6 @@
 ---
 import { type GetDBGameInvite } from "../../db/types";
-import GameInvite from "./GameInvite";
+import GameInviteIndex from "./GameInviteIndex";
 
 interface Props {
   gameInvites: GetDBGameInvite[];
@@ -15,7 +15,7 @@ const { gameInvites } = Astro.props;
   >
     {
       gameInvites.map((invite) => (
-        <GameInvite client:only gameInvite={invite} />
+        <GameInviteIndex client:only gameInvite={invite} />
       ))
     }
   </div>

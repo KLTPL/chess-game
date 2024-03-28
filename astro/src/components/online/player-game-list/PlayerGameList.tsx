@@ -1,4 +1,4 @@
-import type { GetDBGameData } from "../../db/types";
+import type { GetDBGameData } from "../../../db/types";
 import GameDisplay from "./GameDisplay";
 
 type PlayerGameListProps = {

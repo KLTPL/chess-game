@@ -1,13 +1,15 @@
 import type { APIRoute } from "astro";
-import addGameInvite from "../../../db/game-invite/addGameInvite";
-import removeGameInvite from "../../../db/game-invite/removeGameInvite";
 import addNewGame from "../../../db/game/addNewGame";
+import addGameInviteLink from "../../../db/game-invite-link/addGameInviteLink";
 import type {
-  DeleteGameInvite,
-  PostGameInvite,
-  PutGameInvite,
+  DeleteGameInviteLink,
+  PostGameInviteLink,
+  PostResultGameInviteLink,
+  PutGameInviteLink,
   PutResponseGameInvite,
 } from "../../../db/types";
+import removeGameInviteLink from "../../../db/game-invite-link/removeGameInviteLink";
+import getGameInviteLinkData from "../../../db/game-invite-link/getGameInviteLink";
 
 export const POST: APIRoute = async ({ locals, request, url }) => {
   try {
@@ -17,14 +19,18 @@ export const POST: APIRoute = async ({ locals, request, url }) => {
       );
     }
     const userFromId = locals.user.id;
-    const body: PostGameInvite = await request.json();
-    const userToId = body.userToId;
+    const body: PostGameInviteLink = await request.json();
     const isUserFromWhite = body.isUserFromWhite;
 
-    await addGameInvite(userFromId, userToId, isUserFromWhite);
-
-    return new Response(null, {
+    const displayId = await addGameInviteLink(userFromId, isUserFromWhite);
+    const result: PostResultGameInviteLink = {
+      inviteLink: `${import.meta.env.PUBLIC_URL}/game-invite/${displayId}`,
+    };
+    return new Response(JSON.stringify(result), {
       status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -43,13 +49,25 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
       );
     }
     const userToId = locals.user.id;
-    const body: PutGameInvite = await request.json();
-    const inviteId = body.inviteId;
-    const userFromId = body.userFromId;
+    const body: PutGameInviteLink = await request.json();
+    const id = body.id;
+    const gameInviteLinkData = await getGameInviteLinkData(id);
+    if (gameInviteLinkData === null) {
+      return new Response(null, { status: 404 });
+    }
+    console.log(gameInviteLinkData.user_from_id, userToId);
+    if (gameInviteLinkData.user_from_id === userToId) {
+      return new Response(null, { status: 403 });
+    }
 
-    await removeGameInvite(inviteId);
+    const gameDisplayId = await addNewGame(
+      gameInviteLinkData.user_from_id,
+      userToId,
+      gameInviteLinkData.is_user_from_white
+    );
 
-    const gameDisplayId = await addNewGame(userToId, userFromId, null);
+    await removeGameInviteLink(id);
+
     const response: PutResponseGameInvite = {
       newGamePath: `/online-game/${gameDisplayId}`,
     };
@@ -69,13 +87,16 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
 
 export const DELETE: APIRoute = async ({ request }) => {
   try {
-    const body: DeleteGameInvite = await request.json();
-    const inviteId = body.inviteId;
+    const body: DeleteGameInviteLink = await request.json();
+    const id = body.id;
 
-    await removeGameInvite(inviteId);
+    await removeGameInviteLink(id);
 
     return new Response(null, {
       status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
   } catch (error) {
     if (error instanceof Error) {

@@ -1,4 +1,4 @@
-import { type GetDBGameData } from "../../db/types.ts";
+import { type GetDBGameData } from "../../../db/types.ts";
 
 type GameDisplayProps = {
   DBGameData: GetDBGameData;

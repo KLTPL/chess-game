@@ -1,33 +1,24 @@
 import { useState, type SetStateAction } from "react";
-import type { GetDBAppUser, PosGameInvite } from "../../../db/types";
+import type { GetDBAppUser } from "../../../db/types";
 import bothColorsKing from "../../../images/both-colors-king.png";
 import whiteKing from "../../../images/w-king.png";
 import blackKing from "../../../images/b-king.png";
 
 type GameInviteModalProps = {
-  user: GetDBAppUser;
+  user?: GetDBAppUser;
   closeGameInviteModal: () => void;
+  postGameInvite: (isUserFromWhite: boolean | null) => Promise<boolean>;
+  textContent: string;
 };
 
 export default function GameInviteModal({
   user,
   closeGameInviteModal,
+  postGameInvite,
+  textContent,
 }: GameInviteModalProps) {
   const [isUserFromWhite, setIsUserFromWhite] = useState<null | boolean>(null);
-  async function postGameInvite() {
-    const data: PosGameInvite = {
-      userToId: user.id,
-      isUserFromWhite: isUserFromWhite,
-    };
-    const res = await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite/`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-      window.alert("Wysłanie zaproszenia nie powiodło się");
-    }
-    return res.ok;
-  }
+
   return (
     <>
       <button
@@ -47,13 +38,15 @@ export default function GameInviteModal({
       </button>
       <div className="relative flex flex-col items-center justify-center">
         <div className="flex h-full w-full flex-col gap-2 ">
-          <div className="flex w-full flex-col items-center">
-            <h6 className="font-bold">Użytkownik:</h6>
-            <div className="flex w-full flex-row justify-evenly">
-              <div className="font-semibold">{user.name}</div>
-              <div>{user.display_name}</div>
+          {user !== undefined && (
+            <div className="flex w-full flex-col items-center">
+              <h6 className="font-bold">Użytkownik:</h6>
+              <div className="flex w-full flex-row justify-evenly">
+                <div className="font-semibold">{user.name}</div>
+                <div>{user.display_name}</div>
+              </div>
             </div>
-          </div>
+          )}
           <div className="flex flex-col items-center">
             <h6 className="font-bold">Zasady:</h6>
             <div className="flex flex-col sm:grid-cols-2 sm:grid-rows-2 md:grid">
@@ -74,7 +67,6 @@ export default function GameInviteModal({
                   setIsUserFromWhite={(
                     value: SetStateAction<null | boolean>
                   ) => {
-                    console.log("value", value);
                     setIsUserFromWhite(value);
                   }}
                   valToSet={null}
@@ -86,7 +78,6 @@ export default function GameInviteModal({
                   setIsUserFromWhite={(
                     value: SetStateAction<null | boolean>
                   ) => {
-                    console.log("value", value);
                     setIsUserFromWhite(value);
                   }}
                   valToSet={true}
@@ -98,7 +89,6 @@ export default function GameInviteModal({
                   setIsUserFromWhite={(
                     value: SetStateAction<null | boolean>
                   ) => {
-                    console.log("value", value);
                     setIsUserFromWhite(value);
                   }}
                   valToSet={false}
@@ -110,13 +100,13 @@ export default function GameInviteModal({
             <button
               className="rounded-md bg-secondary px-4 py-2 text-white hover:bg-secondary-d"
               onClick={async () => {
-                const ok = await postGameInvite();
+                const ok = await postGameInvite(isUserFromWhite);
                 if (ok) {
                   closeGameInviteModal();
                 }
               }}
             >
-              Zaproś
+              {textContent}
             </button>
           </div>
         </div>

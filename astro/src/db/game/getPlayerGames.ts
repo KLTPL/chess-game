@@ -4,14 +4,9 @@ import getGameData from "./getGameData";
 import type { GetDBGameData } from "../types";
 
 export default async function getPlayerGames(
-  name: string
+  id: string
 ): Promise<GetDBGameData[] | null> {
-  const resUserId = await getResAppUserId(name);
-
-  if (resUserId.rowCount === 0) {
-    return null;
-  }
-  const resDisplayIds = await getResDisplayIds(resUserId.rows[0].id);
+  const resDisplayIds = await getResDisplayIds(id);
 
   const games: GetDBGameData[] = [];
   for (const { display_id } of resDisplayIds.rows) {

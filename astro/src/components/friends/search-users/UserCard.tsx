@@ -1,7 +1,7 @@
 import type { UseMutateFunction } from "react-query";
-import type { GetDBAppUser, PosGameInvite } from "../../../db/types";
+import type { GetDBAppUser, PostGameInvite } from "../../../db/types";
 import { useRef, useState } from "react";
-import GameInviteModal from "./GameInviteModal";
+import GameInviteModal from "../../game-invite/create/GameInviteModal";
 
 export type ButtonInfo = {
   onClick: UseMutateFunction<void, unknown, string, unknown>;
@@ -20,6 +20,20 @@ export default function UserCard({ user, buttons }: FriendCardProps) {
   }
   function closeGameInviteModal() {
     dialogRef.current?.close();
+  }
+  async function postGameInvite(isUserFromWhite: boolean | null) {
+    const data: PostGameInvite = {
+      userToId: user.id,
+      isUserFromWhite: isUserFromWhite,
+    };
+    const res = await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite/`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      window.alert("Wysłanie zaproszenia nie powiodło się");
+    }
+    return res.ok;
   }
   return (
     <div className="flex flex-row items-center justify-stretch rounded-md bg-bg3 p-2 text-black shadow-sm shadow-black">
@@ -55,6 +69,8 @@ export default function UserCard({ user, buttons }: FriendCardProps) {
         <GameInviteModal
           user={user}
           closeGameInviteModal={closeGameInviteModal}
+          postGameInvite={postGameInvite}
+          textContent="Zaproś"
         />
       </dialog>
     </div>
