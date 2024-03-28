@@ -45,6 +45,7 @@ export default function Form() {
         usernameOrEmail: username,
         password,
       };
+      const goBack = Cookies.get(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
       const response = await fetch(`${import.meta.env.PUBLIC_URL}/api/login`, {
         method: "POST",
         body: JSON.stringify(body),
@@ -58,7 +59,6 @@ export default function Form() {
           setErrors({ usernameOrEmail: null, password: errorMessage });
         }
       } else {
-        const goBack = Cookies.get(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
         Cookies.remove(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
         window.document.location.href = goBack === undefined ? "/" : goBack;
       }

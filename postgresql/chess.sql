@@ -101,4 +101,12 @@ CREATE TABLE game_invite (
   create_timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
   is_user_from_white BOOLEAN
 );
+
+CREATE TABLE game_invite_link (
+  id BIGSERIAL PRIMARY KEY,
+  display_id varchar(36) NOT NULL UNIQUE,
+  user_from_id BIGINT NOT NULL REFERENCES app_user(id),
+  is_user_from_white BOOLEAN,
+  create_timestamp TIMESTAMP NOT NULL DEFAULT NOW()
+);
 */

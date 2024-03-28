@@ -1,0 +1,36 @@
+---
+import GameInviteLink from "../../components/game-invite-link/GameInviteLink";
+import getGameResInviteLinkData from "../../db/game-invite-link/getGameResInviteLink";
+import MainLayout from "../../layouts/main-layout.astro";
+
+//  GAME INVITE LINK
+if (Astro.locals.user === undefined) {
+  // should not happen as this is a protected route
+  return new Response(null, { status: 500 });
+}
+
+const displayId = Astro.params.displayId as string;
+const gameInviteLinkData = await getGameResInviteLinkData(displayId);
+
+if (gameInviteLinkData === null) {
+  Astro.redirect("/404");
+  return new Response(null, { status: 404 });
+}
+if (gameInviteLinkData.user_from.id === Astro.locals.user.id) {
+  return new Response(null, { status: 403 });
+}
+---
+
+<MainLayout title="Link z zaproszeniem">
+  <GameInviteLink gameInviteLinkData={gameInviteLinkData} client:only />
+</MainLayout>
+
+<script>
+  import { initGameLocal } from "../../scripts/initLocalGame";
+  initTempGame();
+
+  function initTempGame() {
+    const match = initGameLocal("[data-page-container]");
+    match.end();
+  }
+</script>

@@ -1,17 +1,26 @@
 import { useRef } from "react";
-import type { GetDBGameInvite } from "../../db/types";
-import type { PutGameInviteResponse } from "../../pages/api/game-invite";
-import bothColorsKing from "../../images/both-colors-king.png";
-import whiteKing from "../../images/w-king.png";
-import blackKing from "../../images/b-king.png";
+import type {
+  GetDBGameInvite,
+  GetResponseGameInviteLink,
+} from "../../../db/types";
+import bothColorsKing from "../../../images/both-colors-king.png";
+import whiteKing from "../../../images/w-king.png";
+import blackKing from "../../../images/b-king.png";
 
 type GameInviteProps = {
-  gameInvite: GetDBGameInvite;
+  gameInvite: GetDBGameInvite | GetResponseGameInviteLink;
+  accept: () => Promise<void>;
+  decline: () => Promise<void>;
 };
 
-export default function GameInvite({ gameInvite }: GameInviteProps) {
+export default function GameInvite({
+  gameInvite,
+  accept,
+  decline,
+}: GameInviteProps) {
   const inviteRef = useRef<HTMLDivElement>(null);
-  const { id, user_from, is_user_from_white } = gameInvite;
+  const { user_from, is_user_from_white } = gameInvite;
+
   let teamSrc: string;
   let alt: string;
   if (is_user_from_white === null) {
@@ -23,27 +32,6 @@ export default function GameInvite({ gameInvite }: GameInviteProps) {
   } else {
     teamSrc = whiteKing.src;
     alt = "white team image";
-  }
-
-  async function acceptGameInvite() {
-    const res = await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite/`, {
-      method: "PUT",
-      body: JSON.stringify({
-        inviteId: id,
-        userFromId: user_from.id,
-      }),
-    });
-    const { newGamePath } = (await res.json()) as PutGameInviteResponse;
-    document.location.href = newGamePath;
-  }
-
-  async function declineGameInvite() {
-    await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite/`, {
-      method: "DELETE",
-      body: JSON.stringify({
-        inviteId: id,
-      }),
-    });
   }
 
   return (
@@ -88,7 +76,7 @@ export default function GameInvite({ gameInvite }: GameInviteProps) {
               key={"1"}
               text="Akceptuj"
               bgClassName="bg-green-600"
-              onClick={acceptGameInvite}
+              onClick={accept}
               inviteRef={inviteRef}
             />
           </div>
@@ -97,7 +85,7 @@ export default function GameInvite({ gameInvite }: GameInviteProps) {
               key={"2"}
               text="Odrzuć"
               bgClassName="bg-red-600"
-              onClick={declineGameInvite}
+              onClick={decline}
               inviteRef={inviteRef}
             />
           </div>

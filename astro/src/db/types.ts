@@ -63,9 +63,52 @@ export type GetDBGameInvite = {
   is_user_from_white: boolean | null;
 };
 
-export type PosGameInvite = {
+export type PostGameInvite = {
   userToId: string;
   isUserFromWhite: boolean | null;
+};
+
+export type PutGameInvite = {
+  inviteId: string;
+  userFromId: string;
+};
+
+export type DeleteGameInvite = {
+  inviteId: string;
+};
+
+export type PostGameInviteLink = {
+  isUserFromWhite: boolean | null;
+};
+
+export type PostResultGameInviteLink = {
+  inviteLink: string;
+};
+
+export type PutResponseGameInvite = {
+  newGamePath: string;
+};
+
+export type GetResponseGameInviteLink = {
+  id: string;
+  user_from: GetDBAppUser;
+  is_user_from_white: boolean | null;
+};
+
+export type GetGameInviteLink = {
+  displayId: string;
+};
+
+export type DeleteGameInviteLink = {
+  id: string;
+};
+
+export type PutGameInviteLink = {
+  id: string;
+};
+
+export type PutResponseGameInviteLink = {
+  newGamePath: string;
 };
 
 export const enum END_REASONS_ID_DB {

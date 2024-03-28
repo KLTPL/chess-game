@@ -261,18 +261,21 @@ export default class MatchController {
     }
   }
 
-  public end(endInfo: EndInfo): void {
+  public end(endInfo?: EndInfo): void {
     this.isGameRunning = false;
-    this.endInfo = endInfo;
+
     this.boardView.showEventsOnBoard.turnOfCssGrabOnPieces();
     console.log("half moves: ", this.boardModel.movesSystem.halfmoves);
-
-    if (endInfo.id !== undefined) {
-      this.boardModel.fetchToDB?.putGameStatus(endInfo as PutDBGame);
-    }
-
     console.log("Koniec gry");
-    this.printEndInfo(endInfo);
+
+    if (endInfo !== undefined) {
+      this.endInfo = endInfo;
+      if (endInfo.id !== undefined) {
+        this.boardModel.fetchToDB?.putGameStatus(endInfo as PutDBGame);
+      }
+
+      this.printEndInfo(endInfo);
+    }
   }
 
   private async printEndInfo(endInfo: EndInfo) {

@@ -1,18 +1,22 @@
 ---
-import PlayerGameList from "../components/player-game-list/PlayerGameList";
+import GameInviteLinkButton from "../components/online/new-game-invite-link/GameInviteLinkButton";
+import PlayerGameList from "../components/online/player-game-list/PlayerGameList";
 import getPlayerGames from "../db/game/getPlayerGames";
 import MainLayout from "../layouts/main-layout.astro";
 export const prerender = true;
 
-const data = await getPlayerGames("kltpl");
+const id = Astro.locals.user?.id;
+const data = id === undefined ? null : await getPlayerGames(id);
 
 if (data === null) {
   return new Response(null, { status: 404 });
 }
 ---
 
-<MainLayout title="Gra online">
-  <div>Nowa gra</div>
+<MainLayout title="Online">
+  <div class="pt-3">
+    <GameInviteLinkButton client:only />
+  </div>
   <div>
     <h3>Twoje gry:</h3>
     <PlayerGameList gamesData={data} />
