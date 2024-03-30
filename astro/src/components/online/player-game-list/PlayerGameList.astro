@@ -1,0 +1,110 @@
+---
+import getUserGames from "../../../db/game/getUserGames";
+import GameInviteLinkButton from "../new-game-invite-link/GameInviteLinkButton";
+import GameDisplaysContainer from "./GameDisplaysContainer";
+import ButtonSecondary from "../../../components/buttons/ButtonSecondary";
+import { WIDTHS } from "./utils";
+
+interface Props {
+  endIdx: number;
+  headerText: string;
+  loadMoreOnScroll: boolean;
+  headerLink?: string;
+  addStyles?: string;
+}
+
+const { endIdx, headerText, loadMoreOnScroll, headerLink, addStyles } =
+  Astro.props;
+
+const id = Astro.locals.user?.id;
+if (id === undefined) {
+  throw new Error("User id not defined in a authentication-required component");
+}
+const START_IDX = 0,
+  END_IDX = endIdx;
+const userGamesData = await getUserGames({
+  id,
+  startIdx: START_IDX,
+  endIdx: END_IDX,
+});
+
+if (userGamesData === null) {
+  return new Response(null, { status: 404 });
+}
+---
+
+<div
+  class={"w-full justify-center overflow-x-auto min-[700px]:flex" +
+    (addStyles === undefined ? "" : ` ${addStyles}`)}
+>
+  <div class="flex w-[700px] flex-col items-stretch overflow-hidden rounded-md">
+    {
+      headerLink === undefined ? (
+        <div class="flex flex-row bg-primary-b px-3 py-2">
+          <div class="text-xl">{headerText}</div>
+          <div class="grow" />
+        </div>
+      ) : (
+        <a href={headerLink} class="bg-primary-b">
+          <div class="flex flex-row px-3 py-2">
+            <div class="text-xl">{headerText}</div>
+            <div class="grow" />
+            <div class="grid place-content-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                class="bi bi-arrow-right"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"
+                />
+              </svg>
+            </div>
+          </div>
+        </a>
+      )
+    }
+
+    <div class="flex-rows flex bg-bg3 py-1 text-sm">
+      <div style={{ width: `${WIDTHS.TYPE}%` }} class="text-center">Typ</div>
+      <div style={{ width: `${WIDTHS.PLAYERS}%` }} class="text-center">
+        Gracze
+      </div>
+      <div style={{ width: `${WIDTHS.RESULT}%` }} class="text-center">
+        Rezultat
+      </div>
+      <div style={{ width: `${WIDTHS.MOVES}%` }} class="text-center">Ruchy</div>
+      <div style={{ width: `${WIDTHS.DATE}%` }} class="text-center">Data</div>
+    </div>
+    {
+      userGamesData.length === 0 ? (
+        <div class="flex flex-col items-center gap-6 bg-bg2 py-6">
+          <div>Wygląda na to, że nie zagrałeś jeszcze ani jednej gry.</div>
+          <div class="grid w-full grid-cols-2 grid-rows-1">
+            <div class="grid place-content-center">
+              <GameInviteLinkButton client:only />
+            </div>
+            <div class="grid place-content-center">
+              <a href="/friends">
+                <ButtonSecondary textContent="Zaproś znajomego" client:only />
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <GameDisplaysContainer
+          initGamesData={userGamesData}
+          loadMoreOnScroll={loadMoreOnScroll}
+          playerId={id}
+          startIdx={START_IDX}
+          incrementBy={END_IDX - START_IDX + 1}
+          client:only
+        />
+      )
+    }
+  </div>
+</div>

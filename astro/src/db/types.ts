@@ -2,9 +2,9 @@ export type GetDBGame = {
   id: string;
   display_id: string;
   is_finished: boolean;
-  result_id: null | string;
+  result_id: null | GAME_RESULTS_ID_DB;
   result_name: null | string;
-  end_reason_id: null | string;
+  end_reason_id: null | END_REASONS_ID_DB;
   end_reason_name: null | string;
   castling_w_k: boolean;
   castling_w_q: boolean;
@@ -16,6 +16,7 @@ export type GetDBGame = {
   user_b_id: string;
   user_b_display_name: string;
   user_b_name: string;
+  start_date: string;
 };
 export type GetPostDBHalfmove = {
   game_id: string;
@@ -38,8 +39,8 @@ export type GetDBGameData = {
 
 export type PutDBGame = {
   id: string;
-  result_id: string | number;
-  end_reason_id: string | number;
+  result_id: GAME_RESULTS_ID_DB | number;
+  end_reason_id: END_REASONS_ID_DB | number;
 };
 
 export type GetDBAppUser = {
@@ -109,6 +110,12 @@ export type PutGameInviteLink = {
 
 export type PutResponseGameInviteLink = {
   newGamePath: string;
+};
+
+export type GetUserGames = {
+  id: string;
+  startIdx: number;
+  endIdx: number;
 };
 
 export const enum END_REASONS_ID_DB {

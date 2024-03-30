@@ -55,7 +55,6 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     if (gameInviteLinkData === null) {
       return new Response(null, { status: 404 });
     }
-    console.log(gameInviteLinkData.user_from_id, userToId);
     if (gameInviteLinkData.user_from_id === userToId) {
       return new Response(null, { status: 403 });
     }
