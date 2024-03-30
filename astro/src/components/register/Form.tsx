@@ -1,10 +1,12 @@
 import { useRef, useState } from "react";
+import type { Err, ErrRef, FieldData } from "../auth-form/AuthForm";
+import AuthForm, { errRef } from "../auth-form/AuthForm";
 
 type ErrorsRegisterForm = {
-  email: string | null;
-  username: string | null;
-  displayName: string | null;
-  password: string | null;
+  email: ErrRef;
+  username: ErrRef;
+  displayName: ErrRef;
+  password: ErrRef;
 };
 
 export const enum RegisterErrors {
@@ -44,10 +46,10 @@ export default function Form() {
     },
     setErrors,
   ] = useState<ErrorsRegisterForm>({
-    password: null,
-    username: null,
-    displayName: null,
-    email: null,
+    password: errRef(null),
+    username: errRef(null),
+    displayName: errRef(null),
+    email: errRef(null),
   });
 
   async function fetchForm() {
@@ -86,34 +88,34 @@ export default function Form() {
           errorCode === RegisterErrors.USERNAME_TO_LONG
         ) {
           setErrors({
-            password: null,
-            username: errorMessage,
-            displayName: null,
-            email: null,
+            password: errRef(null),
+            username: errRef(errorMessage),
+            displayName: errRef(null),
+            email: errRef(null),
           });
         } else if (
           errorCode === RegisterErrors.EMAIL_TAKEN ||
           errorCode === RegisterErrors.EMAIL_TO_LONG
         ) {
           setErrors({
-            password: null,
-            username: null,
-            displayName: null,
-            email: errorMessage,
+            password: errRef(null),
+            username: errRef(null),
+            displayName: errRef(null),
+            email: errRef(errorMessage),
           });
         } else if (errorCode === RegisterErrors.PASSWORD_TO_LONG) {
           setErrors({
-            password: errorMessage,
-            username: null,
-            displayName: null,
-            email: null,
+            password: errRef(errorMessage),
+            username: errRef(null),
+            displayName: errRef(null),
+            email: errRef(null),
           });
         } else if (errorCode === RegisterErrors.DISPLAY_NAME_TO_LONG) {
           setErrors({
-            password: null,
-            username: null,
-            displayName: errorMessage,
-            email: null,
+            password: errRef(null),
+            username: errRef(null),
+            displayName: errRef(errorMessage),
+            email: errRef(null),
           });
         }
       } else {
@@ -121,65 +123,44 @@ export default function Form() {
       }
     }
   }
+  const fields: FieldData[] = [
+    {
+      errorRef: emailErr,
+      fieldText: "Email:",
+      inputRef: emailRef,
+      inputType: "email",
+      keyword: "email",
+    },
+    {
+      errorRef: usernameErr,
+      fieldText: "Nazwa użytkownika:",
+      inputRef: usernameRef,
+      inputType: "text",
+      keyword: "username",
+    },
+    {
+      errorRef: displayNameErr,
+      fieldText: "Wyświetlana nazwa użytkownika:",
+      inputRef: displayNameRef,
+      inputType: "text",
+      keyword: "display-name",
+      isNotRequired: true,
+    },
+    {
+      errorRef: passwordErr,
+      fieldText: "Hasło:",
+      inputRef: passwordRef,
+      inputType: "password",
+      keyword: "password",
+    },
+  ];
 
   return (
-    <form onSubmit={(ev) => ev.preventDefault()}>
-      <label htmlFor="email">Email:</label>
-      <br />
-      <input
-        type="email"
-        id="email"
-        name="email"
-        required
-        className="text-black"
-        ref={emailRef}
-      />
-      <br /> <br />
-      {emailErr !== null && <div className="text-red-700">{emailErr}</div>}
-      <label htmlFor="username">Nazwa użytkownika:</label>
-      <br />
-      <input
-        type="text"
-        id="username"
-        name="username"
-        required
-        className="text-black"
-        ref={usernameRef}
-      />
-      <br /> <br />
-      {usernameErr !== null && (
-        <div className="text-red-700">{usernameErr}</div>
-      )}
-      <label htmlFor="display-name">
-        Wyświetlana nazwa użytkownika (opcjonalne):
-      </label>
-      <br />
-      <input
-        type="text"
-        id="display-name"
-        name="display-name"
-        className="text-black"
-        ref={displayNameRef}
-      />
-      <br /> <br />
-      {displayNameErr !== null && (
-        <div className="text-red-700">{displayNameErr}</div>
-      )}
-      <label htmlFor="password">Hasło:</label>
-      <br />
-      <input
-        type="password"
-        id="password"
-        name="password"
-        required
-        className="text-black"
-        ref={passwordRef}
-      />
-      <br /> <br />
-      {passwordErr !== null && (
-        <div className="text-red-700">{passwordErr}</div>
-      )}
-      <input type="submit" value="Zarejestruj" onClick={fetchForm} />
-    </form>
+    <AuthForm
+      fetchForm={fetchForm}
+      fields={fields}
+      headerText="Zarejestruj"
+      submintText="Zarejestruj"
+    />
   );
 }

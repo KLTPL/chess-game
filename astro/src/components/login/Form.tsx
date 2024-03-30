@@ -1,10 +1,12 @@
 import { useRef, useState } from "react";
 import Cookies from "js-cookie";
 import CookiesNames from "../../utils/CookiesNames";
+import type { FieldData } from "../auth-form/AuthForm";
+import AuthForm, { errRef } from "../auth-form/AuthForm";
 
 type ErrorsLoginForm = {
-  usernameOrEmail: string | null;
-  password: string | null;
+  usernameOrEmail: { current: string | null };
+  password: { current: string | null };
 };
 
 export const enum LoginErrors {
@@ -30,7 +32,10 @@ export default function Form() {
   const [
     { password: passwordErr, usernameOrEmail: usernameOrEmailErr },
     setErrors,
-  ] = useState<ErrorsLoginForm>({ password: null, usernameOrEmail: null });
+  ] = useState<ErrorsLoginForm>({
+    password: errRef(null),
+    usernameOrEmail: errRef(null),
+  });
 
   async function fetchForm() {
     const username = usernameRef.current?.value;
@@ -54,9 +59,15 @@ export default function Form() {
       const { errorCode, errorMessage }: LoginResponse = await response.json();
       if (errorCode !== null) {
         if (errorCode === LoginErrors.USERNAME_OR_EMAIL_NOT_FOUND) {
-          setErrors({ password: null, usernameOrEmail: errorMessage });
+          setErrors({
+            password: errRef(null),
+            usernameOrEmail: errRef(errorMessage),
+          });
         } else if (errorCode === LoginErrors.WRONG_PASSWORD) {
-          setErrors({ usernameOrEmail: null, password: errorMessage });
+          setErrors({
+            usernameOrEmail: errRef(null),
+            password: errRef(errorMessage),
+          });
         }
       } else {
         Cookies.remove(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
@@ -65,40 +76,29 @@ export default function Form() {
     }
   }
 
+  const fields: FieldData[] = [
+    {
+      errorRef: usernameOrEmailErr,
+      fieldText: "Email lub nazwa użytkownika:",
+      inputRef: usernameRef,
+      inputType: "text",
+      keyword: "username-or-email",
+    },
+    {
+      errorRef: passwordErr,
+      fieldText: "Hasło:",
+      inputRef: passwordRef,
+      inputType: "password",
+      keyword: "password",
+    },
+  ];
+
   return (
-    <form onSubmit={(ev) => ev.preventDefault()}>
-      <label htmlFor="username-or-email">Email lub nazwa użytkownika:</label>
-      <br />
-      <input
-        type="text"
-        id="username-or-email"
-        name="username-or-email"
-        required
-        className="text-black"
-        ref={usernameRef}
-        defaultValue={"kltpl"}
-      />
-      <br /> <br />
-      {usernameOrEmailErr !== null && (
-        <div className="text-red-700">{usernameOrEmailErr}</div>
-      )}
-      <label htmlFor="password">Hasło:</label>
-      <br />
-      <input
-        type="password"
-        id="password"
-        name="password"
-        required
-        className="text-black"
-        ref={passwordRef}
-        defaultValue={"123"}
-      />
-      <br />
-      {passwordErr !== null && (
-        <div className="text-red-700">{passwordErr}</div>
-      )}
-      <br />
-      <input type="submit" value="Zaloguj" onClick={fetchForm} />
-    </form>
+    <AuthForm
+      fetchForm={fetchForm}
+      fields={fields}
+      headerText="Zaloguj"
+      submintText="Zaloguj"
+    />
   );
 }

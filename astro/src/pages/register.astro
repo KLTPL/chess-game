@@ -10,9 +10,10 @@ if (Astro.cookies.get(CookiesNames.TOKEN_JWT) !== undefined) {
 ---
 
 <MainLayout title="Logowanie">
-  <div class="flex flex-col">
-    <h2>Zaloguj się</h2>
+  <div class="flex flex-col justify-stretch gap-3">
     <RegisterForm client:load />
-    <a href="/login">Masz już konto? Zaloguj się</a>
+    <a href="/login" class="text-center hover:underline"
+      >Masz już konto? Zaloguj się</a
+    >
   </div>
 </MainLayout>
