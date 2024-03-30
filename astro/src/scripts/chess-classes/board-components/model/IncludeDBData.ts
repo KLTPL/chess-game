@@ -22,10 +22,15 @@ export default class IncludeDBData {
       setTimeout(async () => {
         await this.insertDBHalfmoves(DBGameData.halfmoves);
         if (DBGameData.game.is_finished && match !== null) {
-          match.end({
-            result_id: DBGameData.game.result_id as string,
-            end_reason_id: DBGameData.game.end_reason_id as string,
-          });
+          const endInfo =
+            DBGameData.game.result_id === null ||
+            DBGameData.game.end_reason_id === null
+              ? undefined
+              : {
+                  result_id: DBGameData.game.result_id,
+                  end_reason_id: DBGameData.game.end_reason_id,
+                };
+          match.end(endInfo);
         }
         resolve();
       }); // setTimeout so the constructor finishes before and Board.IncludeDBData is not null
