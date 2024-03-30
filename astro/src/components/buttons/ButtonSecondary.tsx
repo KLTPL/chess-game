@@ -9,7 +9,7 @@ export default function ButtonSecondary({
 }: ButtonRoundedProps) {
   return (
     <button
-      className="w-fit rounded-md bg-secondary px-4 py-2 text-white hover:bg-secondary-d"
+      className="w-fit rounded-md bg-secondary px-2 py-1 text-white hover:bg-secondary-d sm:px-4 sm:py-2"
       onClick={onClick}
     >
       {textContent}

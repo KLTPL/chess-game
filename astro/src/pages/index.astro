@@ -1,4 +1,5 @@
 ---
+import ButtonSecondary from "../components/buttons/ButtonSecondary";
 import GameInvites from "../components/index/GameInvites.astro";
 import PlayerGameList from "../components/online/player-game-list/PlayerGameList.astro";
 import getGameInvites from "../db/game-invite/getGameInvites";
@@ -12,10 +13,12 @@ const gameInvites =
 ---
 
 <MainLayout title="Home">
-  <div class="mx-3 flex w-full flex-col gap-3 sm:w-[50ch] md:w-[70ch]">
-    <h1 class="self-center font-poppins text-4xl">Życie jest jak szachy</h1>
+  <div class="mx-3 flex h-full w-full flex-col gap-3 sm:w-[50ch] md:w-[70ch]">
+    <h1 class="mb-3 self-center font-poppins text-4xl">
+      Życie jest jak szachy
+    </h1>
     {
-      isAuth && (
+      isAuth ? (
         <div class="flex flex-col gap-4">
           {gameInvites !== null && gameInvites.length > 0 && (
             <GameInvites gameInvites={gameInvites} />
@@ -26,6 +29,21 @@ const gameInvites =
             loadMoreOnScroll={false}
             headerLink="/online"
           />
+        </div>
+      ) : (
+        <div class="absolute left-1/2 top-1/2 flex w-max max-w-[98vw] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-2 rounded-md bg-bg2 px-1 py-2 text-sm shadow-md sm:px-6 sm:py-6 sm:text-base md:px-12">
+          <div class="px-2 pb-2 text-center text-base sm:text-xl">
+            Wygląda na to, że nie jesteś zalogowan_
+          </div>
+          <div class="flex flex-col items-center justify-center gap-1">
+            <a href="/login">
+              <ButtonSecondary textContent="Zaloguj się lub zarejestruj, by zagrać online" />
+            </a>
+            <div>lub</div>
+            <a href="/login">
+              <ButtonSecondary textContent="Zagraj grę lokalną" />
+            </a>
+          </div>
         </div>
       )
     }
