@@ -36,7 +36,7 @@ export default function UserCard({ user, buttons }: FriendCardProps) {
     return res.ok;
   }
   return (
-    <div className="flex flex-row items-center justify-stretch rounded-md bg-bg4 p-2 text-black shadow-lg shadow-black">
+    <div className="flex flex-row items-center justify-stretch rounded-md bg-bg4 p-2 text-black shadow-sm shadow-black">
       {user.name === user.display_name ? (
         <div className="w-1/2 text-center font-bold">{user.name}</div>
       ) : (
