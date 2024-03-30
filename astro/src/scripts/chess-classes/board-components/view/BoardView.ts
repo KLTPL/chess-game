@@ -77,7 +77,7 @@ export default class BoardView {
     const s = this.showEventsOnBoard;
     const team = this.match.getTeamOfUserToMove(currTeam);
     s.turnOfCssGrabOnPieces();
-    if (team !== null) {
+    if (this.match.isGameRunning && team !== null) {
       s.turnOnCssGrabOnPieces(team);
     }
   }
