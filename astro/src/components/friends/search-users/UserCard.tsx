@@ -36,7 +36,7 @@ export default function UserCard({ user, buttons }: FriendCardProps) {
     return res.ok;
   }
   return (
-    <div className="bg-bg4 flex flex-row items-center justify-stretch rounded-md p-2 text-black shadow-sm shadow-black">
+    <div className="flex flex-row items-center justify-stretch rounded-md bg-bg4 p-2 text-black shadow-sm shadow-black">
       {user.name === user.display_name ? (
         <div className="w-1/2 text-center font-bold">{user.name}</div>
       ) : (
@@ -49,7 +49,7 @@ export default function UserCard({ user, buttons }: FriendCardProps) {
         {buttons.map(({ text, onClick }) => (
           <button
             key={text}
-            className="rounded-md bg-primary px-4 py-2 text-white hover:bg-primary-d"
+            className="rounded-md bg-primary-b px-4 py-2 text-white hover:bg-primary"
             onClick={() => onClick(user.id)}
           >
             {text}
