@@ -22,7 +22,7 @@ export default function GameInviteModal({
   return (
     <>
       <button
-        className="absolute right-0 top-0 z-10 aspect-square bg-current font-bold"
+        className="absolute right-0 top-0 z-10 aspect-square bg-current font-bold sm:me-2 sm:mt-2"
         onClick={closeGameInviteModal}
       >
         <svg
@@ -37,7 +37,7 @@ export default function GameInviteModal({
         </svg>
       </button>
       <div className="relative flex flex-col items-center justify-center">
-        <div className="flex h-full w-full flex-col gap-2 ">
+        <div className="flex h-full w-full flex-col gap-3">
           {user !== undefined && (
             <div className="flex w-full flex-col items-center">
               <h6 className="font-bold">Użytkownik:</h6>
@@ -48,15 +48,15 @@ export default function GameInviteModal({
             </div>
           )}
           <div className="flex flex-col items-center">
-            <h6 className="font-bold">Zasady:</h6>
+            <h6 className="text-xl font-bold ">Zasady:</h6>
             <div className="flex flex-col sm:grid-cols-2 sm:grid-rows-2 md:grid">
-              <div className="flex sm:items-center sm:justify-center">
+              <div className="flex items-center justify-center font-semibold">
                 Czas:
               </div>
               <div className="flex items-center justify-center">
                 Kiedyś będzie
               </div>
-              <div className="flex sm:items-center sm:justify-center">
+              <div className="flex items-center justify-center font-semibold">
                 Team:
               </div>
               <div className="flex flex-row justify-evenly">

@@ -43,7 +43,7 @@ export default function GameInviteLinkButton() {
       />
       <dialog
         ref={dialogRef}
-        className="w-[98vw] rounded-md bg-bg2 py-3 text-white backdrop:bg-zinc-900 backdrop:bg-opacity-35 sm:w-[45ch] sm:p-3"
+        className="w-[98vw] rounded-md bg-bg2 py-3 text-white shadow-md backdrop:bg-zinc-900 backdrop:bg-opacity-35 sm:w-[45ch] sm:p-3"
       >
         <GameInviteModal
           closeGameInviteModal={closeGameInviteModal}
