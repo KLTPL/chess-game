@@ -4,6 +4,7 @@ import type {
   PostResultGameInviteLink,
 } from "../../../db/types";
 import GameInviteModal from "../../game-invite/create/GameInviteModal";
+import ButtonSecondary from "../../buttons/ButtonSecondary";
 
 export default function GameInviteLinkButton() {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -36,12 +37,10 @@ export default function GameInviteLinkButton() {
   }
   return (
     <>
-      <button
-        className="rounded-md bg-secondary px-4 py-2 text-white hover:bg-secondary-d"
+      <ButtonSecondary
+        textContent="Zaproś poprzez link"
         onClick={showGameInviteModal}
-      >
-        Zaproś poprzez link
-      </button>
+      />
       <dialog
         ref={dialogRef}
         className="w-[98vw] rounded-md bg-bg2 py-3 text-white backdrop:bg-zinc-900 backdrop:bg-opacity-35 sm:w-[45ch] sm:p-3"

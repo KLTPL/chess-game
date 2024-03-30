@@ -1,22 +1,33 @@
 ---
 import GameInvites from "../components/index/GameInvites.astro";
+import PlayerGameList from "../components/online/player-game-list/PlayerGameList.astro";
 import getGameInvites from "../db/game-invite/getGameInvites";
 import MainLayout from "../layouts/main-layout.astro";
 
-const gameInvites = 
-  Astro.locals.user === undefined ? 
-  null : 
-  await getGameInvites(Astro.locals.user.id);
+const isAuth = Astro.locals.user !== undefined;
+const gameInvites =
+  Astro.locals.user !== undefined
+    ? await getGameInvites(Astro.locals.user.id)
+    : null;
 ---
 
 <MainLayout title="Home">
-  <div class="flex flex-col w-full mx-3 sm:w-[50ch] md:w-[70ch] gap-3">
-    <h1 class="font-poppins text-4xl self-center">Życie jest jak szachy</h1>
-    <div>Witaj na stronie głównie</div>
-    {gameInvites !== null && gameInvites.length > 0 && 
-      <GameInvites gameInvites={gameInvites} />
+  <div class="mx-3 flex w-full flex-col gap-3 sm:w-[50ch] md:w-[70ch]">
+    <h1 class="self-center font-poppins text-4xl">Życie jest jak szachy</h1>
+    {
+      isAuth && (
+        <div class="flex flex-col gap-4">
+          {gameInvites !== null && gameInvites.length > 0 && (
+            <GameInvites gameInvites={gameInvites} />
+          )}
+          <PlayerGameList
+            endIdx={4}
+            headerText="Twoje gry:"
+            loadMoreOnScroll={false}
+            headerLink="/online"
+          />
+        </div>
+      )
     }
   </div>
-  
-  
 </MainLayout>
