@@ -36,7 +36,7 @@ export default function GameInvite({
 
   return (
     <div
-      className="flex aspect-square h-full flex-col content-center justify-center rounded-md bg-primary-b p-1 sm:p-3"
+      className="flex aspect-square h-full flex-col content-center justify-center rounded-md bg-primary-b p-1 shadow-lg sm:p-3"
       ref={inviteRef}
     >
       <div className="grid grid-cols-1 grid-rows-2">

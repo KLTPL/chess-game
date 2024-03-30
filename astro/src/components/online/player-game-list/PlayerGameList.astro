@@ -37,7 +37,9 @@ if (userGamesData === null) {
   class={"w-full justify-center overflow-x-auto min-[700px]:flex" +
     (addStyles === undefined ? "" : ` ${addStyles}`)}
 >
-  <div class="flex w-[700px] flex-col items-stretch overflow-hidden rounded-md">
+  <div
+    class="flex w-[700px] flex-col items-stretch overflow-hidden rounded-md shadow-md"
+  >
     {
       headerLink === undefined ? (
         <div class="flex flex-row bg-primary-b px-3 py-2">
