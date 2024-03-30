@@ -75,7 +75,8 @@ export default function GameInvite({
             <Button
               key={"1"}
               text="Akceptuj"
-              bgClassName="bg-green-600"
+              bgClassName="bg-secondary-b"
+              bgHoverClassName="hover:bg-secondary"
               onClick={accept}
               inviteRef={inviteRef}
             />
@@ -85,6 +86,7 @@ export default function GameInvite({
               key={"2"}
               text="Odrzuć"
               bgClassName="bg-red-600"
+              bgHoverClassName="hover:bg-red-700"
               onClick={decline}
               inviteRef={inviteRef}
             />
@@ -98,18 +100,25 @@ export default function GameInvite({
 type ButtonProps = {
   text: string;
   bgClassName: string;
+  bgHoverClassName: string;
   onClick: () => void;
   inviteRef: React.RefObject<HTMLDivElement>;
 };
 
-function Button({ text, bgClassName, onClick, inviteRef }: ButtonProps) {
+function Button({
+  text,
+  bgClassName,
+  bgHoverClassName,
+  onClick,
+  inviteRef,
+}: ButtonProps) {
   return (
     <button
       onClick={() => {
         onClick();
         inviteRef?.current?.remove();
       }}
-      className={`${bgClassName} rounded-md px-2 py-1`}
+      className={`${bgClassName + " " + bgHoverClassName} rounded-md px-2 py-1 shadow-md`}
     >
       {text}
     </button>
