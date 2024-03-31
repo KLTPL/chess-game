@@ -30,7 +30,7 @@ export default function AuthForm({
 }: AuthFormProps) {
   return (
     <>
-      <h2 className="pb-3 text-center text-3xl">{headerText}</h2>
+      <h2 className="pb-3 text-center text-2xl">{headerText}</h2>
       <form
         onSubmit={(ev) => ev.preventDefault()}
         className="flex flex-col gap-3 rounded-md bg-bg2 px-2 py-3 sm:min-w-[70ch] sm:gap-4 sm:px-6"
@@ -44,10 +44,7 @@ export default function AuthForm({
             keyword,
             isNotRequired,
           }) => (
-            <div
-              className="flex flex-col items-stretch text-sm sm:text-base"
-              key={keyword}
-            >
+            <div className="flex flex-col items-stretch" key={keyword}>
               <div className="grid grid-cols-2 grid-rows-1 gap-2">
                 <label htmlFor={keyword} className="flex flex-row items-center">
                   {fieldText}
@@ -76,7 +73,7 @@ export default function AuthForm({
         )}
         <input
           type="submit"
-          className="rounded-md bg-primary-b py-1 text-base hover:bg-primary sm:text-xl"
+          className="rounded-md bg-primary-b py-1 hover:bg-primary"
           value={submintText}
           onClick={fetchForm}
         />
