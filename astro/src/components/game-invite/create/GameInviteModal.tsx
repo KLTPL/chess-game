@@ -40,7 +40,7 @@ export default function GameInviteModal({
         <div className="flex h-full w-full flex-col gap-3">
           {user !== undefined && (
             <div className="flex w-full flex-col items-center">
-              <h6 className="font-bold">Użytkownik:</h6>
+              <h6 className="text-lg font-bold">Użytkownik:</h6>
               <div className="flex w-full flex-row justify-evenly">
                 <div className="font-semibold">{user.name}</div>
                 <div>{user.display_name}</div>
@@ -48,7 +48,7 @@ export default function GameInviteModal({
             </div>
           )}
           <div className="flex flex-col items-center">
-            <h6 className="text-xl font-bold ">Zasady:</h6>
+            <h6 className="text-lg font-bold ">Zasady:</h6>
             <div className="flex flex-col sm:grid-cols-2 sm:grid-rows-2 md:grid">
               <div className="flex items-center justify-center font-semibold">
                 Czas:

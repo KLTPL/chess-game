@@ -71,12 +71,12 @@ export default function SearchBar() {
       />
       <div className="my-3 flex grow flex-col items-stretch self-center overflow-auto md:w-[70ch]">
         {searchDataStatus === "loading" && (
-          <div className="flex grow items-center justify-center text-xl text-white">
+          <div className="text-lg flex grow items-center justify-center text-white">
             Ładowanie
           </div>
         )}
         {searchDataStatus === "error" && (
-          <div className="flex grow items-center justify-center text-xl text-red-700">
+          <div className="text-lg flex grow items-center justify-center text-red-700">
             Bład
           </div>
         )}
