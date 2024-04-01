@@ -118,6 +118,21 @@ export type GetUserGames = {
   endIdx: number;
 };
 
+export type GetResultRelatedUsers = {
+  friends: GetDBAppUser[];
+  invited: GetDBAppUser[];
+  whoInvited: GetDBAppUser[];
+  blocked: GetDBAppUser[];
+};
+
+export type GetResultSearchNameDisplayEmail = {
+  friends: GetDBAppUser[];
+  invited: GetDBAppUser[];
+  whoInvited: GetDBAppUser[];
+  suggestions: GetDBAppUser[];
+  blocked: GetDBAppUser[];
+};
+
 export const enum END_REASONS_ID_DB {
   CHECKMATE = 1,
   RESIGNATION = 2,

@@ -1,17 +1,12 @@
 import type { APIRoute } from "astro";
 import { getUsersByNameOrDisplayNameOrEmail } from "../../../db/app-user/getUser";
-import type { GetDBAppUser } from "../../../db/types";
+import type {
+  GetDBAppUser,
+  GetResultSearchNameDisplayEmail,
+} from "../../../db/types";
 import isFriend from "../../../db/friend-connection/isFriend";
 import isInvited from "../../../db/friend-invite/isInvited";
 import isWhoInvited from "../../../db/friend-invite/isWhoInvited";
-
-export type SearchGetResult = {
-  friends: GetDBAppUser[];
-  invited: GetDBAppUser[];
-  whoInvited: GetDBAppUser[];
-  suggestions: GetDBAppUser[];
-  blocked: GetDBAppUser[];
-};
 
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
@@ -20,7 +15,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
       throw new Error("User id is undefined in a protected route");
     }
     const alias = params.alias as string;
-    const result: SearchGetResult = {
+    const result: GetResultSearchNameDisplayEmail = {
       friends: [],
       invited: [],
       whoInvited: [],

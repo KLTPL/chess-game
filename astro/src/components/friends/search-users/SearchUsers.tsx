@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { QueryClient, useMutation, useQuery } from "react-query";
-import type { SearchGetResult } from "../../../pages/api/search-name-display-email/[alias].json";
 import {
   acceptFriendInvite,
   deleteFriendConnection,
@@ -9,7 +8,10 @@ import {
   postFriendInvite,
 } from "./fetch";
 import UserCardsCollection from "./UserCardsCollection";
-import type { GetDBAppUser } from "../../../db/types";
+import type {
+  GetResultRelatedUsers,
+  GetResultSearchNameDisplayEmail,
+} from "../../../db/types";
 
 const queryClient = new QueryClient();
 
@@ -21,15 +23,15 @@ export default function SearchBar() {
     data: searchData,
     status: searchDataStatus,
     refetch: searchDataRefetch,
-  } = useQuery<SearchGetResult | GetDBAppUser[]>({
+  } = useQuery<GetResultSearchNameDisplayEmail | GetResultRelatedUsers>({
     queryFn: async () => await fetchUsers(search),
     queryKey: ["search-users", { search }],
   });
-  function isFriends(
-    searchData: SearchGetResult | GetDBAppUser[],
+  function isDataSearchResult(
+    searchData: GetResultSearchNameDisplayEmail | GetResultRelatedUsers,
     search: string
-  ): searchData is GetDBAppUser[] {
-    return search.length === 0;
+  ): searchData is GetResultSearchNameDisplayEmail {
+    return search.length > 0;
   }
   function invalidate() {
     queryClient.invalidateQueries(["search-users"]);
@@ -81,19 +83,10 @@ export default function SearchBar() {
           </div>
         )}
         {searchDataStatus === "success" &&
-          (isFriends(searchData, search) ? (
-            <UserCardsCollection
-              key="Znajomi"
-              title="Znajomi"
-              users={searchData}
-              buttons={[
-                { text: "Usuń", onClick: mutateDeleteFriendConnection },
-              ]}
-            />
-          ) : (
+          (!isDataSearchResult(searchData, search) ? (
             <>
               <UserCardsCollection
-                key="Znajomi"
+                key="1-friends"
                 title="Znajomi"
                 users={searchData.friends}
                 buttons={[
@@ -101,7 +94,7 @@ export default function SearchBar() {
                 ]}
               />
               <UserCardsCollection
-                key="Zaproszeni"
+                key="1-invited"
                 title="Zaproszeni"
                 users={searchData.invited}
                 buttons={[
@@ -109,7 +102,7 @@ export default function SearchBar() {
                 ]}
               />
               <UserCardsCollection
-                key="Ci którzy Cię zaprosili"
+                key="1-whoInvited"
                 title="Ci którzy Cię zaprosili"
                 users={searchData.whoInvited}
                 buttons={[
@@ -118,13 +111,47 @@ export default function SearchBar() {
                 ]}
               />
               <UserCardsCollection
-                key="Sugestie"
+                key="1-blocked"
+                title="Zablokowani"
+                users={searchData.blocked}
+                buttons={[]}
+              />
+            </>
+          ) : (
+            <>
+              <UserCardsCollection
+                key="2-friends"
+                title="Znajomi"
+                users={searchData.friends}
+                buttons={[
+                  { text: "Usuń", onClick: mutateDeleteFriendConnection },
+                ]}
+              />
+              <UserCardsCollection
+                key="2-invited"
+                title="Zaproszeni"
+                users={searchData.invited}
+                buttons={[
+                  { text: "Anuluj", onClick: mutateDeleteFriendInvite },
+                ]}
+              />
+              <UserCardsCollection
+                key="2-whoInvited"
+                title="Ci którzy Cię zaprosili"
+                users={searchData.whoInvited}
+                buttons={[
+                  { text: "Akceptuj", onClick: mutateAcceptFriendInvite },
+                  { text: "Odrzuć", onClick: mutateDeleteFriendInvite },
+                ]}
+              />
+              <UserCardsCollection
+                key="2-suggestions"
                 title="Sugestie"
                 users={searchData.suggestions}
                 buttons={[{ text: "Zaproś", onClick: mutatePostFriendInvite }]}
               />
               <UserCardsCollection
-                key="Zablokowani"
+                key="2-blocked"
                 title="Zablokowani"
                 users={searchData.blocked}
                 buttons={[]}
