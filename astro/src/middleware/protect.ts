@@ -11,12 +11,14 @@ const PROTECTED_PATHS = [
   "/game-invite/*",
   "/api/friend-connection/*",
   "/api/friends",
+  "/api/related-users.json",
   "/api/search-name-display-email/*",
 ];
 
 const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
   try {
     const isProtected = isPathProtected(url.pathname);
+    console.log(isProtected, url.pathname);
     if (
       url.pathname.slice(0, 4) !== "/api" &&
       !isProtected &&

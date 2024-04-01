@@ -1,10 +1,11 @@
+import type { QueryResult } from "pg";
 import { queryDB } from "../connect";
 
 export default async function isInvited(
   idSelf: string,
   idOther: string
 ): Promise<boolean> {
-  const resResultInvite = await queryDB(
+  const resResultInvite: QueryResult<any> = await queryDB(
     `
       SELECT * FROM friend_invite
       WHERE user_from_id = $1 AND user_to_id = $2;

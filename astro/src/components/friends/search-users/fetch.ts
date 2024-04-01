@@ -1,17 +1,21 @@
-import type { GetDBAppUser } from "../../../db/types";
-import type { SearchGetResult } from "../../../pages/api/search-name-display-email/[alias].json";
+import type {
+  GetResultRelatedUsers,
+  GetResultSearchNameDisplayEmail,
+} from "../../../db/types";
 
 export async function fetchUsers(
   userAlias: string
-): Promise<SearchGetResult | GetDBAppUser[]> {
+): Promise<GetResultSearchNameDisplayEmail | GetResultRelatedUsers> {
   if (userAlias.length === 0) {
-    const res = await fetch(`${import.meta.env.PUBLIC_URL}/api/friends`);
-    return (await res.json()) as GetDBAppUser[];
+    const res = await fetch(
+      `${import.meta.env.PUBLIC_URL}/api/related-users.json`
+    );
+    return (await res.json()) as GetResultRelatedUsers;
   }
   const res = await fetch(
     `${import.meta.env.PUBLIC_URL}/api/search-name-display-email/${userAlias}.json`
   );
-  return (await res.json()) as SearchGetResult;
+  return (await res.json()) as GetResultSearchNameDisplayEmail;
 }
 
 export async function postFriendInvite(userToId: string) {
