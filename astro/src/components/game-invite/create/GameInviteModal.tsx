@@ -23,7 +23,11 @@ export default function GameInviteModal({
     <>
       <button
         className="absolute right-0 top-0 z-10 aspect-square bg-current font-bold sm:me-2 sm:mt-2"
-        onClick={closeGameInviteModal}
+        onClick={() => {
+          console.log("TAK");
+          setIsUserFromWhite(null);
+          closeGameInviteModal();
+        }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -102,6 +106,7 @@ export default function GameInviteModal({
               onClick={async () => {
                 const ok = await postGameInvite(isUserFromWhite);
                 if (ok) {
+                  setIsUserFromWhite(null);
                   closeGameInviteModal();
                 }
               }}
