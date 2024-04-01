@@ -11,9 +11,14 @@ export type ButtonInfo = {
 type FriendCardProps = {
   user: GetDBAppUser;
   buttons: ButtonInfo[];
+  isGameInviteButton?: true;
 };
 
-export default function UserCard({ user, buttons }: FriendCardProps) {
+export default function UserCard({
+  user,
+  buttons,
+  isGameInviteButton,
+}: FriendCardProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   function showGameInviteModal() {
     dialogRef.current?.showModal();
@@ -46,6 +51,14 @@ export default function UserCard({ user, buttons }: FriendCardProps) {
         </div>
       )}
       <div className="me-5 flex w-1/2 flex-row justify-end gap-1">
+        {isGameInviteButton === true && (
+          <button
+            className="rounded-md bg-secondary px-4 py-2 text-white hover:bg-secondary-d"
+            onClick={showGameInviteModal}
+          >
+            Zagraj
+          </button>
+        )}
         {buttons.map(({ text, onClick }) => (
           <button
             key={text}
@@ -55,12 +68,6 @@ export default function UserCard({ user, buttons }: FriendCardProps) {
             {text}
           </button>
         ))}
-        <button
-          className="rounded-md bg-secondary px-4 py-2 text-white hover:bg-secondary-d"
-          onClick={showGameInviteModal}
-        >
-          Zagraj
-        </button>
       </div>
       <dialog
         ref={dialogRef}

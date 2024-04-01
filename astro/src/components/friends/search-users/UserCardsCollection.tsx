@@ -5,12 +5,14 @@ type UserCardsCollectionProps = {
   title: string;
   users: GetDBAppUser[] | undefined;
   buttons: ButtonInfo[];
+  isGameInviteButton?: true;
 };
 
 export default function UserCardsCollection({
   title,
   users,
   buttons,
+  isGameInviteButton,
 }: UserCardsCollectionProps) {
   if (users?.length === 0) {
     return <div></div>;
@@ -20,7 +22,12 @@ export default function UserCardsCollection({
       <h6 className="text-xl text-white">{title}</h6>
       <div className="flex flex-col gap-1">
         {users?.map((user) => (
-          <UserCard key={user.name} user={user} buttons={buttons} />
+          <UserCard
+            key={user.name}
+            user={user}
+            buttons={buttons}
+            isGameInviteButton={isGameInviteButton}
+          />
         ))}
       </div>
     </div>

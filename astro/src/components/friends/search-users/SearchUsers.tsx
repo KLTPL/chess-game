@@ -92,6 +92,7 @@ export default function SearchBar() {
                 buttons={[
                   { text: "Usuń", onClick: mutateDeleteFriendConnection },
                 ]}
+                isGameInviteButton={true}
               />
               <UserCardsCollection
                 key="1-invited"
@@ -126,6 +127,7 @@ export default function SearchBar() {
                 buttons={[
                   { text: "Usuń", onClick: mutateDeleteFriendConnection },
                 ]}
+                isGameInviteButton={true}
               />
               <UserCardsCollection
                 key="2-invited"
