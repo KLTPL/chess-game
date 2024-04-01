@@ -36,14 +36,17 @@ export default function AuthForm({
         className="flex flex-col gap-3 rounded-md bg-bg2 px-2 py-3 sm:min-w-[70ch] sm:gap-4 sm:px-6"
       >
         {fields.map(
-          ({
-            errorRef,
-            fieldText,
-            inputRef,
-            inputType,
-            keyword,
-            isNotRequired,
-          }) => (
+          (
+            {
+              errorRef,
+              fieldText,
+              inputRef,
+              inputType,
+              keyword,
+              isNotRequired,
+            },
+            i
+          ) => (
             <div className="flex flex-col items-stretch" key={keyword}>
               <div className="grid grid-cols-2 grid-rows-1 gap-2">
                 <label htmlFor={keyword} className="flex flex-row items-center">
@@ -60,6 +63,7 @@ export default function AuthForm({
                     placeholder={
                       isNotRequired === true ? "[opcjonalne]" : "[wymagane]"
                     }
+                    autoFocus={i === 0}
                   />
                 </div>
               </div>
