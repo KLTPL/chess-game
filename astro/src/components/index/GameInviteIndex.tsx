@@ -7,10 +7,15 @@ import type {
 import GameInvite from "../game-invite/receive/GameInvite";
 type GameInviteProps = {
   gameInvite: GetDBGameInvite;
+  substractOneInvite: () => void;
 };
 
-export default function GameInviteIndex({ gameInvite }: GameInviteProps) {
+export default function GameInviteIndex({
+  gameInvite,
+  substractOneInvite,
+}: GameInviteProps) {
   async function acceptGameInvite() {
+    substractOneInvite();
     const data: PutGameInvite = {
       inviteId: gameInvite.id,
       userFromId: gameInvite.user_from.id,
@@ -24,6 +29,7 @@ export default function GameInviteIndex({ gameInvite }: GameInviteProps) {
   }
 
   async function declineGameInvite() {
+    substractOneInvite();
     const data: DeleteGameInvite = {
       inviteId: gameInvite.id,
     };
