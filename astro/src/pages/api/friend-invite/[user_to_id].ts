@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import addFriendInvite from "../../../db/friend-invite/addFriendInvite";
 import removeFriendInvite from "../../../db/friend-invite/removeFriendInvite";
+import isFriend from "../../../db/friend-connection/isFriend";
 
 export const POST: APIRoute = async ({ params, locals, url }) => {
   try {
@@ -12,13 +13,16 @@ export const POST: APIRoute = async ({ params, locals, url }) => {
     const userFromId = locals.user.id;
     const userToId = params.user_to_id as string;
 
+    if (await isFriend(userFromId, userToId)) {
+      return new Response(null, {
+        status: 409,
+      });
+    }
+
     await addFriendInvite(userFromId, userToId);
 
     return new Response(null, {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -42,9 +46,6 @@ export const DELETE: APIRoute = async ({ params, locals, url }) => {
 
     return new Response(null, {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
   } catch (error) {
     if (error instanceof Error) {
