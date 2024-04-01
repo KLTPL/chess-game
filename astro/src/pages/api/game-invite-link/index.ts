@@ -10,6 +10,7 @@ import type {
 } from "../../../db/types";
 import removeGameInviteLink from "../../../db/game-invite-link/removeGameInviteLink";
 import getGameInviteLinkData from "../../../db/game-invite-link/getGameInviteLink";
+import isFriend from "../../../db/friend-connection/isFriend";
 
 export const POST: APIRoute = async ({ locals, request, url }) => {
   try {
@@ -58,14 +59,21 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     if (gameInviteLinkData.user_from_id === userToId) {
       return new Response(null, { status: 403 });
     }
+    const isUserFriend = await isFriend(
+      gameInviteLinkData.user_from_id,
+      userToId
+    );
+    if (!isUserFriend) {
+      return new Response(null, { status: 409 });
+    }
+
+    await removeGameInviteLink(id);
 
     const gameDisplayId = await addNewGame(
       gameInviteLinkData.user_from_id,
       userToId,
       gameInviteLinkData.is_user_from_white
     );
-
-    await removeGameInviteLink(id);
 
     const response: PutResponseGameInvite = {
       newGamePath: `/online-game/${gameDisplayId}`,

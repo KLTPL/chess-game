@@ -18,7 +18,6 @@ const PROTECTED_PATHS = [
 const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
   try {
     const isProtected = isPathProtected(url.pathname);
-    console.log(isProtected, url.pathname);
     if (
       url.pathname.slice(0, 4) !== "/api" &&
       !isProtected &&

@@ -8,6 +8,7 @@ import type {
   PutGameInvite,
   PutResponseGameInvite,
 } from "../../../db/types";
+import isFriend from "../../../db/friend-connection/isFriend";
 
 export const POST: APIRoute = async ({ locals, request, url }) => {
   try {
@@ -20,6 +21,9 @@ export const POST: APIRoute = async ({ locals, request, url }) => {
     const body: PostGameInvite = await request.json();
     const userToId = body.userToId;
     const isUserFromWhite = body.isUserFromWhite;
+    if (!(await isFriend(userFromId, userToId))) {
+      return new Response(null, { status: 409 });
+    }
 
     await addGameInvite(userFromId, userToId, isUserFromWhite);
 
@@ -47,7 +51,18 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     const inviteId = body.inviteId;
     const userFromId = body.userFromId;
 
-    await removeGameInvite(inviteId);
+    if (!(await isFriend(userFromId, userToId))) {
+      return new Response(null, { status: 409 });
+    }
+
+    const isRemoved = await removeGameInvite(inviteId, {
+      userFromId,
+      userToId,
+    });
+
+    if (!isRemoved) {
+      return new Response(null, { status: 409 });
+    }
 
     const gameDisplayId = await addNewGame(userToId, userFromId, null);
     const response: PutResponseGameInvite = {
