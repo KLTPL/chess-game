@@ -15,7 +15,10 @@ export type SearchGetResult = {
 
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
-    const selfId = locals.user.id;
+    const selfId = locals.user?.id;
+    if (selfId === undefined) {
+      throw new Error("User id is undefined in a protected route");
+    }
     const alias = params.alias as string;
     const result: SearchGetResult = {
       friends: [],
