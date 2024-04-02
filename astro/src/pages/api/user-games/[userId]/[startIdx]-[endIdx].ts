@@ -13,6 +13,7 @@ export const GET: APIRoute = async ({ params }) => {
     if (games === null) {
       return new Response(null, {
         status: 404,
+        statusText: "Not found",
       });
     }
     return new Response(JSON.stringify(games), {
@@ -24,6 +25,7 @@ export const GET: APIRoute = async ({ params }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }

@@ -38,25 +38,33 @@ export const GET: APIRoute<GetOnlineGame> = async ({ params, locals }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }
 };
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request, locals, url }) => {
   try {
     const data: GetPostDBHalfmove = await request.json();
     const { user } = locals;
+    if (user === undefined) {
+      throw new Error(
+        `User (locals.user) is not defined in a protected route ${url.pathname}`
+      );
+    }
     const isAllowedOrStatusCode = await isUserAllowedToMove(user, data.game_id);
     if (isAllowedOrStatusCode !== true) {
       return new Response(null, {
-        status: isAllowedOrStatusCode,
+        status: isAllowedOrStatusCode.code,
+        statusText: isAllowedOrStatusCode.message,
       });
     }
     const isMoveValidOrStatusCode = await isMoveValid(data);
     if (isMoveValidOrStatusCode !== true) {
       return new Response(null, {
-        status: isMoveValidOrStatusCode,
+        status: isMoveValidOrStatusCode.code,
+        statusText: isMoveValidOrStatusCode.message,
       });
     }
     await addNewMove(data);
@@ -66,15 +74,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }
 };
 
-export const PUT: APIRoute = async ({ request, locals }) => {
+export const PUT: APIRoute = async ({ request, locals, url }) => {
   try {
     const data: PutDBGame = await request.json();
     const { user } = locals;
+    if (user === undefined) {
+      throw new Error(
+        `User (locals.user) is not defined in a protected route ${url.pathname}`
+      );
+    }
     const isAllowedOrStatusCode = await isUserAllowedToMove(user, data.id);
     if (isAllowedOrStatusCode === true) {
       updateGameResult(data);
@@ -84,11 +98,13 @@ export const PUT: APIRoute = async ({ request, locals }) => {
     }
 
     return new Response(null, {
-      status: isAllowedOrStatusCode,
+      status: isAllowedOrStatusCode.code,
+      statusText: isAllowedOrStatusCode.message,
     });
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }

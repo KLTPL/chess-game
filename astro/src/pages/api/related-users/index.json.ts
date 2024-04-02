@@ -33,6 +33,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }

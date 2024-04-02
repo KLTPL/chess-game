@@ -22,7 +22,10 @@ export const POST: APIRoute = async ({ locals, request, url }) => {
     const userToId = body.userToId;
     const isUserFromWhite = body.isUserFromWhite;
     if (!(await isFriend(userFromId, userToId))) {
-      return new Response(null, { status: 409 });
+      return new Response(null, {
+        status: 409,
+        statusText: "Cannot send game invites to users who are not friends",
+      });
     }
 
     await addGameInvite(userFromId, userToId, isUserFromWhite);
@@ -33,6 +36,7 @@ export const POST: APIRoute = async ({ locals, request, url }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }
@@ -52,7 +56,11 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     const userFromId = body.userFromId;
 
     if (!(await isFriend(userFromId, userToId))) {
-      return new Response(null, { status: 409 });
+      return new Response(null, {
+        status: 409,
+        statusText:
+          "Cannot accept game invite from user who is not your friend",
+      });
     }
 
     const isRemoved = await removeGameInvite(inviteId, {
@@ -61,7 +69,10 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     });
 
     if (!isRemoved) {
-      return new Response(null, { status: 409 });
+      return new Response(null, {
+        status: 409,
+        statusText: "Game invite not found",
+      });
     }
 
     const gameDisplayId = await addNewGame(userToId, userFromId, null);
@@ -77,6 +88,7 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }
@@ -87,7 +99,14 @@ export const DELETE: APIRoute = async ({ request }) => {
     const body: DeleteGameInvite = await request.json();
     const inviteId = body.inviteId;
 
-    await removeGameInvite(inviteId);
+    const removed = await removeGameInvite(inviteId);
+
+    if (!removed) {
+      return new Response(null, {
+        status: 409,
+        statusText: "Game invite not found",
+      });
+    }
 
     return new Response(null, {
       status: 200,
@@ -95,6 +114,7 @@ export const DELETE: APIRoute = async ({ request }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }
