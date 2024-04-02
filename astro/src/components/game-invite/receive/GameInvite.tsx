@@ -50,8 +50,10 @@ export default function GameInvite({
             </div>
           ) : (
             <>
-              <div className="w-1/2 font-semibold">{user_from.name}</div>
-              <div className="w-1/2">{user_from.display_name}</div>
+              <div className="w-1/2 text-center font-semibold">
+                {user_from.name}
+              </div>
+              <div className="w-1/2 text-center">{user_from.display_name}</div>
             </>
           )}
         </div>
