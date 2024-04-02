@@ -37,11 +37,13 @@ export default function GameDisplay({
             <div className="flex flex-col py-2">
               <div
                 style={{ fontWeight: halfmoves.length % 2 == 0 ? "500" : 0 }}
+                title={game.user_w_name}
               >
                 {game.user_w_display_name}
               </div>
               <div
                 style={{ fontWeight: halfmoves.length % 2 != 0 ? "500" : 0 }}
+                title={game.user_b_name}
               >
                 {game.user_b_display_name}
               </div>
