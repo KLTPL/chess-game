@@ -9,8 +9,10 @@ import type {
   PutResponseGameInvite,
 } from "../../../db/types";
 import removeGameInviteLink from "../../../db/game-invite-link/removeGameInviteLink";
-import getGameInviteLinkData from "../../../db/game-invite-link/getGameInviteLink";
-import isFriend from "../../../db/friend-connection/isFriend";
+import getGameInviteLinkData, {
+  type GameInviteLinkData,
+} from "../../../db/game-invite-link/getGameInviteLink";
+import isGameInviteLinkValid from "../../../db/game-invite-link/isGameInviteLinkValid";
 
 export const POST: APIRoute = async ({ locals, request, url }) => {
   try {
@@ -54,33 +56,21 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     const body: PutGameInviteLink = await request.json();
     const id = body.id;
     const gameInviteLinkData = await getGameInviteLinkData(id);
-    if (gameInviteLinkData === null) {
-      return new Response(null, {
-        status: 404,
-        statusText: "Game invite link not found",
-      });
-    }
-    if (gameInviteLinkData.user_from_id === userToId) {
-      return new Response(null, {
-        status: 403,
-        statusText:
-          "Cannot accept game invite becouse the receiving user is the inviting user",
-      });
-    }
-    if (!(await isFriend(gameInviteLinkData.user_from_id, userToId))) {
-      return new Response(null, {
-        status: 409,
-        statusText:
-          "Cannot accept game invites from user who is not your friend",
-      });
-    }
+    const responseOrIsValid = await isGameInviteLinkValid(
+      gameInviteLinkData,
+      userToId
+    );
 
+    if (responseOrIsValid !== true) {
+      return responseOrIsValid;
+    }
+    const validData = gameInviteLinkData as GameInviteLinkData;
     await removeGameInviteLink(id);
 
     const gameDisplayId = await addNewGame(
-      gameInviteLinkData.user_from_id,
+      validData.user_from_id,
       userToId,
-      gameInviteLinkData.is_user_from_white
+      validData.is_user_from_white
     );
 
     const response: PutResponseGameInvite = {
