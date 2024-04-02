@@ -16,6 +16,8 @@ export const POST: APIRoute = async ({ params, locals, url }) => {
     if (await isFriend(userFromId, userToId)) {
       return new Response(null, {
         status: 409,
+        statusText:
+          "Cannot send friend invites to users who are already friends",
       });
     }
 
@@ -27,6 +29,7 @@ export const POST: APIRoute = async ({ params, locals, url }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }
@@ -50,6 +53,7 @@ export const DELETE: APIRoute = async ({ params, locals, url }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }

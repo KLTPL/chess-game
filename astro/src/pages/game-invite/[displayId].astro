@@ -13,11 +13,7 @@ const displayId = Astro.params.displayId as string;
 const gameInviteLinkData = await getGameResInviteLinkData(displayId);
 
 if (gameInviteLinkData === null) {
-  Astro.redirect("/404");
-  return new Response(null, { status: 404 });
-}
-if (gameInviteLinkData.user_from.id === Astro.locals.user.id) {
-  return new Response(null, { status: 403 });
+  return new Response(null, { status: 404, statusText: "Not found" });
 }
 ---
 

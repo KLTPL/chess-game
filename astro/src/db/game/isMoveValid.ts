@@ -10,30 +10,29 @@ import { getGameDisplayId } from "./getGameDisplayId";
 
 export default async function isMoveValid(
   halfmove: GetPostDBHalfmove
-): Promise<true | number> {
+): Promise<true | { code: number; message: string }> {
   // returns true of the http status code
   try {
     const gameDisplayId = await getGameDisplayId(halfmove.game_id);
     if (gameDisplayId === null) {
-      throw new Error(
-        `Game id is not corresponding to any game in the database`
-      );
+      return { code: 404, message: "Game not found" };
     }
     const gameData = await getGameData(gameDisplayId);
     if (gameData === null) {
       throw new Error(
-        `Game display id is not corresponding to any game in the database`
+        `Found game display_id by game id, but did not managed, to get game data by game display_id. Something weird just happend`
       );
     }
     if (await validateMove(gameData, halfmove)) {
       return true;
     }
-    throw new Error(`Move not valid`);
+    return { code: 400, message: `Move not valid` };
   } catch (err) {
     if (err instanceof Error) {
       console.error(err.message);
+      return { code: 500, message: err.message };
     }
-    return 400;
+    return { code: 500, message: "Server error" };
   }
 }
 

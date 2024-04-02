@@ -29,7 +29,10 @@ const userGamesData = await getUserGames({
 });
 
 if (userGamesData === null) {
-  return new Response(null, { status: 404 });
+  return new Response(null, {
+    status: 404,
+    statusText: "User games not found",
+  });
 }
 ---
 

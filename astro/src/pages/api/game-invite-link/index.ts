@@ -36,6 +36,7 @@ export const POST: APIRoute = async ({ locals, request, url }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }
@@ -54,17 +55,24 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     const id = body.id;
     const gameInviteLinkData = await getGameInviteLinkData(id);
     if (gameInviteLinkData === null) {
-      return new Response(null, { status: 404 });
+      return new Response(null, {
+        status: 404,
+        statusText: "Game invite link not found",
+      });
     }
     if (gameInviteLinkData.user_from_id === userToId) {
-      return new Response(null, { status: 403 });
+      return new Response(null, {
+        status: 403,
+        statusText:
+          "Cannot accept game invite becouse the receiving user is the inviting user",
+      });
     }
-    const isUserFriend = await isFriend(
-      gameInviteLinkData.user_from_id,
-      userToId
-    );
-    if (!isUserFriend) {
-      return new Response(null, { status: 409 });
+    if (!(await isFriend(gameInviteLinkData.user_from_id, userToId))) {
+      return new Response(null, {
+        status: 409,
+        statusText:
+          "Cannot accept game invites from user who is not your friend",
+      });
     }
 
     await removeGameInviteLink(id);
@@ -87,6 +95,7 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }
@@ -108,6 +117,7 @@ export const DELETE: APIRoute = async ({ request }) => {
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
+      return new Response(null, { status: 500, statusText: error.message });
     }
     return new Response(null, { status: 500 });
   }

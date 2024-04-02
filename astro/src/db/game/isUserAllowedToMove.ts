@@ -3,18 +3,14 @@ import getGameData from "./getGameData";
 import { getGameDisplayId } from "./getGameDisplayId";
 
 export default async function isUserAllowedToMove(
-  user: { id: string } | undefined,
+  user: { id: string },
   gameId: string
-): Promise<true | number> {
+): Promise<true | { code: number; message: string }> {
   // returns true of the http status code
   try {
-    if (user === undefined) {
-      return 401;
-    }
-
     const gameDisplayId = await getGameDisplayId(gameId);
     if (gameDisplayId === null) {
-      throw new Error(`Game id not corresponding to any game in the database`);
+      return { code: 404, message: `Game not found` };
     }
 
     const gameData = await getGameData(gameDisplayId);
@@ -28,15 +24,16 @@ export default async function isUserAllowedToMove(
     const moveUserId = getUserIdWhomMoveItIs(gameData);
 
     if (user.id !== moveUserId) {
-      return 403;
+      return { code: 403, message: "It is another user whos move it is" };
     }
 
     return true;
   } catch (err) {
     if (err instanceof Error) {
       console.error(err.message);
+      return { code: 500, message: err.message };
     }
-    return 400;
+    return { code: 500, message: "Server error" };
   }
 }
 
