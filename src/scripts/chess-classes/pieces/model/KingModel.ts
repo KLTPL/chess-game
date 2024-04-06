@@ -1,15 +1,13 @@
-import BoardModel, {
-  FIELDS_IN_ONE_ROW,
-} from "../../board-components/model/BoardModel";
+import BoardModel, { FIELDS_IN_ONE_ROW } from "../../board/model/BoardModel";
 import PieceModel, {
   PIECES,
   TEAMS,
   type Pin,
   type AnyPieceModel,
 } from "./PieceModel";
-import Pos, { POS_OUT_OF_BOARD } from "../../board-components/model/Pos";
-import Dir from "../../board-components/model/Dir";
-import Check from "../../board-components/model/Check";
+import Pos, { POS_OUT_OF_BOARD } from "../../board/model/Pos";
+import Dir from "../../board/model/Dir";
+import Check from "../../board/model/Check";
 
 export type CastleRights = {
   isAllowedKingSide: boolean;

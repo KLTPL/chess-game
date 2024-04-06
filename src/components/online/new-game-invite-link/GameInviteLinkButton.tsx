@@ -19,7 +19,7 @@ export default function GameInviteLinkButton() {
       isUserFromWhite: isUserFromWhite,
     };
     const res = await fetch(
-      `${import.meta.env.PUBLIC_URL}/api/game-invite-link/`,
+      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite-link/`,
       {
         method: "POST",
         body: JSON.stringify(data),

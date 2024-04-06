@@ -1,7 +1,7 @@
 import type { GetOnlineGame } from "../pages/api/online-game/[display_id].json";
 import MatchController, {
   type BoardArg,
-} from "./chess-classes/board-components/controller/MatchController";
+} from "./chess-classes/board/controller/MatchController";
 
 export function initGameOnline(
   htmlPageContainerQSelector: string,

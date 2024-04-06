@@ -75,7 +75,7 @@ export default function Form() {
         password,
       };
       const response = await fetch(
-        `${import.meta.env.PUBLIC_URL}/api/register`,
+        `${import.meta.env.PUBLIC_SERVER_URL}/api/register`,
         {
           method: "POST",
           body: JSON.stringify(body),

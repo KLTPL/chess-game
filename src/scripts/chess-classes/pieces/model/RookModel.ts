@@ -1,8 +1,6 @@
-import Dir from "../../board-components/model/Dir";
-import Pos from "../../board-components/model/Pos";
-import BoardModel, {
-  FIELDS_IN_ONE_ROW,
-} from "../../board-components/model/BoardModel";
+import Dir from "../../board/model/Dir";
+import Pos from "../../board/model/Pos";
+import BoardModel, { FIELDS_IN_ONE_ROW } from "../../board/model/BoardModel";
 import PieceModel, { PIECES, TEAMS } from "./PieceModel";
 
 export default class RookModel extends PieceModel {

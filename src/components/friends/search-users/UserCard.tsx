@@ -31,10 +31,13 @@ export default function UserCard({
       userToId: user.id,
       isUserFromWhite: isUserFromWhite,
     };
-    const res = await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite/`, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+    const res = await fetch(
+      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite/`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
     if (!res.ok) {
       window.alert("Wysłanie zaproszenia nie powiodło się");
     }
