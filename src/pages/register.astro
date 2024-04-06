@@ -2,7 +2,6 @@
 import MainLayout from "../layouts/main-layout.astro";
 import RegisterForm from "../components/register/Form";
 import CookiesNames from "../utils/CookiesNames";
-export const prerender = true;
 
 if (Astro.cookies.get(CookiesNames.TOKEN_JWT) !== undefined) {
   return Astro.redirect("/");
