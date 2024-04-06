@@ -1,4 +1,3 @@
-/*
 CREATE DATABASE chess;
 
 CREATE TABLE dict_game_result (
@@ -109,4 +108,3 @@ CREATE TABLE game_invite_link (
   is_user_from_white BOOLEAN,
   create_timestamp TIMESTAMP NOT NULL DEFAULT NOW()
 );
-*/
