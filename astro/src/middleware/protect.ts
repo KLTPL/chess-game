@@ -12,7 +12,7 @@ const PROTECTED_PATHS = [
   "/api/friend-connection/*",
   "/api/friends",
   "/api/related-users.json",
-  "/api/search-name-display-email/*",
+  "/api/search-alias/*",
 ];
 
 const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
