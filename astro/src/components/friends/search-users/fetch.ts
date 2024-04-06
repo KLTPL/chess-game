@@ -6,7 +6,7 @@ import type {
 export async function fetchUsers(
   userAlias: string
 ): Promise<GetResultSearchNameDisplayEmail | GetResultRelatedUsers> {
-  if (userAlias.length === 0) {
+  if (userAlias.length <= 1) {
     const res = await fetch(
       `${import.meta.env.PUBLIC_URL}/api/related-users.json`
     );

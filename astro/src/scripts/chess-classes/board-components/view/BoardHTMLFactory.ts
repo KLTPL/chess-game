@@ -132,7 +132,7 @@ function createPlayerImageNameContainer(player: Player, isOnlineGame: boolean) {
   const container = document.createElement("a");
   container.classList.add(CLASS_NAMES.playerImageNameContainer);
   if (isOnlineGame) {
-    container.href = `/friends?#search=${player.getName()};`;
+    container.href = `/friends#search=@${player.getName()};`;
   }
 
   container.append(
