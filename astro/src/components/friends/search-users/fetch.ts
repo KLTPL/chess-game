@@ -13,7 +13,7 @@ export async function fetchUsers(
     return (await res.json()) as GetResultRelatedUsers;
   }
   const res = await fetch(
-    `${import.meta.env.PUBLIC_URL}/api/search-name-display-email/${userAlias}.json`
+    `${import.meta.env.PUBLIC_URL}/api/search-alias/${userAlias}.json`
   );
   return (await res.json()) as GetResultSearchNameDisplayEmail;
 }

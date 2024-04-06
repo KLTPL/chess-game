@@ -64,12 +64,11 @@ export async function getUserByNameOrEmailForLogin(
   return resUsers.rows[0];
 }
 
-export async function getUsersByNameOrDisplayNameOrEmail(
+export async function getUsersByAlias(
   nameOrDisplayOrEmail: string
 ): Promise<GetDBAppUser[]> {
-  const resUsers = await getUsersGeneric(
-    `(name = $1 OR display_name = $1 OR email = $1)`,
-    [nameOrDisplayOrEmail]
-  );
+  const resUsers = await getUsersGeneric(`(name = $1 OR display_name = $1)`, [
+    nameOrDisplayOrEmail,
+  ]);
   return resUsers;
 }

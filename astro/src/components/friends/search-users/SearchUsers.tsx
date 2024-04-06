@@ -86,7 +86,7 @@ export default function SearchBar() {
     <div className="flex w-full flex-col items-stretch overflow-y-auto overflow-x-hidden">
       <input
         type="text"
-        placeholder="Wyszukaj po nazwie, wyświetlanej nazwie lub email"
+        placeholder="Wyszukaj po nazwie lub wyświetlanej nazwie"
         className="w-[97vw] rounded-md p-2 text-center text-black shadow-lg"
         onChange={(ev) => setSearch(ev.target.value)}
         ref={searchbardRef}
