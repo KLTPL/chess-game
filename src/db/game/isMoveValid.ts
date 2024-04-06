@@ -1,6 +1,6 @@
-import BoardModel from "../../scripts/chess-classes/board-components/model/BoardModel";
-import FENNotation from "../../scripts/chess-classes/board-components/model/FENNotation";
-import Pos from "../../scripts/chess-classes/board-components/model/Pos";
+import BoardModel from "../../scripts/chess-classes/board/model/BoardModel";
+import FENNotation from "../../scripts/chess-classes/board/model/FENNotation";
+import Pos from "../../scripts/chess-classes/board/model/Pos";
 import PieceModel, {
   TEAMS,
 } from "../../scripts/chess-classes/pieces/model/PieceModel";

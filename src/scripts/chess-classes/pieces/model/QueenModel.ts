@@ -1,7 +1,7 @@
-import BoardModel from "../../board-components/model/BoardModel";
+import BoardModel from "../../board/model/BoardModel";
 import PieceModel, { PIECES, TEAMS } from "./PieceModel";
-import Pos from "../../board-components/model/Pos";
-import Dir from "../../board-components/model/Dir";
+import Pos from "../../board/model/Pos";
+import Dir from "../../board/model/Dir";
 
 export default class QueenModel extends PieceModel {
   readonly value: number = 9;

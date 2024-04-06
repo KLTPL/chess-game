@@ -1,7 +1,7 @@
-import BoardModel from "../../board-components/model/BoardModel";
+import BoardModel from "../../board/model/BoardModel";
 import { PIECES, TEAMS } from "./PieceModel";
-import Pos from "../../board-components/model/Pos";
-import Dir from "../../board-components/model/Dir";
+import Pos from "../../board/model/Pos";
+import Dir from "../../board/model/Dir";
 import PieceModel from "./PieceModel";
 
 export default class KnightModel extends PieceModel {

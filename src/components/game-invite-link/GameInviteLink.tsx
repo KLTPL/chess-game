@@ -24,7 +24,7 @@ export default function GameInviteLink({
       id: gameInviteLinkData.id,
     };
     const response = await fetch(
-      `${import.meta.env.PUBLIC_URL}/api/game-invite-link/`,
+      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite-link/`,
       { method: "PUT", body: JSON.stringify(data) }
     );
     if (!response.ok) {
@@ -39,7 +39,7 @@ export default function GameInviteLink({
     const data: DeleteGameInviteLink = {
       id: gameInviteLinkData.id,
     };
-    await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite-link/`, {
+    await fetch(`${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite-link/`, {
       method: "DELETE",
       body: JSON.stringify(data),
     });

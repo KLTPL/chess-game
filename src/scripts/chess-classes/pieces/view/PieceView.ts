@@ -1,6 +1,6 @@
-import Pos from "../../board-components/model/Pos";
-import type BoardView from "../../board-components/view/BoardView";
-import PawnPromotionMenu from "../../board-components/view/PawnPromotionMenu";
+import Pos from "../../board/model/Pos";
+import type BoardView from "../../board/view/BoardView";
+import PawnPromotionMenu from "../../board/view/PawnPromotionMenu";
 import { TEAMS, PIECES } from "../model/PieceModel";
 
 const PIECE_GRAB_CLASS_NAME = "grab";

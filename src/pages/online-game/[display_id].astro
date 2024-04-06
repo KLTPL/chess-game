@@ -15,7 +15,7 @@ Astro.cookies.set(CookiesNames.GAME_DISPLAY_ID, displayId);
   import CookiesNames from "../../utils/CookiesNames";
   import type { GetOnlineGame } from "../api/online-game/[display_id].json";
   const response = await fetch(
-    `${import.meta.env.PUBLIC_URL}/api/online-game/${Cookies.get(CookiesNames.GAME_DISPLAY_ID)}.json`
+    `${import.meta.env.PUBLIC_SERVER_URL}/api/online-game/${Cookies.get(CookiesNames.GAME_DISPLAY_ID)}.json`
   );
   if (response.status >= 400) {
     window.location.replace("/404");

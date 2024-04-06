@@ -1,7 +1,7 @@
-import Pos from "../../board-components/model/Pos";
-import Dir from "../../board-components/model/Dir";
-import Check from "../../board-components/model/Check";
-import type BoardModel from "../../board-components/model/BoardModel";
+import Pos from "../../board/model/Pos";
+import Dir from "../../board/model/Dir";
+import Check from "../../board/model/Check";
+import type BoardModel from "../../board/model/BoardModel";
 import type PawnModel from "./PawnModel";
 import type RookModel from "./RookModel";
 import type KnightModel from "./KnightModel";

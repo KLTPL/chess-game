@@ -1,8 +1,6 @@
-import BoardModel, {
-  FIELDS_IN_ONE_ROW,
-} from "../../board-components/model/BoardModel";
+import BoardModel, { FIELDS_IN_ONE_ROW } from "../../board/model/BoardModel";
 import PieceModel, { type AnyPieceModel, PIECES, TEAMS } from "./PieceModel";
-import Pos from "../../board-components/model/Pos";
+import Pos from "../../board/model/Pos";
 
 export default class PawnModel extends PieceModel {
   readonly value: number = 1;

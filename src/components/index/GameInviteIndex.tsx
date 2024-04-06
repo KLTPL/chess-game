@@ -20,10 +20,13 @@ export default function GameInviteIndex({
       inviteId: gameInvite.id,
       userFromId: gameInvite.user_from.id,
     };
-    const res = await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite/`, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
+    const res = await fetch(
+      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite/`,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }
+    );
     const { newGamePath } = (await res.json()) as PutResponseGameInvite;
     document.location.href = newGamePath;
   }
@@ -33,7 +36,7 @@ export default function GameInviteIndex({
     const data: DeleteGameInvite = {
       inviteId: gameInvite.id,
     };
-    await fetch(`${import.meta.env.PUBLIC_URL}/api/game-invite/`, {
+    await fetch(`${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite/`, {
       method: "DELETE",
       body: JSON.stringify(data),
     });
