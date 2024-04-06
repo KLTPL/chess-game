@@ -20,7 +20,7 @@ import {
 } from "../view/DragAndDropPieces";
 import type { GetOnlineGame } from "../../../../pages/api/online-game/[display_id].json";
 
-type Players = {
+export type Players = {
   white: Player;
   black: Player;
 };
@@ -36,16 +36,16 @@ export type EndInfo = Pick<PutDBGame, "result_id" | "end_reason_id"> &
 
 export default class MatchController {
   public isGameRunning: Boolean = true;
-  public players: Players;
+  readonly players: Players;
   public endInfo: EndInfo | null = null;
   readonly boardModel: BoardModel;
   readonly boardView: BoardView;
   public analisisSystem: AnalisisSystem = null as never;
   public isAnalisisSystemCreated: Promise<void> | true;
   readonly userTeam: TEAMS | null;
-  readonly isConnectedToDB: boolean;
+  readonly isGameOnline: boolean;
   constructor(boardArg: BoardArg, getOnlineGame: GetOnlineGame | null) {
-    this.isConnectedToDB = getOnlineGame !== null;
+    this.isGameOnline = getOnlineGame !== null;
     const DBGameData =
       getOnlineGame === null ? null : getOnlineGame.getDBGameData;
     this.userTeam = this.getUserTeam(getOnlineGame);
@@ -60,16 +60,16 @@ export default class MatchController {
         return piece === null ? null : { id: piece.id, team: piece.team };
       })
     );
+    this.players = {
+      white: new Player(TEAMS.WHITE, DBGameData, this),
+      black: new Player(TEAMS.BLACK, DBGameData, this),
+    };
     this.boardView = new BoardView(
       pieceVD,
       false,
       boardArg.htmlPageContainerQSelector,
       this
     );
-    this.players = {
-      white: new Player(TEAMS.WHITE, DBGameData),
-      black: new Player(TEAMS.BLACK, DBGameData),
-    };
     if (this.boardModel.fetchToDB !== null) {
       this.boardModel.includeDBData
         .waitUntilIncludesDBData()
@@ -142,6 +142,7 @@ export default class MatchController {
         })
       );
     this.boardView.setPosition(pieceVD);
+    this.boardView.playerHTMLBars.appendNewBars();
   }
 
   public async movePiece(from: Pos, to: Pos) {
@@ -158,6 +159,7 @@ export default class MatchController {
       return;
     }
 
+    v.playerHTMLBars.appendNewBars();
     v.changeBasedOnHalfmove(this.boardModel.movesSystem.getLatestHalfmove());
   }
 
@@ -313,7 +315,7 @@ export default class MatchController {
 
   public getTeamOfUserToMove(currTeam: TEAMS) {
     const userTeam = this.userTeam;
-    if (this.isConnectedToDB) {
+    if (this.isGameOnline) {
       if (userTeam === currTeam) {
         return userTeam;
       }

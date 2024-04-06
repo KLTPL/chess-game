@@ -1,18 +1,28 @@
 import type { GetDBGameData } from "../../../../db/types";
-import { TEAMS } from "../../pieces/model/PieceModel";
+import PieceModel, { TEAMS } from "../../pieces/model/PieceModel";
+import { FIELDS_IN_ONE_ROW } from "../model/BoardModel";
+import Pos from "../model/Pos";
+import type MatchController from "./MatchController";
+
+export type CapturedPiecesCount = {
+  pawns: number;
+  bishops: number;
+  knights: number;
+  rooks: number;
+  queens: number;
+};
 
 export default class Player {
-  readonly name: string;
-  readonly displayName: string;
-  // private image: null;
+  private name: string;
+  private displayName: string;
   constructor(
-    readonly team: TEAMS,
-    DBGameData: GetDBGameData | null
-    // image: ImageBitmap | null,
+    private team: TEAMS,
+    DBGameData: GetDBGameData | null,
+    private match: MatchController
   ) {
     if (DBGameData === null) {
-      this.name = this.team === TEAMS.WHITE ? "white" : "black";
-      this.displayName = this.team === TEAMS.WHITE ? "white" : "black";
+      this.name = this.team === TEAMS.WHITE ? "białe" : "czarne";
+      this.displayName = this.team === TEAMS.WHITE ? "białe" : "czarne";
     } else {
       this.name =
         this.team === TEAMS.WHITE
@@ -25,19 +35,60 @@ export default class Player {
     }
   }
 
-  // public getImage(image: ImageBitmap): ImageBitmap {
-  //   return this.image;
-  // }
+  public countCapturedPoints(): number {
+    const b = this.match.boardModel;
 
-  // private countPoints(): void {
-  //   const boardEl = this.board.el;
-  //   this.points = 0;
-  //   for (let r=0 ; r<boardEl.length ; r++) {
-  //     for (let c=0 ; c<boardEl[r].length ; c++) {
-  //       if (boardEl[r][c].piece?.team === this.team) {
-  //         this.points += (boardEl[r][c].piece as Piece).value;
-  //       }
-  //     }
-  //   }
-  // }
+    let count = 0;
+    let i = this.isWhite() ? 0 : 1;
+    for (; i < b.movesSystem.getHalfmovesAmount(); i += 2) {
+      const capturedPiece = b.movesSystem.getHalfmoveAt(i).capturedPiece;
+      if (capturedPiece !== null) {
+        count += capturedPiece.value;
+      }
+    }
+    return count;
+  }
+  public getCapturedPiecesCount(): CapturedPiecesCount {
+    const b = this.match.boardModel;
+    const piecesCount: CapturedPiecesCount = {
+      pawns: 0,
+      bishops: 0,
+      knights: 0,
+      rooks: 0,
+      queens: 0,
+    };
+    let i = this.isWhite() ? 0 : 1;
+    for (; i < b.movesSystem.getHalfmovesAmount(); i += 2) {
+      const capturedPiece = b.movesSystem.getHalfmoveAt(i).capturedPiece;
+      if (PieceModel.isPawn(capturedPiece)) {
+        piecesCount.pawns++;
+      } else if (PieceModel.isBishop(capturedPiece)) {
+        piecesCount.bishops++;
+      } else if (PieceModel.isKnight(capturedPiece)) {
+        piecesCount.knights++;
+      } else if (PieceModel.isRook(capturedPiece)) {
+        piecesCount.rooks++;
+      } else if (PieceModel.isQueen(capturedPiece)) {
+        piecesCount.queens++;
+      }
+    }
+    return piecesCount;
+  }
+
+  public isWhite() {
+    return this.team === TEAMS.WHITE;
+  }
+
+  public getTeam() {
+    return this.team;
+  }
+  public getEnemyTeam() {
+    return this.team === TEAMS.WHITE ? TEAMS.BLACK : TEAMS.WHITE;
+  }
+  public getName() {
+    return this.name;
+  }
+  public getDisplayName() {
+    return this.displayName;
+  }
 }
