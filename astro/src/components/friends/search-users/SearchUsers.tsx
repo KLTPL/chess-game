@@ -31,7 +31,7 @@ export default function SearchBar() {
     searchData: GetResultSearchNameDisplayEmail | GetResultRelatedUsers,
     search: string
   ): searchData is GetResultSearchNameDisplayEmail {
-    return search.length > 0;
+    return search.length > 1;
   }
   function invalidate() {
     queryClient.invalidateQueries(["search-users"]);
@@ -86,13 +86,13 @@ export default function SearchBar() {
     <div className="flex w-full flex-col items-stretch overflow-y-auto overflow-x-hidden">
       <input
         type="text"
-        placeholder="Wyszukaj po nazwie użytkownika, wyświetlanej nazwie użytkownika lub email"
-        className="rounded-md p-2 text-center text-black shadow-lg md:w-[97vw]"
+        placeholder="Wyszukaj po nazwie, wyświetlanej nazwie lub email"
+        className="w-[97vw] rounded-md p-2 text-center text-black shadow-lg"
         onChange={(ev) => setSearch(ev.target.value)}
         ref={searchbardRef}
         spellCheck={false}
       />
-      <div className="my-3 flex grow flex-col items-stretch self-center overflow-auto md:w-[70ch]">
+      <div className="my-3 flex w-[97vw] grow flex-col items-stretch self-center overflow-auto md:w-[70ch]">
         {searchDataStatus === "loading" && (
           <div className="flex grow items-center justify-center text-lg text-white">
             Ładowanie

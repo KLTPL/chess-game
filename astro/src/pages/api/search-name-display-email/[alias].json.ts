@@ -1,5 +1,8 @@
 import type { APIRoute } from "astro";
-import { getUsersByNameOrDisplayNameOrEmail } from "../../../db/app-user/getUser";
+import {
+  getUserByName,
+  getUsersByNameOrDisplayNameOrEmail,
+} from "../../../db/app-user/getUser";
 import type {
   GetDBAppUser,
   GetResultSearchNameDisplayEmail,
@@ -22,7 +25,13 @@ export const GET: APIRoute = async ({ params, locals }) => {
       suggestions: [],
       blocked: [],
     };
-    const allUsers = await getUsersByNameOrDisplayNameOrEmail(alias as string);
+    let allUsers: GetDBAppUser[];
+    if (alias[0] === "@") {
+      const user = await getUserByName(alias.slice(1));
+      allUsers = user === null ? [] : [user];
+    } else {
+      allUsers = await getUsersByNameOrDisplayNameOrEmail(alias);
+    }
     for (let i = 0; i < allUsers.length; i++) {
       const currUser = allUsers[i];
 
@@ -46,6 +55,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
         i--;
       }
     }
+
     result.suggestions = allUsers;
     return new Response(JSON.stringify(result), {
       status: 200,
