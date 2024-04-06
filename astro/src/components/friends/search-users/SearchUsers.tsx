@@ -54,9 +54,30 @@ export default function SearchBar() {
       await deleteFriendConnection(userIdTo),
     onSuccess: invalidate,
   });
+  useEffect(function () {
+    const searchText = "search=";
+    const idxS = window.location.hash.indexOf(searchText);
+    const idxE = window.location.hash.indexOf(";");
+    if (idxS !== -1 && idxE !== -1) {
+      const userAlias = window.location.hash.slice(
+        idxS + searchText.length,
+        idxE
+      );
+      if (userAlias.length > 0 && search !== userAlias) {
+        setSearch(userAlias);
+        if (searchbardRef.current !== null) {
+          searchbardRef.current.value = userAlias;
+        }
+      }
+    }
+  }, []);
   useEffect(
     function () {
-      searchDataRefetch();
+      if (search.length > 0) {
+        window.location.hash = `#search=${search};`;
+      } else {
+        window.location.hash = "";
+      }
     },
     [search]
   );

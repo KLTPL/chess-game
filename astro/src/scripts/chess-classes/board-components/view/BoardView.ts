@@ -5,7 +5,7 @@ import VisualizingSystem from "./VisualizingSystem";
 import PawnPromotionMenu from "./PawnPromotionMenu";
 import MatchController from "../controller/MatchController";
 import ShowEvetsOnBoard from "./ShowEventsOnBoard";
-import BoardModel, { FIELDS_IN_ONE_ROW } from "../model/BoardModel";
+import { FIELDS_IN_ONE_ROW } from "../model/BoardModel";
 import DragAndDropPieces, {
   CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT,
   CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
@@ -15,26 +15,22 @@ import { TEAMS, type PIECES } from "../../pieces/model/PieceModel";
 import type Halfmove from "../model/Halfmove";
 import PieceModel from "../../pieces/model/PieceModel";
 import KingModel from "../../pieces/model/KingModel";
-
-const CLASS_NAMES = {
-  piece: "piece",
-  thisHtml: "board-container",
-  thisHtmlDefaultWidth: "board-container-default-width",
-  fieldsContainer: "board-fields-container",
-  piecesContainer: "board-pieces-container",
-  buttonsContainer: "buttons-container",
-  buttonArrow: "arrow-button",
-};
-
-export const BUTTON_ID_BACK = "back";
-export const BUTTON_ID_FORWARD = "forward";
+import BoardHTMLFactory, {
+  BUTTON_ID_BACK,
+  BUTTON_ID_FORWARD,
+  CLASS_NAMES,
+} from "./BoardHTMLFactory";
+import PlayerHTMLBars from "./PlayerHTMLBars";
 
 export default class BoardView {
   private fields: Field[][] = [];
-  public html: HTMLDivElement = this.createBoardContainer();
-  private fieldsHtml: HTMLDivElement = this.createContainerForFields();
-  public piecesHtml: HTMLDivElement = this.createContainerForPieces();
-  public pageContainerHtml: HTMLDivElement;
+  readonly html: HTMLDivElement = BoardHTMLFactory.createBoardContainer();
+  readonly fieldsHtml: HTMLDivElement =
+    BoardHTMLFactory.createContainerForFields();
+  readonly piecesHtml: HTMLDivElement =
+    BoardHTMLFactory.createContainerForPieces();
+  readonly playerHTMLBars: PlayerHTMLBars;
+  readonly pageContainerHtml: HTMLDivElement;
   public pawnPromotionMenu: PawnPromotionMenu | null = null;
   public showEventsOnBoard: ShowEvetsOnBoard;
   private dragAndDropPieces: DragAndDropPieces = new DragAndDropPieces(this);
@@ -50,7 +46,7 @@ export default class BoardView {
     ) as HTMLDivElement;
     this.html.append(this.fieldsHtml);
     this.html.append(this.piecesHtml);
-    this.html.append(this.createContainerForButtons());
+    this.html.append(BoardHTMLFactory.createContainerForButtons(this));
     this.pageContainerHtml.append(this.html);
     this.resizeHtml();
     this.setCssVariables();
@@ -62,6 +58,8 @@ export default class BoardView {
     if (this.match.userTeam === TEAMS.BLACK) {
       this.invert();
     }
+
+    this.playerHTMLBars = new PlayerHTMLBars(this);
 
     new VisualizingSystem(this);
 
@@ -80,68 +78,6 @@ export default class BoardView {
     if (this.match.isGameRunning && team !== null) {
       s.turnOnCssGrabOnPieces(team);
     }
-  }
-
-  private createBoardContainer(): HTMLDivElement {
-    // <div class="board-container"></div>
-    const containerHtml = document.createElement("div");
-    containerHtml.classList.add(CLASS_NAMES.thisHtml);
-    return containerHtml;
-  }
-
-  private createContainerForFields(): HTMLDivElement {
-    // <div class="board-fields-container"></div>
-    const fieldsHtml = document.createElement("div");
-    fieldsHtml.classList.add(CLASS_NAMES.fieldsContainer);
-    fieldsHtml.addEventListener("contextmenu", (ev) => ev.preventDefault());
-    return fieldsHtml;
-  }
-
-  private createContainerForPieces(): HTMLDivElement {
-    // <div class="board-pieces-container"></div>
-    const piecesHtml = document.createElement("div");
-    piecesHtml.classList.add(CLASS_NAMES.piecesContainer);
-    piecesHtml.addEventListener("contextmenu", (ev) => ev.preventDefault());
-    return piecesHtml;
-  }
-
-  private createContainerForButtons(): HTMLDivElement {
-    const container = document.createElement("div");
-    container.classList.add(CLASS_NAMES.buttonsContainer);
-    const buttonBack = this.createButtonBack();
-    const buttonForward = this.createButtonForward();
-    const buttonInvert = this.createButtonInvert();
-    container.append(buttonBack, buttonInvert, buttonForward);
-    return container;
-  }
-
-  private createButtonBack(): HTMLButtonElement {
-    const buttonBack = document.createElement("button");
-    const innerDiv = document.createElement("div");
-    innerDiv.innerHTML =
-      '<svg xmlns="http://www.w3.org/2000/svg"  fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>';
-    buttonBack.id = BUTTON_ID_BACK;
-    buttonBack.classList.add(CLASS_NAMES.buttonArrow);
-    buttonBack.append(innerDiv);
-    return buttonBack;
-  }
-
-  private createButtonForward(): HTMLButtonElement {
-    const buttonFroward = document.createElement("button");
-    const innerDiv = document.createElement("div");
-    innerDiv.innerHTML =
-      '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/></svg>';
-    buttonFroward.id = BUTTON_ID_FORWARD;
-    buttonFroward.classList.add(CLASS_NAMES.buttonArrow);
-    buttonFroward.append(innerDiv);
-    return buttonFroward;
-  }
-
-  private createButtonInvert(): HTMLButtonElement {
-    const buttonInvert = document.createElement("button");
-    buttonInvert.addEventListener("click", () => this.invert());
-    buttonInvert.innerText = "obróć";
-    return buttonInvert;
   }
 
   public setPosition(pieces: PieceViewData[][]) {
@@ -340,6 +276,7 @@ export default class BoardView {
         })
       );
     this.setPosition(pieces);
+    this.playerHTMLBars.appendNewBars();
   }
 
   private positionHtmlProperly(): void {
