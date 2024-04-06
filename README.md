@@ -50,17 +50,27 @@ Important (but not all) files and folders inside the project:
 
 ### 1. Install git
 
-Make sure you have git installed.
+Make sure you have git installed on your local machine.
 
 If not you can head on to https://git-scm.com/downloads.
 
 ### 2. Install npm
 
-Make sure you have npm (node package manager) installed.
+Make sure you have npm (node package manager) installed on your local machine.
 
 If not you can head on to https://nodejs.org/en/download and download node.
 
-### 3. Clone the project
+### 3. Install postgresql
+
+Make sure you have the postgresql database installed on your local machine.
+
+If not you can head on to https://www.postgresql.org/download/.
+
+### 4. Create your local database
+
+After configuring the postgresql installation create a database for the project and insert all tables from the /postgresql/main.sql file.
+
+### 5. Clone the project
 
 Run this command in your terminal in the directory where you want the project to go to.
 
@@ -68,7 +78,7 @@ Run this command in your terminal in the directory where you want the project to
 git clone https://github.com/KLTPL/chess-game
 ```
 
-### 4. Install dependencies
+### 6. Install dependencies
 
 Enter the newly created folder
 
@@ -82,18 +92,7 @@ Install node dependencies
 npm install
 ```
 
-## Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command           | Action                                       |
-| :---------------- | :------------------------------------------- |
-| `npm install`     | Installs dependencies                        |
-| `npm run dev`     | Starts local dev server at `localhost:4321`  |
-| `npm run build`   | Build your production site to `./dist/`      |
-| `npm run preview` | Preview your build locally, before deploying |
-
-## Enviremental variables
+### 7. Enviremental variables
 
 The application needs a .env file in the root directory in order to work properly.
 
@@ -107,6 +106,17 @@ PSQL_DATABASE= # database database name
 PSQL_HOST= # database host
 PUBLIC_SERVER_URL= # server url used on the client
 ```
+
+## Commands
+
+All commands are run from the root of the project, from a terminal:
+
+| Command           | Action                                       |
+| :---------------- | :------------------------------------------- |
+| `npm install`     | Installs dependencies                        |
+| `npm run dev`     | Starts local dev server at `localhost:4321`  |
+| `npm run build`   | Build your production site to `./dist/`      |
+| `npm run preview` | Preview your build locally, before deploying |
 
 ## Hosting:
 
