@@ -12,7 +12,9 @@ type ErrorsRegisterForm = {
 export const enum RegisterErrors {
   USERNAME_TAKEN,
   EMAIL_TAKEN,
+  EMAIL_NOT_VALID,
   USERNAME_TO_LONG,
+  USERNAME_WITH_FORBIDDEN_CHARACKTERS,
   DISPLAY_NAME_TO_LONG,
   EMAIL_TO_LONG,
   PASSWORD_TO_LONG,
@@ -85,7 +87,8 @@ export default function Form() {
       if (errorCode !== null) {
         if (
           errorCode === RegisterErrors.USERNAME_TAKEN ||
-          errorCode === RegisterErrors.USERNAME_TO_LONG
+          errorCode === RegisterErrors.USERNAME_TO_LONG ||
+          errorCode === RegisterErrors.USERNAME_WITH_FORBIDDEN_CHARACKTERS
         ) {
           setErrors({
             password: errRef(null),
@@ -95,7 +98,8 @@ export default function Form() {
           });
         } else if (
           errorCode === RegisterErrors.EMAIL_TAKEN ||
-          errorCode === RegisterErrors.EMAIL_TO_LONG
+          errorCode === RegisterErrors.EMAIL_TO_LONG ||
+          errorCode === RegisterErrors.EMAIL_NOT_VALID
         ) {
           setErrors({
             password: errRef(null),
