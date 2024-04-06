@@ -18,6 +18,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
       invited: [],
       whoInvited: [],
       blocked: [],
+      type: "GetResultRelatedUsers",
     };
 
     result.friends = await getFriends(selfId);

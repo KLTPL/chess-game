@@ -1,6 +1,6 @@
 import type { UseMutateFunction } from "react-query";
 import type { GetDBAppUser, PostGameInvite } from "../../../db/types";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import GameInviteModal from "../../game-invite/create/GameInviteModal";
 
 export type ButtonInfo = {

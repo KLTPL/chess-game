@@ -1,6 +1,5 @@
 import type { AnyPieceModel } from "../../pieces/model/PieceModel";
 import PieceModel from "../../pieces/model/PieceModel";
-import BoardModel from "./BoardModel";
 import Pos from "./Pos";
 
 export default class Halfmove {

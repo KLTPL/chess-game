@@ -10,7 +10,7 @@ import {
 import UserCardsCollection from "./UserCardsCollection";
 import type {
   GetResultRelatedUsers,
-  GetResultSearchNameDisplayEmail,
+  GetResultSearchAlias,
 } from "../../../db/types";
 
 const queryClient = new QueryClient();
@@ -23,15 +23,14 @@ export default function SearchBar() {
     data: searchData,
     status: searchDataStatus,
     refetch: searchDataRefetch,
-  } = useQuery<GetResultSearchNameDisplayEmail | GetResultRelatedUsers>({
+  } = useQuery<GetResultSearchAlias | GetResultRelatedUsers>({
     queryFn: async () => await fetchUsers(search),
     queryKey: ["search-users", { search }],
   });
   function isDataSearchResult(
-    searchData: GetResultSearchNameDisplayEmail | GetResultRelatedUsers,
-    search: string
-  ): searchData is GetResultSearchNameDisplayEmail {
-    return search.length > 1;
+    searchData: GetResultSearchAlias | GetResultRelatedUsers
+  ): searchData is GetResultSearchAlias {
+    return searchData.type === "GetResultSearchAlias";
   }
   function invalidate() {
     queryClient.invalidateQueries(["search-users"]);
@@ -104,7 +103,7 @@ export default function SearchBar() {
           </div>
         )}
         {searchDataStatus === "success" &&
-          (!isDataSearchResult(searchData, search) ? (
+          (!isDataSearchResult(searchData) ? (
             <>
               <UserCardsCollection
                 key="1-friends"

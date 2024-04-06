@@ -1,9 +1,6 @@
 import type { APIRoute } from "astro";
 import { getUserByName, getUsersByAlias } from "../../../db/app-user/getUser";
-import type {
-  GetDBAppUser,
-  GetResultSearchNameDisplayEmail,
-} from "../../../db/types";
+import type { GetDBAppUser, GetResultSearchAlias } from "../../../db/types";
 import isFriend from "../../../db/friend-connection/isFriend";
 import isInvited from "../../../db/friend-invite/isInvited";
 import isWhoInvited from "../../../db/friend-invite/isWhoInvited";
@@ -44,13 +41,14 @@ export const GET: APIRoute = async ({ params, locals }) => {
 async function createResObj(
   allUsers: GetDBAppUser[],
   selfId: string
-): Promise<GetResultSearchNameDisplayEmail> {
-  const result: GetResultSearchNameDisplayEmail = {
+): Promise<GetResultSearchAlias> {
+  const result: GetResultSearchAlias = {
     friends: [],
     invited: [],
     whoInvited: [],
     suggestions: [],
     blocked: [],
+    type: "GetResultSearchAlias",
   };
   for (let i = 0; i < allUsers.length; i++) {
     const currUser = allUsers[i];

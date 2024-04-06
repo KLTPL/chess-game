@@ -1,11 +1,11 @@
 import type {
   GetResultRelatedUsers,
-  GetResultSearchNameDisplayEmail,
+  GetResultSearchAlias,
 } from "../../../db/types";
 
 export async function fetchUsers(
   userAlias: string
-): Promise<GetResultSearchNameDisplayEmail | GetResultRelatedUsers> {
+): Promise<GetResultSearchAlias | GetResultRelatedUsers> {
   if (userAlias.length <= 1) {
     const res = await fetch(
       `${import.meta.env.PUBLIC_SERVER_URL}/api/related-users.json`
@@ -15,7 +15,7 @@ export async function fetchUsers(
   const res = await fetch(
     `${import.meta.env.PUBLIC_SERVER_URL}/api/search-alias/${userAlias}.json`
   );
-  return (await res.json()) as GetResultSearchNameDisplayEmail;
+  return (await res.json()) as GetResultSearchAlias;
 }
 
 export async function postFriendInvite(userToId: string) {

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import type { Err, ErrRef, FieldData } from "../auth-form/AuthForm";
+import type { ErrRef, FieldData } from "../auth-form/AuthForm";
 import AuthForm, { errRef } from "../auth-form/AuthForm";
 
 type ErrorsRegisterForm = {

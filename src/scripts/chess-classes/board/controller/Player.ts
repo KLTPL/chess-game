@@ -1,7 +1,5 @@
 import type { GetDBGameData } from "../../../../db/types";
 import PieceModel, { TEAMS } from "../../pieces/model/PieceModel";
-import { FIELDS_IN_ONE_ROW } from "../model/BoardModel";
-import Pos from "../model/Pos";
 import type MatchController from "./MatchController";
 
 export type CapturedPiecesCount = {
