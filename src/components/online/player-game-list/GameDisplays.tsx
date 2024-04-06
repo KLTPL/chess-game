@@ -57,10 +57,7 @@ export default function GameDisplays({
     }
     const windowHeight = window.innerHeight;
     const totalHeight = document.documentElement.scrollHeight;
-    const scrollPosition =
-      window.scrollY ||
-      window.pageYOffset ||
-      document.documentElement.scrollTop;
+    const scrollPosition = window.scrollY || document.documentElement.scrollTop;
     const bottomThreshold = totalHeight - windowHeight;
 
     if (scrollPosition >= bottomThreshold) {

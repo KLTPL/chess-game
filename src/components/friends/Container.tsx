@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider, useQuery } from "react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 import SearchBar from "./search-users/SearchUsers";
 
 const queryClient = new QueryClient();

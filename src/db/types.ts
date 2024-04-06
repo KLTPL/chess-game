@@ -123,14 +123,16 @@ export type GetResultRelatedUsers = {
   invited: GetDBAppUser[];
   whoInvited: GetDBAppUser[];
   blocked: GetDBAppUser[];
+  type: "GetResultRelatedUsers";
 };
 
-export type GetResultSearchNameDisplayEmail = {
+export type GetResultSearchAlias = {
   friends: GetDBAppUser[];
   invited: GetDBAppUser[];
   whoInvited: GetDBAppUser[];
   suggestions: GetDBAppUser[];
   blocked: GetDBAppUser[];
+  type: "GetResultSearchAlias";
 };
 
 export const enum END_REASONS_ID_DB {

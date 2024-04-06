@@ -1,6 +1,6 @@
 import type { QueryResult } from "pg";
 import { queryDB } from "../connect";
-import type { GetDBAppUser, GetResponseGameInviteLink } from "../types";
+import type { GetResponseGameInviteLink } from "../types";
 import { getUserById } from "../app-user/getUser";
 import removeGameInviteLink from "./removeGameInviteLink";
 
