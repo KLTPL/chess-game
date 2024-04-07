@@ -2,10 +2,10 @@
 /* font-family: "Roboto Mono", monospace; */
 
 :root {
-  --fieldColor1: #ffffff;
-  --fieldColor2: #016779;
-  --fieldColor2-b: #028097;
-  --fieldColor2-d: #015665;
+  --fieldColor1: theme("colors.white");
+  --fieldColor2: theme("colors.primary");
+  --fieldColor2-b: theme("colors.primary-b");
+  --fieldColor2-d: theme("colors.primary-d");
   --fieldBoxShadow: 0 0 10px #00000080;
   --arrowBgColor: #ff4400e6;
   --popupColor: #f5f5db;
@@ -82,7 +82,7 @@
 }
 
 .buttons-container > button:active {
-  background-color: var(--fieldColor2-d) !important;
+  background-color: var(--fieldColor2-b) !important;
 }
 
 .arrow-button {
@@ -94,7 +94,7 @@
 @media (hover: hover) {
   /* so the button doesn't stay 'hovered' on mobile */
   .buttons-container > button:hover {
-    background-color: var(--fieldColor2-b);
+    background-color: var(--fieldColor2-d);
   }
 }
 
