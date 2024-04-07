@@ -50,6 +50,7 @@ export default {
         bg2: "#303236",
         bg3: "#202224",
         bg4: "#9fa3aa",
+        "bg4-d": "#7D828A",
         text1: "#ffffff",
       },
     },

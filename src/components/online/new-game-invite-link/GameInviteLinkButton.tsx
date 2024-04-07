@@ -5,6 +5,7 @@ import type {
 } from "../../../db/types";
 import GameInviteModal from "../../game-invite/create/GameInviteModal";
 import ButtonSecondary from "../../buttons/ButtonSecondary";
+import { showNewNotification } from "../../notifications/showNotification";
 
 export default function GameInviteLinkButton() {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -27,12 +28,15 @@ export default function GameInviteLinkButton() {
     );
     const resObj: PostResultGameInviteLink = await res.json();
     if (res.ok) {
-      window.alert(
-        "Skopiowano link. Zaproszenie będzie dostępne przez 15 minut"
+      navigator.clipboard.writeText(resObj.inviteLink);
+      showNewNotification(
+        "Skopiowano link. Zaproszenie będzie dostępne przez 15 minut",
+        "succes"
       );
+    } else {
+      showNewNotification(`Bład ${res.status}: ${res.statusText}`, "error");
     }
 
-    navigator.clipboard.writeText(resObj.inviteLink);
     return res.ok;
   }
   return (

@@ -1,0 +1,63 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+.notification-container {
+  position: fixed;
+  bottom: theme("padding.3");
+  right: theme("padding.3");
+  left: theme("padding.3");
+  display: flex;
+  flex-direction: column;
+  gap: theme("gap.2");
+  align-items: flex-end;
+}
+
+.notification {
+  color: theme("textColor.white");
+  padding-inline: theme("padding.4");
+  padding-block: theme("padding.2");
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: theme("borderRadius.md");
+  cursor: pointer;
+}
+
+.notification-succes {
+  background-color: theme(
+    "colors.secondary"
+  ); /* import from tailwindcss configuration file */
+}
+
+.notification-succes:hover {
+  background-color: theme(
+    "colors.secondary-d"
+  ); /* import from tailwindcss configuration file */
+}
+
+.notification-error {
+  background-color: red;
+}
+
+.notification-error:hover {
+  background-color: rgb(189, 2, 2);
+}
+
+.notification-warning {
+  background-color: rgb(255, 196, 0);
+}
+
+.notification-warning:hover {
+  background-color: rgb(190, 162, 0);
+}
+
+.notification-info {
+  background-color: theme(
+    "colors.bg4"
+  ); /* import from tailwindcss configuration file */
+}
+
+.notification-info:hover {
+  background-color: theme(
+    "colors.bg4-d"
+  ); /* import from tailwindcss configuration file */
+}
