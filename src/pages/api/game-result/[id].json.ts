@@ -11,7 +11,7 @@ export const GET: APIRoute = async ({ params }) => {
         statusText: "Not found",
       });
     }
-
+    console.log(data.resultName);
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
