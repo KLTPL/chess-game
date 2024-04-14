@@ -42,7 +42,7 @@ export default class PieceView {
     boardView: BoardView
   ): void {
     if (boardView.match.boardModel.isPawnPromotingAtMove(from, to)) {
-      boardView.pawnPromotionMenu = new PawnPromotionMenu(team, boardView);
+      boardView.pawnPromotionMenu.show(team, boardView);
     }
   }
 

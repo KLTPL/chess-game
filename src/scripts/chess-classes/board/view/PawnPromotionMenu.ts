@@ -9,17 +9,26 @@ const CLASS_NAMES = {
 };
 
 export default class PawnPromotionMenu {
-  private html: HTMLElement;
-  readonly playerIsChoosing: Promise<number>;
-  constructor(team: TEAMS, board: BoardView) {
+  private html: HTMLElement | null = null;
+  private playerChoosingPromise: Promise<number> | null = null;
+  constructor() {}
+
+  public show(team: TEAMS, board: BoardView) {
+    this.stopShowing();
     const promotionOptions = this.createArrOfPromoteOptionsHtml(team);
-    this.showOptionClassification(promotionOptions);
     this.html = this.createContainerHtml(promotionOptions);
+    this.showOptionClassification(promotionOptions);
+
     board.html.append(this.html);
-    this.playerIsChoosing = this.waitForPlayersDecision(promotionOptions);
-    this.playerIsChoosing.then(() => {
-      this.removeMenu();
+    this.playerChoosingPromise = this.waitForPlayersDecision(promotionOptions);
+    this.playerChoosingPromise.then(() => {
+      this.stopShowing();
     });
+  }
+
+  private stopShowing(): void {
+    this.html?.remove();
+    this.playerChoosingPromise = null;
   }
 
   private createContainerHtml(
@@ -96,7 +105,7 @@ export default class PawnPromotionMenu {
     });
   }
 
-  private removeMenu(): void {
-    this.html.remove();
+  public getPlayerChoosingPromise() {
+    return this.playerChoosingPromise;
   }
 }
