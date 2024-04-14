@@ -1,0 +1,75 @@
+.player-container {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  gap: 6px;
+  padding-block: 6px;
+  padding-inline: 12px;
+}
+
+.player-image-name-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+}
+
+.player-container .player-image {
+  font-family: "Roboto Mono", monospace;
+  height: 90%;
+  aspect-ratio: 1 / 1;
+  border-radius: 0.6rem;
+  border: 1px solid gray;
+  display: grid;
+  place-content: center;
+  font-size: 0.75em;
+}
+
+.player-container .player-image.player-image-white {
+  background-color: white;
+  color: black;
+}
+
+.player-container .player-image.player-image-black {
+  background-color: black;
+  color: white;
+}
+
+.player-container .player-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-container .player-name .player-name-display {
+  font-weight: 500;
+}
+
+.player-container .player-name .player-name-name {
+  font-size: 0.8em;
+}
+
+.player-fill {
+  flex-grow: 1;
+}
+
+.player-container .player-time {
+  border-radius: 0.6rem;
+  border: 1px solid gray;
+  padding: 6px 12px;
+}
+
+.player-container-top {
+  bottom: 101%;
+}
+
+.player-container-bottom {
+  top: 101%;
+}

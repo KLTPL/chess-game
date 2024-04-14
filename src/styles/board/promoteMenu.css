@@ -1,0 +1,40 @@
+.promote-popup {
+  box-sizing: content-box;
+  --widthOfFiveFields: ; /* set in a script*/
+  --widthOfThreeFields: ; /* set in a script*/
+  --quarterOfField: ; /* set in a script*/
+  width: 62.5%; /* 5/8 */
+  height: 37.5%; /* 3/8 */
+  padding-inline: 5%; /* 0.25/8 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--popupColor);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--popupBoxShadow);
+  border: 3px solid black;
+  border-radius: 1%;
+  z-index: 2;
+}
+
+.promote-popup > div {
+  width: 20%; /* exacly 1 field size */
+  height: calc(100% / 3); /* exacly 1 field size */
+  box-shadow: var(--fieldBoxShadow);
+}
+
+.promote-popup > div:hover {
+  box-shadow: var(--box-shadow-field-under-piece);
+}
+
+.promote-option {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  background-size: var(--pieceSize);
+  background-position: center;
+  position: relative;
+}

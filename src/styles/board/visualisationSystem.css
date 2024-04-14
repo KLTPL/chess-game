@@ -1,0 +1,39 @@
+.arrow-container {
+  pointer-events: none;
+  --rotationDeg: ; /* set in a script*/
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(var(--rotationDeg));
+  z-index: 10;
+}
+
+.arrow-head {
+  --headHeight: ; /* set in a script*/
+  position: absolute;
+  left: var(--headHeight);
+  bottom: 50%;
+  transform: translateY(50%);
+  overflow: hidden;
+}
+
+.arrow-tail {
+  --halfOfFieldSize: ; /* set in a script*/
+  background-color: var(--arrowBgColor);
+  position: absolute;
+  bottom: 50%;
+  left: var(--halfOfFieldSize);
+  transform: translateY(50%);
+}
+
+.arrow-head::after {
+  content: "";
+  height: 95%;
+  width: 95%;
+  position: absolute;
+  background-color: var(--arrowBgColor);
+  left: -75%;
+  /* left: -65%; */
+  bottom: 50%;
+  transform: translateY(50%) rotate(45deg);
+}
