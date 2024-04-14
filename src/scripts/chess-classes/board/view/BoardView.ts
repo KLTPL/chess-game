@@ -38,7 +38,7 @@ export default class BoardView {
     BoardHTMLFactory.createContainerForPieces();
   readonly playerHTMLBars: PlayerHTMLBars;
   readonly pageContainerHtml: HTMLDivElement;
-  public pawnPromotionMenu: PawnPromotionMenu | null = null;
+  public pawnPromotionMenu: PawnPromotionMenu = new PawnPromotionMenu();
   public showEventsOnBoard: ShowEvetsOnBoard;
   private dragAndDropPieces: DragAndDropPieces = new DragAndDropPieces(this);
   constructor(
@@ -221,10 +221,9 @@ export default class BoardView {
       this.showEventsOnBoard.showNewMoveClassification(to);
       this.showEventsOnBoard.showNewLastMove(from, to);
     };
-
-    if (this.pawnPromotionMenu !== null) {
-      const promotedTo: PIECES = await this.pawnPromotionMenu.playerIsChoosing;
-      this.pawnPromotionMenu = null;
+    const choosingPromise = this.pawnPromotionMenu.getPlayerChoosingPromise();
+    if (choosingPromise !== null) {
+      const promotedTo: PIECES = await choosingPromise;
       afterMoveIsFinished(promotedTo);
       return promotedTo;
     } else {

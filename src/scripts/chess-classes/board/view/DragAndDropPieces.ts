@@ -73,7 +73,7 @@ export default class DragAndDropPieces {
     if (
       !BoardModel.isPosInBounds(pos) ||
       !m.isGameRunning ||
-      this.boardView.pawnPromotionMenu !== null ||
+      this.boardView.pawnPromotionMenu.getPlayerChoosingPromise() !== null ||
       this.boardView.match.analisisSystem.isUserAnalising()
     ) {
       return false;
