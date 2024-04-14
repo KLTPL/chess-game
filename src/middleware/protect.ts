@@ -1,6 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import verify from "../utils/jwt/verify";
 import CookiesNames from "../utils/CookiesNames";
+import isUserInDB from "../db/app-user/isUserInDB";
 
 const PROTECTED_PATHS = [
   "/online",
@@ -15,54 +16,61 @@ const PROTECTED_PATHS = [
   "/api/search-alias/*",
 ];
 
-const protect = defineMiddleware(({ url, cookies, redirect, locals }, next) => {
-  try {
-    const isProtected = isPathProtected(url.pathname);
-    if (
-      url.pathname.slice(0, 4) !== "/api" &&
-      !isProtected &&
-      url.pathname !== "/login" &&
-      url.pathname !== "/register"
-    ) {
-      cookies.delete(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
-    }
-    const token = cookies.get(CookiesNames.TOKEN_JWT)?.value;
-
-    if (token === undefined) {
-      if (isProtected) {
-        cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname, {
-          path: "/",
-          secure: true,
-        });
-        return redirect("/login");
+const protect = defineMiddleware(
+  async ({ url, cookies, redirect, locals }, next) => {
+    try {
+      const isProtected = isPathProtected(url.pathname);
+      if (
+        url.pathname.slice(0, 4) !== "/api" &&
+        !isProtected &&
+        url.pathname !== "/login" &&
+        url.pathname !== "/register"
+      ) {
+        cookies.delete(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
       }
-      return next();
-    }
+      const token = cookies.get(CookiesNames.TOKEN_JWT)?.value;
 
-    const verified = verify(token);
+      if (token === undefined) {
+        if (isProtected) {
+          cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname, {
+            path: "/",
+            secure: true,
+          });
+          return redirect("/login");
+        }
+        return next();
+      }
 
-    if (verified === false) {
-      if (isProtected) {
+      const verified = verify(token);
+
+      if (verified === false) {
+        if (isProtected) {
+          cookies.delete(CookiesNames.TOKEN_JWT, { path: "/" });
+          cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname, {
+            path: "/",
+            secure: true,
+          });
+          return redirect("/login");
+        }
+        return next();
+      }
+
+      if (!(await isUserInDB(verified.id))) {
         cookies.delete(CookiesNames.TOKEN_JWT, { path: "/" });
-        cookies.set(CookiesNames.COOKIE_BACK_AFTER_LOGIN, url.pathname, {
-          path: "/",
-          secure: true,
-        });
-        return redirect("/login");
+        return next();
       }
+
+      locals.user = {
+        id: verified.id,
+      };
+
+      return next();
+    } catch (err) {
+      console.error(err);
       return next();
     }
-
-    locals.user = {
-      id: verified.id,
-    };
-
-    return next();
-  } catch (err) {
-    console.error(err);
-    return next();
   }
-});
+);
 
 function isPathProtected(pathname: string) {
   for (const path of PROTECTED_PATHS) {
