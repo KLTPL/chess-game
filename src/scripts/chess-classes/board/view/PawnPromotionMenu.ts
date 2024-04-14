@@ -28,6 +28,7 @@ export default class PawnPromotionMenu {
 
   private stopShowing(): void {
     this.html?.remove();
+    this.html = null;
     this.playerChoosingPromise = null;
   }
 
