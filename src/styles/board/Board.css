@@ -1,0 +1,143 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
+/* font-family: "Roboto Mono", monospace; */
+
+:root {
+  --fieldColor1: theme("colors.white");
+  --fieldColor2: theme("colors.primary");
+  --fieldColor2-b: theme("colors.primary-b");
+  --fieldColor2-d: theme("colors.primary-d");
+  --fieldBoxShadow: 0 0 10px #00000080;
+  --arrowBgColor: #ff4400e6;
+  --popupColor: #f5f5db;
+  --popupBoxShadow: 0 5px 15px #000000e7;
+  --possMovePlainCol: #000000b3;
+  --box-shadow-field-under-piece: 0 0 10px 0 #223a3794, inset 0 0 0 5px #008573;
+
+  /* each set in a script*/
+  --pieceSize: 100%;
+  --pieceMoveTouchSize: 100%;
+  --fieldLabelFontSize: 1rem;
+}
+
+.board-container {
+  --translateX: -50%;
+  --translateY: -50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(var(--translateX), var(--translateY));
+  box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.596);
+  aspect-ratio: 1 / 1;
+  width: var(--customWidth); /* set in script*/
+}
+
+.board-container-default-width {
+  width: 95vw;
+}
+
+@media (min-width: 600px) {
+  .board-container-default-width {
+    width: clamp(300px, 85%, 600px);
+  }
+}
+
+.board-fields-container {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
+
+.board-fields-container,
+.board-pieces-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.buttons-container {
+  width: 100%;
+  min-height: 2rem;
+  position: absolute;
+  top: calc(101% + 60px);
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.buttons-container > button {
+  background-color: var(--fieldColor2);
+  color: var(--fieldColor1);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 1px solid black;
+  cursor: pointer;
+  box-shadow: 0 0 5px hsla(0, 0%, 0%, 0.596);
+}
+
+.buttons-container > button:not(.arrow-button) {
+  border-radius: 10%;
+}
+
+.buttons-container > button:active {
+  background-color: var(--fieldColor2-b) !important;
+}
+
+.arrow-button {
+  width: 3rem;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+}
+
+@media (hover: hover) {
+  /* so the button doesn't stay 'hovered' on mobile */
+  .buttons-container > button:hover {
+    background-color: var(--fieldColor2-d);
+  }
+}
+
+.field {
+  box-shadow: var(--fieldBoxShadow);
+  position: relative;
+}
+
+.field1 {
+  background-color: var(--fieldColor1);
+}
+
+.field2 {
+  background-color: var(--fieldColor2);
+}
+
+.field-label {
+  position: absolute;
+  font-size: var(--fieldLabelFontSize);
+  color: black;
+  display: grid;
+  place-content: center;
+  pointer-events: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+  z-index: 2;
+}
+
+.field1 > .field-label {
+  color: var(--fieldColor2);
+}
+
+.field2 > .field-label {
+  color: var(--fieldColor1);
+}
+
+.field-label-number {
+  left: 5%;
+  top: 5%;
+}
+
+.field-label-letter {
+  right: 5%;
+  bottom: 5%;
+}

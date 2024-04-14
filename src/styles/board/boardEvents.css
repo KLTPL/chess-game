@@ -1,0 +1,123 @@
+.field-piece-selected-from {
+  width: 10%;
+  height: 10%;
+  background-color: black;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.field-heighlighted-under-moving-piece {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-shadow: var(--box-shadow-field-under-piece);
+}
+
+.field-king-check::before {
+  content: "";
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  position: absolute;
+  background: rgb(255, 0, 0);
+  background: radial-gradient(
+    circle,
+    rgba(255, 0, 0, 0.8239670868347339) 0%,
+    rgba(255, 0, 0, 0.7819502801120448) 31%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.highlighted-field {
+  background-color: hsla(0, 100%, 50%, 0.9);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.poss-move {
+  background-color: unset;
+} /* used only in spript to delete elements */
+
+.poss-move-plain {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  width: 33%;
+  height: 33%;
+  background-color: var(--possMovePlainCol);
+  transform: translate(-50%, -50%);
+}
+
+.poss-move-capture {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+
+.poss-move-capture::before,
+.poss-move-capture::after {
+  --rotate: ;
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(40% * 1.41421356237); /* diagonal_length = box_width*sqrt(2) */
+  height: 5px;
+  border-radius: 27%;
+  background-color: rgb(2, 165, 2);
+  transform: translate(-50%, -50%) rotate(var(--rotate));
+}
+
+.poss-move-capture::before {
+  --rotate: 45deg;
+}
+
+.poss-move-capture::after {
+  --rotate: -45deg;
+}
+
+.highlight-last-move {
+  position: absolute;
+  background-color: #fa9038;
+  /* background-color: hsla(335, 100%, 50%, 0.6); */
+  width: 100%;
+  height: 100%;
+}
+
+.move-classification {
+  --src: url(../.././images/move-brilliant.png);
+  position: absolute;
+  width: 40%;
+  height: 40%;
+  top: -10%;
+  left: -10%;
+  background-image: var(--src);
+  background-size: 100%;
+  z-index: 10;
+}
+
+.move-classification-brilliant {
+  --src: url(../.././images/move-brilliant.png);
+}
+
+.move-classification-blunder {
+  --src: url(../.././images/move-blunder.png);
+}
+
+.row-col-highlight {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: hsla(169, 73%, 38%, 0.388);
+}

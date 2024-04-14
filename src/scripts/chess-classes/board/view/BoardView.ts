@@ -1,4 +1,11 @@
-import "../../../../styles/Board.css";
+// import all css files
+import "../../../../styles/board/Board.css";
+import "../../../../styles/board/boardEvents.css";
+import "../../../../styles/board/pieces.css";
+import "../../../../styles/board/playerBar.css";
+import "../../../../styles/board/promoteMenu.css";
+import "../../../../styles/board/visualisationSystem.css";
+// regular imports
 import Pos, { POS_OUT_OF_BOARD } from "../model/Pos";
 import Field, { type PieceViewData } from "./Field";
 import VisualizingSystem from "./VisualizingSystem";
