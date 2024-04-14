@@ -37,6 +37,7 @@ export default {
     extend: {
       fontFamily: {
         poppins: ["Poppins", ...defaultTheme.fontFamily.serif],
+        "roboto-mono": ["Roboto Mono", ...defaultTheme.fontFamily.mono],
       },
       colors: {
         primary: "#016779",

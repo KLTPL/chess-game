@@ -21,7 +21,7 @@
 }
 
 .player-container .player-image {
-  font-family: "Roboto Mono", monospace;
+  font-family: theme("fontFamily.roboto-mono"), monospace;
   height: 90%;
   aspect-ratio: 1 / 1;
   border-radius: 0.6rem;
