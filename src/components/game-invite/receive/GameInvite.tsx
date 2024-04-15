@@ -44,18 +44,10 @@ export default function GameInvite({
           <h5 className="text-lg font-bold">Zaproszenie:</h5>
         </div>
         <div className="flex flex-row items-center justify-center">
-          {user_from.name === user_from.display_name ? (
-            <div className="w-full text-center font-semibold">
-              {user_from.name}
-            </div>
-          ) : (
-            <>
-              <div className="w-1/2 text-center font-semibold">
-                {user_from.name}
-              </div>
-              <div className="w-1/2 text-center">{user_from.display_name}</div>
-            </>
-          )}
+          <div className="w-1/2 text-center font-semibold">
+            {user_from.display_name}
+          </div>
+          <div className="w-1/2 text-center">@{user_from.name}</div>
         </div>
       </div>
       <div className="grid grid-cols-1 grid-rows-2">
