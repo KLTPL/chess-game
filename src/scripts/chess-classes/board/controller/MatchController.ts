@@ -2,8 +2,6 @@ import BoardView from "../view/BoardView";
 import Player from "./Player";
 import Halfmove from "../model/Halfmove";
 import {
-  END_REASONS_ID_DB,
-  GAME_RESULTS_ID_DB,
   type APIGetGameData,
   type APIGetOnlineGame,
   type EndInfo,
