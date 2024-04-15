@@ -42,7 +42,6 @@ const protect = defineMiddleware(
       }
 
       const verified = verify(token);
-      console.log("verified", verified);
       if (verified === false) {
         cookies.delete(CookiesNames.TOKEN_JWT, { path: "/" });
         if (isProtected) {
