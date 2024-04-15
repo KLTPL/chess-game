@@ -5,6 +5,7 @@ import "../../../../styles/board/pieces.css";
 import "../../../../styles/board/playerBar.css";
 import "../../../../styles/board/promoteMenu.css";
 import "../../../../styles/board/visualisationSystem.css";
+import "../../../../styles/board/gameEndPopup.css";
 // regular imports
 import Pos, { POS_OUT_OF_BOARD } from "../model/Pos";
 import Field, { type PieceViewData } from "./Field";
@@ -28,6 +29,7 @@ import BoardHTMLFactory, {
   CLASS_NAMES,
 } from "./BoardHTMLFactory";
 import PlayerHTMLBars from "./PlayerHTMLBars";
+import GameEndPopup from "./GameEndPopup";
 
 export default class BoardView {
   private fields: Field[][] = [];
@@ -38,7 +40,8 @@ export default class BoardView {
     BoardHTMLFactory.createContainerForPieces();
   readonly playerHTMLBars: PlayerHTMLBars;
   readonly pageContainerHtml: HTMLDivElement;
-  public pawnPromotionMenu: PawnPromotionMenu = new PawnPromotionMenu();
+  readonly pawnPromotionMenu: PawnPromotionMenu = new PawnPromotionMenu();
+  readonly resultPopup: GameEndPopup = new GameEndPopup();
   public showEventsOnBoard: ShowEvetsOnBoard;
   private dragAndDropPieces: DragAndDropPieces = new DragAndDropPieces(this);
   constructor(

@@ -39,8 +39,8 @@ export type GetDBGameData = {
 
 export type PutDBGame = {
   id: string;
-  result_id: GAME_RESULTS_ID_DB | number;
-  end_reason_id: END_REASONS_ID_DB | number;
+  result_id: GAME_RESULTS_ID_DB;
+  end_reason_id: END_REASONS_ID_DB;
 };
 
 export type GetDBAppUser = {
