@@ -45,8 +45,8 @@ export default function GameInviteModal({
             <div className="flex w-full flex-col items-center">
               <h6 className="text-lg font-bold">Użytkownik:</h6>
               <div className="flex w-full flex-row justify-evenly">
-                <div className="font-semibold">{user.name}</div>
-                <div>{user.display_name}</div>
+                <div className="font-semibold">{user.display_name}</div>
+                <div>@{user.name}</div>
               </div>
             </div>
           )}
