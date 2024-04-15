@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { getUserByName, getUsersByAlias } from "../../../db/app-user/getUser";
-import type { GetDBAppUser, GetResultSearchAlias } from "../../../db/types";
+import type { APIGetAppUser, APIRespGetSearchAlias } from "../../../db/types";
 import isFriend from "../../../db/friend-connection/isFriend";
 import isInvited from "../../../db/friend-invite/isInvited";
 import isWhoInvited from "../../../db/friend-invite/isWhoInvited";
@@ -13,7 +13,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
     }
     const alias = params.alias as string;
 
-    let allUsers: GetDBAppUser[];
+    let allUsers: APIGetAppUser[];
     if (alias[0] === "@") {
       const user = await getUserByName(alias.slice(1));
       allUsers = user === null ? [] : [user];
@@ -39,16 +39,16 @@ export const GET: APIRoute = async ({ params, locals }) => {
 };
 
 async function createResObj(
-  allUsers: GetDBAppUser[],
+  allUsers: APIGetAppUser[],
   selfId: string
-): Promise<GetResultSearchAlias> {
-  const result: GetResultSearchAlias = {
+): Promise<APIRespGetSearchAlias> {
+  const result: APIRespGetSearchAlias = {
     friends: [],
     invited: [],
     whoInvited: [],
     suggestions: [],
     blocked: [],
-    type: "GetResultSearchAlias",
+    type: "APIRespGetSearchAlias",
   };
   for (let i = 0; i < allUsers.length; i++) {
     const currUser = allUsers[i];

@@ -2,12 +2,12 @@ import { type APIRoute } from "astro";
 import getGameData from "../../../db/game/getGameData";
 import addNewMove from "../../../db/game-halfmove/addNewMove";
 import updateGameResult from "../../../db/game/updateGameResult";
-import type { GetOnlineGame, GetPostDBHalfmove } from "../../../db/types";
+import type { APIGetOnlineGame, APIGetPostHalfmove } from "../../../db/types";
 import isUserAllowedToMove from "../../../db/game/isUserAllowedToMove";
 import isMoveValid from "../../../db/game/isMoveValid";
 import { getGameId } from "../../../db/game/convertGameIds";
 
-export const GET: APIRoute<GetOnlineGame> = async ({ params, locals }) => {
+export const GET: APIRoute<APIGetOnlineGame> = async ({ params, locals }) => {
   try {
     const data = await getGameData(params.display_id as string);
 
@@ -38,7 +38,7 @@ export const GET: APIRoute<GetOnlineGame> = async ({ params, locals }) => {
 
 export const POST: APIRoute = async ({ request, locals, url, params }) => {
   try {
-    const data: GetPostDBHalfmove = await request.json();
+    const data: APIGetPostHalfmove = await request.json();
     const displayId = params.display_id as string;
     const id = await getGameId(displayId);
     const { user } = locals;

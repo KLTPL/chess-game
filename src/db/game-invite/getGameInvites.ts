@@ -1,9 +1,9 @@
 import { queryDB } from "../connect";
-import type { GetDBGameInvite } from "../types";
+import type { APIGetGameInvite } from "../types";
 
 export default async function getGameInvites(
   userToId: string
-): Promise<GetDBGameInvite[]> {
+): Promise<APIGetGameInvite[]> {
   const queryRes = await queryDB(
     `
     SELECT gi.id as game_invite_id, gi.is_user_from_white, u.* FROM 
@@ -13,8 +13,8 @@ export default async function getGameInvites(
   `,
     [userToId]
   );
-  const result: GetDBGameInvite[] = queryRes.rows.map((res) => {
-    const gameInvite: GetDBGameInvite = {
+  const result: APIGetGameInvite[] = queryRes.rows.map((res) => {
+    const gameInvite: APIGetGameInvite = {
       id: res.game_invite_id,
       user_from: {
         id: res.id,

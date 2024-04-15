@@ -1,10 +1,10 @@
 import { useRef, useState } from "react";
-import { type GetDBGameData, type GetUserGames } from "../../../db/types";
+import { type APIGetGameData, type APIGetUserGames } from "../../../db/types";
 import GameDisplay from "./GameDisplay";
 
 async function fetchPlayerGames(
-  data: GetUserGames
-): Promise<GetDBGameData[] | null> {
+  data: APIGetUserGames
+): Promise<APIGetGameData[] | null> {
   const res = await fetch(
     `${import.meta.env.PUBLIC_SERVER_URL}/api/user-games/${data.id}/${data.startIdx}-${data.endIdx}`,
     {
@@ -14,11 +14,11 @@ async function fetchPlayerGames(
   if (!res.ok) {
     return null;
   }
-  return (await res.json()) as GetDBGameData[];
+  return (await res.json()) as APIGetGameData[];
 }
 
 export type OlderGameDisplaysProps = {
-  initGamesData: GetDBGameData[];
+  initGamesData: APIGetGameData[];
   playerId: string;
   startIdx: number;
   incrementBy: number;
@@ -32,12 +32,12 @@ export default function GameDisplays({
   incrementBy,
   loadMoreOnScroll: initLoadMore,
 }: OlderGameDisplaysProps) {
-  const [gamesData, setGamesData] = useState<GetDBGameData[]>(initGamesData);
+  const [gamesData, setGamesData] = useState<APIGetGameData[]>(initGamesData);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const loadMoreRef = useRef<boolean>(initLoadMore);
   const startIdx = useRef<number>(initStartIdx);
 
-  async function getNewGamesData(): Promise<GetDBGameData[]> {
+  async function getNewGamesData(): Promise<APIGetGameData[]> {
     if (startIdx.current === 0) {
       return [];
     }

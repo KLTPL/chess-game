@@ -1,9 +1,9 @@
-import type { GetDBAppUser } from "../../../db/types";
+import type { APIGetAppUser } from "../../../db/types";
 import UserCard, { type ButtonInfo } from "./UserCard";
 
 type UserCardsCollectionProps = {
   title: string;
-  users: GetDBAppUser[] | undefined;
+  users: APIGetAppUser[] | undefined;
   buttons: ButtonInfo[];
   isGameInviteButton?: true;
 };

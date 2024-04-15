@@ -1,9 +1,9 @@
 import { queryDB } from "../connect";
-import type { GetDBAppUser } from "../types";
+import type { APIGetAppUser } from "../types";
 
 export default async function getFriends(
   userId: string
-): Promise<GetDBAppUser[]> {
+): Promise<APIGetAppUser[]> {
   const response = await queryDB(
     `SELECT u.* FROM 
       ((SELECT user_2_id AS user_id FROM friend_connection WHERE user_1_id = $1)

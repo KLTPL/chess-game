@@ -1,4 +1,4 @@
-import type { GetDBGameData, GetPostDBHalfmove } from "../../../../db/types";
+import type { APIGetGameData, APIGetPostHalfmove } from "../../../../db/types";
 import Pos from "./Pos";
 import { type AnyPieceModel, TEAMS } from "../../pieces/model/PieceModel";
 import type BoardModel from "./BoardModel";
@@ -8,7 +8,7 @@ import type MatchController from "../controller/MatchController";
 export default class IncludeDBData {
   private isIncluding: false | Promise<void>;
   constructor(
-    DBGameData: GetDBGameData | null,
+    DBGameData: APIGetGameData | null,
     private boardModel: BoardModel,
     match: MatchController | null
   ) {
@@ -38,7 +38,7 @@ export default class IncludeDBData {
     this.isIncluding.then(() => (this.isIncluding = false));
   }
 
-  private includeCastlingRights({ game }: GetDBGameData): void {
+  private includeCastlingRights({ game }: APIGetGameData): void {
     const c = this.boardModel.getCastlingRights();
     c.white.k = game.castling_w_k;
     c.white.q = game.castling_w_q;
@@ -46,7 +46,7 @@ export default class IncludeDBData {
     c.white.q = game.castling_b_q;
   }
 
-  private async insertDBHalfmoves(DBHalfmoves: GetPostDBHalfmove[]) {
+  private async insertDBHalfmoves(DBHalfmoves: APIGetPostHalfmove[]) {
     if (DBHalfmoves.length === 0) {
       return;
     }
@@ -55,7 +55,7 @@ export default class IncludeDBData {
     }
   }
 
-  private async movePiece(DBHalfmove: GetPostDBHalfmove): Promise<void> {
+  private async movePiece(DBHalfmove: APIGetPostHalfmove): Promise<void> {
     const m = this.boardModel;
     const { pos_start_x, pos_start_y, pos_end_x, pos_end_y } = DBHalfmove;
     const startPos = new Pos(pos_start_y, pos_start_x);

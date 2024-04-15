@@ -3,10 +3,10 @@ import addGameInvite from "../../../db/game-invite/addGameInvite";
 import removeGameInvite from "../../../db/game-invite/removeGameInvite";
 import addNewGame from "../../../db/game/addNewGame";
 import type {
-  DeleteGameInvite,
-  PostGameInvite,
-  PutGameInvite,
-  PutResponseGameInvite,
+  APIDeleteGameInvite,
+  APIPostGameInvite,
+  APIPutGameInvite,
+  APIRespPutGameInvite,
 } from "../../../db/types";
 import isFriend from "../../../db/friend-connection/isFriend";
 
@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ locals, request, url }) => {
       );
     }
     const userFromId = locals.user.id;
-    const body: PostGameInvite = await request.json();
+    const body: APIPostGameInvite = await request.json();
     const userToId = body.userToId;
     const isUserFromWhite = body.isUserFromWhite;
     if (!(await isFriend(userFromId, userToId))) {
@@ -51,7 +51,7 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
       );
     }
     const userToId = locals.user.id;
-    const body: PutGameInvite = await request.json();
+    const body: APIPutGameInvite = await request.json();
     const inviteId = body.inviteId;
     const userFromId = body.userFromId;
 
@@ -76,7 +76,7 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     }
 
     const gameDisplayId = await addNewGame(userToId, userFromId, null);
-    const response: PutResponseGameInvite = {
+    const response: APIRespPutGameInvite = {
       newGamePath: `/online-game/${gameDisplayId}`,
     };
     return new Response(JSON.stringify(response), {
@@ -96,7 +96,7 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
 
 export const DELETE: APIRoute = async ({ request }) => {
   try {
-    const body: DeleteGameInvite = await request.json();
+    const body: APIDeleteGameInvite = await request.json();
     const inviteId = body.inviteId;
 
     const removed = await removeGameInvite(inviteId);

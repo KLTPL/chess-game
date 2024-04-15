@@ -1,12 +1,12 @@
 import type {
-  DeleteGameInvite,
-  GetDBGameInvite,
-  PutGameInvite,
-  PutResponseGameInvite,
+  APIDeleteGameInvite,
+  APIGetGameInvite,
+  APIPutGameInvite,
+  APIRespPutGameInvite,
 } from "../../db/types";
 import GameInvite from "../game-invite/receive/GameInvite";
 type GameInviteProps = {
-  gameInvite: GetDBGameInvite;
+  gameInvite: APIGetGameInvite;
   substractOneInvite: () => void;
 };
 
@@ -16,7 +16,7 @@ export default function GameInviteIndex({
 }: GameInviteProps) {
   async function acceptGameInvite() {
     substractOneInvite();
-    const data: PutGameInvite = {
+    const data: APIPutGameInvite = {
       inviteId: gameInvite.id,
       userFromId: gameInvite.user_from.id,
     };
@@ -27,13 +27,13 @@ export default function GameInviteIndex({
         body: JSON.stringify(data),
       }
     );
-    const { newGamePath } = (await res.json()) as PutResponseGameInvite;
+    const { newGamePath } = (await res.json()) as APIRespPutGameInvite;
     document.location.href = newGamePath;
   }
 
   async function declineGameInvite() {
     substractOneInvite();
-    const data: DeleteGameInvite = {
+    const data: APIDeleteGameInvite = {
       inviteId: gameInvite.id,
     };
     await fetch(`${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite/`, {

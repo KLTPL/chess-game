@@ -1,4 +1,11 @@
-export type GetDBGame = {
+// FORMAT: [IN_OR_OUT][ENDPOINT_TYPE][ROUTE_NAME]
+// IN_OR_OUT - "API" (if body data) or "APIResp" (if response data)
+// ENDPOINT_TYPE - list of: "Get", "Post", "Put", "Delete" (ex. GetPost)
+// ROUTE_NAME - name written in CamelCase
+// FORMAT EXAMPLE: APIGetPostYourRouteName
+// for body, for enpoints get and post, for route: /api/your-route-name
+
+export type APIGetGame = {
   id: string;
   display_id: string;
   is_finished: boolean;
@@ -18,7 +25,7 @@ export type GetDBGame = {
   user_b_name: string;
   start_date: string;
 };
-export type GetPostDBHalfmove = {
+export type APIGetPostHalfmove = {
   piece_symbol_fen: string;
   halfmove_number: number;
   pos_start_x: number;
@@ -31,17 +38,17 @@ export type GetPostDBHalfmove = {
   promoted_to_piece_symbol_fen: null | string;
 };
 
-export type GetDBGameData = {
-  game: GetDBGame;
-  halfmoves: GetPostDBHalfmove[];
+export type APIGetGameData = {
+  game: APIGetGame;
+  halfmoves: APIGetPostHalfmove[];
 };
 
-export type GetOnlineGame = {
-  getDBGameData: GetDBGameData;
+export type APIGetOnlineGame = {
+  getDBGameData: APIGetGameData;
   userId: string | undefined;
 };
 
-export type GetDBAppUser = {
+export type APIGetAppUser = {
   id: string;
   email: string;
   name: string;
@@ -51,86 +58,86 @@ export type GetDBAppUser = {
   date_last_login: string;
 };
 
-export type GetDBAppUserForLogin = GetDBAppUser & {
+export type APIGetAppUserForLogin = APIGetAppUser & {
   password: string;
   password_salt: string;
 };
 
-export type GetDBGameInvite = {
+export type APIGetGameInvite = {
   id: string;
-  user_from: GetDBAppUser;
+  user_from: APIGetAppUser;
   is_user_from_white: boolean | null;
 };
 
-export type PostGameInvite = {
+export type APIPostGameInvite = {
   userToId: string;
   isUserFromWhite: boolean | null;
 };
 
-export type PutGameInvite = {
+export type APIPutGameInvite = {
   inviteId: string;
   userFromId: string;
 };
 
-export type DeleteGameInvite = {
+export type APIDeleteGameInvite = {
   inviteId: string;
 };
 
-export type PostGameInviteLink = {
+export type APIPostGameInviteLink = {
   isUserFromWhite: boolean | null;
 };
 
-export type PostResultGameInviteLink = {
+export type APIRespPostGameInviteLink = {
   inviteLink: string;
 };
 
-export type PutResponseGameInvite = {
+export type APIRespPutGameInvite = {
   newGamePath: string;
 };
 
-export type GetResponseGameInviteLink = {
+export type APIRespGetGameInviteLink = {
   id: string;
-  user_from: GetDBAppUser;
+  user_from: APIGetAppUser;
   is_user_from_white: boolean | null;
 };
 
-export type GetGameInviteLink = {
+export type APIGetGameInviteLink = {
   displayId: string;
 };
 
-export type DeleteGameInviteLink = {
+export type APIDeleteGameInviteLink = {
   id: string;
 };
 
-export type PutGameInviteLink = {
+export type APIPutGameInviteLink = {
   id: string;
 };
 
-export type PutResponseGameInviteLink = {
+export type APIRespPutGameInviteLink = {
   newGamePath: string;
 };
 
-export type GetUserGames = {
+export type APIGetUserGames = {
   id: string;
   startIdx: number;
   endIdx: number;
 };
 
-export type GetResultRelatedUsers = {
-  friends: GetDBAppUser[];
-  invited: GetDBAppUser[];
-  whoInvited: GetDBAppUser[];
-  blocked: GetDBAppUser[];
-  type: "GetResultRelatedUsers";
+export type APIRespGetRelatedUsers = {
+  friends: APIGetAppUser[];
+  invited: APIGetAppUser[];
+  whoInvited: APIGetAppUser[];
+  blocked: APIGetAppUser[];
+  type: "APIRespGetRelatedUsers";
 };
 
-export type GetResultSearchAlias = {
-  friends: GetDBAppUser[];
-  invited: GetDBAppUser[];
-  whoInvited: GetDBAppUser[];
-  suggestions: GetDBAppUser[];
-  blocked: GetDBAppUser[];
-  type: "GetResultSearchAlias";
+export type APIRespGetSearchAlias = {
+  friends: APIGetAppUser[];
+  invited: APIGetAppUser[];
+  whoInvited: APIGetAppUser[];
+  suggestions: APIGetAppUser[];
+  blocked: APIGetAppUser[];
+  type: "APIRespGetSearchAlias";
 };
 
 export const enum END_REASONS_ID_DB {

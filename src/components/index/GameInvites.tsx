@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { type GetDBGameInvite } from "../../db/types";
+import { type APIGetGameInvite } from "../../db/types";
 import GameInviteIndex from "./GameInviteIndex";
 
 interface GameInvitesProps {
-  gameInvites: GetDBGameInvite[];
+  gameInvites: APIGetGameInvite[];
 }
 export default function GameInvites({ gameInvites }: GameInvitesProps) {
   const [invitesAmount, setInvitesAmount] = useState<number>(

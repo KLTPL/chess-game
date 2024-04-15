@@ -6,7 +6,7 @@ import MovesSystem from "./MovesSystem";
 import {
   END_REASONS_ID_DB,
   GAME_RESULTS_ID_DB,
-  type GetDBGameData,
+  type APIGetGameData,
 } from "../../../../db/types";
 import IncludeDBData from "./IncludeDBData";
 import FetchToDB from "./FetchToDB";
@@ -51,7 +51,7 @@ export default class BoardModel {
   readonly fetchToDB: FetchToDB | null;
   constructor(
     customPositionFEN: string | null,
-    DBGameData: GetDBGameData | null,
+    DBGameData: APIGetGameData | null,
     public match: MatchController | null
   ) {
     const startFENNotation = new FENNotation(customPositionFEN, this);

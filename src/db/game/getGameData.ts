@@ -1,10 +1,10 @@
 import type { QueryResult } from "pg";
 import { queryDB } from "../connect";
-import type { GetDBGame, GetDBGameData, GetPostDBHalfmove } from "../types";
+import type { APIGetGame, APIGetGameData, APIGetPostHalfmove } from "../types";
 
 export default async function getGameData(
   displayId: string
-): Promise<GetDBGameData | null> {
+): Promise<APIGetGameData | null> {
   const resGame = await getResGame(displayId);
 
   if (resGame.rowCount === 0) {
@@ -20,7 +20,7 @@ export default async function getGameData(
   };
 }
 
-async function getResGame(displayId: string): Promise<QueryResult<GetDBGame>> {
+async function getResGame(displayId: string): Promise<QueryResult<APIGetGame>> {
   const resGame = await queryDB(
     `SELECT
         g.id, g.start_date, g.display_id, g.is_finished, gr.id AS result_id, gr.name AS result_name, ger.id AS end_reason_id, ger.name AS end_reason_name, g.castling_w_k, g.castling_w_q, g.castling_b_k, g.castling_b_q, g.user_w_id, u1.display_name AS user_w_display_name, u1.name AS user_w_name, g.user_b_id, u2.display_name AS user_b_display_name, u2.name AS user_b_name
@@ -40,7 +40,7 @@ async function getResGame(displayId: string): Promise<QueryResult<GetDBGame>> {
 
 async function getResHalfmoves(
   id: string
-): Promise<QueryResult<GetPostDBHalfmove>> {
+): Promise<QueryResult<APIGetPostHalfmove>> {
   const resHalfmoves = await queryDB(
     `SELECT d.symbol_FEN AS piece_symbol_fen, h.game_id, h.halfmove_number, h.pos_start_x, h.pos_start_y, h.pos_end_x, h.pos_end_y, h.king_checked_pos_x, h.king_checked_pos_y, h.is_castling, d2.symbol_FEN AS promoted_to_piece_symbol_fen
     FROM (SELECT * FROM game_halfmove WHERE game_id = $1) h

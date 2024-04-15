@@ -2,11 +2,11 @@ import type { APIRoute } from "astro";
 import addNewGame from "../../../db/game/addNewGame";
 import addGameInviteLink from "../../../db/game-invite-link/addGameInviteLink";
 import type {
-  DeleteGameInviteLink,
-  PostGameInviteLink,
-  PostResultGameInviteLink,
-  PutGameInviteLink,
-  PutResponseGameInvite,
+  APIDeleteGameInviteLink,
+  APIPostGameInviteLink,
+  APIRespPostGameInviteLink,
+  APIPutGameInviteLink,
+  APIRespPutGameInvite,
 } from "../../../db/types";
 import removeGameInviteLink from "../../../db/game-invite-link/removeGameInviteLink";
 import getGameInviteLinkData, {
@@ -22,11 +22,11 @@ export const POST: APIRoute = async ({ locals, request, url }) => {
       );
     }
     const userFromId = locals.user.id;
-    const body: PostGameInviteLink = await request.json();
+    const body: APIPostGameInviteLink = await request.json();
     const isUserFromWhite = body.isUserFromWhite;
 
     const displayId = await addGameInviteLink(userFromId, isUserFromWhite);
-    const result: PostResultGameInviteLink = {
+    const result: APIRespPostGameInviteLink = {
       inviteLink: `${import.meta.env.PUBLIC_SERVER_URL}/game-invite/${displayId}`,
     };
     return new Response(JSON.stringify(result), {
@@ -53,7 +53,7 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
       );
     }
     const userToId = locals.user.id;
-    const body: PutGameInviteLink = await request.json();
+    const body: APIPutGameInviteLink = await request.json();
     const id = body.id;
     const gameInviteLinkData = await getGameInviteLinkData(id);
     const responseOrIsValid = await isGameInviteLinkValid(
@@ -73,7 +73,7 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
       validData.is_user_from_white
     );
 
-    const response: PutResponseGameInvite = {
+    const response: APIRespPutGameInvite = {
       newGamePath: `/online-game/${gameDisplayId}`,
     };
     return new Response(JSON.stringify(response), {
@@ -93,7 +93,7 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
 
 export const DELETE: APIRoute = async ({ request }) => {
   try {
-    const body: DeleteGameInviteLink = await request.json();
+    const body: APIDeleteGameInviteLink = await request.json();
     const id = body.id;
 
     await removeGameInviteLink(id);

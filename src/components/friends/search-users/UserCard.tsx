@@ -1,5 +1,5 @@
 import type { UseMutateFunction } from "react-query";
-import type { GetDBAppUser, PostGameInvite } from "../../../db/types";
+import type { APIGetAppUser, APIPostGameInvite } from "../../../db/types";
 import { useRef } from "react";
 import GameInviteModal from "../../game-invite/create/GameInviteModal";
 import { showNewNotification } from "../../notifications/showNotification";
@@ -10,7 +10,7 @@ export type ButtonInfo = {
 };
 
 type FriendCardProps = {
-  user: GetDBAppUser;
+  user: APIGetAppUser;
   buttons: ButtonInfo[];
   isGameInviteButton?: true;
 };
@@ -28,7 +28,7 @@ export default function UserCard({
     dialogRef.current?.close();
   }
   async function postGameInvite(isUserFromWhite: boolean | null) {
-    const data: PostGameInvite = {
+    const data: APIPostGameInvite = {
       userToId: user.id,
       isUserFromWhite: isUserFromWhite,
     };

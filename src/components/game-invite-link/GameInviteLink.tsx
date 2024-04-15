@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react";
 import GameInvite from "../game-invite/receive/GameInvite";
 import type {
-  DeleteGameInviteLink,
-  GetResponseGameInviteLink,
-  PutGameInviteLink,
-  PutResponseGameInviteLink,
+  APIDeleteGameInviteLink,
+  APIRespGetGameInviteLink,
+  APIPutGameInviteLink,
+  APIRespPutGameInviteLink,
 } from "../../db/types";
 
 type GameInviteLinkProps = {
-  gameInviteLinkData: GetResponseGameInviteLink;
+  gameInviteLinkData: APIRespGetGameInviteLink;
 };
 
 export default function GameInviteLink({
@@ -20,7 +20,7 @@ export default function GameInviteLink({
   }, []);
 
   async function acceptGameInvite() {
-    const data: PutGameInviteLink = {
+    const data: APIPutGameInviteLink = {
       id: gameInviteLinkData.id,
     };
     const response = await fetch(
@@ -30,13 +30,13 @@ export default function GameInviteLink({
     if (!response.ok) {
       window.location.replace("/404");
     } else {
-      const getOnlineGame: PutResponseGameInviteLink = await response.json();
+      const getOnlineGame: APIRespPutGameInviteLink = await response.json();
       window.location.replace(getOnlineGame.newGamePath);
     }
   }
 
   async function declineGameInvite() {
-    const data: DeleteGameInviteLink = {
+    const data: APIDeleteGameInviteLink = {
       id: gameInviteLinkData.id,
     };
     await fetch(`${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite-link/`, {
