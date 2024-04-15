@@ -1,4 +1,4 @@
-import type { GetDBGameData } from "../types";
+import type { APIGetGameData } from "../types";
 import getGameData from "./getGameData";
 
 export default async function isUserAllowedToMove(
@@ -30,7 +30,7 @@ export default async function isUserAllowedToMove(
   }
 }
 
-function getUserIdWhomMoveItIs(gameData: GetDBGameData) {
+function getUserIdWhomMoveItIs(gameData: APIGetGameData) {
   return gameData.halfmoves.length % 2 === 0
     ? gameData.game.user_w_id
     : gameData.game.user_b_id;

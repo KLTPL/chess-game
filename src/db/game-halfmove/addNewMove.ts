@@ -1,8 +1,8 @@
 import { queryDB } from "../connect";
-import type { GetPostDBHalfmove } from "../types";
+import type { APIGetPostHalfmove } from "../types";
 
 export default async function addNewMove(
-  DBHalfmove: GetPostDBHalfmove,
+  DBHalfmove: APIGetPostHalfmove,
   gameId: string
 ): Promise<void> {
   const d = DBHalfmove;

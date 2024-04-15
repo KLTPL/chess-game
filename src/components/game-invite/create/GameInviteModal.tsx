@@ -1,11 +1,11 @@
 import { useState, type SetStateAction } from "react";
-import type { GetDBAppUser } from "../../../db/types";
+import type { APIGetAppUser } from "../../../db/types";
 import bothColorsKing from "../../../images/both-colors-king.png";
 import whiteKing from "../../../images/w-king.png";
 import blackKing from "../../../images/b-king.png";
 
 type GameInviteModalProps = {
-  user?: GetDBAppUser;
+  user?: APIGetAppUser;
   closeGameInviteModal: () => void;
   postGameInvite: (isUserFromWhite: boolean | null) => Promise<boolean>;
   textContent: string;

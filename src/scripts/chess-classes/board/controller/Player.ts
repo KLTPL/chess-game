@@ -1,4 +1,4 @@
-import type { GetDBGameData } from "../../../../db/types";
+import type { APIGetGameData } from "../../../../db/types";
 import PieceModel, { TEAMS } from "../../pieces/model/PieceModel";
 import type MatchController from "./MatchController";
 
@@ -15,7 +15,7 @@ export default class Player {
   private displayName: string;
   constructor(
     private team: TEAMS,
-    DBGameData: GetDBGameData | null,
+    DBGameData: APIGetGameData | null,
     private match: MatchController
   ) {
     if (DBGameData === null) {

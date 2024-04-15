@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import getFriends from "../../../db/friend-connection/getFriends";
-import type { GetResultRelatedUsers } from "../../../db/types";
+import type { APIRespGetRelatedUsers } from "../../../db/types";
 import getAllInvitedUsers from "../../../db/app-user/getAllInvitedUsers";
 import getAllUsersWhoInvited from "../../../db/app-user/getAllUsersWhoInvited";
 
@@ -13,12 +13,12 @@ export const GET: APIRoute = async ({ locals, url }) => {
     }
     const selfId = locals.user.id;
 
-    const result: GetResultRelatedUsers = {
+    const result: APIRespGetRelatedUsers = {
       friends: [],
       invited: [],
       whoInvited: [],
       blocked: [],
-      type: "GetResultRelatedUsers",
+      type: "APIRespGetRelatedUsers",
     };
 
     result.friends = await getFriends(selfId);

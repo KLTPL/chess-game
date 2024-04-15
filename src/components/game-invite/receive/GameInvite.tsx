@@ -1,14 +1,14 @@
 import { useRef } from "react";
 import type {
-  GetDBGameInvite,
-  GetResponseGameInviteLink,
+  APIGetGameInvite,
+  APIRespGetGameInviteLink,
 } from "../../../db/types";
 import bothColorsKing from "../../../images/both-colors-king.png";
 import whiteKing from "../../../images/w-king.png";
 import blackKing from "../../../images/b-king.png";
 
 type GameInviteProps = {
-  gameInvite: GetDBGameInvite | GetResponseGameInviteLink;
+  gameInvite: APIGetGameInvite | APIRespGetGameInviteLink;
   accept: () => Promise<void>;
   decline: () => Promise<void>;
 };

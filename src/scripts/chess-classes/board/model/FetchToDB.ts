@@ -1,4 +1,4 @@
-import type { GetPostDBHalfmove } from "../../../../db/types";
+import type { APIGetPostHalfmove } from "../../../../db/types";
 import type Halfmove from "./Halfmove";
 import FENNotation from "./FENNotation";
 import type { getResultNameProps } from "../../../../db/dict-game-result/getResultName";
@@ -13,7 +13,7 @@ export default class FetchToDB {
   ): Promise<boolean> {
     const promotedTo = halfmove.getPromotedTo();
 
-    const GetDBHalfmove: GetPostDBHalfmove = {
+    const GetDBHalfmove: APIGetPostHalfmove = {
       halfmove_number: halfmoveNum,
       is_castling: halfmove.isCastling,
       king_checked_pos_x:

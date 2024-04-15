@@ -1,6 +1,6 @@
 import type { QueryResult } from "pg";
 import { queryDB } from "../connect";
-import type { GetResponseGameInviteLink } from "../types";
+import type { APIRespGetGameInviteLink } from "../types";
 import { getUserById } from "../app-user/getUser";
 import removeGameInviteLink from "./removeGameInviteLink";
 
@@ -13,7 +13,7 @@ type InviteLinkData = {
 
 export default async function getGameResInviteLinkData(
   displayId: string
-): Promise<GetResponseGameInviteLink | null> {
+): Promise<APIRespGetGameInviteLink | null> {
   const resInviteLinkData: QueryResult<InviteLinkData> = await queryDB(
     `SELECT id, is_user_from_white, user_from_id, create_timestamp
     FROM game_invite_link 

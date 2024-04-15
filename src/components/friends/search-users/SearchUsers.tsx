@@ -9,8 +9,8 @@ import {
 } from "./fetch";
 import UserCardsCollection from "./UserCardsCollection";
 import type {
-  GetResultRelatedUsers,
-  GetResultSearchAlias,
+  APIRespGetRelatedUsers,
+  APIRespGetSearchAlias,
 } from "../../../db/types";
 
 const queryClient = new QueryClient();
@@ -23,14 +23,14 @@ export default function SearchBar() {
     data: searchData,
     status: searchDataStatus,
     refetch: searchDataRefetch,
-  } = useQuery<GetResultSearchAlias | GetResultRelatedUsers>({
+  } = useQuery<APIRespGetSearchAlias | APIRespGetRelatedUsers>({
     queryFn: async () => await fetchUsers(search),
     queryKey: ["search-users", { search }],
   });
   function isDataSearchResult(
-    searchData: GetResultSearchAlias | GetResultRelatedUsers
-  ): searchData is GetResultSearchAlias {
-    return searchData.type === "GetResultSearchAlias";
+    searchData: APIRespGetSearchAlias | APIRespGetRelatedUsers
+  ): searchData is APIRespGetSearchAlias {
+    return searchData.type === "APIRespGetSearchAlias";
   }
   function invalidate() {
     queryClient.invalidateQueries(["search-users"]);

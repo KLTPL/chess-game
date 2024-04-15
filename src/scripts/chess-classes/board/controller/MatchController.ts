@@ -4,8 +4,8 @@ import Halfmove from "../model/Halfmove";
 import {
   END_REASONS_ID_DB,
   GAME_RESULTS_ID_DB,
-  type GetDBGameData,
-  type GetOnlineGame,
+  type APIGetGameData,
+  type APIGetOnlineGame,
   type EndInfo,
 } from "../../../../db/types";
 import FetchToDB from "../model/FetchToDB";
@@ -28,7 +28,7 @@ export type Players = {
 
 export type BoardArg = {
   htmlPageContainerQSelector: string;
-  DBGameData?: GetDBGameData;
+  DBGameData?: APIGetGameData;
   customPositionFEN: string | null;
 };
 
@@ -42,7 +42,7 @@ export default class MatchController {
   public isAnalisisSystemCreated: Promise<void> | true;
   readonly userTeam: TEAMS | null;
   readonly isGameOnline: boolean;
-  constructor(boardArg: BoardArg, getOnlineGame: GetOnlineGame | null) {
+  constructor(boardArg: BoardArg, getOnlineGame: APIGetOnlineGame | null) {
     this.isGameOnline = getOnlineGame !== null;
     const DBGameData =
       getOnlineGame === null ? null : getOnlineGame.getDBGameData;
@@ -91,7 +91,7 @@ export default class MatchController {
       });
     }
   }
-  private getUserTeam(getOnlineGame: GetOnlineGame | null) {
+  private getUserTeam(getOnlineGame: APIGetOnlineGame | null) {
     if (getOnlineGame !== null) {
       if (getOnlineGame.userId === getOnlineGame.getDBGameData.game.user_w_id) {
         return TEAMS.WHITE;

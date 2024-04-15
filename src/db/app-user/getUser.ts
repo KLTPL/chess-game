@@ -1,10 +1,10 @@
 import { queryDB } from "../connect";
-import type { GetDBAppUser, GetDBAppUserForLogin } from "../types";
+import type { APIGetAppUser, APIGetAppUserForLogin } from "../types";
 
 async function getUsersGeneric(
   condition: string,
   conditionVals: (number | string)[]
-): Promise<GetDBAppUser[]> {
+): Promise<APIGetAppUser[]> {
   const resUser = await queryDB(
     `
     SELECT id, email, name, display_name, is_active, date_create, date_last_login 
@@ -14,12 +14,12 @@ async function getUsersGeneric(
     conditionVals
   );
 
-  return resUser.rows as GetDBAppUser[];
+  return resUser.rows as APIGetAppUser[];
 }
 
 export async function getUserById(
   id: string | number
-): Promise<GetDBAppUser | null> {
+): Promise<APIGetAppUser | null> {
   const users = await getUsersGeneric("id = $1", [id]);
   if (users.length === 0) {
     return null;
@@ -29,7 +29,7 @@ export async function getUserById(
 
 export async function getUserByEmail(
   email: string
-): Promise<GetDBAppUser | null> {
+): Promise<APIGetAppUser | null> {
   const users = await getUsersGeneric("email = $1", [email]);
   if (users.length === 0) {
     return null;
@@ -39,7 +39,7 @@ export async function getUserByEmail(
 
 export async function getUserByName(
   name: string
-): Promise<GetDBAppUser | null> {
+): Promise<APIGetAppUser | null> {
   const users = await getUsersGeneric("name = $1", [name]);
   if (users.length === 0) {
     return null;
@@ -49,7 +49,7 @@ export async function getUserByName(
 
 export async function getUserByNameOrEmailForLogin(
   nameOrEmail: string
-): Promise<GetDBAppUserForLogin | null> {
+): Promise<APIGetAppUserForLogin | null> {
   const resUsers = await queryDB(
     `
     SELECT id, email, name, display_name, is_active, date_create, date_last_login, password, password_salt
@@ -66,7 +66,7 @@ export async function getUserByNameOrEmailForLogin(
 
 export async function getUsersByAlias(
   nameOrDisplayOrEmail: string
-): Promise<GetDBAppUser[]> {
+): Promise<APIGetAppUser[]> {
   const resUsers = await getUsersGeneric(`(name = $1 OR display_name = $1)`, [
     nameOrDisplayOrEmail,
   ]);

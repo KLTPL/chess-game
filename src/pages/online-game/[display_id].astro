@@ -13,14 +13,14 @@ Astro.cookies.set(CookiesNames.GAME_DISPLAY_ID, displayId);
   import { initGameOnline } from "../../scripts/initOnlineGame";
   import Cookies from "js-cookie";
   import CookiesNames from "../../utils/CookiesNames";
-  import type { GetOnlineGame } from "../../db/types";
+  import type { APIGetOnlineGame } from "../../db/types";
   const response = await fetch(
     `${import.meta.env.PUBLIC_SERVER_URL}/api/online-game/${Cookies.get(CookiesNames.GAME_DISPLAY_ID)}.json`
   );
   if (response.status >= 400) {
     window.location.replace("/404");
   } else {
-    const getOnlineGame: GetOnlineGame = await response.json();
+    const getOnlineGame: APIGetOnlineGame = await response.json();
     initGameOnline("[data-page-container]", getOnlineGame);
   }
 </script>

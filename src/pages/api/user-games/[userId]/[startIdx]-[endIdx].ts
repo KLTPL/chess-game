@@ -1,10 +1,10 @@
 import type { APIRoute } from "astro";
-import type { GetUserGames } from "../../../../db/types";
+import type { APIGetUserGames } from "../../../../db/types";
 import getUserGames from "../../../../db/game/getUserGames";
 
 export const GET: APIRoute = async ({ params }) => {
   try {
-    const data: GetUserGames = {
+    const data: APIGetUserGames = {
       id: params.userId as string,
       startIdx: parseInt(params.startIdx as string),
       endIdx: parseInt(params.endIdx as string),

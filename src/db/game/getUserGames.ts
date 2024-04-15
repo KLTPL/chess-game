@@ -1,19 +1,19 @@
 import type { QueryResult } from "pg";
 import { queryDB } from "../connect";
 import getGameData from "./getGameData";
-import type { GetDBGameData, GetUserGames } from "../types";
+import type { APIGetGameData, APIGetUserGames } from "../types";
 import isUserInDB from "../app-user/isUserInDB";
 
 export default async function getUserGames({
   id,
   startIdx,
   endIdx,
-}: GetUserGames): Promise<GetDBGameData[] | null> {
+}: APIGetUserGames): Promise<APIGetGameData[] | null> {
   if (!(await isUserInDB(id))) {
     return null;
   }
   const resDisplayIds = await getResDisplayIds(id);
-  const games: GetDBGameData[] = [];
+  const games: APIGetGameData[] = [];
   for (
     let i = startIdx;
     resDisplayIds.rowCount !== null &&

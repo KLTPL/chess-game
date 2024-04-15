@@ -5,7 +5,7 @@ import Pos from "../../scripts/chess-classes/board/model/Pos";
 import PieceModel, {
   TEAMS,
 } from "../../scripts/chess-classes/pieces/model/PieceModel";
-import type { GetDBGameData, GetPostDBHalfmove, EndInfo } from "../types";
+import type { APIGetGameData, APIGetPostHalfmove, EndInfo } from "../types";
 import getGameData from "./getGameData";
 
 type isMoveValidRet = {
@@ -14,7 +14,7 @@ type isMoveValidRet = {
 };
 
 export default async function isMoveValid(
-  halfmove: GetPostDBHalfmove,
+  halfmove: APIGetPostHalfmove,
   displayId: string
 ): Promise<isMoveValidRet> {
   // returns true of the http status code
@@ -44,8 +44,8 @@ type ValidateMoveRet = {
 };
 
 async function validateMove(
-  gameData: GetDBGameData,
-  halfmove: GetPostDBHalfmove
+  gameData: APIGetGameData,
+  halfmove: APIGetPostHalfmove
 ): Promise<ValidateMoveRet> {
   try {
     const board = new BoardModel(null, gameData, null);

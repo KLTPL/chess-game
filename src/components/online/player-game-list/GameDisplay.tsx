@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { GAME_RESULTS_ID_DB, type GetDBGameData } from "../../../db/types.ts";
+import { GAME_RESULTS_ID_DB, type APIGetGameData } from "../../../db/types.ts";
 import { WIDTHS } from "./utils";
 
 type GameDisplayProps = {
-  DBGameData: GetDBGameData;
+  DBGameData: APIGetGameData;
   borderTop: boolean;
   borderBottom: boolean;
 };

@@ -1,11 +1,11 @@
 import type { QueryResult } from "pg";
 import { queryDB } from "../connect";
-import type { GetDBAppUser } from "../types";
+import type { APIGetAppUser } from "../types";
 import { getUserById } from "./getUser";
 
 export default async function getAllInvitedUsers(
   idSelf: string
-): Promise<GetDBAppUser[]> {
+): Promise<APIGetAppUser[]> {
   const resUserTo: QueryResult<{ user_to_id: string }> = await queryDB(
     `SELECT user_to_id 
     FROM friend_invite 
@@ -13,7 +13,7 @@ export default async function getAllInvitedUsers(
     `,
     [idSelf]
   );
-  const users: GetDBAppUser[] = [];
+  const users: APIGetAppUser[] = [];
   for (const { user_to_id } of resUserTo.rows) {
     const user = await getUserById(user_to_id);
     if (user !== null) {

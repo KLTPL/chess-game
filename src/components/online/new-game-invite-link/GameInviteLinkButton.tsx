@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import type {
-  PostGameInviteLink,
-  PostResultGameInviteLink,
+  APIPostGameInviteLink,
+  APIRespPostGameInviteLink,
 } from "../../../db/types";
 import GameInviteModal from "../../game-invite/create/GameInviteModal";
 import ButtonSecondary from "../../buttons/ButtonSecondary";
@@ -16,7 +16,7 @@ export default function GameInviteLinkButton() {
     dialogRef.current?.close();
   }
   async function postGameInvite(isUserFromWhite: boolean | null) {
-    const data: PostGameInviteLink = {
+    const data: APIPostGameInviteLink = {
       isUserFromWhite: isUserFromWhite,
     };
     const res = await fetch(
@@ -26,7 +26,7 @@ export default function GameInviteLinkButton() {
         body: JSON.stringify(data),
       }
     );
-    const resObj: PostResultGameInviteLink = await res.json();
+    const resObj: APIRespPostGameInviteLink = await res.json();
     if (res.ok) {
       navigator.clipboard.writeText(resObj.inviteLink);
       showNewNotification(
