@@ -43,12 +43,15 @@ export default function GameInvite({
         <div className="grid place-content-center">
           <h5 className="text-lg font-bold">Zaproszenie:</h5>
         </div>
-        <div className="flex flex-row items-center justify-center">
+        <a
+          className="flex flex-row items-center justify-center"
+          href={`/friends#search=@${user_from.name};`}
+        >
           <div className="w-1/2 text-center font-semibold">
             {user_from.display_name}
           </div>
           <div className="w-1/2 text-center">@{user_from.name}</div>
-        </div>
+        </a>
       </div>
       <div className="grid grid-cols-1 grid-rows-2">
         <div className="flex flex-col items-center">
