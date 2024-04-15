@@ -1,4 +1,4 @@
-import type { GetOnlineGame } from "../pages/api/online-game/[display_id].json";
+import type { GetOnlineGame } from "../db/types";
 import MatchController, {
   type BoardArg,
 } from "./chess-classes/board/controller/MatchController";

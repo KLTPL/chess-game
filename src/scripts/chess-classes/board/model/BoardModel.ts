@@ -58,7 +58,7 @@ export default class BoardModel {
     this.currTeam = startFENNotation.activeColorConverted;
     this.castlingRights = startFENNotation.castlingRightsConverted;
     this.fetchToDB =
-      DBGameData === null ? null : new FetchToDB(DBGameData.game.id);
+      DBGameData === null ? null : new FetchToDB(DBGameData.game.display_id);
 
     this.pieces = startFENNotation.piecePlacementConverted;
     const kings = this.createKingsObj(this.pieces);
@@ -74,7 +74,6 @@ export default class BoardModel {
     } else {
       setTimeout(() =>
         this.match?.end({
-          id: this.fetchToDB?.game_id,
           end_reason_id: END_REASONS_ID_DB.DATA_ERROR,
           result_id: GAME_RESULTS_ID_DB.DRAW,
         })
@@ -87,7 +86,6 @@ export default class BoardModel {
     if (this.isDrawByInsufficientMaterial()) {
       setTimeout(() =>
         this.match?.end({
-          id: this.fetchToDB?.game_id,
           end_reason_id: END_REASONS_ID_DB.INSUFFICENT,
           result_id: GAME_RESULTS_ID_DB.DRAW,
         })
@@ -155,7 +153,7 @@ export default class BoardModel {
     this.movesSystem.pushNewHalfmove(newHalfmove);
     piece.sideEffectsOfMove(to, from);
     if (!isIncludingFromDB) {
-      this.match?.checkIfGameShouldEndAfterMove(newHalfmove);
+      this.match?.checkIfGameShouldEndAfterMove();
     }
     return true;
   }

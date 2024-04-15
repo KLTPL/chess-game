@@ -2,7 +2,8 @@ import { queryDB } from "../connect";
 import type { GetPostDBHalfmove } from "../types";
 
 export default async function addNewMove(
-  DBHalfmove: GetPostDBHalfmove
+  DBHalfmove: GetPostDBHalfmove,
+  gameId: string
 ): Promise<void> {
   const d = DBHalfmove;
   const resPieceId = await queryDB(
@@ -17,7 +18,7 @@ export default async function addNewMove(
       ($1, $2, $3, $4, $5, $6, $7, $8);
     `,
     [
-      d.game_id,
+      gameId,
       resPieceId.rows[0].id,
       d.halfmove_number,
       d.pos_start_x,
@@ -38,7 +39,7 @@ export default async function addNewMove(
       SET promoted_to_piece_id = $1
       WHERE game_id = $2 and halfmove_number = $3;
       `,
-      [resPromotedPieceId.rows[0].id, d.game_id, d.halfmove_number]
+      [resPromotedPieceId.rows[0].id, gameId, d.halfmove_number]
     );
   }
 
@@ -51,7 +52,7 @@ export default async function addNewMove(
         king_checked_pos_y = $2
       WHERE game_id = $3 and halfmove_number = $4;
       `,
-      [d.king_checked_pos_x, d.king_checked_pos_y, d.game_id, d.halfmove_number]
+      [d.king_checked_pos_x, d.king_checked_pos_y, gameId, d.halfmove_number]
     );
   }
 }

@@ -5,7 +5,8 @@ import {
   END_REASONS_ID_DB,
   GAME_RESULTS_ID_DB,
   type GetDBGameData,
-  type PutDBGame,
+  type GetOnlineGame,
+  type EndInfo,
 } from "../../../../db/types";
 import FetchToDB from "../model/FetchToDB";
 import BoardModel from "../model/BoardModel";
@@ -18,7 +19,7 @@ import {
   CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT,
   CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
 } from "../view/DragAndDropPieces";
-import type { GetOnlineGame } from "../../../../pages/api/online-game/[display_id].json";
+import MatchEnd from "./MatchEnd";
 
 export type Players = {
   white: Player;
@@ -30,9 +31,6 @@ export type BoardArg = {
   DBGameData?: GetDBGameData;
   customPositionFEN: string | null;
 };
-
-export type EndInfo = Pick<PutDBGame, "result_id" | "end_reason_id"> &
-  Partial<Pick<PutDBGame, "id">>;
 
 export default class MatchController {
   public isGameRunning: Boolean = true;
@@ -184,58 +182,10 @@ export default class MatchController {
     );
   }
 
-  public checkIfGameShouldEndAfterMove(move: Halfmove): void {
-    const otherKing = this.boardModel.getKingByTeam(move.piece.enemyTeamNum);
-    const dbGameId =
-      this.boardModel.fetchToDB === null
-        ? undefined
-        : this.boardModel.fetchToDB.game_id;
-
-    if (this.boardModel.isDrawByInsufficientMaterial()) {
-      this.end({
-        id: dbGameId,
-        end_reason_id: END_REASONS_ID_DB.INSUFFICENT,
-        result_id: GAME_RESULTS_ID_DB.DRAW,
-      });
-      return;
-    }
-    if (this.boardModel.isDrawByThreeMovesRepetition()) {
-      this.end({
-        id: dbGameId,
-        end_reason_id: END_REASONS_ID_DB.REPETITION,
-        result_id: GAME_RESULTS_ID_DB.DRAW,
-      });
-      return;
-    }
-    if (this.boardModel.isDrawByNoCapturesOrPawnMovesIn50Moves()) {
-      this.end({
-        id: dbGameId,
-        end_reason_id: END_REASONS_ID_DB.MOVE_RULE_50,
-        result_id: GAME_RESULTS_ID_DB.DRAW,
-      });
-      return;
-    }
-
-    if (!this.boardModel.isPlayerAbleToMakeMove(move.piece.enemyTeamNum)) {
-      if (otherKing.isInCheck()) {
-        const resultId = move.piece.isWhite()
-          ? GAME_RESULTS_ID_DB.WHITE
-          : GAME_RESULTS_ID_DB.BLACK;
-        this.end({
-          id: dbGameId,
-          end_reason_id: END_REASONS_ID_DB.CHECKMATE,
-          result_id: resultId,
-        });
-      } else {
-        const resultId = !move.piece.isWhite()
-          ? GAME_RESULTS_ID_DB.WHITE
-          : GAME_RESULTS_ID_DB.BLACK;
-        this.end({
-          id: dbGameId,
-          end_reason_id: END_REASONS_ID_DB.STALEMATE,
-          result_id: resultId,
-        });
-      }
+  public checkIfGameShouldEndAfterMove(): void {
+    const ret = MatchEnd.checkIfGameShouldEndAfterMove(this.boardModel);
+    if (ret !== false) {
+      this.end(ret);
     }
   }
 
@@ -246,9 +196,6 @@ export default class MatchController {
 
     if (endInfo !== undefined) {
       this.endInfo = endInfo;
-      if (endInfo.id !== undefined) {
-        this.boardModel.fetchToDB?.putGameStatus(endInfo as PutDBGame);
-      }
 
       this.showEndInfo(endInfo);
     }
