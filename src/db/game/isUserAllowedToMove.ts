@@ -1,24 +1,17 @@
 import type { GetDBGameData } from "../types";
 import getGameData from "./getGameData";
-import { getGameDisplayId } from "./getGameDisplayId";
 
 export default async function isUserAllowedToMove(
   user: { id: string },
-  gameId: string
+  displayId: string
 ): Promise<true | { code: number; message: string }> {
   // returns true of the http status code
   try {
-    const gameDisplayId = await getGameDisplayId(gameId);
-    if (gameDisplayId === null) {
-      return { code: 404, message: `Game not found` };
-    }
-
-    const gameData = await getGameData(gameDisplayId);
+    console.log(displayId);
+    const gameData = await getGameData(displayId);
 
     if (gameData === null) {
-      throw new Error(
-        `Found game display_id by game id, but did not managed, to get game data by game display_id. Something weird just happend`
-      );
+      return { code: 404, message: `Game not found` };
     }
 
     const moveUserId = getUserIdWhomMoveItIs(gameData);

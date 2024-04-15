@@ -1,12 +1,11 @@
 import type { GetPostDBHalfmove } from "../../../../db/types";
 import type Halfmove from "./Halfmove";
 import FENNotation from "./FENNotation";
-import type { PutDBGame } from "../../../../db/types";
 import type { getResultNameProps } from "../../../../db/dict-game-result/getResultName";
 import type { getEndReasonNameProps } from "../../../../db/dict-game-end-reason/getEndReasonName";
 
 export default class FetchToDB {
-  constructor(public game_id: string) {}
+  constructor(public gameDisplayId: string) {}
 
   public async postHalfmove(
     halfmove: Halfmove,
@@ -15,7 +14,6 @@ export default class FetchToDB {
     const promotedTo = halfmove.getPromotedTo();
 
     const GetDBHalfmove: GetPostDBHalfmove = {
-      game_id: this.game_id,
       halfmove_number: halfmoveNum,
       is_castling: halfmove.isCastling,
       king_checked_pos_x:
@@ -33,21 +31,10 @@ export default class FetchToDB {
           : FENNotation.convertPieceIdToFEN(promotedTo.id),
     };
     const res = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/online-game/${this.game_id}.json`,
+      `${import.meta.env.PUBLIC_SERVER_URL}/api/online-game/${this.gameDisplayId}.json`,
       {
         method: "POST",
         body: JSON.stringify(GetDBHalfmove),
-      }
-    );
-    return res.ok;
-  }
-
-  public async putGameStatus(putDBGame: PutDBGame): Promise<boolean> {
-    const res = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/online-game/${this.game_id}}.json`,
-      {
-        method: "PUT",
-        body: JSON.stringify(putDBGame),
       }
     );
     return res.ok;

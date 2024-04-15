@@ -19,7 +19,6 @@ export type GetDBGame = {
   start_date: string;
 };
 export type GetPostDBHalfmove = {
-  game_id: string;
   piece_symbol_fen: string;
   halfmove_number: number;
   pos_start_x: number;
@@ -37,10 +36,9 @@ export type GetDBGameData = {
   halfmoves: GetPostDBHalfmove[];
 };
 
-export type PutDBGame = {
-  id: string;
-  result_id: GAME_RESULTS_ID_DB;
-  end_reason_id: END_REASONS_ID_DB;
+export type GetOnlineGame = {
+  getDBGameData: GetDBGameData;
+  userId: string | undefined;
 };
 
 export type GetDBAppUser = {
@@ -152,3 +150,8 @@ export const enum GAME_RESULTS_ID_DB {
   WHITE = 1,
   BLACK = 2,
 }
+
+export type EndInfo = {
+  result_id: GAME_RESULTS_ID_DB;
+  end_reason_id: END_REASONS_ID_DB;
+};

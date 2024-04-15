@@ -1,45 +1,52 @@
+import MatchEnd from "../../scripts/chess-classes/board/controller/MatchEnd";
 import BoardModel from "../../scripts/chess-classes/board/model/BoardModel";
 import FENNotation from "../../scripts/chess-classes/board/model/FENNotation";
 import Pos from "../../scripts/chess-classes/board/model/Pos";
 import PieceModel, {
   TEAMS,
 } from "../../scripts/chess-classes/pieces/model/PieceModel";
-import type { GetDBGameData, GetPostDBHalfmove } from "../types";
+import type { GetDBGameData, GetPostDBHalfmove, EndInfo } from "../types";
 import getGameData from "./getGameData";
-import { getGameDisplayId } from "./getGameDisplayId";
+
+type isMoveValidRet = {
+  errData?: { code: number; message: string };
+  endInfo?: EndInfo;
+};
 
 export default async function isMoveValid(
-  halfmove: GetPostDBHalfmove
-): Promise<true | { code: number; message: string }> {
+  halfmove: GetPostDBHalfmove,
+  displayId: string
+): Promise<isMoveValidRet> {
   // returns true of the http status code
   try {
-    const gameDisplayId = await getGameDisplayId(halfmove.game_id);
-    if (gameDisplayId === null) {
-      return { code: 404, message: "Game not found" };
-    }
-    const gameData = await getGameData(gameDisplayId);
+    const gameData = await getGameData(displayId);
     if (gameData === null) {
-      throw new Error(
-        `Found game display_id by game id, but did not managed, to get game data by game display_id. Something weird just happend`
-      );
+      return { errData: { code: 400, message: `Move not valid` } };
     }
-    if (await validateMove(gameData, halfmove)) {
-      return true;
+
+    const ret = await validateMove(gameData, halfmove);
+    if (!ret.ok) {
+      return { errData: { code: 400, message: `Move not valid` } };
     }
-    return { code: 400, message: `Move not valid` };
+    return { endInfo: ret.endInfo };
   } catch (err) {
     if (err instanceof Error) {
       console.error(err.message);
-      return { code: 500, message: err.message };
+      return { errData: { code: 500, message: err.message } };
     }
-    return { code: 500, message: "Server error" };
+    return { errData: { code: 500, message: "Server error" } };
   }
 }
+
+type ValidateMoveRet = {
+  ok: boolean;
+  endInfo?: EndInfo;
+};
 
 async function validateMove(
   gameData: GetDBGameData,
   halfmove: GetPostDBHalfmove
-): Promise<boolean> {
+): Promise<ValidateMoveRet> {
   try {
     const board = new BoardModel(null, gameData, null);
     await board.includeDBData.waitUntilIncludesDBData();
@@ -49,36 +56,36 @@ async function validateMove(
       board.movesSystem.getHalfmovesAmount() + 1 !==
       halfmove.halfmove_number
     ) {
-      return false;
+      return { ok: false };
     }
     const piece = board.getPiece(posStart);
     if (piece === null) {
-      return false;
+      return { ok: false };
     }
     const currTeam =
       board.movesSystem.getHalfmovesAmount() % 2 === 0
         ? TEAMS.WHITE
         : TEAMS.BLACK;
     if (piece.team !== currTeam) {
-      return false;
+      return { ok: false };
     }
     if (
       piece.id != FENNotation.convertPieceFENToId(halfmove.piece_symbol_fen)
     ) {
-      return false;
+      return { ok: false };
     }
     const possMoves = piece.createArrOfPossibleMovesFromPos(posStart);
     const filtered = possMoves.filter(
       (move) => move.x === posEnd.x && move.y === posEnd.y
     );
     if (filtered.length === 0) {
-      return false;
+      return { ok: false };
     }
     if (
       halfmove.promoted_to_piece_symbol_fen !== null &&
       (!PieceModel.isPawn(piece) || !piece.isPosOfPromotion(posEnd))
     ) {
-      return false;
+      return { ok: false };
     }
     const promotedTo =
       halfmove.promoted_to_piece_symbol_fen === null
@@ -89,7 +96,7 @@ async function validateMove(
     board.movePiece(posStart, posEnd, promotedTo, true);
     const newHalfmove = board.movesSystem.getLatestHalfmove();
     if (newHalfmove.isCastling !== halfmove.is_castling) {
-      return false;
+      return { ok: false };
     }
     const kingCheckX =
       newHalfmove.posOfKingChecked === null
@@ -103,14 +110,18 @@ async function validateMove(
       kingCheckX !== halfmove.king_checked_pos_x ||
       kingCheckY !== halfmove.king_checked_pos_y
     ) {
-      return false;
+      return { ok: false };
     }
-
-    return true;
+    const ret: ValidateMoveRet = { ok: true };
+    const endInfo = MatchEnd.checkIfGameShouldEndAfterMove(board);
+    if (endInfo !== false) {
+      ret.endInfo = endInfo;
+    }
+    return ret;
   } catch (err) {
     if (err instanceof Error) {
       console.error(err.message);
     }
-    return false;
+    return { ok: false };
   }
 }
