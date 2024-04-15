@@ -267,8 +267,6 @@ export default class MatchController {
     this.isGameRunning = false;
 
     this.boardView.showEventsOnBoard.turnOfCssGrabOnPieces();
-    console.log("half moves: ", this.boardModel.movesSystem.halfmoves);
-    console.log("Koniec gry");
 
     if (endInfo !== undefined) {
       this.endInfo = endInfo;
@@ -276,19 +274,29 @@ export default class MatchController {
         this.boardModel.fetchToDB?.putGameStatus(endInfo as PutDBGame);
       }
 
-      this.printEndInfo(endInfo);
+      this.showEndInfo(endInfo);
     }
   }
 
-  private async printEndInfo(endInfo: EndInfo) {
+  private async showEndInfo(endInfo: EndInfo) {
     try {
       const resultName = await FetchToDB.getResultName(endInfo.result_id);
       const endReasonName = await FetchToDB.getEndReasonName(
         endInfo.end_reason_id
       );
-      console.log(
-        `Gra zakończyła się. Wynik: ${resultName}, powód: ${endReasonName}`
-      );
+      if (resultName !== null && endReasonName !== null) {
+        this.boardView.resultPopup.show(
+          {
+            resultId: endInfo.result_id,
+            resultName,
+            endReasonName,
+            playerW: this.players.white,
+            playerB: this.players.black,
+            isGameOnline: this.isGameOnline,
+          },
+          this.boardView
+        );
+      }
     } catch (err) {
       console.error(err);
     }
