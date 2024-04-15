@@ -110,30 +110,6 @@ export default class MatchController {
   }
 
   private async includeDBDataToView() {
-    // for (const halfmove of this.boardModel.movesSystem.halfmoves) {
-    //   await this.boardView.movePiece(
-    //     halfmove.from,
-    //     halfmove.to,
-    //     halfmove.piece.team,
-    //     true,
-    //     CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT
-    //   );
-    //   const promotedTo = halfmove.getPromotedTo();
-    //   if (promotedTo !== null) {
-    //     console.log("yes");
-    //     this.boardView.removePieceInPos(halfmove.to, true);
-    //     this.boardView
-    //       .getField(halfmove.to)
-    //       .placePiece(
-    //         { id: halfmove.piece.id, team: halfmove.piece.team },
-    //         halfmove.to,
-    //         this.boardView.piecesHtml,
-    //         this.boardView.isInverted
-    //       );
-    //   }
-    // this.boardView.changeBasedOnHalfmove(halfmove);
-    // this.boardView.setCssGrabOnPiececCorrectly(this.getCurrTeam());
-    // }
     const pieceVD: PieceViewData[][] = this.boardModel
       .getPiecesCopy()
       .map((row) =>
