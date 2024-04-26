@@ -3,25 +3,34 @@
 CREATE TABLE dict_game_result (
   id SMALLSERIAL PRIMARY KEY,
   name VARCHAR(50)
+  -- all name values are the same as corresponding value in 
+  --  languages.sql -> 
+  --  translations_game_end_info ->
+  --  text_key format: result-[dict_game_result.name]
 );
 
-INSERT INTO dict_game_result VALUES (0, 'remis');
-INSERT INTO dict_game_result VALUES (1, 'wygrana białych');
-INSERT INTO dict_game_result VALUES (2, 'wygrana czarnych');
+INSERT INTO dict_game_result VALUES (0, 'draw');
+INSERT INTO dict_game_result VALUES (1, 'white_win');
+INSERT INTO dict_game_result VALUES (2, 'black_win');
 
 CREATE TABLE dict_game_end_reason (
   id SMALLSERIAL PRIMARY KEY,
-  name VARCHAR(50)
+  name VARCHAR(50) 
+  -- all name values are the same as corresponding value in 
+  --  languages.sql -> 
+  --  translations_game_end_info ->
+  --  text_key format: reason-[dict_game_end_reason.name]
 );
 
-INSERT INTO dict_game_end_reason VALUES (1, 'mat');
-INSERT INTO dict_game_end_reason VALUES (2, 'poddanie');
-INSERT INTO dict_game_end_reason VALUES (3, 'przekroczenie limitu czasowego');
-INSERT INTO dict_game_end_reason VALUES (10, 'pat');
-INSERT INTO dict_game_end_reason VALUES (11, 'niewystarczający materiał');
-INSERT INTO dict_game_end_reason VALUES (12, 'zasada 50 ruchów');
-INSERT INTO dict_game_end_reason VALUES (13, '3 ruchy powtórzenia');
-INSERT INTO dict_game_end_reason VALUES (14, 'remis za porozumieniem stron');
+
+INSERT INTO dict_game_end_reason VALUES (1, 'checkmate'); 
+INSERT INTO dict_game_end_reason VALUES (2, 'resignation');
+INSERT INTO dict_game_end_reason VALUES (3, 'timeout');
+INSERT INTO dict_game_end_reason VALUES (10, 'stalemate');
+INSERT INTO dict_game_end_reason VALUES (11, 'insufficient_material');
+INSERT INTO dict_game_end_reason VALUES (12, '50_move_rule');
+INSERT INTO dict_game_end_reason VALUES (13, 'repetition');
+INSERT INTO dict_game_end_reason VALUES (14, 'agreement');
 
 CREATE TABLE dict_piece (
   id SMALLSERIAL PRIMARY KEY,

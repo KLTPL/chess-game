@@ -1,6 +1,6 @@
 ---
 import MainLayout from "../layouts/main-layout.astro";
-import RegisterForm from "../components/register/Form";
+import RegisterForm from "../components/sign-up/Form";
 import CookiesNames from "../utils/CookiesNames";
 
 if (Astro.cookies.get(CookiesNames.TOKEN_JWT) !== undefined) {
@@ -11,8 +11,8 @@ if (Astro.cookies.get(CookiesNames.TOKEN_JWT) !== undefined) {
 <MainLayout title="Logowanie">
   <div class="flex flex-col justify-stretch gap-3">
     <RegisterForm client:load />
-    <a href="/login" class="text-center hover:underline"
-      >Masz już konto? Zaloguj się</a
-    >
+    <a href="/sign-in" class="text-center hover:underline">
+      Masz już konto? Zaloguj się
+    </a>
   </div>
 </MainLayout>

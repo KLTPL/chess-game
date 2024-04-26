@@ -1,4 +1,4 @@
-import type { RegisterBody } from "../../components/register/Form";
+import type { RegisterBody } from "../../components/sign-up/Form";
 import encrpt from "../../utils/hash-password/encrypt";
 import { queryDB } from "../connect";
 

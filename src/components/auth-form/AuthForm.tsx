@@ -16,6 +16,10 @@ type AuthFormProps = {
   fields: FieldData[];
   headerText: string;
   submintText: string;
+  placeholders?: {
+    required: string;
+    optional: string;
+  };
 };
 
 export function errRef(arg: Err): ErrRef {
@@ -27,6 +31,7 @@ export default function AuthForm({
   fields,
   headerText,
   submintText,
+  placeholders,
 }: AuthFormProps) {
   return (
     <>
@@ -61,7 +66,11 @@ export default function AuthForm({
                     className="h-min w-full rounded-md px-2 text-left text-black placeholder:text-center sm:py-1"
                     ref={inputRef}
                     placeholder={
-                      isNotRequired === true ? "[opcjonalne]" : "[wymagane]"
+                      placeholders === undefined
+                        ? ""
+                        : isNotRequired === true
+                          ? placeholders.optional
+                          : placeholders.required
                     }
                     autoFocus={i === 0}
                   />

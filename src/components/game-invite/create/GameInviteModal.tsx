@@ -8,14 +8,14 @@ type GameInviteModalProps = {
   user?: APIGetAppUser;
   closeGameInviteModal: () => void;
   postGameInvite: (isUserFromWhite: boolean | null) => Promise<boolean>;
-  textContent: string;
+  isGameInviteLink: boolean;
 };
 
 export default function GameInviteModal({
   user,
   closeGameInviteModal,
   postGameInvite,
-  textContent,
+  isGameInviteLink,
 }: GameInviteModalProps) {
   const [isUserFromWhite, setIsUserFromWhite] = useState<null | boolean>(null);
 
@@ -110,7 +110,7 @@ export default function GameInviteModal({
                 }
               }}
             >
-              {textContent}
+              {isGameInviteLink ? "Kopiuj link" : "Zaproś"}
             </button>
           </div>
         </div>
