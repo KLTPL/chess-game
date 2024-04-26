@@ -7,14 +7,12 @@ import { WIDTHS } from "./utils";
 
 interface Props {
   endIdx: number;
-  headerText: string;
   loadMoreOnScroll: boolean;
   headerLink?: string;
   addStyles?: string;
 }
 
-const { endIdx, headerText, loadMoreOnScroll, headerLink, addStyles } =
-  Astro.props;
+const { endIdx, loadMoreOnScroll, headerLink, addStyles } = Astro.props;
 
 const id = Astro.locals.user?.id;
 if (id === undefined) {
@@ -46,13 +44,13 @@ if (userGamesData === null) {
     {
       headerLink === undefined ? (
         <div class="flex flex-row bg-primary-b px-3 py-2">
-          <div class="text-lg">{headerText}</div>
+          <div class="text-lg">Twoje gry:</div>
           <div class="grow" />
         </div>
       ) : (
         <a href={headerLink} class="bg-primary-b">
           <div class="flex flex-row px-3 py-2">
-            <div class="text-lg">{headerText}</div>
+            <div class="text-lg">Twoje gry:</div>
             <div class="grow" />
             <div class="grid place-content-center">
               <svg

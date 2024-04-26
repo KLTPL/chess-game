@@ -52,7 +52,7 @@ export default function Form() {
       };
       const goBack = Cookies.get(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
       const response = await fetch(
-        `${import.meta.env.PUBLIC_SERVER_URL}/api/login`,
+        `${import.meta.env.PUBLIC_SERVER_URL}/api/sign-in`,
         {
           method: "POST",
           body: JSON.stringify(body),

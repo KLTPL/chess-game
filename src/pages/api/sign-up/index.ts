@@ -3,7 +3,7 @@ import {
   RegisterErrors,
   type RegisterBody,
   type RegisterResponse,
-} from "../../../components/register/Form";
+} from "../../../components/sign-up/Form";
 import { getUserByEmail, getUserByName } from "../../../db/app-user/getUser";
 import addNewUser from "../../../db/app-user/addNewUser";
 import Validator from "email-validator";

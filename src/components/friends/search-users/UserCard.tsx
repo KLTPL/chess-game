@@ -100,7 +100,7 @@ export default function UserCard({
           user={user}
           closeGameInviteModal={closeGameInviteModal}
           postGameInvite={postGameInvite}
-          textContent="Zaproś"
+          isGameInviteLink={false}
         />
       </dialog>
     </div>

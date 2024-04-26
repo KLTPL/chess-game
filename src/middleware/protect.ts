@@ -23,8 +23,8 @@ const protect = defineMiddleware(
       if (
         url.pathname.slice(0, 4) !== "/api" &&
         !isProtected &&
-        url.pathname !== "/login" &&
-        url.pathname !== "/register"
+        url.pathname !== "/sign-in" &&
+        url.pathname !== "/sign-up"
       ) {
         cookies.delete(CookiesNames.COOKIE_BACK_AFTER_LOGIN);
       }
@@ -36,7 +36,7 @@ const protect = defineMiddleware(
             path: "/",
             secure: true,
           });
-          return redirect("/login");
+          return redirect("/sign-in");
         }
         return next();
       }
@@ -49,7 +49,7 @@ const protect = defineMiddleware(
             path: "/",
             secure: true,
           });
-          return redirect("/login");
+          return redirect("/sign-in");
         }
         return next();
       }

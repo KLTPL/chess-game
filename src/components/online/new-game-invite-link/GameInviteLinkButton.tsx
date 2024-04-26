@@ -52,7 +52,7 @@ export default function GameInviteLinkButton() {
         <GameInviteModal
           closeGameInviteModal={closeGameInviteModal}
           postGameInvite={postGameInvite}
-          textContent="Kopiuj link"
+          isGameInviteLink={true}
         />
       </dialog>
     </>

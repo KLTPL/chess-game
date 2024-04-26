@@ -75,7 +75,7 @@ export default function Form() {
         password,
       };
       const response = await fetch(
-        `${import.meta.env.PUBLIC_SERVER_URL}/api/register`,
+        `${import.meta.env.PUBLIC_SERVER_URL}/api/sign-up`,
         {
           method: "POST",
           body: JSON.stringify(body),
@@ -123,7 +123,7 @@ export default function Form() {
           });
         }
       } else {
-        window.document.location.href = "/login";
+        window.document.location.href = "/sign-in";
       }
     }
   }
@@ -165,6 +165,10 @@ export default function Form() {
       fields={fields}
       headerText="Zarejestruj"
       submintText="Zarejestruj"
+      placeholders={{
+        required: "[wymagane]",
+        optional: "[opcjonalne]",
+      }}
     />
   );
 }

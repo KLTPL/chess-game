@@ -9,11 +9,6 @@ import MainLayout from "../layouts/main-layout.astro";
     <div class="flex justify-center pt-3">
       <GameInviteLinkButton client:only />
     </div>
-    <PlayerGameList
-      endIdx={9}
-      headerText="Twoje gry:"
-      loadMoreOnScroll={true}
-      addStyles="py-3"
-    />
+    <PlayerGameList endIdx={9} loadMoreOnScroll={true} addStyles="py-3" />
   </div>
 </MainLayout>
