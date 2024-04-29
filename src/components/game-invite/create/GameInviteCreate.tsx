@@ -2,6 +2,7 @@ import { useRef } from "react";
 import type { APIGetAppUser, APIPostGameInvite } from "../../../db/types";
 import GameInviteModalCreate from "./GameInviteModalCreate";
 import { showNewNotification } from "../../notifications/showNotification";
+import ButtonSecondary from "../../buttons/ButtonSecondary";
 
 type GameInviteLinkButtonProps = {
   langDict: Record<string, string>;
@@ -40,12 +41,11 @@ export default function GameInviteButton({
   }
   return (
     <>
-      <button
-        className="rounded-md bg-secondary px-2 py-1 text-white hover:bg-secondary-d md:px-4 md:py-2"
+      <ButtonSecondary
         onClick={showGameInviteModal}
-      >
-        {langDict["open_button-play"]}
-      </button>
+        textContent={langDict["open_button-play"]}
+      />
+
       <dialog
         ref={dialogRef}
         className="w-[98vw] rounded-md bg-bg2 py-3 text-white backdrop:bg-zinc-900 backdrop:bg-opacity-35 sm:w-[45ch] sm:p-3"

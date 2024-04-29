@@ -1,6 +1,7 @@
 import type { UseMutateFunction } from "react-query";
 import type { APIGetAppUser } from "../../../db/types";
 import GameInviteButton from "../../game-invite/create/GameInviteCreate";
+import ButtonPrimary from "../../buttons/ButtonPrimary";
 
 export type ButtonInfo = {
   onClick: UseMutateFunction<void, unknown, string, unknown>;
@@ -52,13 +53,11 @@ export default function UserCard({
           <GameInviteButton user={user} langDict={langDictGameInviteCreate} />
         )}
         {buttons.map(({ text, onClick }) => (
-          <button
+          <ButtonPrimary
             key={text}
-            className="rounded-md bg-primary-b px-2 py-1 text-white hover:bg-primary md:px-4 md:py-2"
+            textContent={text}
             onClick={() => onClick(user.id)}
-          >
-            {text}
-          </button>
+          />
         ))}
       </div>
     </div>
