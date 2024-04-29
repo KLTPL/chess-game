@@ -3,6 +3,7 @@ import type { APIGetAppUser } from "../../../db/types";
 import bothColorsKing from "../../../images/both-colors-king.png";
 import whiteKing from "../../../images/w-king.png";
 import blackKing from "../../../images/b-king.png";
+import ButtonSecondary from "../../buttons/ButtonSecondary";
 
 type GameInviteModalProps = {
   user?: APIGetAppUser;
@@ -100,8 +101,7 @@ export default function GameInviteModalCreate({
             </div>
           </div>
           <div className="flex flex-row justify-center">
-            <button
-              className="rounded-md bg-secondary px-4 py-2 text-white hover:bg-secondary-d"
+            <ButtonSecondary
               onClick={async () => {
                 const ok = await postGameInvite(isUserFromWhite);
                 if (ok) {
@@ -109,11 +109,12 @@ export default function GameInviteModalCreate({
                   closeGameInviteModal();
                 }
               }}
-            >
-              {isGameInviteLink
-                ? langDict["button-copy_link"]
-                : langDict["button-invite"]}
-            </button>
+              textContent={
+                isGameInviteLink
+                  ? langDict["button-copy_link"]
+                  : langDict["button-invite"]
+              }
+            />
           </div>
         </div>
       </div>
