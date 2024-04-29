@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ locals, request, url }) => {
 
     const displayId = await addGameInviteLink(userFromId, isUserFromWhite);
     const result: APIRespPostGameInviteLink = {
-      inviteLink: `${import.meta.env.PUBLIC_SERVER_URL}/game-invite/${displayId}`,
+      inviteLink: `${import.meta.env.PUBLIC_SERVER_URL}/game-invite-link/${displayId}`,
     };
     return new Response(JSON.stringify(result), {
       status: 200,
@@ -95,7 +95,6 @@ export const DELETE: APIRoute = async ({ request }) => {
   try {
     const body: APIDeleteGameInviteLink = await request.json();
     const id = body.id;
-
     await removeGameInviteLink(id);
 
     return new Response(null, {

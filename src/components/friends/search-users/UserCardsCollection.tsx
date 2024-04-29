@@ -6,6 +6,7 @@ type UserCardsCollectionProps = {
   users: APIGetAppUser[] | undefined;
   buttons: ButtonInfo[];
   isGameInviteButton?: true;
+  langDictGameInviteCreate: Record<string, string>;
 };
 
 export default function UserCardsCollection({
@@ -13,6 +14,7 @@ export default function UserCardsCollection({
   users,
   buttons,
   isGameInviteButton,
+  langDictGameInviteCreate,
 }: UserCardsCollectionProps) {
   if (users?.length === 0) {
     return <div></div>;
@@ -27,6 +29,7 @@ export default function UserCardsCollection({
             user={user}
             buttons={buttons}
             isGameInviteButton={isGameInviteButton}
+            langDictGameInviteCreate={langDictGameInviteCreate}
           />
         ))}
       </div>

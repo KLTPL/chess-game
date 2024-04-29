@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { type APIGetGameData, type APIGetUserGames } from "../../../db/types";
+import { type APIGetGameData, type APIGetUserGames } from "../../db/types";
 import GameDisplay from "./GameDisplay";
 
 async function fetchPlayerGames(
@@ -23,6 +23,7 @@ export type OlderGameDisplaysProps = {
   startIdx: number;
   incrementBy: number;
   loadMoreOnScroll: boolean;
+  langDictGameList: Record<string, string>;
 };
 
 export default function GameDisplays({
@@ -31,6 +32,7 @@ export default function GameDisplays({
   startIdx: initStartIdx,
   incrementBy,
   loadMoreOnScroll: initLoadMore,
+  langDictGameList,
 }: OlderGameDisplaysProps) {
   const [gamesData, setGamesData] = useState<APIGetGameData[]>(initGamesData);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -80,6 +82,7 @@ export default function GameDisplays({
           DBGameData={DBGameData}
           borderBottom={i !== gamesData.length - 1}
           borderTop={i !== 0}
+          langDictGameList={langDictGameList}
         />
       ))}
       {isLoading && (

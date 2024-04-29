@@ -24,7 +24,11 @@ export type LoginResponse = {
   errorMessage: string;
 };
 
-export default function Form() {
+type FormProps = {
+  langDict: Record<string, string>;
+};
+
+export default function Form({ langDict }: FormProps) {
   // const emailRef = useRef<HTMLInputElement|null>(null);
   // const passwordRef = useRef<HTMLInputElement|null>(null);
   const usernameRef = useRef<HTMLInputElement | null>(null);
@@ -82,14 +86,14 @@ export default function Form() {
   const fields: FieldData[] = [
     {
       errorRef: usernameOrEmailErr,
-      fieldText: "Email lub nazwa użytkownika:",
+      fieldText: langDict["alias"],
       inputRef: usernameRef,
       inputType: "text",
       keyword: "username-or-email",
     },
     {
       errorRef: passwordErr,
-      fieldText: "Hasło:",
+      fieldText: langDict["password"],
       inputRef: passwordRef,
       inputType: "password",
       keyword: "password",
@@ -100,8 +104,8 @@ export default function Form() {
     <AuthForm
       fetchForm={fetchForm}
       fields={fields}
-      headerText="Zaloguj"
-      submintText="Zaloguj"
+      headerText={langDict["sign_in"]}
+      submintText={langDict["sign_in"]}
     />
   );
 }

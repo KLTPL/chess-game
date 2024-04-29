@@ -7,15 +7,23 @@ import {
   fetchUsers,
   postFriendInvite,
 } from "./fetch";
-import UserCardsCollection from "./UserCardsCollection";
 import type {
   APIRespGetRelatedUsers,
   APIRespGetSearchAlias,
 } from "../../../db/types";
+import UserCardsCollection from "./UserCardsCollection";
+
+export type SearchUsersProps = {
+  langDictFriends: Record<string, string>;
+  langDictGameInviteCreate: Record<string, string>;
+};
 
 const queryClient = new QueryClient();
 
-export default function SearchBar() {
+export default function SearchUsers({
+  langDictFriends,
+  langDictGameInviteCreate,
+}: SearchUsersProps) {
   const searchbardRef = useRef<HTMLInputElement | null>(null);
   const [search, setSearch] = useState<string>("");
 
@@ -107,76 +115,107 @@ export default function SearchBar() {
             <>
               <UserCardsCollection
                 key="1-friends"
-                title="Znajomi"
+                title={langDictFriends["card_header-friends"]}
                 users={searchData.friends}
                 buttons={[
-                  { text: "Usuń", onClick: mutateDeleteFriendConnection },
+                  {
+                    text: langDictFriends["card_button-delete"],
+                    onClick: mutateDeleteFriendConnection,
+                  },
                 ]}
                 isGameInviteButton={true}
+                langDictGameInviteCreate={langDictGameInviteCreate}
               />
               <UserCardsCollection
                 key="1-invited"
-                title="Zaproszeni"
+                title={langDictFriends["card_header-invited"]}
                 users={searchData.invited}
                 buttons={[
-                  { text: "Anuluj", onClick: mutateDeleteFriendInvite },
+                  {
+                    text: langDictFriends["card_button-cancel"],
+                    onClick: mutateDeleteFriendInvite,
+                  },
                 ]}
+                langDictGameInviteCreate={langDictGameInviteCreate}
               />
               <UserCardsCollection
                 key="1-whoInvited"
-                title="Ci którzy Cię zaprosili"
+                title={langDictFriends["card_header-who_invited"]}
                 users={searchData.whoInvited}
                 buttons={[
-                  { text: "Akceptuj", onClick: mutateAcceptFriendInvite },
-                  { text: "Odrzuć", onClick: mutateDeleteFriendInvite },
+                  {
+                    text: langDictFriends["card_button-accept"],
+                    onClick: mutateAcceptFriendInvite,
+                  },
+                  {
+                    text: langDictFriends["card_button-reject"],
+                    onClick: mutateDeleteFriendInvite,
+                  },
                 ]}
+                langDictGameInviteCreate={langDictGameInviteCreate}
               />
               <UserCardsCollection
                 key="1-blocked"
-                title="Zablokowani"
+                title={langDictFriends["card_header-blocked"]}
                 users={searchData.blocked}
                 buttons={[]}
+                langDictGameInviteCreate={langDictGameInviteCreate}
               />
             </>
           ) : (
             <>
               <UserCardsCollection
                 key="2-friends"
-                title="Znajomi"
+                title={langDictFriends["card_header-friends"]}
                 users={searchData.friends}
                 buttons={[
-                  { text: "Usuń", onClick: mutateDeleteFriendConnection },
+                  {
+                    text: langDictFriends["card_button-delete"],
+                    onClick: mutateDeleteFriendConnection,
+                  },
                 ]}
                 isGameInviteButton={true}
+                langDictGameInviteCreate={langDictGameInviteCreate}
               />
               <UserCardsCollection
                 key="2-invited"
-                title="Zaproszeni"
+                title={langDictFriends["card_header-invited"]}
                 users={searchData.invited}
                 buttons={[
-                  { text: "Anuluj", onClick: mutateDeleteFriendInvite },
+                  {
+                    text: langDictFriends["card_button-cancel"],
+                    onClick: mutateDeleteFriendInvite,
+                  },
                 ]}
+                langDictGameInviteCreate={langDictGameInviteCreate}
               />
               <UserCardsCollection
                 key="2-whoInvited"
-                title="Ci którzy Cię zaprosili"
+                title={langDictFriends["card_header-who_invited"]}
                 users={searchData.whoInvited}
                 buttons={[
-                  { text: "Akceptuj", onClick: mutateAcceptFriendInvite },
-                  { text: "Odrzuć", onClick: mutateDeleteFriendInvite },
+                  {
+                    text: langDictFriends["card_button-accept"],
+                    onClick: mutateAcceptFriendInvite,
+                  },
+                  {
+                    text: langDictFriends["card_button-reject"],
+                    onClick: mutateDeleteFriendInvite,
+                  },
                 ]}
+                langDictGameInviteCreate={langDictGameInviteCreate}
               />
               <UserCardsCollection
                 key="2-suggestions"
-                title="Sugestie"
+                title={langDictFriends["card_header-suggestions"]}
                 users={searchData.suggestions}
-                buttons={[{ text: "Zaproś", onClick: mutatePostFriendInvite }]}
-              />
-              <UserCardsCollection
-                key="2-blocked"
-                title="Zablokowani"
-                users={searchData.blocked}
-                buttons={[]}
+                buttons={[
+                  {
+                    text: langDictFriends["card_button-invite"],
+                    onClick: mutatePostFriendInvite,
+                  },
+                ]}
+                langDictGameInviteCreate={langDictGameInviteCreate}
               />
             </>
           ))}

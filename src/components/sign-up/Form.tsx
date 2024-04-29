@@ -32,7 +32,11 @@ export type RegisterResponse = {
   errorMessage: string;
 };
 
-export default function Form() {
+type FormProps = {
+  langDict: Record<string, string>;
+};
+
+export default function Form({ langDict }: FormProps) {
   // const emailRef = useRef<HTMLInputElement|null>(null);
   // const passwordRef = useRef<HTMLInputElement|null>(null);
   const emailRef = useRef<HTMLInputElement | null>(null);
@@ -130,21 +134,21 @@ export default function Form() {
   const fields: FieldData[] = [
     {
       errorRef: emailErr,
-      fieldText: "Email:",
+      fieldText: langDict["email"],
       inputRef: emailRef,
       inputType: "email",
       keyword: "email",
     },
     {
       errorRef: usernameErr,
-      fieldText: "Nazwa użytkownika:",
+      fieldText: langDict["name"],
       inputRef: usernameRef,
       inputType: "text",
       keyword: "username",
     },
     {
       errorRef: displayNameErr,
-      fieldText: "Wyświetlana nazwa użytkownika:",
+      fieldText: langDict["display_name"],
       inputRef: displayNameRef,
       inputType: "text",
       keyword: "display-name",
@@ -152,7 +156,7 @@ export default function Form() {
     },
     {
       errorRef: passwordErr,
-      fieldText: "Hasło:",
+      fieldText: langDict["password"],
       inputRef: passwordRef,
       inputType: "password",
       keyword: "password",
@@ -163,11 +167,11 @@ export default function Form() {
     <AuthForm
       fetchForm={fetchForm}
       fields={fields}
-      headerText="Zarejestruj"
-      submintText="Zarejestruj"
+      headerText={langDict["sign_up"]}
+      submintText={langDict["sign_up"]}
       placeholders={{
-        required: "[wymagane]",
-        optional: "[opcjonalne]",
+        required: langDict["field-required"],
+        optional: langDict["field-optional"],
       }}
     />
   );

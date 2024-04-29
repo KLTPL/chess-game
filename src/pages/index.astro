@@ -1,6 +1,6 @@
 ---
 import ButtonSecondary from "../components/buttons/ButtonSecondary";
-import PlayerGameList from "../components/online/player-game-list/PlayerGameList.astro";
+import PlayerGameList from "../components/player-game-list/PlayerGameList.astro";
 import getGameInvites from "../db/game-invite/getGameInvites";
 import MainLayout from "../layouts/main-layout.astro";
 import GameInvites from "../components/index/GameInvites";
@@ -10,37 +10,50 @@ const gameInvites =
   Astro.locals.user !== undefined
     ? await getGameInvites(Astro.locals.user.id)
     : null;
+const LDIndex = Astro.locals.langDict["index"];
+const LDGameList = Astro.locals.langDict["game_list"];
+const LDGameInviteReceive = Astro.locals.langDict["game_invite_receive"];
+const LDGameInviteCreate = Astro.locals.langDict["game_invite_create"];
 ---
 
 <MainLayout title="Home">
   <div class="mb-3 flex h-full flex-col gap-3">
     <h1 class="mb-3 text-center font-poppins text-2xl">
-      Życie jest jak szachy
+      {LDIndex["header"]}
     </h1>
     {
       isAuth ? (
         <div class="flex flex-col gap-4">
           {gameInvites !== null && gameInvites.length > 0 && (
-            <GameInvites gameInvites={gameInvites} client:only />
+            <GameInvites
+              gameInvites={gameInvites}
+              header={LDIndex["game_invites-header"]}
+              langDictGameInviteReceive={LDGameInviteReceive}
+              client:load
+            />
           )}
           <PlayerGameList
             endIdx={4}
             loadMoreOnScroll={false}
             headerLink="/online"
+            langDictGameList={LDGameList}
+            langDictGameInviteCreate={LDGameInviteCreate}
           />
         </div>
       ) : (
         <div class="absolute left-1/2 top-1/2 flex w-max max-w-[98vw] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-2 rounded-md bg-bg2 px-1 py-2 shadow-md sm:px-6 sm:py-6 md:px-12">
           <div class="px-2 pb-2 text-center text-lg">
-            Wygląda na to, że nie jesteś zalogowan_
+            {LDIndex["not_logged_in-header"]}
           </div>
           <div class="flex flex-col items-center justify-center gap-1">
             <a href="/sign-in">
-              <ButtonSecondary textContent="Zaloguj się lub zarejestruj, by zagrać online" />
+              <ButtonSecondary textContent={LDIndex["not_logged_in-log_in"]} />
             </a>
-            <div>lub</div>
+            <div>{LDIndex["not_logged_in-or"]}</div>
             <a href="/local">
-              <ButtonSecondary textContent="Zagraj grę lokalną" />
+              <ButtonSecondary
+                textContent={LDIndex["not_logged_in-play_local"]}
+              />
             </a>
           </div>
         </div>

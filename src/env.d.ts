@@ -1,3 +1,4 @@
+/// <reference path="../.astro/types.d.ts" />
 /// <reference types="astro/client" />
 
 declare namespace App {
@@ -7,5 +8,6 @@ declare namespace App {
       | {
           id: string;
         };
+    langDict: Record<string, Record<string, string>>;
   }
 }

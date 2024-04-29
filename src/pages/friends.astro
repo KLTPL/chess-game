@@ -1,10 +1,17 @@
 ---
 import FriendsContainer from "../components/friends/Container";
 import MainLayout from "../layouts/main-layout.astro";
+
+const LDFriends = Astro.locals.langDict["friends"];
+const LDGameInviteCreate = Astro.locals.langDict["game_invite_create"];
 ---
 
 <MainLayout title="Znajomi">
   <div class="flex flex-col items-center gap-3">
-    <FriendsContainer client:only />
+    <FriendsContainer
+      langDictFriends={LDFriends}
+      langDictGameInviteCreate={LDGameInviteCreate}
+      client:only="react"
+    />
   </div>
 </MainLayout>

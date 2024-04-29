@@ -7,7 +7,6 @@ export default async function isUserAllowedToMove(
 ): Promise<true | { code: number; message: string }> {
   // returns true of the http status code
   try {
-    console.log(displayId);
     const gameData = await getGameData(displayId);
 
     if (gameData === null) {

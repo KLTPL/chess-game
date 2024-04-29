@@ -17,6 +17,8 @@ VALUES
   ('pl', 'type-online', 'Online'),
   ('pl', 'result-in_progress', 'W grze'),
   ('pl', 'no_games', 'Wygląda na to, że nie zagrał_ś jeszcze ani jednej gry.'),
+  ('pl', 'invite_via_link', 'Zaproś poprzez link'),
+  ('en', 'invite_via_link', 'Invite via link'),
   ('pl', 'invite_friend', 'Zaproś znajomego'),
   ('en', 'header', 'Your games:'),
   ('en', 'bar-type', 'Type'),
@@ -46,20 +48,26 @@ VALUES
 CREATE TABLE translations_game_invite_create (LIKE translations INCLUDING ALL);
 INSERT INTO translations_game_invite_create (language_code, text_key, translated_text)
 VALUES
+  ('pl', 'open_button-play', 'Zagraj'),
+  ('pl', 'open_button-invite_via_link', 'Zaproś poprzez link'),
+  ('pl', 'user', 'Użytkownik:'),
   ('pl', 'rules', 'Zasady:'),
   ('pl', 'time_control', 'Czas'),
   ('pl', 'your_team', 'Team'),
-  ('pl', 'accept', 'Akceptuj'),
-  ('pl', 'reject', 'Odrzuć'),
-  ('pl', 'button-copy_link', 'Kopiuj link'),
   ('pl', 'button-invite', 'Zaproś'),
+  ('pl', 'button-copy_link', 'Kopiuj link'),
+  ('pl', 'invite_notification-success', 'Wysłano zaproszenie.'),
+  ('pl', 'invite_link_notification-success', 'Skopiowano link. Zaproszenie będzie dostępne przez 15 minut.'),
+  ('en', 'open_button-play', 'Play'),
+  ('en', 'open_button-invite_via_link', 'Invite via link'),
+  ('en', 'user', 'User:'),
   ('en', 'rules', 'Rules:'),
   ('en', 'time_control', 'Time control'),
   ('en', 'your_team', 'Team'),
-  ('en', 'accept', 'Accept'),
-  ('en', 'reject', 'Reject'),
+  ('en', 'button-invite', 'Invite'),
   ('en', 'button-copy_link', 'Copy link'),
-  ('en', 'button-invite', 'Invite');
+  ('en', 'invite_notification-success', 'Invitation sent.'),
+  ('en', 'invite_link_notification-success', 'Copied link. The invitation will be available for 15 minutes.');
 
 CREATE TABLE translations_index (LIKE translations INCLUDING ALL);
 INSERT INTO translations_index (language_code, text_key, translated_text)
@@ -68,11 +76,13 @@ VALUES
   ('pl', 'game_invites-header', 'Zaproszenia do gier'),
   ('pl', 'not_logged_in-header', 'Wygląda na to, że nie jesteś zalogowan_'),
   ('pl', 'not_logged_in-log_in', 'Zaloguj się lub zarejestruj, by zagrać online'),
+  ('pl', 'not_logged_in-or', 'lub'),
   ('pl', 'not_logged_in-play_local', 'Zagraj grę lokalną'),
   ('en', 'header', 'Life is like chess'),
   ('en', 'game_invites-header', 'Game invitations'),
   ('en', 'not_logged_in-header', 'Looks like you are not logged in'),
   ('en', 'not_logged_in-log_in', 'Log in or register to play online'),
+  ('en', 'not_logged_in-or', 'or'),
   ('en', 'not_logged_in-play_local', 'Play local game'),
   ('en', 'header', 'Let''s play some chess');
 
@@ -96,12 +106,16 @@ VALUES
   ('pl', 'name', 'Nazwa użytkownika:'),
   ('pl', 'display_name', 'Wyświetlana nazwa użytkownika:'),
   ('pl', 'password', 'Hasło:'),
+  ('pl', 'field-optional', '[opcjonalne]'),
+  ('pl', 'field-required', '[wymagane]'),
   ('pl', 'account_made', 'Masz już konto? Zaloguj się'),
   ('en', 'sign_up', 'Sign up'),
   ('en', 'email', 'Email:'),
   ('en', 'name', 'Username:'),
   ('en', 'display_name', 'Display name:'),
   ('en', 'password', 'Password:'),
+  ('en', 'field-optional', '[optional]'),
+  ('en', 'field-required', '[required]'),
   ('en', 'account_made', 'Already have an account? Sign in');
 
 CREATE TABLE translations_friends (LIKE translations INCLUDING ALL);
@@ -132,6 +146,10 @@ VALUES
 
 
 CREATE TABLE translations_online (LIKE translations INCLUDING ALL);
+INSERT INTO translations_online (language_code, text_key, translated_text)
+VALUES
+  ('pl', 'button_invite_link', 'Zaproś poprzez link'),
+  ('en', 'button_invite_link', 'Invite via link');
 
 CREATE TABLE translations_game_invite (LIKE translations INCLUDING ALL);
 

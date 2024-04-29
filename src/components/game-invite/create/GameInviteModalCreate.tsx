@@ -9,13 +9,15 @@ type GameInviteModalProps = {
   closeGameInviteModal: () => void;
   postGameInvite: (isUserFromWhite: boolean | null) => Promise<boolean>;
   isGameInviteLink: boolean;
+  langDict: Record<string, string>;
 };
 
-export default function GameInviteModal({
+export default function GameInviteModalCreate({
   user,
   closeGameInviteModal,
   postGameInvite,
   isGameInviteLink,
+  langDict,
 }: GameInviteModalProps) {
   const [isUserFromWhite, setIsUserFromWhite] = useState<null | boolean>(null);
 
@@ -43,7 +45,7 @@ export default function GameInviteModal({
         <div className="flex h-full w-full flex-col gap-3">
           {user !== undefined && (
             <div className="flex w-full flex-col items-center">
-              <h6 className="text-lg font-bold">Użytkownik:</h6>
+              <h6 className="text-lg font-bold">{langDict["user"]}</h6>
               <div className="flex w-full flex-row justify-evenly">
                 <div className="font-semibold">{user.display_name}</div>
                 <div>@{user.name}</div>
@@ -51,16 +53,14 @@ export default function GameInviteModal({
             </div>
           )}
           <div className="flex flex-col items-center">
-            <h6 className="text-lg font-bold ">Zasady:</h6>
+            <h6 className="text-lg font-bold ">{langDict["rules"]}</h6>
             <div className="flex flex-col sm:grid-cols-2 sm:grid-rows-2 md:grid">
               <div className="flex items-center justify-center font-semibold">
-                Czas:
+                {langDict["time_control"]}
               </div>
-              <div className="flex items-center justify-center">
-                Kiedyś będzie
-              </div>
+              <div className="flex items-center justify-center">...</div>
               <div className="flex items-center justify-center font-semibold">
-                Team:
+                {langDict["your_team"]}
               </div>
               <div className="flex flex-row justify-evenly">
                 <TeamSettingButton
@@ -110,7 +110,9 @@ export default function GameInviteModal({
                 }
               }}
             >
-              {isGameInviteLink ? "Kopiuj link" : "Zaproś"}
+              {isGameInviteLink
+                ? langDict["button-copy_link"]
+                : langDict["button-invite"]}
             </button>
           </div>
         </div>

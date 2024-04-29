@@ -5,7 +5,6 @@ import getGameResInviteLinkData from "../../db/game-invite-link/getGameResInvite
 import isGameInviteLinkValid from "../../db/game-invite-link/isGameInviteLinkValid";
 import MainLayout from "../../layouts/main-layout.astro";
 
-//  GAME INVITE LINK
 if (Astro.locals.user === undefined) {
   // should not happen as this is a protected route
   return new Response(null, { status: 500 });
@@ -28,10 +27,15 @@ const responseOrIsValid = await isGameInviteLinkValid(
 if (responseOrIsValid !== true) {
   return responseOrIsValid;
 }
+const LDReceive = Astro.locals.langDict["game_invite_receive"];
 ---
 
 <MainLayout title="Link z zaproszeniem">
-  <GameInviteLink gameInviteLinkData={resGameInviteLinkData} client:only />
+  <GameInviteLink
+    gameInviteLinkData={resGameInviteLinkData}
+    langDict={LDReceive}
+    client:load
+  />
 </MainLayout>
 
 <script>

@@ -6,13 +6,14 @@ import CookiesNames from "../utils/CookiesNames";
 if (Astro.cookies.get(CookiesNames.TOKEN_JWT) !== undefined) {
   return Astro.redirect("/");
 }
+const LDSingIn = Astro.locals.langDict["sign_in"];
 ---
 
 <MainLayout title="Logowanie">
   <div class="flex flex-col justify-stretch gap-3">
-    <LoginForm client:load />
+    <LoginForm langDict={LDSingIn} client:load />
     <a href="/sign-up" class="text-center hover:underline">
-      Nie masz konta? Zarejestruj się
+      {LDSingIn["no_account"]}
     </a>
   </div>
 </MainLayout>

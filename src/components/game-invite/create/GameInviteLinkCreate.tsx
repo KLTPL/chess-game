@@ -3,11 +3,17 @@ import type {
   APIPostGameInviteLink,
   APIRespPostGameInviteLink,
 } from "../../../db/types";
-import GameInviteModal from "../../game-invite/create/GameInviteModal";
+import GameInviteModalCreate from "./GameInviteModalCreate";
 import ButtonSecondary from "../../buttons/ButtonSecondary";
 import { showNewNotification } from "../../notifications/showNotification";
 
-export default function GameInviteLinkButton() {
+type GameInviteLinkButtonProps = {
+  langDict: Record<string, string>;
+};
+
+export default function GameInviteLinkButton({
+  langDict,
+}: GameInviteLinkButtonProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   function showGameInviteModal() {
     dialogRef.current?.showModal();
@@ -30,11 +36,11 @@ export default function GameInviteLinkButton() {
     if (res.ok) {
       navigator.clipboard.writeText(resObj.inviteLink);
       showNewNotification(
-        "Skopiowano link. Zaproszenie będzie dostępne przez 15 minut",
+        langDict["invite_link_notification-success"],
         "succes"
       );
     } else {
-      showNewNotification(`Bład ${res.status}: ${res.statusText}`, "error");
+      showNewNotification(`Error ${res.status}: ${res.statusText}`, "error");
     }
 
     return res.ok;
@@ -42,17 +48,18 @@ export default function GameInviteLinkButton() {
   return (
     <>
       <ButtonSecondary
-        textContent="Zaproś poprzez link"
+        textContent={langDict["open_button-invite_via_link"]}
         onClick={showGameInviteModal}
       />
       <dialog
         ref={dialogRef}
         className="w-[98vw] rounded-md bg-bg2 py-3 text-white shadow-md backdrop:bg-zinc-900 backdrop:bg-opacity-35 sm:w-[45ch] sm:p-3"
       >
-        <GameInviteModal
+        <GameInviteModalCreate
           closeGameInviteModal={closeGameInviteModal}
           postGameInvite={postGameInvite}
           isGameInviteLink={true}
+          langDict={langDict}
         />
       </dialog>
     </>
