@@ -1,7 +1,10 @@
 ---
 import NavDesktop from "./NavDesktop.astro";
+interface Props {
+  langDict: Record<string, string>;
+}
 ---
 
 <div>
-  <NavDesktop />
+  <NavDesktop langDict={Astro.props.langDict} />
 </div>

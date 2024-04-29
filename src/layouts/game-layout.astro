@@ -7,6 +7,7 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const LDNav = Astro.locals.langDict["navbar"];
 ---
 
 <html lang="pl">
@@ -22,7 +23,7 @@ const { title } = Astro.props;
       data-page-container
       class="fixed left-0 top-0 flex h-[100vh] w-[100vw] touch-none flex-col items-center overflow-hidden bg-bg1 text-base text-text1"
     >
-      <Nav />
+      <Nav langDict={LDNav} />
       <slot />
     </div>
   </body>

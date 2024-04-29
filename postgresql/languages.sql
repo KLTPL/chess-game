@@ -200,3 +200,19 @@ INSERT INTO translations_online_game (language_code, text_key, translated_text)
 VALUES
   ('pl', 'game-type', 'Online'),
   ('en', 'game-type', 'Online');
+
+CREATE TABLE translations_navbar (LIKE translations INCLUDING ALL);
+INSERT INTO translations_navbar (language_code, text_key, translated_text)
+VALUES
+  ('pl', 'nav-online', 'Online'),
+  ('pl', 'nav-local', 'Lokalnie'),
+  ('pl', 'nav-friends', 'Znajomi'),
+  ('pl', 'auth-sign_in', 'Zaloguj'),
+  ('pl', 'auth-sign_up', 'Zarejestruj'),
+  ('pl', 'auth-log_out', 'Wyloguj'),
+  ('en', 'nav-online', 'Online'),
+  ('en', 'nav-local', 'Local'),
+  ('en', 'nav-friends', 'Friends'),
+  ('en', 'auth-sign_in', 'Sign in'),
+  ('en', 'auth-sign_up', 'Sign up'),
+  ('en', 'auth-log_out', 'Log out');

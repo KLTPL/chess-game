@@ -1,7 +1,11 @@
 ---
 import verify from "../../utils/jwt/verify";
-import AuthButtons from "./AuthButtons.astro";
 import Cookies from "../../utils/CookiesNames";
+
+interface Props {
+  langDict: Record<string, string>;
+}
+const langDict = Astro.props.langDict;
 
 const token = Astro.cookies.get(Cookies.TOKEN_JWT)?.value;
 const isVerified = token !== undefined && verify(token);
@@ -15,20 +19,27 @@ const heightClass = "h-[60px] lg:h-[100px]";
   >
     <div><a href="/">Chess Game</a></div>
     <div class="flex gap-3">
-      <div><a href="/online">Online</a></div>
-      <div><a href="/local">Lokalnie</a></div>
+      <div><a href="/online">{langDict["nav-online"]}</a></div>
+      <div><a href="/local">{langDict["nav-local"]}</a></div>
       {
         isVerified !== false && (
           <div>
-            <a href="/friends">Znajomi</a>
+            <a href="/friends">{langDict["nav-friends"]}</a>
           </div>
         )
       }
-      {isVerified === false && <AuthButtons />}
+      {
+        isVerified === false && (
+          <div class="flex flex-row items-center gap-2 text-sm">
+            <a href="/sign-in">{langDict["auth-sign_in"]}</a>
+            <a href="/sign-up">{langDict["auth-sign_up"]}</a>
+          </div>
+        )
+      }
       {
         isVerified !== false && (
           <button id="logut" class="text-sm">
-            Wyloguj
+            {langDict["auth-log_out"]}
           </button>
         )
       }

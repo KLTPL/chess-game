@@ -61,6 +61,7 @@ function extractPreferredLanguage(acceptLanguageHeader: string | null) {
 function getDBTranslationNames(
   pathname: string
 ): (
+  | "translations_navbar"
   | "translations_index"
   | "translations_game_list"
   | "translations_game_invite_receive"
@@ -82,6 +83,7 @@ function getDBTranslationNames(
   switch (pathnameStart) {
     case "": // index
       return [
+        "translations_navbar",
         "translations_index",
         "translations_game_list",
         "translations_game_invite_create",
@@ -89,22 +91,36 @@ function getDBTranslationNames(
       ];
     case "online":
       return [
+        "translations_navbar",
         "translations_online",
         "translations_game_list",
         "translations_game_invite_create",
       ];
     case "sign-in":
-      return ["translations_sign_in"];
+      return ["translations_navbar", "translations_sign_in"];
     case "sign-up":
-      return ["translations_sign_up"];
+      return ["translations_navbar", "translations_sign_up"];
     case "friends":
-      return ["translations_friends", "translations_game_invite_create"];
+      return [
+        "translations_navbar",
+        "translations_friends",
+        "translations_game_invite_create",
+      ];
     case "local":
-      return ["translations_local", "translations_game_end_info"];
+      return [
+        "translations_navbar",
+        "translations_local",
+        "translations_game_end_info",
+      ];
     case "online-game":
-      return ["translations_online_game", "translations_game_end_info"];
+      return [
+        "translations_navbar",
+        "translations_online_game",
+        "translations_game_end_info",
+      ];
     case "game-invite-link":
       return [
+        "translations_navbar",
         "translations_game_invite_receive",
         "translations_local",
         "translations_game_end_info",
