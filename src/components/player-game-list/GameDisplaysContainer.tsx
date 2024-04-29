@@ -9,6 +9,7 @@ export default function GameDisplaysContainer({
   startIdx,
   initGamesData,
   loadMoreOnScroll,
+  langDictGameList,
 }: OlderGameDisplaysProps) {
   return (
     <QueryClientProvider client={queryClient}>
@@ -18,6 +19,7 @@ export default function GameDisplaysContainer({
         startIdx={startIdx}
         initGamesData={initGamesData}
         loadMoreOnScroll={loadMoreOnScroll}
+        langDictGameList={langDictGameList}
       />
     </QueryClientProvider>
   );

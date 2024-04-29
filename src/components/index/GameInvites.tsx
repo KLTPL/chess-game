@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { type APIGetGameInvite } from "../../db/types";
-import GameInviteIndex from "./GameInviteIndex";
+import GameInviteReceive from "../game-invite/receive/GameInviteReceive";
 
 interface GameInvitesProps {
   gameInvites: APIGetGameInvite[];
+  header: string;
+  langDictGameInviteReceive: Record<string, string>;
 }
-export default function GameInvites({ gameInvites }: GameInvitesProps) {
+export default function GameInvites({
+  gameInvites,
+  header,
+  langDictGameInviteReceive,
+}: GameInvitesProps) {
   const [invitesAmount, setInvitesAmount] = useState<number>(
     gameInvites.length
   );
@@ -17,13 +23,14 @@ export default function GameInvites({ gameInvites }: GameInvitesProps) {
   }
   return (
     <div>
-      <h3 className="mb-1 text-center text-xl">Zaproszenia do gier</h3>
+      <h3 className="mb-1 text-center text-xl">{header}</h3>
       <div className="flex h-[200px] flex-row gap-2 overflow-x-auto overflow-y-hidden sm:h-[250px]">
         {gameInvites.map((invite) => (
-          <GameInviteIndex
+          <GameInviteReceive
             key={invite.id}
             gameInvite={invite}
-            substractOneInvite={substractOneInvite}
+            onDelete={substractOneInvite}
+            langDict={langDictGameInviteReceive}
           />
         ))}
       </div>

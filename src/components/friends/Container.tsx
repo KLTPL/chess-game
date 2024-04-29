@@ -1,12 +1,18 @@
 import { QueryClient, QueryClientProvider } from "react-query";
-import SearchBar from "./search-users/SearchUsers";
+import SearchUsers, { type SearchUsersProps } from "./search-users/SearchUsers";
 
 const queryClient = new QueryClient();
 
-export default function Container() {
+export default function Container({
+  langDictFriends,
+  langDictGameInviteCreate,
+}: SearchUsersProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <SearchBar />
+      <SearchUsers
+        langDictFriends={langDictFriends}
+        langDictGameInviteCreate={langDictGameInviteCreate}
+      />
     </QueryClientProvider>
   );
 }

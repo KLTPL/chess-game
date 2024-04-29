@@ -1,17 +1,19 @@
 import type { ReactNode } from "react";
-import { GAME_RESULTS_ID_DB, type APIGetGameData } from "../../../db/types.ts";
-import { WIDTHS } from "./utils";
+import { GAME_RESULTS_ID_DB, type APIGetGameData } from "../../db/types.ts";
+import { WIDTHS } from "./utils.ts";
 
 type GameDisplayProps = {
   DBGameData: APIGetGameData;
   borderTop: boolean;
   borderBottom: boolean;
+  langDictGameList: Record<string, string>;
 };
 
 export default function GameDisplay({
   DBGameData: { game, halfmoves },
   borderBottom,
   borderTop,
+  langDictGameList: langDict,
 }: GameDisplayProps) {
   const d = new Date(game.start_date);
   const convert = (date: number) => {
@@ -31,7 +33,7 @@ export default function GameDisplay({
       className="border-bg4"
     >
       <div className="flex w-full flex-row bg-bg2">
-        <ColumnEl child="Online" width={WIDTHS.TYPE} />
+        <ColumnEl child={langDict["type-online"]} width={WIDTHS.TYPE} />
         <ColumnEl
           child={
             <div className="flex flex-col py-2">
@@ -51,7 +53,10 @@ export default function GameDisplay({
           }
           width={WIDTHS.PLAYERS}
         />
-        <ColumnEl child={getGameResult(game.result_id)} width={WIDTHS.RESULT} />
+        <ColumnEl
+          child={getGameResult(game.result_id, langDict["result-in_progress"])}
+          width={WIDTHS.RESULT}
+        />
         <ColumnEl child={String(halfmoves.length)} width={WIDTHS.MOVES} />
         <ColumnEl
           child={`${convert(d.getDay())}-${convert(d.getMonth())}-${d.getFullYear()}`}
@@ -62,7 +67,10 @@ export default function GameDisplay({
   );
 }
 
-function getGameResult(resultId: GAME_RESULTS_ID_DB | null): ReactNode {
+function getGameResult(
+  resultId: GAME_RESULTS_ID_DB | null,
+  inProgressTranslation: string
+): ReactNode {
   if (resultId === GAME_RESULTS_ID_DB.WHITE) {
     return (
       <div>
@@ -85,7 +93,7 @@ function getGameResult(resultId: GAME_RESULTS_ID_DB | null): ReactNode {
       </div>
     );
   }
-  return <div>W grze</div>;
+  return <div>{inProgressTranslation}</div>;
 }
 
 type ColumnElProps = {

@@ -1,14 +1,24 @@
 ---
-import GameInviteLinkButton from "../components/online/new-game-invite-link/GameInviteLinkButton";
-import PlayerGameList from "../components/online/player-game-list/PlayerGameList.astro";
+import GameInviteLinkButton from "../components/game-invite/create/GameInviteLinkCreate";
+import PlayerGameList from "../components/player-game-list/PlayerGameList.astro";
 import MainLayout from "../layouts/main-layout.astro";
+const LDOnline = Astro.locals.langDict["online"];
+LDOnline; // not used
+const LDGameList = Astro.locals.langDict["game_list"];
+const LDGameInviteCreate = Astro.locals.langDict["game_invite_create"];
 ---
 
 <MainLayout title="Online">
   <div class="flex flex-col">
     <div class="flex justify-center pt-3">
-      <GameInviteLinkButton client:only />
+      <GameInviteLinkButton langDict={LDGameInviteCreate} client:load />
     </div>
-    <PlayerGameList endIdx={9} loadMoreOnScroll={true} addStyles="py-3" />
+    <PlayerGameList
+      endIdx={9}
+      loadMoreOnScroll={true}
+      addStyles="py-3"
+      langDictGameList={LDGameList}
+      langDictGameInviteCreate={LDGameInviteCreate}
+    />
   </div>
 </MainLayout>

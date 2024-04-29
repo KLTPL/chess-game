@@ -9,14 +9,16 @@ import blackKing from "../../../images/b-king.png";
 
 type GameInviteProps = {
   gameInvite: APIGetGameInvite | APIRespGetGameInviteLink;
-  accept: () => Promise<void>;
-  decline: () => Promise<void>;
+  langDict: Record<string, string>;
+  acceptGameInvite: () => Promise<void>;
+  declineGameInvite: () => Promise<void>;
 };
 
-export default function GameInvite({
+export default function GameInviteModalReceive({
   gameInvite,
-  accept,
-  decline,
+  langDict,
+  acceptGameInvite,
+  declineGameInvite,
 }: GameInviteProps) {
   const inviteRef = useRef<HTMLDivElement>(null);
   const { user_from, is_user_from_white } = gameInvite;
@@ -41,7 +43,7 @@ export default function GameInvite({
     >
       <div className="grid grid-cols-1 grid-rows-2">
         <div className="grid place-content-center">
-          <h5 className="text-lg font-bold">Zaproszenie:</h5>
+          <h5 className="text-lg font-bold">{langDict["header"]}</h5>
         </div>
         <a
           className="flex flex-row items-center justify-center"
@@ -56,12 +58,13 @@ export default function GameInvite({
       <div className="grid grid-cols-1 grid-rows-2">
         <div className="flex flex-col items-center">
           <div className="flex flex-row justify-center gap-1">
-            {/* flex flex-row justify-center gap-1 */}
-            <div>Typ gry:</div>
-            <div>Gra online</div>
+            <div>{langDict["game_type"]}</div>
+            <div>Online</div>
           </div>
           <div className="flex flex-row justify-center gap-1">
-            <div className="flex items-center justify-center">Twój team:</div>
+            <div className="flex items-center justify-center">
+              {langDict["your_team"]}
+            </div>
             <div className="flex h-[40px] items-center justify-center">
               <img src={teamSrc} alt={alt} className="aspect-square h-full" />
             </div>
@@ -71,20 +74,20 @@ export default function GameInvite({
           <div className="flex items-center justify-center">
             <Button
               key={"1"}
-              text="Akceptuj"
+              text={langDict["accept"]}
               bgClassName="bg-secondary-b"
               bgHoverClassName="hover:bg-secondary"
-              onClick={accept}
+              onClick={acceptGameInvite}
               inviteRef={inviteRef}
             />
           </div>
           <div className="flex items-center justify-center">
             <Button
               key={"2"}
-              text="Odrzuć"
+              text={langDict["reject"]}
               bgClassName="bg-red-600"
               bgHoverClassName="hover:bg-red-700"
-              onClick={decline}
+              onClick={declineGameInvite}
               inviteRef={inviteRef}
             />
           </div>
