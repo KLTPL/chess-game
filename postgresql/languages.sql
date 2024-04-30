@@ -189,9 +189,9 @@ CREATE TABLE translations_local (LIKE translations INCLUDING ALL);
 INSERT INTO translations_local (language_code, text_key, translated_text)
 VALUES
   ('pl', 'game-type', 'Lokalna'),
-  ('en', 'game-type', 'Local'),
   ('pl', 'player-white', 'białe'),
   ('pl', 'player-black', 'czarne'),
+  ('en', 'game-type', 'Local'),
   ('en', 'player-white', 'white'),
   ('en', 'player-black', 'black');
 

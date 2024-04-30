@@ -67,17 +67,28 @@ export default class BoardHTMLFactory {
   public static createPlayerContainers(
     players: Players,
     isInverted: boolean,
-    isOnlineGame: boolean
+    isOnlineGame: boolean,
+    gameType: string
   ): { top: HTMLDivElement; bottom: HTMLDivElement } {
     if (isInverted) {
       return {
-        top: createPlayerContainer(players.white, true, isOnlineGame),
-        bottom: createPlayerContainer(players.black, false, isOnlineGame),
+        top: createPlayerContainer(players.white, true, isOnlineGame, gameType),
+        bottom: createPlayerContainer(
+          players.black,
+          false,
+          isOnlineGame,
+          gameType
+        ),
       };
     }
     return {
-      top: createPlayerContainer(players.black, true, isOnlineGame),
-      bottom: createPlayerContainer(players.white, false, isOnlineGame),
+      top: createPlayerContainer(players.black, true, isOnlineGame, gameType),
+      bottom: createPlayerContainer(
+        players.white,
+        false,
+        isOnlineGame,
+        gameType
+      ),
     };
   }
 }
@@ -114,7 +125,8 @@ function createButtonInvert(boardView: BoardView): HTMLButtonElement {
 function createPlayerContainer(
   player: Player,
   isTop: boolean,
-  isOnlineGame: boolean
+  isOnlineGame: boolean,
+  gameType: string
 ): HTMLDivElement {
   const div = document.createElement("div");
   div.classList.add(CLASS_NAMES.playerContainer);
@@ -123,7 +135,7 @@ function createPlayerContainer(
   );
   div.append(createPlayerImageNameContainer(player, isOnlineGame));
   div.append(createPlayerFill());
-  div.append(createPlayerTime(isOnlineGame));
+  div.append(createPlayerTime(gameType));
 
   return div;
 }
@@ -187,9 +199,9 @@ function createPlayerFill() {
   return div;
 }
 
-function createPlayerTime(isOnlineGame: boolean) {
+function createPlayerTime(gameType: string) {
   const container = document.createElement("div");
   container.classList.add(CLASS_NAMES.playerTime);
-  container.innerText = isOnlineGame ? "Online" : "Lokalna";
+  container.innerText = gameType;
   return container;
 }

@@ -4,7 +4,10 @@ import type BoardView from "./BoardView";
 export default class PlayerHTMLBars {
   private top: HTMLElement | null = null;
   private bottom: HTMLElement | null = null;
-  constructor(private boardView: BoardView) {
+  constructor(
+    private gameType: string,
+    private boardView: BoardView
+  ) {
     this.appendNewBars();
   }
 
@@ -18,7 +21,8 @@ export default class PlayerHTMLBars {
     const { top, bottom } = BoardHTMLFactory.createPlayerContainers(
       this.boardView.match.players,
       this.boardView.isInverted,
-      this.boardView.match.isGameOnline
+      this.boardView.match.isGameOnline,
+      this.gameType
     );
     this.boardView.html.append(top);
     this.boardView.html.append(bottom);

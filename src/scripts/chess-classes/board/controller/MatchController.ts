@@ -1,4 +1,4 @@
-import BoardView from "../view/BoardView";
+import BoardView, { type LangDicts } from "../view/BoardView";
 import Player from "./Player";
 import Halfmove from "../model/Halfmove";
 import {
@@ -40,7 +40,11 @@ export default class MatchController {
   public isAnalisisSystemCreated: Promise<void> | true;
   readonly userTeam: TEAMS | null;
   readonly isGameOnline: boolean;
-  constructor(boardArg: BoardArg, getOnlineGame: APIGetOnlineGame | null) {
+  constructor(
+    boardArg: BoardArg,
+    getOnlineGame: APIGetOnlineGame | null,
+    langDicts: LangDicts
+  ) {
     this.isGameOnline = getOnlineGame !== null;
     const DBGameData =
       getOnlineGame === null ? null : getOnlineGame.getDBGameData;
@@ -57,13 +61,14 @@ export default class MatchController {
       })
     );
     this.players = {
-      white: new Player(TEAMS.WHITE, DBGameData, this),
-      black: new Player(TEAMS.BLACK, DBGameData, this),
+      white: new Player(TEAMS.WHITE, DBGameData, langDicts.gameDict, this),
+      black: new Player(TEAMS.BLACK, DBGameData, langDicts.gameDict, this),
     };
     this.boardView = new BoardView(
       pieceVD,
       false,
       boardArg.htmlPageContainerQSelector,
+      langDicts,
       this
     );
     if (this.boardModel.fetchToDB !== null) {
@@ -209,8 +214,7 @@ export default class MatchController {
         this.boardView.resultPopup.show(
           {
             resultId: endInfo.result_id,
-            resultName,
-            endReasonName,
+            reasonId: endInfo.end_reason_id,
             playerW: this.players.white,
             playerB: this.players.black,
             isGameOnline: this.isGameOnline,

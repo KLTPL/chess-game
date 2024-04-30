@@ -3,7 +3,8 @@ import GameInviteLink from "../../components/game-invite-link/GameInviteLink";
 import getGameInviteLinkData from "../../db/game-invite-link/getGameInviteLink";
 import getGameResInviteLinkData from "../../db/game-invite-link/getGameResInviteLink";
 import isGameInviteLinkValid from "../../db/game-invite-link/isGameInviteLinkValid";
-import MainLayout from "../../layouts/main-layout.astro";
+import GameLayout from "../../layouts/game-layout.astro";
+import type { LangDicts } from "../../scripts/chess-classes/board/view/BoardView";
 
 if (Astro.locals.user === undefined) {
   // should not happen as this is a protected route
@@ -28,22 +29,36 @@ if (responseOrIsValid !== true) {
   return responseOrIsValid;
 }
 const LDReceive = Astro.locals.langDict["game_invite_receive"];
+const langDicts: LangDicts = {
+  gameDict: Astro.locals.langDict["local"],
+  gameEndPopupDict: Astro.locals.langDict["game_end_info"],
+};
+console.log(langDicts);
+// Pass the language dictionary to a div data attribute to get it on the client side.
 ---
 
-<MainLayout title="Link z zaproszeniem">
+<GameLayout title="Link z zaproszeniem">
+  <div data-lang-dict={JSON.stringify(langDicts)}></div>
   <GameInviteLink
     gameInviteLinkData={resGameInviteLinkData}
     langDict={LDReceive}
     client:load
   />
-</MainLayout>
+</GameLayout>
 
 <script>
+  import type { LangDicts } from "../../scripts/chess-classes/board/view/BoardView";
   import { initGameLocal } from "../../scripts/initLocalGame";
   initTempGame();
 
   function initTempGame() {
-    const match = initGameLocal("[data-page-container]");
+    const dataDiv = document.querySelector<HTMLDivElement>("[data-lang-dict]");
+    const langDicts: LangDicts = JSON.parse(
+      dataDiv?.dataset["langDict"] as string
+    );
+    console.log(langDicts);
+    dataDiv?.remove();
+    const match = initGameLocal("[data-page-container]", langDicts);
     match.end();
   }
 </script>
