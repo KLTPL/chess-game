@@ -2,7 +2,7 @@
 
 My chess game created in 2022 (client game)
 
-and updated in 2024 (back-end, api routes, login system, online games, invites etc.)
+and updated in 2024 (back-end, api routes, login system, language system, online games, game invitations etc.)
 
 ## Technologies Used
 
@@ -68,7 +68,7 @@ If not you can head on to https://www.postgresql.org/download/.
 
 ### 4. Create your local database
 
-After configuring the postgresql installation create a database for the project and insert all tables from the /postgresql/main.sql file.
+After configuring the postgresql installation create a database for the project and insert all tables from the /postgresql/main.sql and /postgresql/languages.sql files.
 
 ### 5. Clone the project
 
