@@ -72,12 +72,14 @@ VALUES
 CREATE TABLE translations_index (LIKE translations INCLUDING ALL);
 INSERT INTO translations_index (language_code, text_key, translated_text)
 VALUES
+  ('pl', 'page_title', 'Strona główna'),
   ('pl', 'header', 'Życie jest jak szachy'),
   ('pl', 'game_invites-header', 'Zaproszenia do gier'),
   ('pl', 'not_logged_in-header', 'Wygląda na to, że nie jesteś zalogowan_'),
   ('pl', 'not_logged_in-log_in', 'Zaloguj się lub zarejestruj, by zagrać online'),
   ('pl', 'not_logged_in-or', 'lub'),
   ('pl', 'not_logged_in-play_local', 'Zagraj grę lokalną'),
+  ('en', 'page_title', 'Home'),
   ('en', 'header', 'Life is like chess'),
   ('en', 'game_invites-header', 'Game invitations'),
   ('en', 'not_logged_in-header', 'Looks like you are not logged in'),
@@ -89,10 +91,12 @@ VALUES
 CREATE TABLE translations_sign_in (LIKE translations INCLUDING ALL);
 INSERT INTO translations_sign_in (language_code, text_key, translated_text)
 VALUES
+  ('pl', 'page_title', 'Zaloguj'),
   ('pl', 'sign_in', 'Zaloguj'),
   ('pl', 'alias', 'Email lub nazwa użytkownika:'),
   ('pl', 'password', 'Hasło:'),
   ('pl', 'no_account', 'Nie masz konta? Zarejestruj się'),
+  ('en', 'page_title', 'Sign in'),
   ('en', 'sign_in', 'Sign in'),
   ('en', 'alias', 'Email or username:'),
   ('en', 'password', 'Password:'),
@@ -101,6 +105,7 @@ VALUES
 CREATE TABLE translations_sign_up (LIKE translations INCLUDING ALL);
 INSERT INTO translations_sign_up (language_code, text_key, translated_text)
 VALUES
+  ('pl', 'page_title', 'Zarejestruj'),
   ('pl', 'sign_up', 'Zarejestruj'),
   ('pl', 'email', 'Email:'),
   ('pl', 'name', 'Nazwa użytkownika:'),
@@ -109,6 +114,7 @@ VALUES
   ('pl', 'field-optional', '[opcjonalne]'),
   ('pl', 'field-required', '[wymagane]'),
   ('pl', 'account_made', 'Masz już konto? Zaloguj się'),
+  ('en', 'page_title', 'Sign up'),
   ('en', 'sign_up', 'Sign up'),
   ('en', 'email', 'Email:'),
   ('en', 'name', 'Username:'),
@@ -121,6 +127,7 @@ VALUES
 CREATE TABLE translations_friends (LIKE translations INCLUDING ALL);
 INSERT INTO translations_friends (language_code, text_key, translated_text)
 VALUES
+  ('pl', 'page_title', 'Znajomi'),
   ('pl', 'input_placeholder', 'Wyszukaj po nazwie lub wyświetlanej nazwie'),
   ('pl', 'card_header-friends', 'Znajomi'),
   ('pl', 'card_header-invited', 'Zaproszeni'),
@@ -132,6 +139,7 @@ VALUES
   ('pl', 'card_button-accept', 'Akceptuj'),
   ('pl', 'card_button-reject', 'Odrzuć'),
   ('pl', 'card_button-invite', 'Zaproś'),
+  ('en', 'page_title', 'Friends'),
   ('en', 'input_placeholder', 'Search by name or display name'),
   ('en', 'card_header-friends', 'Friends'),
   ('en', 'card_header-invited', 'Invited'),
@@ -148,10 +156,16 @@ VALUES
 CREATE TABLE translations_online (LIKE translations INCLUDING ALL);
 INSERT INTO translations_online (language_code, text_key, translated_text)
 VALUES
+  ('pl', 'page_title', 'Online'),
   ('pl', 'button_invite_link', 'Zaproś poprzez link'),
+  ('en', 'page_title', 'Online'),
   ('en', 'button_invite_link', 'Invite via link');
 
-CREATE TABLE translations_game_invite (LIKE translations INCLUDING ALL);
+CREATE TABLE translations_game_invite_link (LIKE translations INCLUDING ALL);
+INSERT INTO translations_game_invite_link (language_code, text_key, translated_text)
+VALUES
+  ('pl', 'page_title', 'Link zaproszeniowy do gry'),
+  ('en', 'page_title', 'Game invitation link');
 
 CREATE TABLE translations_game_end_info (LIKE translations INCLUDING ALL);
 -- all values from text_key with 'result-[value]' or 'reason-[value]' format are the same as corresponding value in 
@@ -188,9 +202,11 @@ VALUES
 CREATE TABLE translations_local (LIKE translations INCLUDING ALL);
 INSERT INTO translations_local (language_code, text_key, translated_text)
 VALUES
+  ('pl', 'page_title', 'Gra lokalna'),
   ('pl', 'game-type', 'Lokalna'),
   ('pl', 'player-white', 'białe'),
   ('pl', 'player-black', 'czarne'),
+  ('en', 'page_title', 'Local game'),
   ('en', 'game-type', 'Local'),
   ('en', 'player-white', 'white'),
   ('en', 'player-black', 'black');
@@ -198,7 +214,9 @@ VALUES
 CREATE TABLE translations_online_game (LIKE translations INCLUDING ALL);
 INSERT INTO translations_online_game (language_code, text_key, translated_text)
 VALUES
+  ('pl', 'page_title', 'Gra online'),
   ('pl', 'game-type', 'Online'),
+  ('en', 'page_title', 'Online game'),
   ('en', 'game-type', 'Online');
 
 CREATE TABLE translations_navbar (LIKE translations INCLUDING ALL);

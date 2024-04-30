@@ -6,7 +6,7 @@ const LDFriends = Astro.locals.langDict["friends"];
 const LDGameInviteCreate = Astro.locals.langDict["game_invite_create"];
 ---
 
-<MainLayout title="Znajomi">
+<MainLayout title={LDFriends["page_title"]}>
   <div class="flex flex-col items-center gap-3">
     <FriendsContainer
       langDictFriends={LDFriends}
