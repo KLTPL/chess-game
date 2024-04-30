@@ -31,6 +31,11 @@ import BoardHTMLFactory, {
 import PlayerHTMLBars from "./PlayerHTMLBars";
 import GameEndPopup from "./GameEndPopup";
 
+export type LangDicts = {
+  gameDict: Record<string, string>;
+  gameEndPopupDict: Record<string, string>;
+};
+
 export default class BoardView {
   private fields: Field[][] = [];
   readonly html: HTMLDivElement = BoardHTMLFactory.createBoardContainer();
@@ -41,13 +46,14 @@ export default class BoardView {
   readonly playerHTMLBars: PlayerHTMLBars;
   readonly pageContainerHtml: HTMLDivElement;
   readonly pawnPromotionMenu: PawnPromotionMenu = new PawnPromotionMenu();
-  readonly resultPopup: GameEndPopup = new GameEndPopup();
+  readonly resultPopup: GameEndPopup;
   public showEventsOnBoard: ShowEvetsOnBoard;
   private dragAndDropPieces: DragAndDropPieces = new DragAndDropPieces(this);
   constructor(
     pieces: PieceViewData[][],
     public isInverted: boolean,
     htmlPageContainerQSelector: string,
+    langDicts: LangDicts,
     readonly match: MatchController
   ) {
     this.showEventsOnBoard = new ShowEvetsOnBoard(this, this.match);
@@ -69,7 +75,11 @@ export default class BoardView {
       this.invert();
     }
 
-    this.playerHTMLBars = new PlayerHTMLBars(this);
+    this.playerHTMLBars = new PlayerHTMLBars(
+      langDicts.gameDict["game-type"],
+      this
+    );
+    this.resultPopup = new GameEndPopup(langDicts.gameEndPopupDict);
 
     new VisualizingSystem(this);
 

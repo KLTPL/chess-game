@@ -16,11 +16,15 @@ export default class Player {
   constructor(
     private team: TEAMS,
     DBGameData: APIGetGameData | null,
+    langDictGame: Record<string, string>,
     private match: MatchController
   ) {
     if (DBGameData === null) {
-      this.name = this.team === TEAMS.WHITE ? "białe" : "czarne";
-      this.displayName = this.team === TEAMS.WHITE ? "białe" : "czarne";
+      this.name =
+        this.team === TEAMS.WHITE
+          ? langDictGame["player-white"]
+          : langDictGame["player-black"];
+      this.displayName = this.name;
     } else {
       this.name =
         this.team === TEAMS.WHITE

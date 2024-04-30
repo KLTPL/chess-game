@@ -1,12 +1,21 @@
 ---
 import GameLayout from "../../layouts/game-layout.astro";
+import type { LangDicts } from "../../scripts/chess-classes/board/view/BoardView";
 import CookiesNames from "../../utils/CookiesNames";
 
 const displayId = Astro.params.display_id as string;
 
+// set display id as a cookie to get it on the client
 Astro.cookies.set(CookiesNames.GAME_DISPLAY_ID, displayId);
+
+const langDicts: LangDicts = {
+  gameDict: Astro.locals.langDict["online_game"],
+  gameEndPopupDict: Astro.locals.langDict["game_end_info"],
+};
+// Pass the language dictionary to a div data attribute to get it on the client side.
 ---
 
+<div data-lang-dict={JSON.stringify(langDicts)}></div>
 <GameLayout title="Online game" />
 
 <script>
@@ -14,13 +23,22 @@ Astro.cookies.set(CookiesNames.GAME_DISPLAY_ID, displayId);
   import Cookies from "js-cookie";
   import CookiesNames from "../../utils/CookiesNames";
   import type { APIGetOnlineGame } from "../../db/types";
+  import type { LangDicts } from "../../scripts/chess-classes/board/view/BoardView";
   const response = await fetch(
     `${import.meta.env.PUBLIC_SERVER_URL}/api/online-game/${Cookies.get(CookiesNames.GAME_DISPLAY_ID)}.json`
   );
-  if (response.status >= 400) {
+  Cookies.remove(CookiesNames.GAME_DISPLAY_ID, { path: "/online-game" });
+  if (!response.ok) {
     window.location.replace("/404");
   } else {
+    const dataDiv = document.querySelector<HTMLDivElement>("[data-lang-dict]");
+    const langDicts: LangDicts = JSON.parse(
+      dataDiv?.dataset["langDict"] as string
+    );
+    dataDiv?.remove();
+
     const getOnlineGame: APIGetOnlineGame = await response.json();
-    initGameOnline("[data-page-container]", getOnlineGame);
+
+    initGameOnline("[data-page-container]", getOnlineGame, langDicts);
   }
 </script>

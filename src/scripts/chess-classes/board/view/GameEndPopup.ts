@@ -1,4 +1,4 @@
-import { GAME_RESULTS_ID_DB } from "../../../../db/types";
+import { END_REASONS_ID_DB, GAME_RESULTS_ID_DB } from "../../../../db/types";
 import type Player from "../controller/Player";
 import type BoardView from "./BoardView";
 
@@ -18,8 +18,7 @@ const CLASS_NAMES = {
 
 type ShowData = {
   resultId: GAME_RESULTS_ID_DB;
-  resultName: string;
-  endReasonName: string;
+  reasonId: END_REASONS_ID_DB;
   playerW: Player;
   playerB: Player;
   isGameOnline: boolean;
@@ -27,7 +26,7 @@ type ShowData = {
 
 export default class GameEndPopup {
   private html: HTMLDialogElement | null = null;
-  constructor() {}
+  constructor(private langData: Record<string, string>) {}
 
   public show(data: ShowData, boardView: BoardView) {
     this.stopShowing();
@@ -43,8 +42,7 @@ export default class GameEndPopup {
 
   private createHTML({
     resultId,
-    resultName,
-    endReasonName,
+    reasonId,
     playerW,
     playerB,
     isGameOnline,
@@ -53,8 +51,8 @@ export default class GameEndPopup {
     container.classList.add(CLASS_NAMES.resultContainer);
 
     container.append(this.createCloseBtn());
-    container.append(this.createHeader(resultName));
-    container.append(this.createReason(endReasonName));
+    container.append(this.createHeader(this.getEndResultName(resultId)));
+    container.append(this.createReason(this.getEndReasonName(reasonId)));
     container.append(
       this.createPlayersDataContainer(playerW, playerB, resultId, isGameOnline)
     );
@@ -81,7 +79,7 @@ export default class GameEndPopup {
     const div = document.createElement("div");
     div.classList.add(CLASS_NAMES.endPopupReason);
 
-    div.innerText = `Powód: ${endReasonName}`;
+    div.innerText = `${this.langData["reason"]} ${endReasonName}`;
 
     return div;
   }
@@ -161,5 +159,38 @@ export default class GameEndPopup {
       container.classList.add(CLASS_NAMES.playerDataWon);
     }
     return container;
+  }
+
+  private getEndResultName(resultId: GAME_RESULTS_ID_DB) {
+    switch (resultId) {
+      case GAME_RESULTS_ID_DB.WHITE:
+        return this.langData["result-white_win"];
+      case GAME_RESULTS_ID_DB.BLACK:
+        return this.langData["result-black_win"];
+      case GAME_RESULTS_ID_DB.DRAW:
+        return this.langData["result-draw"];
+    }
+  }
+  private getEndReasonName(reasonId: END_REASONS_ID_DB) {
+    switch (reasonId) {
+      case END_REASONS_ID_DB.CHECKMATE:
+        return this.langData["reason-checkmate"];
+      case END_REASONS_ID_DB.RESIGNATION:
+        return this.langData["reason-resignation"];
+      case END_REASONS_ID_DB.TIMEOUT:
+        return this.langData["reason-timeout"];
+      case END_REASONS_ID_DB.STALEMATE:
+        return this.langData["reason-stalemate"];
+      case END_REASONS_ID_DB.INSUFFICENT:
+        return this.langData["reason-insufficient_material"];
+      case END_REASONS_ID_DB.MOVE_RULE_50:
+        return this.langData["reason-50_move_rule"];
+      case END_REASONS_ID_DB.REPETITION:
+        return this.langData["reason-repetition"];
+      case END_REASONS_ID_DB.AGREEMENT:
+        return this.langData["reason-agreement"];
+      case END_REASONS_ID_DB.DATA_ERROR:
+        return "ERROR";
+    }
   }
 }
