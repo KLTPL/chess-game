@@ -28,16 +28,16 @@ const responseOrIsValid = await isGameInviteLinkValid(
 if (responseOrIsValid !== true) {
   return responseOrIsValid;
 }
+const LDGameInviteLink = Astro.locals.langDict["game_invite_link"];
 const LDReceive = Astro.locals.langDict["game_invite_receive"];
 const langDicts: LangDicts = {
   gameDict: Astro.locals.langDict["local"],
   gameEndPopupDict: Astro.locals.langDict["game_end_info"],
 };
-console.log(langDicts);
 // Pass the language dictionary to a div data attribute to get it on the client side.
 ---
 
-<GameLayout title="Link z zaproszeniem">
+<GameLayout title={LDGameInviteLink["page_title"]}>
   <div data-lang-dict={JSON.stringify(langDicts)}></div>
   <GameInviteLink
     gameInviteLinkData={resGameInviteLinkData}
@@ -56,7 +56,6 @@ console.log(langDicts);
     const langDicts: LangDicts = JSON.parse(
       dataDiv?.dataset["langDict"] as string
     );
-    console.log(langDicts);
     dataDiv?.remove();
     const match = initGameLocal("[data-page-container]", langDicts);
     match.end();

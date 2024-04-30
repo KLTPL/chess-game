@@ -8,7 +8,7 @@ const LDGameList = Astro.locals.langDict["game_list"];
 const LDGameInviteCreate = Astro.locals.langDict["game_invite_create"];
 ---
 
-<MainLayout title="Online">
+<MainLayout title={LDOnline["page_title"]}>
   <div class="flex flex-col">
     <div class="flex justify-center pt-3">
       <GameInviteLinkButton langDict={LDGameInviteCreate} client:load />

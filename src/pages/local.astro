@@ -10,7 +10,7 @@ const langDicts: LangDicts = {
 ---
 
 <div data-lang-dict={JSON.stringify(langDicts)}></div>
-<GameLayout title="Gra lokalna" />
+<GameLayout title={Astro.locals.langDict["local"]["page_title"]} />
 
 <script>
   import type { LangDicts } from "../scripts/chess-classes/board/view/BoardView";

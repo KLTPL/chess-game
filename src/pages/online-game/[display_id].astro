@@ -16,7 +16,7 @@ const langDicts: LangDicts = {
 ---
 
 <div data-lang-dict={JSON.stringify(langDicts)}></div>
-<GameLayout title="Online game" />
+<GameLayout title={Astro.locals.langDict["online_game"]["page_title"]} />
 
 <script>
   import { initGameOnline } from "../../scripts/initOnlineGame";

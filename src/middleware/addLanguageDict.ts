@@ -66,6 +66,7 @@ function getDBTranslationNames(
   | "translations_game_list"
   | "translations_game_invite_receive"
   | "translations_online"
+  | "translations_game_invite_link"
   | "translations_game_invite_create"
   | "translations_sign_in"
   | "translations_sign_up"
@@ -121,6 +122,7 @@ function getDBTranslationNames(
     case "game-invite-link":
       return [
         "translations_navbar",
+        "translations_game_invite_link",
         "translations_game_invite_receive",
         "translations_local",
         "translations_game_end_info",
