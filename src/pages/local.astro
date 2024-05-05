@@ -1,6 +1,6 @@
 ---
 import GameLayout from "../layouts/game-layout.astro";
-import { type LangDicts } from "../scripts/chess-classes/board/view/BoardView";
+import { type LangDicts } from "../scripts-client/chess-classes/board/view/BoardView";
 
 const langDicts: LangDicts = {
   gameDict: Astro.locals.langDict["local"],
@@ -13,8 +13,8 @@ const langDicts: LangDicts = {
 <GameLayout title={Astro.locals.langDict["local"]["page_title"]} />
 
 <script>
-  import type { LangDicts } from "../scripts/chess-classes/board/view/BoardView";
-  import { initGameLocal } from "../scripts/initLocalGame";
+  import type { LangDicts } from "../scripts-client/chess-classes/board/view/BoardView";
+  import { initGameLocal } from "../scripts-client/initLocalGame";
 
   const dataDiv = document.querySelector<HTMLDivElement>("[data-lang-dict]");
   const langDicts: LangDicts = JSON.parse(

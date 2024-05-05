@@ -1,10 +1,10 @@
-import MatchEnd from "../../scripts/chess-classes/board/controller/MatchEnd";
-import BoardModel from "../../scripts/chess-classes/board/model/BoardModel";
-import FENNotation from "../../scripts/chess-classes/board/model/FENNotation";
-import Pos from "../../scripts/chess-classes/board/model/Pos";
+import MatchEnd from "../../scripts-client/chess-classes/board/controller/MatchEnd";
+import BoardModel from "../../scripts-client/chess-classes/board/model/BoardModel";
+import FENNotation from "../../scripts-client/chess-classes/board/model/FENNotation";
+import Pos from "../../scripts-client/chess-classes/board/model/Pos";
 import PieceModel, {
   TEAMS,
-} from "../../scripts/chess-classes/pieces/model/PieceModel";
+} from "../../scripts-client/chess-classes/pieces/model/PieceModel";
 import type { APIGetGameData, APIGetPostHalfmove, EndInfo } from "../types";
 import getGameData from "./getGameData";
 
