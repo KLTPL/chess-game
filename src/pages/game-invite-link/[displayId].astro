@@ -4,7 +4,7 @@ import getGameInviteLinkData from "../../db/game-invite-link/getGameInviteLink";
 import getGameResInviteLinkData from "../../db/game-invite-link/getGameResInviteLink";
 import isGameInviteLinkValid from "../../db/game-invite-link/isGameInviteLinkValid";
 import GameLayout from "../../layouts/game-layout.astro";
-import type { LangDicts } from "../../scripts/chess-classes/board/view/BoardView";
+import type { LangDicts } from "../../scripts-client/chess-classes/board/view/BoardView";
 
 if (Astro.locals.user === undefined) {
   // should not happen as this is a protected route
@@ -47,8 +47,8 @@ const langDicts: LangDicts = {
 </GameLayout>
 
 <script>
-  import type { LangDicts } from "../../scripts/chess-classes/board/view/BoardView";
-  import { initGameLocal } from "../../scripts/initLocalGame";
+  import type { LangDicts } from "../../scripts-client/chess-classes/board/view/BoardView";
+  import { initGameLocal } from "../../scripts-client/initLocalGame";
   initTempGame();
 
   function initTempGame() {

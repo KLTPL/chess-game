@@ -1,6 +1,6 @@
 ---
 import GameLayout from "../../layouts/game-layout.astro";
-import type { LangDicts } from "../../scripts/chess-classes/board/view/BoardView";
+import type { LangDicts } from "../../scripts-client/chess-classes/board/view/BoardView";
 import CookiesNames from "../../utils/CookiesNames";
 
 const displayId = Astro.params.display_id as string;
@@ -19,11 +19,11 @@ const langDicts: LangDicts = {
 <GameLayout title={Astro.locals.langDict["online_game"]["page_title"]} />
 
 <script>
-  import { initGameOnline } from "../../scripts/initOnlineGame";
+  import { initGameOnline } from "../../scripts-client/initOnlineGame";
   import Cookies from "js-cookie";
   import CookiesNames from "../../utils/CookiesNames";
   import type { APIGetOnlineGame } from "../../db/types";
-  import type { LangDicts } from "../../scripts/chess-classes/board/view/BoardView";
+  import type { LangDicts } from "../../scripts-client/chess-classes/board/view/BoardView";
   const response = await fetch(
     `${import.meta.env.PUBLIC_SERVER_URL}/api/online-game/${Cookies.get(CookiesNames.GAME_DISPLAY_ID)}.json`
   );
