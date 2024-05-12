@@ -26,7 +26,7 @@ export type APIGetGame = {
   start_date: string;
 };
 export type APIGetPostHalfmove = {
-  piece_symbol_fen: string;
+  piece_symbol_fen: PIECE_SYMBOLS;
   halfmove_number: number;
   pos_start_x: number;
   pos_start_y: number;
@@ -35,7 +35,7 @@ export type APIGetPostHalfmove = {
   king_checked_pos_x: null | number;
   king_checked_pos_y: null | number;
   is_castling: boolean;
-  promoted_to_piece_symbol_fen: null | string;
+  promoted_to_piece_symbol_fen: null | PIECE_SYMBOLS;
 };
 
 export type APIGetGameData = {
@@ -156,6 +156,15 @@ export const enum GAME_RESULTS_ID_DB {
   DRAW = 0,
   WHITE = 1,
   BLACK = 2,
+}
+
+export const enum PIECE_SYMBOLS {
+  KING = "k",
+  QUEEN = "q",
+  KNIGHT = "n",
+  ROOK = "r",
+  PAWN = "p",
+  BISHOP = "b",
 }
 
 export type EndInfo = {

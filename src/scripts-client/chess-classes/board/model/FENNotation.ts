@@ -1,3 +1,4 @@
+import { PIECE_SYMBOLS } from "../../../../db/types";
 import {
   type AnyPieceModel,
   PIECES,
@@ -178,7 +179,7 @@ export default class FENNotation {
     return pieces;
   }
 
-  public static convertPieceFENToId(pieceFEN: string): PIECES {
+  public static convertPieceFENToId(pieceFEN: PIECE_SYMBOLS): PIECES {
     switch (pieceFEN) {
       case "r":
         return PIECES.ROOK;
@@ -203,27 +204,27 @@ export default class FENNotation {
     pieceFEN: string,
     board: BoardModel
   ): AnyPieceModel {
-    const lowerCase = pieceFEN.toLowerCase();
+    const lowerCase = pieceFEN.toLowerCase() as PIECE_SYMBOLS;
     const team = pieceFEN === lowerCase ? TEAMS.BLACK : TEAMS.WHITE;
     const id = FENNotation.convertPieceFENToId(lowerCase);
 
     return board.createNewPieceObj(id, team, board) as AnyPieceModel;
   }
 
-  public static convertPieceIdToFEN(piece: PIECES) {
+  public static convertPieceIdToFEN(piece: PIECES): PIECE_SYMBOLS {
     switch (piece) {
       case PIECES.ROOK:
-        return "r";
+        return PIECE_SYMBOLS.ROOK;
       case PIECES.KNIGHT:
-        return "n";
+        return PIECE_SYMBOLS.KNIGHT;
       case PIECES.BISHOP:
-        return "b";
+        return PIECE_SYMBOLS.BISHOP;
       case PIECES.QUEEN:
-        return "q";
+        return PIECE_SYMBOLS.QUEEN;
       case PIECES.KING:
-        return "k";
+        return PIECE_SYMBOLS.KING;
       case PIECES.PAWN:
-        return "p";
+        return PIECE_SYMBOLS.PAWN;
     }
   }
 }

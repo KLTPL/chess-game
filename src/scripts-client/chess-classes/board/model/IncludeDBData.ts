@@ -1,6 +1,5 @@
 import type { APIGetGameData, APIGetPostHalfmove } from "../../../../db/types";
 import Pos from "./Pos";
-import { type AnyPieceModel, TEAMS } from "../../pieces/model/PieceModel";
 import type BoardModel from "./BoardModel";
 import FENNotation from "./FENNotation";
 import type MatchController from "../controller/MatchController";
@@ -60,33 +59,10 @@ export default class IncludeDBData {
     const { pos_start_x, pos_start_y, pos_end_x, pos_end_y } = DBHalfmove;
     const startPos = new Pos(pos_start_y, pos_start_x);
     const endPos = new Pos(pos_end_y, pos_end_x);
-    const piece = m.getPiece(startPos) as AnyPieceModel;
     const promoted = DBHalfmove.promoted_to_piece_symbol_fen;
     const promotedToId =
       promoted === null ? null : FENNotation.convertPieceFENToId(promoted);
     await m.movePiece(startPos, endPos, promotedToId, true);
-    if (DBHalfmove.promoted_to_piece_symbol_fen !== null) {
-      this.placePromotedPieceOnBoard(
-        DBHalfmove.promoted_to_piece_symbol_fen,
-        piece.team,
-        endPos
-      );
-    }
-  }
-
-  private placePromotedPieceOnBoard(
-    piece_fen: string,
-    team: TEAMS,
-    promotionPos: Pos
-  ) {
-    const m = this.boardModel;
-    if (team === TEAMS.WHITE) {
-      piece_fen = piece_fen.toUpperCase();
-    }
-    const promotedToPiece = FENNotation.convertPieceFENToPieceObj(piece_fen, m);
-    m.movesSystem.getLatestHalfmove().setPromotedTo(promotedToPiece);
-    m.removePieceInPos(promotionPos);
-    m.placePieceInPos(promotionPos, promotedToPiece);
   }
 
   public async waitUntilIncludesDBData() {
