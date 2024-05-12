@@ -12,12 +12,14 @@ import { PIECES, TEAMS } from "../../pieces/model/PieceModel";
 import type { PieceViewData } from "../view/Field";
 import AnalisisSystem from "./AnalisisSystem";
 import Pos from "../model/Pos";
-import type PieceView from "../../pieces/view/PieceView";
+import PieceView from "../../pieces/view/PieceView";
 import {
   CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT,
   CSS_PIECE_TRANSITION_DELAY_MS_MOVE_NONE,
 } from "../view/DragAndDropPieces";
 import MatchEnd from "./MatchEnd";
+import type { MoveStream } from "../../../../scripts-server/types";
+import FENNotation from "../model/FENNotation";
 
 export type Players = {
   white: Player;
@@ -40,6 +42,7 @@ export default class MatchController {
   public isAnalisisSystemCreated: Promise<void> | true;
   readonly userTeam: TEAMS | null;
   readonly isGameOnline: boolean;
+  private skipNextStream = false;
   constructor(
     boardArg: BoardArg,
     getOnlineGame: APIGetOnlineGame | null,
@@ -85,7 +88,64 @@ export default class MatchController {
     this.isAnalisisSystemCreated.then(
       () => (this.isAnalisisSystemCreated = true)
     );
+
+    if (getOnlineGame !== null) {
+      const eventSource = new EventSource(
+        `/api/online-game/${getOnlineGame.getDBGameData.game.display_id}/stream`
+      );
+      eventSource.onmessage = (event: MessageEvent<string>) => {
+        this.handleStreamMessage(JSON.parse(event.data));
+      };
+    }
   }
+
+  private handleStreamMessage({ from, to, promotedTo }: MoveStream) {
+    if (this.skipNextStream) {
+      this.skipNextStream = false;
+      return;
+    }
+    const startPos = new Pos(from.y, from.x);
+    const endPos = new Pos(to.y, to.x);
+    const team = this.boardModel.getPiece(startPos)?.team;
+    const promotedToId =
+      promotedTo === null ? null : FENNotation.convertPieceFENToId(promotedTo);
+    if (team === undefined) {
+      throw new Error(
+        `Cannot move piece from position x: ${startPos.x}, y: ${startPos.y}`
+      );
+    }
+    this.boardModel.movePiece(startPos, endPos, promotedToId, true);
+    this.boardView.movePiece(
+      startPos,
+      endPos,
+      team,
+      true,
+      CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT
+    );
+
+    this.boardView.playerHTMLBars.appendNewBars();
+    this.boardView.changeBasedOnHalfmove(
+      this.boardModel.movesSystem.getLatestHalfmove()
+    );
+    if (promotedToId !== null) {
+      this.boardView.removePieceInPos(endPos, true);
+      this.boardView.placePieceInPos(
+        endPos,
+        new PieceView(
+          promotedToId,
+          team,
+          endPos,
+          this.boardView.piecesHtml,
+          this.boardView.isInverted
+        ),
+        CSS_PIECE_TRANSITION_DELAY_MS_MOVE_DEFAULT,
+        false
+      );
+    }
+
+    this.checkIfGameShouldEndAfterMove();
+  }
+
   public async waitForAnalisisSystemCreation() {
     if (this.isAnalisisSystemCreated !== true) {
       await this.isAnalisisSystemCreated;
@@ -123,6 +183,9 @@ export default class MatchController {
   }
 
   public async movePiece(from: Pos, to: Pos) {
+    if (this.isGameOnline) {
+      this.skipNextStream = true;
+    }
     const v = this.boardView;
     const pieceV = v.getField(from).getPiece();
     const capturedPieceV = v.getField(to).getPiece();

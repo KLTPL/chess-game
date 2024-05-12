@@ -30,15 +30,15 @@ const langDicts: LangDicts = {
   Cookies.remove(CookiesNames.GAME_DISPLAY_ID, { path: "/online-game" });
   if (!response.ok) {
     window.location.replace("/404");
-  } else {
-    const dataDiv = document.querySelector<HTMLDivElement>("[data-lang-dict]");
-    const langDicts: LangDicts = JSON.parse(
-      dataDiv?.dataset["langDict"] as string
-    );
-    dataDiv?.remove();
-
-    const getOnlineGame: APIGetOnlineGame = await response.json();
-
-    initGameOnline("[data-page-container]", getOnlineGame, langDicts);
   }
+
+  const dataDiv = document.querySelector<HTMLDivElement>("[data-lang-dict]");
+  const langDicts: LangDicts = JSON.parse(
+    dataDiv?.dataset["langDict"] as string
+  );
+  dataDiv?.remove();
+
+  const getOnlineGame: APIGetOnlineGame = await response.json();
+
+  initGameOnline("[data-page-container]", getOnlineGame, langDicts);
 </script>

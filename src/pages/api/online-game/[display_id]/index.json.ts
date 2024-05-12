@@ -1,11 +1,15 @@
 import { type APIRoute } from "astro";
-import getGameData from "../../../db/game/getGameData";
-import addNewMove from "../../../db/game-halfmove/addNewMove";
-import updateGameResult from "../../../db/game/updateGameResult";
-import type { APIGetOnlineGame, APIGetPostHalfmove } from "../../../db/types";
-import isUserAllowedToMove from "../../../db/game/isUserAllowedToMove";
-import isMoveValid from "../../../db/game/isMoveValid";
-import { getGameId } from "../../../db/game/convertGameIds";
+import getGameData from "../../../../db/game/getGameData";
+import addNewMove from "../../../../db/game-halfmove/addNewMove";
+import updateGameResult from "../../../../db/game/updateGameResult";
+import type {
+  APIGetOnlineGame,
+  APIGetPostHalfmove,
+} from "../../../../db/types";
+import isUserAllowedToMove from "../../../../db/game/isUserAllowedToMove";
+import isMoveValid from "../../../../db/game/isMoveValid";
+import { getGameId } from "../../../../db/game/convertGameIds";
+import OnlineGameController from "../../../../scripts-server/onlineGameController";
 
 export const GET: APIRoute<APIGetOnlineGame> = async ({ params, locals }) => {
   try {
@@ -72,6 +76,13 @@ export const POST: APIRoute = async ({ request, locals, url, params }) => {
     if (isMoveValidData.endInfo !== undefined) {
       updateGameResult(isMoveValidData.endInfo, displayId);
     }
+
+    OnlineGameController.getInstance(displayId).addMove({
+      from: { y: data.pos_start_y, x: data.pos_start_x },
+      to: { y: data.pos_end_y, x: data.pos_end_x },
+      promotedTo: data.promoted_to_piece_symbol_fen,
+    });
+
     return new Response(null, {
       status: 200,
     });
