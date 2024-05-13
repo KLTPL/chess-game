@@ -21,12 +21,11 @@ const LDNav = Astro.locals.langDict["navbar"];
   <body
     class="absolute left-0 top-0 h-full min-h-[100vh] overflow-x-hidden text-base"
   >
-    <div
-      data-page-container
-      class="flex min-h-full w-full flex-col items-center bg-bg1 text-text1"
-    >
+    <div class="flex min-h-full w-full flex-col items-center bg-bg1 text-text1">
       <Nav langDict={LDNav} />
-      <slot />
+      <main>
+        <slot />
+      </main>
     </div>
   </body>
 </html>

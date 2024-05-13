@@ -34,7 +34,7 @@ export default function AuthForm({
   placeholders,
 }: AuthFormProps) {
   return (
-    <>
+    <section>
       <h2 className="pb-3 text-center text-2xl">{headerText}</h2>
       <form
         onSubmit={(ev) => ev.preventDefault()}
@@ -91,6 +91,6 @@ export default function AuthForm({
           onClick={fetchForm}
         />
       </form>
-    </>
+    </section>
   );
 }

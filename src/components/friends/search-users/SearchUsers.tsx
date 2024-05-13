@@ -93,7 +93,7 @@ export default function SearchUsers({
   );
 
   return (
-    <div className="flex w-full flex-col items-stretch overflow-y-auto overflow-x-hidden">
+    <section className="flex w-full flex-col items-stretch overflow-y-auto overflow-x-hidden">
       <input
         type="text"
         placeholder="Wyszukaj po nazwie lub wyświetlanej nazwie"
@@ -267,6 +267,6 @@ export default function SearchUsers({
             </>
           ))}
       </div>
-    </div>
+    </section>
   );
 }
