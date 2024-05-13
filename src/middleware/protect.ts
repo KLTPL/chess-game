@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import verify from "../utils/jwt/verify";
+import verify from "../scripts-server/jwt/verify";
 import CookiesNames from "../utils/CookiesNames";
 import isUserInDB from "../db/app-user/isUserInDB";
 
