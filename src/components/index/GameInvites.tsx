@@ -22,7 +22,7 @@ export default function GameInvites({
     return <div></div>;
   }
   return (
-    <div>
+    <section>
       <h3 className="mb-1 text-center text-xl">{header}</h3>
       <div className="flex h-[200px] flex-row gap-2 overflow-x-auto overflow-y-hidden sm:h-[250px]">
         {gameInvites.map((invite) => (
@@ -34,6 +34,6 @@ export default function GameInvites({
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 }
