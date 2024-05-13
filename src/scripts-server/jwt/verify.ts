@@ -5,7 +5,7 @@ import type { APIGetAppUser } from "../../db/types";
 export default function verify(token: string): APIGetAppUser | false {
   try {
     const pubKey = fs.readFileSync(
-      "./src/utils/generate-keypair/id_rsa_pub.pem",
+      "./src/scripts-server/jwt/generate-keypair/id_rsa_pub.pem",
       { encoding: "utf8", flag: "r" }
     );
 

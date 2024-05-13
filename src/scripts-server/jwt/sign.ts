@@ -4,7 +4,7 @@ import type { APIGetAppUser } from "../../db/types";
 
 export default function sign(user: APIGetAppUser) {
   const privKey = fs.readFileSync(
-    "./src/utils/generate-keypair/id_rsa_priv.pem",
+    "./src/scripts-server/jwt/generate-keypair/id_rsa_priv.pem",
     { encoding: "utf8", flag: "r" }
   );
 

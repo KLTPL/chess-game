@@ -1,13 +1,13 @@
 import type { APIRoute } from "astro";
 import { getUserByNameOrEmailForLogin } from "../../../db/app-user/getUser";
-import validate from "../../../utils/hash-password/validate";
+import validate from "../../../scripts-server/hash-password/validate";
 import {
   LoginErrors,
   type LoginBody,
   type LoginResponse,
 } from "../../../components/sign-in/Form";
 import { setUserLastLogin as DBsetUserLastLogin } from "../../../db/app-user/setUserLastLogin";
-import sign from "../../../utils/jwt/sign";
+import sign from "../../../scripts-server/jwt/sign";
 import CookiesNames from "../../../utils/CookiesNames";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
