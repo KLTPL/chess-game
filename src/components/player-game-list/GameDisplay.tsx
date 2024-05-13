@@ -21,14 +21,28 @@ function convertDate(date: Date) {
   return `${convert(date.getDate())}-${convert(date.getMonth() + 1)}-${date.getFullYear()}`;
 }
 
+function convertTimestamp(timestamp: Date) {
+  const convert = (date: number) => {
+    const str = String(date);
+    if (str.length === 1) {
+      return "0" + str;
+    }
+    return str;
+  };
+  const date = `${convert(timestamp.getDate())}-${convert(timestamp.getMonth() + 1)}-${timestamp.getFullYear()}`;
+  const time = `${convert(timestamp.getHours())}:${convert(timestamp.getMinutes() + 1)}:${convert(timestamp.getSeconds())}`;
+  return `${date} ${time}`;
+}
+
 export default function GameDisplay({
   DBGameData: { game, halfmoves },
   borderBottom,
   borderTop,
   langDictGameList: langDict,
 }: GameDisplayProps) {
-  const dS = convertDate(new Date(game.start_date));
-  const dE = convertDate(new Date(game.end_date));
+  const dateStart = convertDate(new Date(game.start_date));
+  const timestampStart = convertTimestamp(new Date(game.start_date));
+  const timestampEnd = convertTimestamp(new Date(game.end_date));
   return (
     <a
       href={`/online-game/${game.display_id}`}
@@ -63,12 +77,15 @@ export default function GameDisplay({
           child={getGameResult(
             game.result_id,
             langDict["result-in_progress"],
-            dE
+            timestampEnd
           )}
           width={WIDTHS.RESULT}
         />
         <ColumnEl child={String(halfmoves.length)} width={WIDTHS.MOVES} />
-        <ColumnEl child={dS} width={WIDTHS.DATE} />
+        <ColumnEl
+          child={<div title={timestampStart}>{dateStart}</div>}
+          width={WIDTHS.DATE}
+        />
       </div>
     </a>
   );
