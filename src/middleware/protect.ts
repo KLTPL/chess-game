@@ -12,7 +12,7 @@ const PROTECTED_PATHS = [
   "/game-invite-link/*",
   "/api/friend-connection/*",
   "/api/friends",
-  "/api/related-users.json",
+  "/api/related-users",
   "/api/search-alias/*",
 ];
 
