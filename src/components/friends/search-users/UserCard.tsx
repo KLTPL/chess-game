@@ -2,10 +2,12 @@ import type { UseMutateFunction } from "react-query";
 import type { APIGetAppUser } from "../../../db/types";
 import GameInviteButton from "../../game-invite/create/GameInviteCreate";
 import ButtonPrimary from "../../buttons/ButtonPrimary";
+import ButtonSecondary from "../../buttons/ButtonSecondary";
 
 export type ButtonInfo = {
   onClick: UseMutateFunction<void, unknown, string, unknown>;
   text: string;
+  isSecondary?: true;
 };
 
 type FriendCardProps = {
@@ -52,13 +54,21 @@ export default function UserCard({
         {isGameInviteButton === true && (
           <GameInviteButton user={user} langDict={langDictGameInviteCreate} />
         )}
-        {buttons.map(({ text, onClick }) => (
-          <ButtonPrimary
-            key={text}
-            textContent={text}
-            onClick={() => onClick(user.id)}
-          />
-        ))}
+        {buttons.map(({ text, onClick, isSecondary }) =>
+          isSecondary === true ? (
+            <ButtonSecondary
+              key={text}
+              textContent={text}
+              onClick={() => onClick(user.id)}
+            />
+          ) : (
+            <ButtonPrimary
+              key={text}
+              textContent={text}
+              onClick={() => onClick(user.id)}
+            />
+          )
+        )}
       </div>
     </div>
   );

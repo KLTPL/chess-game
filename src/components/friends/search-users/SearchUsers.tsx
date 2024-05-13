@@ -192,6 +192,7 @@ export default function SearchUsers({
                   {
                     text: langDictFriends["card_button-accept"],
                     onClick: mutateAcceptFriendInvite,
+                    isSecondary: true,
                   },
                   {
                     text: langDictFriends["card_button-reject"],
@@ -243,6 +244,7 @@ export default function SearchUsers({
                   {
                     text: langDictFriends["card_button-accept"],
                     onClick: mutateAcceptFriendInvite,
+                    isSecondary: true,
                   },
                   {
                     text: langDictFriends["card_button-reject"],
