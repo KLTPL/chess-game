@@ -8,12 +8,12 @@ export async function fetchUsers(
 ): Promise<APIRespGetSearchAlias | APIRespGetRelatedUsers> {
   if (userAlias.length <= 1) {
     const res = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/related-users.json`
+      `${import.meta.env.PUBLIC_SERVER_URL}/api/related-users`
     );
     return (await res.json()) as APIRespGetRelatedUsers;
   }
   const res = await fetch(
-    `${import.meta.env.PUBLIC_SERVER_URL}/api/search-alias/${userAlias}.json`
+    `${import.meta.env.PUBLIC_SERVER_URL}/api/search-alias/${userAlias}`
   );
   return (await res.json()) as APIRespGetSearchAlias;
 }
