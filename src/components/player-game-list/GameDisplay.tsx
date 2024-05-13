@@ -9,13 +9,7 @@ type GameDisplayProps = {
   langDictGameList: Record<string, string>;
 };
 
-export default function GameDisplay({
-  DBGameData: { game, halfmoves },
-  borderBottom,
-  borderTop,
-  langDictGameList: langDict,
-}: GameDisplayProps) {
-  const d = new Date(game.start_date);
+function convertDate(date: Date) {
   const convert = (date: number) => {
     const str = String(date);
     if (str.length === 1) {
@@ -23,6 +17,18 @@ export default function GameDisplay({
     }
     return str;
   };
+
+  return `${convert(date.getDate())}-${convert(date.getMonth() + 1)}-${date.getFullYear()}`;
+}
+
+export default function GameDisplay({
+  DBGameData: { game, halfmoves },
+  borderBottom,
+  borderTop,
+  langDictGameList: langDict,
+}: GameDisplayProps) {
+  const dS = convertDate(new Date(game.start_date));
+  const dE = convertDate(new Date(game.end_date));
   return (
     <a
       href={`/online-game/${game.display_id}`}
@@ -54,14 +60,15 @@ export default function GameDisplay({
           width={WIDTHS.PLAYERS}
         />
         <ColumnEl
-          child={getGameResult(game.result_id, langDict["result-in_progress"])}
+          child={getGameResult(
+            game.result_id,
+            langDict["result-in_progress"],
+            dE
+          )}
           width={WIDTHS.RESULT}
         />
         <ColumnEl child={String(halfmoves.length)} width={WIDTHS.MOVES} />
-        <ColumnEl
-          child={`${convert(d.getDay())}-${convert(d.getMonth())}-${d.getFullYear()}`}
-          width={WIDTHS.DATE}
-        />
+        <ColumnEl child={dS} width={WIDTHS.DATE} />
       </div>
     </a>
   );
@@ -69,18 +76,19 @@ export default function GameDisplay({
 
 function getGameResult(
   resultId: GAME_RESULTS_ID_DB | null,
-  inProgressTranslation: string
+  inProgressTranslation: string,
+  dateEnd: string
 ): ReactNode {
   if (resultId === GAME_RESULTS_ID_DB.WHITE) {
     return (
-      <div>
+      <div title={dateEnd}>
         <div>1</div>
         <div>0</div>
       </div>
     );
   } else if (resultId === GAME_RESULTS_ID_DB.BLACK) {
     return (
-      <div>
+      <div title={dateEnd}>
         <div>0</div>
         <div>1</div>
       </div>

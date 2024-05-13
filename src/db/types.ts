@@ -24,6 +24,7 @@ export type APIGetGame = {
   user_b_display_name: string;
   user_b_name: string;
   start_date: string;
+  end_date: string;
 };
 export type APIGetPostHalfmove = {
   piece_symbol_fen: PIECE_SYMBOLS;
