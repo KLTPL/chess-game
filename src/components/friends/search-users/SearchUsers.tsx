@@ -44,6 +44,10 @@ export default function SearchUsers({
     queryClient.invalidateQueries(["search-users"]);
     searchDataRefetch();
   }
+  function isSearchTheSame(search: string) {
+    console.log(searchbardRef.current?.value, "===", search);
+    return searchbardRef.current?.value === search;
+  }
   const { mutate: mutatePostFriendInvite } = useMutation({
     mutationFn: async (userIdTo: string) => await postFriendInvite(userIdTo),
     onSuccess: invalidate,
@@ -95,7 +99,18 @@ export default function SearchUsers({
         type="text"
         placeholder="Wyszukaj po nazwie lub wyświetlanej nazwie"
         className="w-[97vw] rounded-md p-2 text-center text-black shadow-lg"
-        onChange={(ev) => setSearch(ev.target.value)}
+        onChange={(ev) => {
+          const currVal = ev.target.value;
+          if (currVal.length < 2) {
+            setSearch(currVal);
+          } else {
+            setTimeout(() => {
+              if (isSearchTheSame(currVal)) {
+                setSearch(currVal);
+              }
+            }, 200);
+          }
+        }}
         ref={searchbardRef}
         spellCheck={false}
       />
