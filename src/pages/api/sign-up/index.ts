@@ -8,31 +8,33 @@ import { getUserByEmail, getUserByName } from "../../../db/app-user/getUser";
 import addNewUser from "../../../db/app-user/addNewUser";
 import Validator from "email-validator";
 
-const NAME_AND_EMAIL_MAX = 50;
+const NAME_AND_DISPLAY_NAME_MAX = 20; // the same as in the database
+const EMAIL_MAX = 50;
 const PASSWORD_MAX = 100;
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = (await request.json()) as RegisterBody;
     const { email, username, displayName, password } = body;
-    if (email.length > NAME_AND_EMAIL_MAX) {
+    const LD = locals.langDict["sign_up_error"];
+    if (email.length > EMAIL_MAX) {
       return getResponseObj(
         RegisterErrors.EMAIL_TO_LONG,
-        `Email musi mieć ${NAME_AND_EMAIL_MAX} znaków lub mniej`,
+        `${LD["error-email_to_long_1"]} ${EMAIL_MAX} ${LD["error-email_to_long_2"]}`,
         400
       );
     }
     if (!Validator.validate(email)) {
       return getResponseObj(
         RegisterErrors.EMAIL_NOT_VALID,
-        `Nieprawidłowy email`,
+        LD["error-email_not_valid"],
         400
       );
     }
-    if (username.length > NAME_AND_EMAIL_MAX) {
+    if (username.length > NAME_AND_DISPLAY_NAME_MAX) {
       return getResponseObj(
         RegisterErrors.USERNAME_TO_LONG,
-        `Nazwa użytkownika musi mieć ${NAME_AND_EMAIL_MAX} znaków lub mniej`,
+        `${LD["error-username_to_long_1"]} ${NAME_AND_DISPLAY_NAME_MAX} ${LD["error-username_to_long_2"]}`,
         400
       );
     }
@@ -40,21 +42,21 @@ export const POST: APIRoute = async ({ request }) => {
     if (!regex.test(username)) {
       return getResponseObj(
         RegisterErrors.USERNAME_WITH_FORBIDDEN_CHARACKTERS,
-        `Nazwa użytkownika może zawierać tylko litery, cyfry, przecinki i podłogi`,
+        LD["error-username_with_forbidden_charackters"],
         400
       );
     }
-    if (displayName.length > NAME_AND_EMAIL_MAX) {
+    if (displayName.length > NAME_AND_DISPLAY_NAME_MAX) {
       return getResponseObj(
         RegisterErrors.DISPLAY_NAME_TO_LONG,
-        `Wyświetlana nazwa użytkownika musi mieć ${NAME_AND_EMAIL_MAX} znaków lub mniej`,
+        `${LD["error-display_name_to_long_1"]} ${NAME_AND_DISPLAY_NAME_MAX} ${LD["error-display_name_to_long_2"]}`,
         400
       );
     }
     if (password.length > PASSWORD_MAX) {
       return getResponseObj(
         RegisterErrors.PASSWORD_TO_LONG,
-        `Hasło musi mieć ${PASSWORD_MAX} znaków lub mniej`,
+        `${LD["error-password_to_long_1"]} ${PASSWORD_MAX} ${LD["error-password_to_long_2"]}`,
         400
       );
     }
@@ -63,7 +65,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (userEmail !== null) {
       return getResponseObj(
         RegisterErrors.EMAIL_TAKEN,
-        `Email już w użyciu`,
+        LD["error-email_taken"],
         409
       );
     }
@@ -72,7 +74,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (userUsername !== null) {
       return getResponseObj(
         RegisterErrors.USERNAME_TAKEN,
-        `Nazwa użytkownika już w użyciu`,
+        LD["error-username_taken"],
         409
       );
     }

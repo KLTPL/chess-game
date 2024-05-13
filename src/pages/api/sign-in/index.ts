@@ -10,15 +10,15 @@ import { setUserLastLogin as DBsetUserLastLogin } from "../../../db/app-user/set
 import sign from "../../../scripts-server/jwt/sign";
 import CookiesNames from "../../../utils/CookiesNames";
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies, locals }) => {
   try {
     const { usernameOrEmail, password } = (await request.json()) as LoginBody;
     const user = await getUserByNameOrEmailForLogin(usernameOrEmail);
-
     if (user === null) {
       const response: LoginResponse = {
         errorCode: LoginErrors.USERNAME_OR_EMAIL_NOT_FOUND,
-        errorMessage: "Błędny email lub nazwa użytkownika",
+        errorMessage:
+          locals.langDict["sign_in_error"]["error-username_or_email_not_found"],
       };
       return new Response(JSON.stringify(response), {
         status: 401,
@@ -42,7 +42,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     } else {
       const response: LoginResponse = {
         errorCode: LoginErrors.WRONG_PASSWORD,
-        errorMessage: "Błędne hasło",
+        errorMessage: locals.langDict["sign_in_error"]["error-wrong_password"],
       };
       return new Response(JSON.stringify(response), {
         status: 401,

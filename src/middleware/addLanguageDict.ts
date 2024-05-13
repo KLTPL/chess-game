@@ -3,10 +3,15 @@ import getTranslation, {
   type Translation,
 } from "../db/translations/getTranslation";
 
+const API_ROUTES_WITH_TRANSLATIONS = ["/api/sign-in", "/api/sign-up"];
+
 const addLanguageDict = defineMiddleware(
   async ({ url, request, locals }, next) => {
     try {
-      if (url.pathname.slice(0, 4) === "/api") {
+      if (
+        !API_ROUTES_WITH_TRANSLATIONS.includes(url.pathname) &&
+        url.pathname.slice(0, 4) === "/api"
+      ) {
         return next();
       }
       const langDict = await getLangDict(
@@ -31,6 +36,7 @@ async function getLangDict(
   const lang = prefLang !== "en" ? "pl" : prefLang;
 
   const names = getDBTranslationNames(pathname);
+
   for (const name of names) {
     const translations = await getTranslation(name, lang);
     const dict = convertTranslationsToDict(translations);
@@ -74,6 +80,8 @@ function getDBTranslationNames(
   | "translations_local"
   | "translations_game_end_info"
   | "translations_online_game"
+  | "translations_sign_in_error"
+  | "translations_sign_up_error"
 )[] {
   // pathname format: "/[pathStart]/"
   const slashIdx = pathname.indexOf("/", 1);
@@ -127,6 +135,12 @@ function getDBTranslationNames(
         "translations_local",
         "translations_game_end_info",
       ];
+  }
+  if (pathname === "/api/sign-in") {
+    return ["translations_sign_in_error"];
+  }
+  if (pathname === "/api/sign-up") {
+    return ["translations_sign_up_error"];
   }
   return []; // should not happen
 }

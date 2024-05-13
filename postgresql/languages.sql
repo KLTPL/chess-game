@@ -102,6 +102,14 @@ VALUES
   ('en', 'password', 'Password:'),
   ('en', 'no_account', 'Don''t have an account? Sign up');
 
+CREATE TABLE translations_sign_in_error (LIKE translations INCLUDING ALL);
+INSERT INTO translations_sign_in_error (language_code, text_key, translated_text)
+VALUES
+  ('pl', 'error-username_or_email_not_found', 'Błędny email lub nazwa użytkownika'),
+  ('pl', 'error-wrong_password', 'Błędne hasło'),
+  ('en', 'error-username_or_email_not_found', 'Incorrect email or username'),
+  ('en', 'error-wrong_password', 'Incorrect password');
+  
 CREATE TABLE translations_sign_up (LIKE translations INCLUDING ALL);
 INSERT INTO translations_sign_up (language_code, text_key, translated_text)
 VALUES
@@ -123,6 +131,34 @@ VALUES
   ('en', 'field-optional', '[optional]'),
   ('en', 'field-required', '[required]'),
   ('en', 'account_made', 'Already have an account? Sign in');
+
+CREATE TABLE translations_sign_up_error (LIKE translations INCLUDING ALL);
+INSERT INTO translations_sign_up_error (language_code, text_key, translated_text)
+VALUES
+  ('pl', 'error-username_taken', 'Nazwa użytkownika już w użyciu'),
+  ('pl', 'error-email_taken', 'Email już w użyciu'),
+  ('pl', 'error-email_not_valid', 'Nieprawidłowy email'),
+  ('pl', 'error-username_to_long_1', 'Nazwa użytkownika musi mieć'),
+  ('pl', 'error-username_to_long_2', 'znaków lub mniej'),
+  ('pl', 'error-username_with_forbidden_charackters', 'Nazwa użytkownika może zawierać tylko litery, cyfry, przecinki i podłogi'),
+  ('pl', 'error-display_name_to_long_1', 'Wyświetlana nazwa użytkownika musi mieć'),
+  ('pl', 'error-display_name_to_long_2', 'znaków lub mniej'),
+  ('pl', 'error-email_to_long_1', 'Email musi mieć'),
+  ('pl', 'error-email_to_long_2', 'znaków lub mniej'),
+  ('pl', 'error-password_to_long_1', 'Hasło musi mieć'),
+  ('pl', 'error-password_to_long_2', 'znaków lub mniej'),
+  ('en', 'error-username_taken', 'Username already in use'),
+  ('en', 'error-email_taken', 'Email already in use'),
+  ('en', 'error-email_not_valid', 'Invalid email'),
+  ('en', 'error-username_to_long_1', 'Username must have'),
+  ('en', 'error-username_to_long_2', 'characters or fewer'),
+  ('en', 'error-username_with_forbidden_charackters', 'Username can only contain letters, numbers, commas, and underscores'),
+  ('en', 'error-display_name_to_long_1', 'Display name must have'),
+  ('en', 'error-display_name_to_long_2', 'characters or fewer'),
+  ('en', 'error-email_to_long_1', 'Email must have'),
+  ('en', 'error-email_to_long_2', 'characters or fewer'),
+  ('en', 'error-password_to_long_1', 'Password must have'),
+  ('en', 'error-password_to_long_2', 'characters or fewer');
 
 CREATE TABLE translations_friends (LIKE translations INCLUDING ALL);
 INSERT INTO translations_friends (language_code, text_key, translated_text)

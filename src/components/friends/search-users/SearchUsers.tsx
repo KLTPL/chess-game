@@ -45,7 +45,6 @@ export default function SearchUsers({
     searchDataRefetch();
   }
   function isSearchTheSame(search: string) {
-    console.log(searchbardRef.current?.value, "===", search);
     return searchbardRef.current?.value === search;
   }
   const { mutate: mutatePostFriendInvite } = useMutation({
