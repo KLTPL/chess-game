@@ -8,6 +8,7 @@ declare namespace App {
       | {
           id: string;
         };
+    lang: "pl" | "en";
     langDict: Record<string, Record<string, string>>;
   }
 }
