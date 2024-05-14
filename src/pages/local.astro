@@ -1,26 +1,19 @@
 ---
 import GameLayout from "../layouts/game-layout.astro";
 import { type LangDicts } from "../scripts-client/chess-classes/board/view/BoardView";
+import Game from "../components/game/Game";
 
 const langDicts: LangDicts = {
   gameDict: Astro.locals.langDict["local"],
   gameEndPopupDict: Astro.locals.langDict["game_end_info"],
 };
-// Pass the language dictionary to a div data attribute to get it on the client side.
 ---
 
-<div data-lang-dict={JSON.stringify(langDicts)}></div>
-<GameLayout title={Astro.locals.langDict["local"]["page_title"]} />
-
-<script>
-  import type { LangDicts } from "../scripts-client/chess-classes/board/view/BoardView";
-  import { initGameLocal } from "../scripts-client/initLocalGame";
-
-  const dataDiv = document.querySelector<HTMLDivElement>("[data-lang-dict]");
-  const langDicts: LangDicts = JSON.parse(
-    dataDiv?.dataset["langDict"] as string
-  );
-  dataDiv?.remove();
-
-  initGameLocal("[data-page-container]", langDicts);
-</script>
+<GameLayout title={Astro.locals.langDict["local"]["page_title"]}>
+  <Game
+    langDicts={langDicts}
+    getOnlineGame={null}
+    htmlPageContainerQSelector="[data-page-container]"
+    client:only="react"
+  />
+</GameLayout>
