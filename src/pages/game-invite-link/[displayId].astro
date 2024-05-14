@@ -37,7 +37,9 @@ const langDicts: LangDicts = {
 // Pass the language dictionary to a div data attribute to get it on the client side.
 ---
 
-<GameLayout title={LDGameInviteLink["page_title"]}>
+<GameLayout
+  title={`${LDGameInviteLink["page_title"]} ${resGameInviteLinkData.user_from.display_name}`}
+>
   <div data-lang-dict={JSON.stringify(langDicts)}></div>
   <GameInviteLink
     gameInviteLinkData={resGameInviteLinkData}
