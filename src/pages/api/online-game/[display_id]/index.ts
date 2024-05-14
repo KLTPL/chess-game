@@ -44,11 +44,20 @@ export const POST: APIRoute = async ({ request, locals, url, params }) => {
       updateGameResult(isMoveValidData.endInfo, displayId);
     }
 
-    OnlineGameController.getInstance(displayId).addMove({
-      from: { y: data.pos_start_y, x: data.pos_start_x },
-      to: { y: data.pos_end_y, x: data.pos_end_x },
-      promotedTo: data.promoted_to_piece_symbol_fen,
-    });
+    try {
+      // try-catch so the code for emiting doesn't throw an error resulting in status 500 response
+      OnlineGameController.getInstance(displayId).addMove({
+        from: { y: data.pos_start_y, x: data.pos_start_x },
+        to: { y: data.pos_end_y, x: data.pos_end_x },
+        promotedTo: data.promoted_to_piece_symbol_fen,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      } else {
+        console.log(error);
+      }
+    }
 
     return new Response(null, {
       status: 200,

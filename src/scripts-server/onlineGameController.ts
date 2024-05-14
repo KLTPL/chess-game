@@ -32,5 +32,6 @@ export default class OnlineGameController {
 
   public addMove(move: MoveStream): void {
     this.emitter.emit("move", move);
+    throw new Error("GÓWNO");
   }
 }
