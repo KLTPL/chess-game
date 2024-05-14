@@ -14,10 +14,8 @@ const addLanguageDict = defineMiddleware(
       ) {
         return next();
       }
-      const langDict = await getLangDict(
-        url.pathname,
-        request.headers.get("accept-language")
-      );
+      locals.lang = getLang(request.headers.get("accept-language"));
+      const langDict = await getLangDict(url.pathname, locals.lang);
       locals.langDict = langDict;
       return await next();
     } catch (err) {
@@ -29,11 +27,9 @@ const addLanguageDict = defineMiddleware(
 
 async function getLangDict(
   pathname: string,
-  acceptLanguageHeader: string | null
+  lang: "pl" | "en"
 ): Promise<Record<string, Record<string, string>>> {
   const langDict: Record<string, Record<string, string>> = {};
-  const prefLang = extractPreferredLanguage(acceptLanguageHeader);
-  const lang = prefLang !== "en" ? "pl" : prefLang;
 
   const names = getDBTranslationNames(pathname);
 
@@ -43,6 +39,11 @@ async function getLangDict(
     langDict[name.slice("translations_".length)] = dict;
   }
   return langDict;
+}
+
+function getLang(acceptLanguageHeader: string | null) {
+  const prefLang = extractPreferredLanguage(acceptLanguageHeader);
+  return prefLang !== "en" ? "pl" : prefLang;
 }
 
 function extractPreferredLanguage(acceptLanguageHeader: string | null) {
