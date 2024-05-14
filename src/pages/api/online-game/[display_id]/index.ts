@@ -55,7 +55,7 @@ export const POST: APIRoute = async ({ request, locals, url, params }) => {
       if (error instanceof Error) {
         console.error(error.message);
       } else {
-        console.log(error);
+        console.error(error);
       }
     }
 
