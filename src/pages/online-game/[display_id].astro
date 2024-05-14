@@ -2,43 +2,38 @@
 import GameLayout from "../../layouts/game-layout.astro";
 import type { LangDicts } from "../../scripts-client/chess-classes/board/view/BoardView";
 import CookiesNames from "../../utils/CookiesNames";
+import Game from "../../components/game/Game";
+import type { APIGetOnlineGame } from "../../db/types";
+import getGameData from "../../db/game/getGameData";
 
 const displayId = Astro.params.display_id as string;
+const gameData = await getGameData(displayId);
+
+if (gameData === null) {
+  return new Response(null, { status: 404, statusText: "Not found" });
+}
 
 // set display id as a cookie to get it on the client
 Astro.cookies.set(CookiesNames.GAME_DISPLAY_ID, displayId);
+
+const getOnlineGame: APIGetOnlineGame = {
+  getDBGameData: gameData,
+  userId: Astro.locals.user?.id,
+};
 
 const langDicts: LangDicts = {
   gameDict: Astro.locals.langDict["online_game"],
   gameEndPopupDict: Astro.locals.langDict["game_end_info"],
 };
-// Pass the language dictionary to a div data attribute to get it on the client side.
 ---
 
-<div data-lang-dict={JSON.stringify(langDicts)}></div>
-<GameLayout title={Astro.locals.langDict["online_game"]["page_title"]} />
-
-<script>
-  import { initGameOnline } from "../../scripts-client/initOnlineGame";
-  import Cookies from "js-cookie";
-  import CookiesNames from "../../utils/CookiesNames";
-  import type { APIGetOnlineGame } from "../../db/types";
-  import type { LangDicts } from "../../scripts-client/chess-classes/board/view/BoardView";
-  const response = await fetch(
-    `${import.meta.env.PUBLIC_SERVER_URL}/api/online-game/${Cookies.get(CookiesNames.GAME_DISPLAY_ID)}`
-  );
-  Cookies.remove(CookiesNames.GAME_DISPLAY_ID, { path: "/online-game" });
-  if (!response.ok) {
-    window.location.replace("/404");
-  }
-
-  const dataDiv = document.querySelector<HTMLDivElement>("[data-lang-dict]");
-  const langDicts: LangDicts = JSON.parse(
-    dataDiv?.dataset["langDict"] as string
-  );
-  dataDiv?.remove();
-
-  const getOnlineGame: APIGetOnlineGame = await response.json();
-
-  initGameOnline("[data-page-container]", getOnlineGame, langDicts);
-</script>
+<GameLayout
+  title={`${Astro.locals.langDict["online_game"]["page_title"]}: ${getOnlineGame.getDBGameData.game.user_w_display_name} vs. ${getOnlineGame.getDBGameData.game.user_b_display_name}`}
+>
+  <Game
+    getOnlineGame={getOnlineGame}
+    htmlPageContainerQSelector="[data-page-container]"
+    langDicts={langDicts}
+    client:only="react"
+  />
+</GameLayout>
