@@ -200,8 +200,8 @@ VALUES
 CREATE TABLE translations_game_invite_link (LIKE translations INCLUDING ALL);
 INSERT INTO translations_game_invite_link (language_code, text_key, translated_text)
 VALUES
-  ('pl', 'page_title', 'Link zaproszeniowy do gry'),
-  ('en', 'page_title', 'Game invitation link');
+  ('pl', 'page_title', 'Zaproszenie do gry od'),
+  ('en', 'page_title', 'Game invitation from');
 
 CREATE TABLE translations_game_end_info (LIKE translations INCLUDING ALL);
 -- all values from text_key with 'result-[value]' or 'reason-[value]' format are the same as corresponding value in 
