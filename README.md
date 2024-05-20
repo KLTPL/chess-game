@@ -92,7 +92,10 @@ Install node dependencies
 npm install
 ```
 
-### 7. Enviremental variables
+### 7. Private key
+A private key is used to encrypt user data. Create the ./src/scripts-server/jwt/generate-keypair/id_rsa_priv.pem file and paste the key inside.
+
+### 8. Enviremental variables
 
 The application needs a .env file in the root directory in order to work properly.
 

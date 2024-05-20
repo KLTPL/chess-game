@@ -8,6 +8,7 @@ const pool = new Pool({
   host: import.meta.env.PSQL_HOST,
   port: parseInt(import.meta.env.PSQL_PORT),
   database: import.meta.env.PSQL_DATABASE,
+  ssl: true,
 });
 
 pool.connect();
