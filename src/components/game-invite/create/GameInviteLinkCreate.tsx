@@ -31,7 +31,7 @@ export default function GameInviteLinkButton({
     });
     const resObj: APIRespPostGameInviteLink = await res.json();
     if (res.ok) {
-      navigator.clipboard.writeText(resObj.inviteLink);
+      navigator.clipboard.writeText(location.origin + resObj.inviteLink);
       showNewNotification(
         langDict["invite_link_notification-success"],
         "succes"
