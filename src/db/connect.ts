@@ -7,7 +7,7 @@ const pool = new Pool({
   password: import.meta.env.POSTGRES_PASSWORD,
   host: import.meta.env.POSTGRES_HOST,
   port: parseInt(import.meta.env.POSTGRES_PORT),
-  database: import.meta.env.POSTGRES_DATABASE,
+  database: import.meta.env.POSTGRES_APP_DATABASE,
   ssl: true,
 });
 
