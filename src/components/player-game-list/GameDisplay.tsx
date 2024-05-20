@@ -81,7 +81,10 @@ export default function GameDisplay({
           )}
           width={WIDTHS.RESULT}
         />
-        <ColumnEl child={String(halfmoves.length)} width={WIDTHS.MOVES} />
+        <ColumnEl
+          child={String(Math.floor(halfmoves.length / 2))}
+          width={WIDTHS.MOVES}
+        />
         <ColumnEl
           child={<div title={timestampStart}>{dateStart}</div>}
           width={WIDTHS.DATE}
