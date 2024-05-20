@@ -108,7 +108,6 @@ POSTGRES_PASSWORD= # database password
 POSTGRES_PORT= # database port
 POSTGRES_DATABASE= # database database name
 POSTGRES_HOST= # database host
-PUBLIC_SERVER_URL= # server url used on the client
 ```
 
 ## Commands
