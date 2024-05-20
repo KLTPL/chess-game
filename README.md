@@ -106,7 +106,7 @@ A template for your .env file (all required):
 POSTGRES_USER= # database user
 POSTGRES_PASSWORD= # database password
 POSTGRES_PORT= # database port
-POSTGRES_DATABASE= # database database name
+POSTGRES_APP_DATABASE= # database database name
 POSTGRES_HOST= # database host
 ```
 
