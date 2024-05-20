@@ -25,13 +25,10 @@ export default function GameInviteLinkButton({
     const data: APIPostGameInviteLink = {
       isUserFromWhite: isUserFromWhite,
     };
-    const res = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite-link/`,
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      }
-    );
+    const res = await fetch(`/api/game-invite-link/`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
     const resObj: APIRespPostGameInviteLink = await res.json();
     if (res.ok) {
       navigator.clipboard.writeText(resObj.inviteLink);

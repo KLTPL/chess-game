@@ -25,13 +25,10 @@ export default function GameInviteButton({
       userToId: user.id,
       isUserFromWhite: isUserFromWhite,
     };
-    const res = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite/`,
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      }
-    );
+    const res = await fetch(`/api/game-invite/`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
     if (res.ok) {
       showNewNotification(langDict["invite_notification-success"], "succes");
     } else {

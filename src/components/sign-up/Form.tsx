@@ -78,13 +78,10 @@ export default function Form({ langDict }: FormProps) {
         displayName,
         password,
       };
-      const response = await fetch(
-        `${import.meta.env.PUBLIC_SERVER_URL}/api/sign-up`,
-        {
-          method: "POST",
-          body: JSON.stringify(body),
-        }
-      );
+      const response = await fetch(`/api/sign-up`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
 
       const { errorCode, errorMessage }: RegisterResponse =
         await response.json();

@@ -6,7 +6,7 @@ async function fetchPlayerGames(
   data: APIGetUserGames
 ): Promise<APIGetGameData[] | null> {
   const res = await fetch(
-    `${import.meta.env.PUBLIC_SERVER_URL}/api/user-games/${data.id}/${data.startIdx}-${data.endIdx}`,
+    `/api/user-games/${data.id}/${data.startIdx}-${data.endIdx}`,
     {
       method: "GET",
     }

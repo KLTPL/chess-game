@@ -22,13 +22,10 @@ export default function GameInviteReceive({
       inviteId: gameInvite.id,
       userFromId: gameInvite.user_from.id,
     };
-    const res = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite/`,
-      {
-        method: "PUT",
-        body: JSON.stringify(data),
-      }
-    );
+    const res = await fetch(`/api/game-invite/`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
     if (res.ok) {
       onDelete?.();
       const { newGamePath } = (await res.json()) as APIRespPutGameInvite;
@@ -40,13 +37,10 @@ export default function GameInviteReceive({
     const data: APIDeleteGameInvite = {
       inviteId: gameInvite.id,
     };
-    const res = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite/`,
-      {
-        method: "DELETE",
-        body: JSON.stringify(data),
-      }
-    );
+    const res = await fetch(`/api/game-invite/`, {
+      method: "DELETE",
+      body: JSON.stringify(data),
+    });
     if (res.ok) {
       onDelete?.();
     }

@@ -19,10 +19,10 @@ export default function GameInviteLinkReceive({
     const data: APIPutGameInviteLink = {
       id: gameInvite.id,
     };
-    const response = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite-link/`,
-      { method: "PUT", body: JSON.stringify(data) }
-    );
+    const response = await fetch(`/api/game-invite-link/`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
     if (response.ok) {
       const getOnlineGame: APIRespPutGameInviteLink = await response.json();
       window.location.replace(getOnlineGame.newGamePath);
@@ -35,7 +35,7 @@ export default function GameInviteLinkReceive({
     const data: APIDeleteGameInviteLink = {
       id: gameInvite.id,
     };
-    await fetch(`${import.meta.env.PUBLIC_SERVER_URL}/api/game-invite-link/`, {
+    await fetch(`/api/game-invite-link/`, {
       method: "DELETE",
       body: JSON.stringify(data),
     });

@@ -30,22 +30,17 @@ export default class FetchToDB {
           ? null
           : FENNotation.convertPieceIdToFEN(promotedTo.id),
     };
-    const res = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/online-game/${this.gameDisplayId}`,
-      {
-        method: "POST",
-        body: JSON.stringify(GetDBHalfmove),
-      }
-    );
+    const res = await fetch(`/api/online-game/${this.gameDisplayId}`, {
+      method: "POST",
+      body: JSON.stringify(GetDBHalfmove),
+    });
     return res.ok;
   }
 
   public static async getResultName(
     resultId: string | number
   ): Promise<string | null> {
-    const response: Response = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-result/${resultId}`
-    );
+    const response: Response = await fetch(`/api/game-result/${resultId}`);
     if (response.status !== 200) {
       return null;
     }
@@ -56,9 +51,7 @@ export default class FetchToDB {
   public static async getEndReasonName(
     resultId: string | number
   ): Promise<string | null> {
-    const response: Response = await fetch(
-      `${import.meta.env.PUBLIC_SERVER_URL}/api/game-end-reason/${resultId}`
-    );
+    const response: Response = await fetch(`/api/game-end-reason/${resultId}`);
 
     if (response.status !== 200) {
       return null;

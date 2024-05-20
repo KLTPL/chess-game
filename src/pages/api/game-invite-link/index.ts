@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ locals, request, url }) => {
 
     const displayId = await addGameInviteLink(userFromId, isUserFromWhite);
     const result: APIRespPostGameInviteLink = {
-      inviteLink: `${import.meta.env.PUBLIC_SERVER_URL}/game-invite-link/${displayId}`,
+      inviteLink: `/game-invite-link/${displayId}`,
     };
     return new Response(JSON.stringify(result), {
       status: 200,
