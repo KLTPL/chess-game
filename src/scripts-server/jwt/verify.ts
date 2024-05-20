@@ -1,12 +1,10 @@
-import fs from "fs";
 import jwt from "jsonwebtoken";
 import type { APIGetAppUser } from "../../db/types";
 
 export default function verify(token: string): APIGetAppUser | false {
   try {
-    const pubKey = fs.readFileSync(
-      "./src/scripts-server/jwt/generate-keypair/id_rsa_pub.pem",
-      { encoding: "utf8", flag: "r" }
+    const pubKey = Buffer.from(import.meta.env.PUBLIC_KEY, "base64").toString(
+      "utf8"
     );
 
     return jwt.verify(token, pubKey, {

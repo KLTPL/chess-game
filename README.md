@@ -62,7 +62,7 @@ If not you can head on to https://nodejs.org/en/download and download node.
 
 ### 3. Install postgresql
 
-Make sure you have the postgresql database installed on your local machine.
+If you want to develop localy, make sure you have the postgresql database installed on your local machine.
 
 If not you can head on to https://www.postgresql.org/download/.
 
@@ -92,11 +92,7 @@ Install node dependencies
 npm install
 ```
 
-### 7. Private key
-
-A private key is used to encrypt user data. Create the ./src/scripts-server/jwt/generate-keypair/id_rsa_priv.pem file and paste the key inside.
-
-### 8. Enviremental variables
+### 7. Enviremental variables
 
 The application needs a .env file in the root directory in order to work properly.
 
@@ -105,10 +101,20 @@ A template for your .env file (all required):
 ```
 POSTGRES_USER= # database user
 POSTGRES_PASSWORD= # database password
-POSTGRES_PORT= # database port
-POSTGRES_APP_DATABASE= # database database name
 POSTGRES_HOST= # database host
+POSTGRES_APP_DATABASE= # database database name
+PRIVATE_KEY= # the private key .pem file encoded in base 64
+PUBLIC_KEY= # the public key .pem file encoded in base 64
 ```
+
+The code for encoding both private and public key is in the /generate-keypair directory.
+Create id_rsa_priv.pem and id_rsa_pub.pem files in that directory and run the encodeKeys.mjs file.
+
+```bash
+node generate-keypair\encodeKeys.mjs
+```
+
+Converted keys will be printed to the console.
 
 ## Commands
 
