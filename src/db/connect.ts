@@ -3,11 +3,11 @@ import pg from "pg";
 const Pool = pg.Pool;
 
 const pool = new Pool({
-  user: import.meta.env.PSQL_USER,
-  password: import.meta.env.PSQL_PASSWORD,
-  host: import.meta.env.PSQL_HOST,
-  port: parseInt(import.meta.env.PSQL_PORT),
-  database: import.meta.env.PSQL_DATABASE,
+  user: import.meta.env.POSTGRES_USER,
+  password: import.meta.env.POSTGRES_PASSWORD,
+  host: import.meta.env.POSTGRES_HOST,
+  port: parseInt(import.meta.env.POSTGRES_PORT),
+  database: import.meta.env.POSTGRES_DATABASE,
   ssl: true,
 });
 

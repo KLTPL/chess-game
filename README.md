@@ -93,6 +93,7 @@ npm install
 ```
 
 ### 7. Private key
+
 A private key is used to encrypt user data. Create the ./src/scripts-server/jwt/generate-keypair/id_rsa_priv.pem file and paste the key inside.
 
 ### 8. Enviremental variables
@@ -102,11 +103,11 @@ The application needs a .env file in the root directory in order to work properl
 A template for your .env file (all required):
 
 ```
-PSQL_USER= # database user
-PSQL_PASSWORD= # database password
-PSQL_PORT= # database port
-PSQL_DATABASE= # database database name
-PSQL_HOST= # database host
+POSTGRES_USER= # database user
+POSTGRES_PASSWORD= # database password
+POSTGRES_PORT= # database port
+POSTGRES_DATABASE= # database database name
+POSTGRES_HOST= # database host
 PUBLIC_SERVER_URL= # server url used on the client
 ```
 
