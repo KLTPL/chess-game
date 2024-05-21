@@ -20,6 +20,7 @@ import {
 import MatchEnd from "./MatchEnd";
 import type { MoveStream } from "../../../../scripts-server/types";
 import FENNotation from "../model/FENNotation";
+import { showNewNotification } from "../../../../components/notifications/showNotification";
 
 export type Players = {
   white: Player;
@@ -93,8 +94,17 @@ export default class MatchController {
       const eventSource = new EventSource(
         `/api/online-game/${getOnlineGame.getDBGameData.game.display_id}/stream`
       );
+      console.log("START");
       eventSource.onmessage = (event: MessageEvent<string>) => {
+        showNewNotification("message", "succes");
         this.handleStreamMessage(JSON.parse(event.data));
+      };
+      eventSource.onerror = (ev) => {
+        console.log("ERROR");
+        showNewNotification("ERROR CONNECTING", "error");
+      };
+      eventSource.onopen = (ev) => {
+        showNewNotification("open");
       };
     }
   }
