@@ -14,6 +14,7 @@ export const GET: APIRoute = async ({ request, params }) => {
 
     const body = new ReadableStream({
       start(controller) {
+        console.log("ERROR START");
         const encoder = new TextEncoder();
 
         sendEventObj.current = function (data: MoveStream) {
@@ -29,6 +30,7 @@ export const GET: APIRoute = async ({ request, params }) => {
         });
       },
       cancel() {
+        console.log("CANCEL");
         OnlineGameController.getInstance(displayId).unsubscribe(sendEventObj);
       },
     });
@@ -36,7 +38,7 @@ export const GET: APIRoute = async ({ request, params }) => {
     return new Response(body, {
       headers: {
         "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
+        // "Cache-Control": "no-cache",
         Connection: "keep-alive",
       },
     });
