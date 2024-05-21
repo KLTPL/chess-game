@@ -94,13 +94,11 @@ export default class MatchController {
       const eventSource = new EventSource(
         `/api/online-game/${getOnlineGame.getDBGameData.game.display_id}/stream`
       );
-      console.log("START");
       eventSource.onmessage = (event: MessageEvent<string>) => {
         showNewNotification("message", "succes");
         this.handleStreamMessage(JSON.parse(event.data));
       };
       eventSource.onerror = (ev) => {
-        console.log("ERROR");
         showNewNotification("ERROR CONNECTING", "error");
       };
       eventSource.onopen = (ev) => {

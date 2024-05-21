@@ -1,10 +1,12 @@
 import type { APIRoute } from "astro";
 import OnlineGameController from "../../../../scripts-server/onlineGameController";
 import type { MoveStream } from "../../../../scripts-server/types";
+import { queryDB } from "../../../../db/connect";
 
 export const GET: APIRoute = async ({ request, params }) => {
   try {
     const displayId = params.display_id as string;
+    queryDB(`INSERT INTO test_time (text, "get start")`);
 
     const sendEventObj: {
       current: (data: MoveStream) => void;
@@ -14,7 +16,7 @@ export const GET: APIRoute = async ({ request, params }) => {
 
     const body = new ReadableStream({
       start(controller) {
-        console.log("ERROR START");
+        queryDB(`INSERT INTO test_time (text, "start")`);
         const encoder = new TextEncoder();
 
         sendEventObj.current = function (data: MoveStream) {
@@ -30,15 +32,16 @@ export const GET: APIRoute = async ({ request, params }) => {
         });
       },
       cancel() {
-        console.log("CANCEL");
+        queryDB(`INSERT INTO test_time (text, "cancel")`);
         OnlineGameController.getInstance(displayId).unsubscribe(sendEventObj);
       },
     });
 
+    queryDB(`INSERT INTO test_time (text, "before return")`);
     return new Response(body, {
       headers: {
         "Content-Type": "text/event-stream",
-        // "Cache-Control": "no-cache",
+        "Cache-Control": "no-cache",
         Connection: "keep-alive",
       },
     });
