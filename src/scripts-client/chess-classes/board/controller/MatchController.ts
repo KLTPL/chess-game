@@ -98,12 +98,12 @@ export default class MatchController {
         showNewNotification("message", "succes");
         this.handleStreamMessage(JSON.parse(event.data));
       };
-      eventSource.onerror = (ev) => {
-        showNewNotification("ERROR CONNECTING", "error");
-      };
-      eventSource.onopen = (ev) => {
-        showNewNotification("open");
-      };
+      // eventSource.onerror = (ev) => {
+      //   showNewNotification("ERROR CONNECTING", "error");
+      // };
+      // eventSource.onopen = (ev) => {
+      //   showNewNotification("open");
+      // };
     }
   }
 
