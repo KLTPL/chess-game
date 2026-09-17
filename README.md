@@ -46,25 +46,25 @@ Important (but not all) files and folders inside the project:
 └── tailwind.config.mjs
 ```
 
-## To run the project localy:
+## To run the project localy
 
 ### 1. Install git
 
 Make sure you have git installed on your local machine.
 
-If not you can head on to https://git-scm.com/downloads.
+If not you can head on to <https://git-scm.com/downloads>.
 
 ### 2. Install npm
 
 Make sure you have npm (node package manager) installed on your local machine.
 
-If not you can head on to https://nodejs.org/en/download and download node.
+If not you can head on to <https://nodejs.org/en/download> and download node.
 
 ### 3. Install postgresql
 
 If you want to develop localy, make sure you have the postgresql database installed on your local machine.
 
-If not you can head on to https://www.postgresql.org/download/.
+If not you can head on to <https://www.postgresql.org/download/>.
 
 ### 4. Create your local database
 
@@ -99,12 +99,13 @@ The application needs a .env file in the root directory in order to work properl
 A template for your .env file (all required):
 
 ```
-POSTGRES_USER= # database user
-POSTGRES_PASSWORD= # database password
-POSTGRES_HOST= # database host
-POSTGRES_APP_DATABASE= # database database name
-PRIVATE_KEY= # the private key .pem file encoded in base 64
-PUBLIC_KEY= # the public key .pem file encoded in base 64
+POSTGRES_USER=myuser
+POSTGRES_PASSWORD=mypassword
+POSTGRES_DB=nestjs_db
+
+PRIVATE_KEY=privkey # the private key .pem file encoded in base 64
+PUBLIC_KEY=pubkey  # the public key .pem file encoded in base 64
+
 ```
 
 The code for encoding both private and public key is in the /generate-keypair directory.
@@ -127,6 +128,6 @@ All commands are run from the root of the project, from a terminal:
 | `npm run build`   | Build your production site to `./dist/`      |
 | `npm run preview` | Preview your build locally, before deploying |
 
-## Hosting:
+## Hosting
 
-- the 2022 version hosted on firebase: https://chess-game-52e8e.web.app
+- the 2022 version hosted on firebase: <https://chess-game-52e8e.web.app>
