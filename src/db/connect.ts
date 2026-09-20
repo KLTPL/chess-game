@@ -9,7 +9,7 @@ const pool = new Pool({
   host: getSecret("POSTGRES_HOST"),
   port: parseInt(getSecret("POSTGRES_PORT") as string),
   database: getSecret("POSTGRES_APP_DATABASE"),
-  ssl: true,
+  ssl: getSecret("POSTGRES_SSL") !== "false",
 });
 
 pool.connect();
