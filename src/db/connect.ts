@@ -1,14 +1,15 @@
 import pg from "pg";
+import { getSecret } from "astro:env/server";
 
 const Pool = pg.Pool;
 
 const pool = new Pool({
-  user: import.meta.env.POSTGRES_USER,
-  password: import.meta.env.POSTGRES_PASSWORD,
-  host: import.meta.env.POSTGRES_HOST,
-  port: parseInt(import.meta.env.POSTGRES_PORT),
-  database: import.meta.env.POSTGRES_APP_DATABASE,
-  ssl: true,
+  user: getSecret("POSTGRES_USER"),
+  password: getSecret("POSTGRES_PASSWORD"),
+  host: getSecret("POSTGRES_HOST"),
+  port: parseInt(getSecret("POSTGRES_PORT") as string),
+  database: getSecret("POSTGRES_APP_DATABASE"),
+  ssl: getSecret("POSTGRES_SSL") !== "false",
 });
 
 pool.connect();

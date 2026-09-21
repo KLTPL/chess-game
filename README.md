@@ -1,132 +1,61 @@
 # chess-game
 
-My chess game created in 2022 (client game)
+My chess game created in 2022 (client game) and updated in 2024 (back-end, api routes, login system, language system, online games, game invitations etc.)
 
-and updated in 2024 (back-end, api routes, login system, language system, online games, game invitations etc.)
+## 🛠️ Tech Stack
 
-## Technologies Used
+- **TypeScript** everywhere — board logic, API routes, all of it
+- **Astro** running the whole show: SSR pages, API endpoints, middleware
+- **React** islands for the interactive bits — board, auth forms, live game lists
+- **PostgreSQL** holding games, moves, users, and translations
+- **Server-Sent Events** streaming moves in real time between opponents
+- **JWT (RS256)** auth, **Tailwind CSS** for styling, **pnpm** keeping installs sane
 
-- **Main Language**: Typescript
-- **Bundler**: Astro
-- **Main front-end framework**: React
-- **Database**: Postgresql
+## 📋 Requirements
 
-## Project Structure
+- Git
+- Node.js 24.x
+- pnpm ≥9.0.0 (`.npmrc` enforces this; npm/yarn are blocked)
+- Docker (for a local Postgres database)
 
-Important (but not all) files and folders inside the project:
+## 🚀 Setup
 
-```text
-/
-├── postgresql/
-│   └── main.sql
-├── public/
-├── src/
-│   ├──components/
-│   ├── db/
-│   ├── images/
-│   ├── layouts/
-│   ├── middleware/
-│   ├── pages/
-│   │   ├── api/
-│   │   ├── game-invite/
-│   │   ├── online-game/
-│   │   └── index.astro
-│   ├── scripts/
-│   │   ├── chess-classes/
-│   │   │   ├── board/
-│   │   │   └── pieces/
-│   │   ├── initLocalGame.ts
-│   │   └── initOnlineGame.ts
-│   ├── styles/
-│   │   └── Board.css
-│   └── utils/
-├── .prettierrc
-├── package.json
-├── astro.config.mjs
-└── tailwind.config.mjs
-```
+1. Clone the project and install dependencies:
 
-## To run the project localy:
+   ```bash
+   git clone https://github.com/KLTPL/chess-game
+   cd chess-game
+   pnpm install
+   ```
 
-### 1. Install git
+2. Create a `.env` file in the root:
 
-Make sure you have git installed on your local machine.
+   ```
+   POSTGRES_USER=myuser
+   POSTGRES_PASSWORD=mypassword
+   POSTGRES_HOST=localhost
+   POSTGRES_PORT=5432
+   POSTGRES_APP_DATABASE=nestjs_db
+   POSTGRES_SSL=false
 
-If not you can head on to https://git-scm.com/downloads.
+   PRIVATE_KEY=privkey # the private key .pem file encoded in base 64
+   PUBLIC_KEY=pubkey  # the public key .pem file encoded in base 64
+   ```
 
-### 2. Install npm
+   To generate the keys: put `id_rsa_priv.pem`/`id_rsa_pub.pem` in `/generate-keypair`, then run `node generate-keypair/encodeKeys.mjs` and paste the printed output into `.env`.
 
-Make sure you have npm (node package manager) installed on your local machine.
+3. Start Postgres and load the schema:
 
-If not you can head on to https://nodejs.org/en/download and download node.
+   ```bash
+   docker compose up -d
+   ```
 
-### 3. Install postgresql
+   Then run `/postgresql/main.sql` and `/postgresql/languages.sql` against the database.
 
-If you want to develop localy, make sure you have the postgresql database installed on your local machine.
+## ⚡ Commands
 
-If not you can head on to https://www.postgresql.org/download/.
-
-### 4. Create your local database
-
-After configuring the postgresql installation create a database for the project and insert all tables from the /postgresql/main.sql and /postgresql/languages.sql files.
-
-### 5. Clone the project
-
-Run this command in your terminal in the directory where you want the project to go to.
-
-```bash
-git clone https://github.com/KLTPL/chess-game
-```
-
-### 6. Install dependencies
-
-Enter the newly created folder
-
-```bash
-cd chess-game
-```
-
-Install node dependencies
-
-```bash
-npm install
-```
-
-### 7. Enviremental variables
-
-The application needs a .env file in the root directory in order to work properly.
-
-A template for your .env file (all required):
-
-```
-POSTGRES_USER= # database user
-POSTGRES_PASSWORD= # database password
-POSTGRES_HOST= # database host
-POSTGRES_APP_DATABASE= # database database name
-PRIVATE_KEY= # the private key .pem file encoded in base 64
-PUBLIC_KEY= # the public key .pem file encoded in base 64
-```
-
-The code for encoding both private and public key is in the /generate-keypair directory.
-Create id_rsa_priv.pem and id_rsa_pub.pem files in that directory and run the encodeKeys.mjs file.
-
-```bash
-node generate-keypair\encodeKeys.mjs
-```
-
-Converted keys will be printed to the console.
-
-## Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command           | Action                                       |
-| :---------------- | :------------------------------------------- |
-| `npm install`     | Installs dependencies                        |
-| `npm run dev`     | Starts local dev server at `localhost:4321`  |
-| `npm run build`   | Build your production site to `./dist/`      |
-| `npm run preview` | Preview your build locally, before deploying |
-
-## Hosting:
-
-- the 2022 version hosted on firebase: https://chess-game-52e8e.web.app
+| Command            | Action                                       |
+| :----------------- | :-------------------------------------------- |
+| `pnpm run dev`     | Starts local dev server at `localhost:4321`  |
+| `pnpm run build`   | Build your production site to `./dist/`      |
+| `pnpm run preview` | Preview your build locally, before deploying |
